@@ -19,21 +19,21 @@ export function QuantityStepper({
 }: QuantityStepperProps) {
   const sizeStyles = {
     sm: {
-      container: 'h-8 px-1.5 rounded-full',
-      button: 'h-6 w-6 text-xs rounded-full',
-      text: 'text-xs w-6',
+      container: 'h-8 px-1 rounded-lg',
+      button: 'h-6 w-6 text-xs rounded-md',
+      text: 'text-xs w-6 font-medium',
       icon: 'h-3 w-3',
     },
     md: {
-      container: 'h-9 px-2 rounded-full',
-      button: 'h-7 w-7 text-sm rounded-full',
-      text: 'text-sm w-8 font-semibold',
+      container: 'h-9 px-1 rounded-xl',
+      button: 'h-7 w-7 text-sm rounded-lg',
+      text: 'text-sm w-7 font-semibold',
       icon: 'h-3.5 w-3.5',
     },
     lg: {
-      container: 'h-11 px-2.5 rounded-full',
-      button: 'h-8 w-8 text-base rounded-full',
-      text: 'text-base w-10 font-bold',
+      container: 'h-11 px-1.5 rounded-xl',
+      button: 'h-8 w-8 text-base rounded-lg',
+      text: 'text-base w-8 font-semibold',
       icon: 'h-4 w-4',
     },
   };
@@ -42,12 +42,12 @@ export function QuantityStepper({
 
   return (
     <div
-      className={`inline-flex items-center justify-between bg-muted/80 border border-border/80 shadow-inner ${style.container} ${className}`}
+      className={`inline-flex items-center justify-between bg-muted border border-border ${style.container} ${className}`}
     >
       <button
         type="button"
         onClick={onDecrement}
-        className={`flex items-center justify-center bg-card text-foreground hover:bg-card/80 active:scale-95 transition-all shadow-xs cursor-pointer ${style.button}`}
+        className={`flex items-center justify-center bg-card text-foreground hover:bg-card-muted active:scale-95 transition-all shadow-xs cursor-pointer ${style.button}`}
         aria-label="Decrease quantity"
       >
         <Minus className={style.icon} />
@@ -61,7 +61,7 @@ export function QuantityStepper({
         type="button"
         onClick={onIncrement}
         disabled={quantity >= maxStock}
-        className={`flex items-center justify-center bg-card text-foreground hover:bg-card/80 active:scale-95 transition-all shadow-xs disabled:opacity-40 disabled:pointer-events-none cursor-pointer ${style.button}`}
+        className={`flex items-center justify-center bg-card text-foreground hover:bg-card-muted active:scale-95 transition-all shadow-xs disabled:opacity-30 disabled:pointer-events-none cursor-pointer ${style.button}`}
         aria-label="Increase quantity"
       >
         <Plus className={style.icon} />

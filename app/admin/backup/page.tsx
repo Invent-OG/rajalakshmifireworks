@@ -24,24 +24,24 @@ export default function AdminBackupPage() {
   };
 
   return (
-    <div className="max-w-3xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Data Backup & Safeguards</h1>
-        <p className="text-sm text-muted-foreground">
-          Safeguard your catalog, order history, and customer database
+    <div className="max-w-3xl space-y-6 animate-fade-in">
+      <div className="pb-4 border-b border-border">
+        <h1 className="text-2xl font-bold text-foreground tracking-tight">Data Backup</h1>
+        <p className="text-xs text-muted-foreground mt-0.5">
+          Safeguard your catalog, order history, and customer database.
         </p>
       </div>
 
-      <div className="bg-card rounded-xl border border-border p-6 space-y-6">
+      <div className="bg-card rounded-2xl border border-border p-6 space-y-6">
         <div className="flex items-start gap-4">
-          <div className="h-12 w-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
-            <Database className="h-6 w-6" />
+          <div className="h-10 w-10 rounded-xl bg-muted text-foreground-secondary flex items-center justify-center shrink-0 border border-border">
+            <Database className="h-5 w-5" />
           </div>
           <div className="space-y-1">
-            <h2 className="text-base font-semibold">Application-Level Data Export</h2>
+            <h2 className="text-sm font-semibold text-foreground">Complete System Snapshot</h2>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Downloads a complete structured JSON archive including all active categories,
-              products, stock counts, customer directory, order snapshots, and application settings.
+              Downloads a structured JSON archive containing active categories,
+              products, stock balances, customers, order snapshots, and settings.
             </p>
           </div>
         </div>
@@ -49,11 +49,11 @@ export default function AdminBackupPage() {
         <div className="border-t border-border pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="text-xs text-muted-foreground space-y-1">
             <div className="flex items-center gap-1.5">
-              <ShieldCheck className="h-4 w-4 text-emerald-600" />
-              <span>Safe export — sensitive database credentials are excluded.</span>
+              <ShieldCheck className="h-4 w-4 text-emerald-700" />
+              <span>Safe export — sensitive database credentials excluded.</span>
             </div>
             {lastBackupTime && (
-              <div className="flex items-center gap-1.5 text-primary font-medium">
+              <div className="flex items-center gap-1.5 text-muted-foreground">
                 <Clock className="h-4 w-4" />
                 <span>Last exported: {lastBackupTime}</span>
               </div>
@@ -63,9 +63,11 @@ export default function AdminBackupPage() {
           <Button
             onClick={handleDownloadBackup}
             loading={downloading}
-            className="shrink-0"
+            variant="primary"
+            size="md"
+            className="shrink-0 font-medium text-xs"
           >
-            <Download className="h-4 w-4" /> Download Complete Backup
+            <Download className="h-4 w-4" /> Download Backup JSON
           </Button>
         </div>
       </div>

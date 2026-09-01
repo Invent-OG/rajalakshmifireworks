@@ -26,8 +26,8 @@ export function buildWhatsAppMessage(order: WhatsAppOrderData): string {
   const storeName = APP_CONFIG.STORE_NAME;
   const lines: string[] = [];
 
-  lines.push(`🎆 *${storeName}*`);
-  lines.push(`📋 *Order Confirmation*`);
+  lines.push(`*${storeName}*`);
+  lines.push(`*Order Confirmation*`);
   lines.push(`━━━━━━━━━━━━━━━━`);
   lines.push(`*Invoice:* ${order.invoiceNumber}`);
   lines.push(`*Customer:* ${order.customerName}`);
@@ -35,7 +35,7 @@ export function buildWhatsAppMessage(order: WhatsAppOrderData): string {
   lines.push(`*Items:*`);
 
   for (const item of order.items) {
-    lines.push(`▸ ${item.name} × ${item.quantity} — ${formatCurrency(item.price * item.quantity)}`);
+    lines.push(`• ${item.name} × ${item.quantity} — ${formatCurrency(item.price * item.quantity)}`);
   }
 
   lines.push(``);
@@ -50,16 +50,16 @@ export function buildWhatsAppMessage(order: WhatsAppOrderData): string {
     lines.push(`*Delivery:* ${order.deliveryCharge > 0 ? formatCurrency(order.deliveryCharge) : 'FREE'}`);
   }
 
-  lines.push(`*Total:* ${formatCurrency(order.totalAmount)}`);
+  lines.push(`*Total Amount:* ${formatCurrency(order.totalAmount)}`);
   lines.push(``);
-  lines.push(`*Fulfillment:* ${order.fulfillmentType === 'DELIVERY' ? '🚚 Home Delivery' : '🏪 Shop Pickup'}`);
+  lines.push(`*Fulfillment:* ${order.fulfillmentType === 'DELIVERY' ? 'Doorstep Delivery' : 'Store Counter Pickup'}`);
 
   if (order.fulfillmentType === 'DELIVERY' && order.address) {
     lines.push(`*Address:* ${order.address.address}, ${order.address.city} - ${order.address.pincode}`);
   }
 
   lines.push(``);
-  lines.push(`Please confirm this order. Thank you! 🙏`);
+  lines.push(`Please confirm this order. Thank you.`);
 
   return lines.join('\n');
 }

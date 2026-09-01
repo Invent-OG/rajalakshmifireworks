@@ -1,12 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { ShoppingCart } from 'lucide-react';
 import { useCart, useCartItemQuantity } from '@/hooks/use-cart';
 import { toNumber } from '@/lib/utils/format';
-import { Button } from '@/components/ui/button';
+import { StoreButton } from '@/components/ui/store-button';
+import { AddToBagButton } from '@/components/ui/add-to-bag-button';
 import { PriceDisplay } from '@/components/ui/price-display';
 import { QuantityStepper } from '@/components/ui/quantity-stepper';
+import { ProductVisualPlaceholder } from '@/components/ui/category-icon';
 import { toast } from 'sonner';
 
 interface ProductCardProps {
@@ -41,52 +42,50 @@ export function ProductCard({ product }: ProductCardProps) {
       maxStock: product.stockQuantity,
       quantity: 1,
     });
-    toast.success(`${product.name} added to cart`, {
-      description: 'Proceed to checkout or continue shopping.',
-    });
+    toast.success(`${product.name} added to cart`);
   }
 
   return (
-    <div className="group relative flex flex-col justify-between rounded-3xl bg-card border border-border/80 overflow-hidden luxury-card hover:border-primary/30 transition-all duration-300 p-2.5 sm:p-3">
+    <div className="group relative flex flex-col justify-between rounded-2xl bg-card border border-border overflow-hidden transition-all duration-200 hover:border-neutral-300 hover:shadow-xs p-3">
       {/* Top Image Showcase */}
       <Link
         href={`/product/${product.slug}`}
-        className="block relative aspect-4/3 sm:aspect-square overflow-hidden rounded-2xl bg-gradient-to-b from-muted/50 to-muted/20"
+        className="block relative aspect-square overflow-hidden rounded-xl bg-muted/30"
       >
-        <div className="w-full h-full flex items-center justify-center text-5xl sm:text-6xl group-hover:scale-110 transition-transform duration-500 ease-out select-none">
+        <div className="w-full h-full flex items-center justify-center select-none">
           {imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={imageUrl}
               alt={product.name}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ease-out"
             />
           ) : (
-            getCategoryVisual(product.category?.name || product.name)
+            <ProductVisualPlaceholder name={product.category?.name || product.name} />
           )}
         </div>
 
-        {/* Stock status overlay */}
+        {/* Out of Stock Overlay */}
         {isOutOfStock && (
-          <div className="absolute inset-0 bg-background/80 backdrop-blur-xs flex items-center justify-center">
-            <span className="bg-destructive text-destructive-foreground text-xs font-bold px-3 py-1.5 rounded-full shadow-md">
-              Sold Out
+          <div className="absolute inset-0 bg-background/80 backdrop-blur-xs flex items-center justify-center p-2">
+            <span className="bg-foreground text-background text-xs font-semibold px-3 py-1 rounded-full shadow-xs">
+              Out of stock
             </span>
           </div>
         )}
       </Link>
 
       {/* Content Details */}
-      <div className="p-3.5 sm:p-4 flex flex-col flex-1 justify-between space-y-3">
-        <div className="space-y-1.5">
+      <div className="pt-3 flex flex-col flex-1 justify-between space-y-3">
+        <div className="space-y-1">
           {product.category && (
-            <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
+            <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">
               {product.category.name}
             </p>
           )}
 
-          <Link href={`/product/${product.slug}`} className="block group-hover:text-primary transition-colors">
-            <h3 className="font-semibold text-sm sm:text-base text-foreground leading-snug line-clamp-2">
+          <Link href={`/product/${product.slug}`} className="block">
+            <h3 className="font-medium text-sm sm:text-base text-foreground leading-snug line-clamp-2 hover:text-brand transition-colors">
               {product.name}
             </h3>
           </Link>
@@ -103,9 +102,9 @@ export function ProductCard({ product }: ProductCardProps) {
         {/* Action Bottom Area */}
         <div className="pt-2">
           {isOutOfStock ? (
-            <Button variant="outline" size="sm" className="w-full opacity-60 cursor-not-allowed" disabled>
-              Out of Stock
-            </Button>
+            <StoreButton variant="outline" size="sm" className="w-full opacity-50 cursor-not-allowed" disabled>
+              Sold Out
+            </StoreButton>
           ) : quantity > 0 ? (
             <div className="flex items-center justify-between gap-2">
               <QuantityStepper
@@ -118,37 +117,15 @@ export function ProductCard({ product }: ProductCardProps) {
               />
             </div>
           ) : (
-            <Button
-              size="md"
-              variant="primary"
-              className="w-full font-semibold"
+            <AddToBagButton
+              className="w-full"
               onClick={handleAddToCart}
             >
-              <ShoppingCart className="h-4 w-4" />
-              Add to Cart
-            </Button>
-          )}
-
-          {!isOutOfStock && product.stockQuantity <= 10 && (
-            <p className="text-[11px] font-semibold text-amber-600 dark:text-amber-400 mt-1.5 text-center">
-              ⚡ Only {product.stockQuantity} items left
-            </p>
+              Add to bag
+            </AddToBagButton>
           )}
         </div>
       </div>
     </div>
   );
-}
-
-function getCategoryVisual(name: string): string {
-  const lower = name.toLowerCase();
-  if (lower.includes('sparkler')) return '✨';
-  if (lower.includes('flower') || lower.includes('pot')) return '🌸';
-  if (lower.includes('rocket')) return '🚀';
-  if (lower.includes('chakra') || lower.includes('wheel')) return '🎡';
-  if (lower.includes('fountain') || lower.includes('cone')) return '⛲';
-  if (lower.includes('sound') || lower.includes('bomb') || lower.includes('wala')) return '💥';
-  if (lower.includes('gift') || lower.includes('box')) return '🎁';
-  if (lower.includes('family') || lower.includes('pack')) return '🎉';
-  return '🎆';
 }

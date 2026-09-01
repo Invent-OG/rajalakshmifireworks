@@ -1,5 +1,5 @@
 import { Sparkles } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { StoreButton } from '@/components/ui/store-button';
 import Link from 'next/link';
 
 interface EmptyStateProps {
@@ -23,28 +23,28 @@ export function EmptyState({
 }: EmptyStateProps) {
   return (
     <div
-      className={`text-center py-16 px-6 bg-card/60 rounded-3xl border border-border/80 max-w-lg mx-auto luxury-card animate-fade-in ${className}`}
+      className={`text-center py-16 px-6 bg-card rounded-2xl border border-border max-w-md mx-auto animate-fade-in ${className}`}
     >
-      <div className="h-16 w-16 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto mb-4 border border-amber-500/20">
-        <Icon className="h-8 w-8" />
+      <div className="h-12 w-12 rounded-xl bg-muted text-foreground-secondary flex items-center justify-center mx-auto mb-4 border border-border">
+        <Icon className="h-6 w-6" />
       </div>
-      <h3 className="text-xl font-bold text-foreground mb-2">{title}</h3>
-      <p className="text-sm text-muted-foreground leading-relaxed mb-6 max-w-sm mx-auto">
+      <h3 className="text-base font-semibold text-foreground mb-1.5">{title}</h3>
+      <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed mb-5 max-w-xs mx-auto">
         {description}
       </p>
 
       {actionLabel && actionHref && (
         <Link href={actionHref}>
-          <Button size="md" variant="primary">
+          <StoreButton size="md" variant="primary">
             {actionLabel}
-          </Button>
+          </StoreButton>
         </Link>
       )}
 
       {actionLabel && !actionHref && onAction && (
-        <Button size="md" variant="primary" onClick={onAction}>
+        <StoreButton size="md" variant="primary" onClick={onAction}>
           {actionLabel}
-        </Button>
+        </StoreButton>
       )}
     </div>
   );

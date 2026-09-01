@@ -99,10 +99,10 @@ export default function AdminCategoriesPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border/80">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
         <div>
-          <h1 className="text-2xl font-extrabold text-foreground tracking-tight">
-            Categories & Collections
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">
+            Categories
           </h1>
           <p className="text-xs text-muted-foreground mt-0.5">
             Organize fireworks into sparklers, ground spinners, rockets, and gift combos.
@@ -112,7 +112,7 @@ export default function AdminCategoriesPage() {
         <Button
           variant="primary"
           size="md"
-          className="font-bold text-xs shadow-md shadow-orange-500/25 self-start sm:self-auto"
+          className="font-medium text-xs self-start sm:self-auto"
           onClick={handleOpenAdd}
         >
           <Plus className="h-4 w-4" /> Add Category
@@ -123,58 +123,58 @@ export default function AdminCategoriesPage() {
       {isLoading ? (
         <div className="space-y-3">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-16 rounded-2xl" />
+            <Skeleton key={i} className="h-14 rounded-xl" />
           ))}
         </div>
       ) : categories.length > 0 ? (
-        <div className="rounded-3xl bg-card border border-border/80 luxury-card overflow-hidden">
+        <div className="rounded-2xl bg-card border border-border overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs sm:text-sm">
-              <thead className="bg-muted/40 text-muted-foreground border-b border-border/60 text-[11px] uppercase tracking-wider font-bold">
+              <thead className="bg-muted/40 text-muted-foreground border-b border-border text-[11px] uppercase tracking-wider font-semibold">
                 <tr>
-                  <th className="px-5 py-3.5">Sort #</th>
-                  <th className="px-5 py-3.5">Category Name</th>
-                  <th className="px-5 py-3.5">URL Slug</th>
-                  <th className="px-5 py-3.5">Total Products</th>
-                  <th className="px-5 py-3.5">Visibility</th>
-                  <th className="px-5 py-3.5 text-right">Actions</th>
+                  <th className="px-5 py-3">Sort #</th>
+                  <th className="px-5 py-3">Category Name</th>
+                  <th className="px-5 py-3">URL Slug</th>
+                  <th className="px-5 py-3">Products</th>
+                  <th className="px-5 py-3">Status</th>
+                  <th className="px-5 py-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border/60">
+              <tbody className="divide-y divide-border">
                 {categories.map((cat: CategoryItem) => (
                   <tr key={cat.id} className="hover:bg-muted/30 transition-colors">
-                    <td className="px-5 py-4 font-mono font-bold text-muted-foreground">
+                    <td className="px-5 py-3.5 font-mono font-medium text-muted-foreground">
                       #{cat.sortOrder}
                     </td>
-                    <td className="px-5 py-4">
-                      <p className="font-bold text-foreground">{cat.name}</p>
+                    <td className="px-5 py-3.5">
+                      <p className="font-medium text-foreground">{cat.name}</p>
                       {cat.description && (
                         <p className="text-[11px] text-muted-foreground line-clamp-1">
                           {cat.description}
                         </p>
                       )}
                     </td>
-                    <td className="px-5 py-4 font-mono text-xs text-muted-foreground">
+                    <td className="px-5 py-3.5 font-mono text-xs text-muted-foreground">
                       /{cat.slug}
                     </td>
-                    <td className="px-5 py-4">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-muted text-foreground">
+                    <td className="px-5 py-3.5">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-muted text-foreground">
                         {cat.productCount} items
                       </span>
                     </td>
-                    <td className="px-5 py-4">
+                    <td className="px-5 py-3.5">
                       <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                           cat.isActive
-                            ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20'
+                            ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
                             : 'bg-muted text-muted-foreground'
                         }`}
                       >
                         {cat.isActive ? 'Active' : 'Disabled'}
                       </span>
                     </td>
-                    <td className="px-5 py-4 text-right">
-                      <div className="flex items-center justify-end gap-1.5">
+                    <td className="px-5 py-3.5 text-right">
+                      <div className="flex items-center justify-end gap-1">
                         <Button
                           variant="ghost"
                           size="icon-sm"
@@ -190,7 +190,7 @@ export default function AdminCategoriesPage() {
                           onClick={() => {
                             if (
                               confirm(
-                                `Are you sure you want to delete or disable category "${cat.name}"?`
+                                `Are you sure you want to delete category "${cat.name}"?`
                               )
                             ) {
                               deleteMutation.mutate(cat.id);
@@ -208,9 +208,9 @@ export default function AdminCategoriesPage() {
           </div>
         </div>
       ) : (
-        <div className="text-center py-16 bg-card rounded-3xl border border-border/80 p-8 luxury-card">
-          <FolderTree className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-          <p className="font-bold text-foreground">No categories created yet</p>
+        <div className="text-center py-16 bg-card rounded-2xl border border-border p-8">
+          <FolderTree className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+          <p className="font-semibold text-foreground">No categories created yet</p>
           <p className="text-xs text-muted-foreground mt-1">
             Click &ldquo;Add Category&rdquo; to build your catalog tree.
           </p>
@@ -219,10 +219,10 @@ export default function AdminCategoriesPage() {
 
       {/* Modal Dialog for Category Edit/Create */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in">
-          <div className="bg-card rounded-3xl border border-border max-w-md w-full p-6 sm:p-8 space-y-5 shadow-2xl luxury-card">
-            <div className="flex items-center justify-between pb-3 border-b border-border/60">
-              <h2 className="font-extrabold text-base sm:text-lg text-foreground tracking-tight">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4 animate-fade-in">
+          <div className="bg-card rounded-2xl border border-border max-w-md w-full p-6 sm:p-7 space-y-5 shadow-lg">
+            <div className="flex items-center justify-between pb-3 border-b border-border">
+              <h2 className="font-bold text-base text-foreground tracking-tight">
                 {editingCategory ? 'Edit Category' : 'Create Category'}
               </h2>
             </div>
@@ -230,7 +230,7 @@ export default function AdminCategoriesPage() {
             <div className="space-y-4">
               <Input
                 label="Category Name *"
-                placeholder="e.g. Sparklers & Bengal Lights"
+                placeholder="e.g. Sparklers"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
@@ -252,31 +252,31 @@ export default function AdminCategoriesPage() {
                   onChange={(e) => setSortOrder(parseInt(e.target.value) || 0)}
                 />
 
-                <label className="flex items-center gap-2.5 pt-5 cursor-pointer">
+                <label className="flex items-center gap-2 pt-4 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={isActive}
                     onChange={(e) => setIsActive(e.target.checked)}
-                    className="rounded text-primary h-4 w-4"
+                    className="rounded text-brand h-4 w-4"
                   />
-                  <span className="text-xs font-bold text-foreground">Active in Store</span>
+                  <span className="text-xs font-medium text-foreground">Active in Store</span>
                 </label>
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-border/60">
+            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-border">
               <Button variant="outline" size="md" onClick={() => setIsModalOpen(false)}>
                 Cancel
               </Button>
               <Button
                 size="md"
                 variant="primary"
-                className="font-bold shadow-sm"
+                className="font-medium"
                 onClick={() => saveMutation.mutate()}
                 loading={saveMutation.isPending}
                 disabled={!name.trim()}
               >
-                Save Category
+                Save category
               </Button>
             </div>
           </div>

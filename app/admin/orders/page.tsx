@@ -53,31 +53,31 @@ export default function AdminOrdersPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Top Title Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-border/80">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-border">
         <div>
-          <h1 className="text-2xl font-extrabold text-foreground tracking-tight">Order Management</h1>
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">Orders</h1>
           <p className="text-xs text-muted-foreground mt-0.5">
             View, filter, and progress all customer firework order consignments.
           </p>
         </div>
-        <div className="px-3 py-1 rounded-full bg-card border border-border text-xs font-bold text-muted-foreground self-start sm:self-auto shadow-xs">
-          {pagination.total} Total Orders
+        <div className="px-3 py-1 rounded-full bg-card border border-border text-xs font-medium text-muted-foreground self-start sm:self-auto">
+          {pagination.total} orders total
         </div>
       </div>
 
-      {/* Modern Filter Toolbar */}
-      <div className="flex flex-wrap items-center gap-3 p-3.5 rounded-2xl bg-card border border-border/80 luxury-card shadow-xs">
+      {/* Filter Toolbar */}
+      <div className="flex flex-wrap items-center gap-3 p-3 rounded-xl bg-card border border-border">
         <div className="relative flex-1 min-w-[220px]">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Search by invoice, customer name, mobile..."
+            placeholder="Search by invoice, customer, mobile..."
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
               setPage(1);
             }}
-            className="w-full h-10 pl-10 pr-3.5 rounded-xl border border-border bg-muted/40 text-xs font-medium text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+            className="w-full h-10 pl-9 pr-3 rounded-lg border border-border bg-muted/30 text-xs font-medium text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand transition-all"
           />
         </div>
 
@@ -87,13 +87,13 @@ export default function AdminOrdersPage() {
             setStatus(e.target.value);
             setPage(1);
           }}
-          className="h-10 px-3.5 rounded-xl border border-border bg-muted/40 text-xs font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 cursor-pointer"
+          className="h-10 px-3 rounded-lg border border-border bg-card text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 cursor-pointer"
         >
           <option value="">All Statuses</option>
           <option value="PENDING">Pending</option>
           <option value="CONFIRMED">Confirmed</option>
           <option value="PROCESSING">Processing</option>
-          <option value="READY">Ready for Dispatch</option>
+          <option value="READY">Ready</option>
           <option value="OUT_FOR_DELIVERY">Out for Delivery</option>
           <option value="COMPLETED">Completed</option>
           <option value="CANCELLED">Cancelled</option>
@@ -105,11 +105,11 @@ export default function AdminOrdersPage() {
             setFulfillment(e.target.value);
             setPage(1);
           }}
-          className="h-10 px-3.5 rounded-xl border border-border bg-muted/40 text-xs font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 cursor-pointer"
+          className="h-10 px-3 rounded-lg border border-border bg-card text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 cursor-pointer"
         >
           <option value="">All Fulfillment</option>
-          <option value="DELIVERY">🚚 Doorstep Delivery</option>
-          <option value="PICKUP">🏪 Store Pickup</option>
+          <option value="DELIVERY">Doorstep Delivery</option>
+          <option value="PICKUP">Store Pickup</option>
         </select>
       </div>
 
@@ -117,73 +117,73 @@ export default function AdminOrdersPage() {
       {isLoading ? (
         <div className="space-y-3">
           {Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={i} className="h-16 rounded-2xl" />
+            <Skeleton key={i} className="h-14 rounded-xl" />
           ))}
         </div>
       ) : orders.length > 0 ? (
-        <div className="rounded-3xl bg-card border border-border/80 luxury-card overflow-hidden">
+        <div className="rounded-2xl bg-card border border-border overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs sm:text-sm">
-              <thead className="bg-muted/40 text-muted-foreground border-b border-border/60 text-[11px] uppercase tracking-wider font-bold">
+              <thead className="bg-muted/40 text-muted-foreground border-b border-border text-[11px] uppercase tracking-wider font-semibold">
                 <tr>
-                  <th className="px-5 py-3.5">Invoice</th>
-                  <th className="px-5 py-3.5">Customer Details</th>
-                  <th className="px-5 py-3.5">Items</th>
-                  <th className="px-5 py-3.5">Total Amount</th>
-                  <th className="px-5 py-3.5">Method</th>
-                  <th className="px-5 py-3.5">Status</th>
-                  <th className="px-5 py-3.5">Date Placed</th>
-                  <th className="px-5 py-3.5 text-right">Inspect</th>
+                  <th className="px-5 py-3">Invoice</th>
+                  <th className="px-5 py-3">Customer</th>
+                  <th className="px-5 py-3">Items</th>
+                  <th className="px-5 py-3 text-right">Total Amount</th>
+                  <th className="px-5 py-3">Fulfillment</th>
+                  <th className="px-5 py-3">Status</th>
+                  <th className="px-5 py-3">Date</th>
+                  <th className="px-5 py-3 text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border/60">
+              <tbody className="divide-y divide-border">
                 {orders.map((order: AdminOrderListItem) => (
                   <tr key={order.id} className="hover:bg-muted/30 transition-colors">
-                    <td className="px-5 py-4 font-mono font-bold text-foreground">
+                    <td className="px-5 py-3.5 font-mono font-medium text-foreground">
                       <Link
                         href={`/admin/orders/${order.id}`}
-                        className="text-primary hover:underline"
+                        className="hover:underline"
                       >
                         {order.invoiceNumber}
                       </Link>
                     </td>
-                    <td className="px-5 py-4">
-                      <p className="font-bold text-foreground">{order.customerNameSnapshot}</p>
+                    <td className="px-5 py-3.5">
+                      <p className="font-medium text-foreground">{order.customerNameSnapshot}</p>
                       <p className="text-[11px] font-mono text-muted-foreground">
                         {order.customerMobileSnapshot}
                       </p>
                     </td>
-                    <td className="px-5 py-4 text-muted-foreground font-medium">
+                    <td className="px-5 py-3.5 text-muted-foreground">
                       {order.items?.length ?? 0} items
                     </td>
-                    <td className="px-5 py-4 font-black text-foreground">
+                    <td className="px-5 py-3.5 font-semibold text-foreground text-right">
                       {formatCurrency(order.totalAmount)}
                     </td>
-                    <td className="px-5 py-4">
-                      <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-lg bg-muted text-foreground">
+                    <td className="px-5 py-3.5">
+                      <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2 py-0.5 rounded-md bg-muted text-foreground">
                         {order.fulfillmentType === 'DELIVERY' ? (
                           <>
-                            <Truck className="h-3.5 w-3.5 text-primary" /> Delivery
+                            <Truck className="h-3 w-3 text-muted-foreground" /> Delivery
                           </>
                         ) : (
                           <>
-                            <Store className="h-3.5 w-3.5 text-primary" /> Pickup
+                            <Store className="h-3 w-3 text-muted-foreground" /> Pickup
                           </>
                         )}
                       </span>
                     </td>
-                    <td className="px-5 py-4">
+                    <td className="px-5 py-3.5">
                       <StatusBadge status={order.orderStatus} />
                     </td>
-                    <td className="px-5 py-4 text-xs text-muted-foreground whitespace-nowrap">
+                    <td className="px-5 py-3.5 text-xs text-muted-foreground whitespace-nowrap">
                       {formatDateTime(order.placedAt)}
                     </td>
-                    <td className="px-5 py-4 text-right">
+                    <td className="px-5 py-3.5 text-right">
                       <Link
                         href={`/admin/orders/${order.id}`}
-                        className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline"
+                        className="inline-flex items-center gap-1 text-xs font-medium text-foreground hover:underline"
                       >
-                        Details <ArrowUpRight className="h-3.5 w-3.5" />
+                        Inspect <ArrowUpRight className="h-3 w-3 text-muted-foreground" />
                       </Link>
                     </td>
                   </tr>
@@ -193,8 +193,8 @@ export default function AdminOrdersPage() {
           </div>
         </div>
       ) : (
-        <div className="text-center py-16 bg-card rounded-3xl border border-border/80 p-8 luxury-card">
-          <p className="text-base font-bold text-foreground">No matching orders found</p>
+        <div className="text-center py-16 bg-card rounded-2xl border border-border p-8">
+          <p className="text-sm font-semibold text-foreground">No matching orders found</p>
           <p className="text-xs text-muted-foreground mt-1">
             Try adjusting your search criteria or filter tags.
           </p>
@@ -204,7 +204,7 @@ export default function AdminOrdersPage() {
       {/* Pagination Bar */}
       {pagination.totalPages > 1 && (
         <div className="flex items-center justify-between pt-2">
-          <p className="text-xs font-semibold text-muted-foreground">
+          <p className="text-xs font-medium text-muted-foreground">
             Page {pagination.page} of {pagination.totalPages} ({pagination.total} total orders)
           </p>
           <div className="flex gap-2">

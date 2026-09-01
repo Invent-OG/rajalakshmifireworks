@@ -1,125 +1,126 @@
 @import "tailwindcss";
 
 :root {
-  /* Crisp White & Vibrant Orange Palette */
+  /* ── Airbnb × Google Inspired Restrained Premium Palette ─── */
   --background: #ffffff;
-  --foreground: #18181b;
-  --card: #ffffff;
-  --card-foreground: #18181b;
-  --card-muted: #fffaf5;
-  --muted: #fbf6f0;
-  --muted-foreground: #71717a;
-  --border: #f0e6dd;
-  --border-subtle: #fbf5ef;
-  --ring: #ea580c;
+  --background-secondary: #f8f8f6;
+  --foreground: #171717;
+  --foreground-secondary: #6b6b6b;
+  --foreground-muted: #8a8a8a;
 
-  /* Vibrant Orange Brand Colors */
-  --primary: #ea580c;
-  --primary-hover: #c2410c;
+  --card: #ffffff;
+  --card-foreground: #171717;
+  --card-muted: #fbfbf9;
+
+  --muted: #f4f4f2;
+  --muted-foreground: #737373;
+
+  --border: #e7e7e7;
+  --border-subtle: #f0f0ee;
+  --ring: #991b1b;
+
+  /* ── Strategic Brand Accents (Deep Crimson & Warm Amber) ─── */
+  --brand: #991b1b;
+  --brand-hover: #7f1d1d;
+  --brand-foreground: #ffffff;
+  --brand-light: #fef2f2;
+  --brand-border: #fecaca;
+
+  --primary: #171717;
+  --primary-hover: #262626;
   --primary-foreground: #ffffff;
-  --primary-light: #fff7ed;
-  
-  --secondary: #fff7ed;
-  --secondary-foreground: #c2410c;
-  
-  --gold: #f97316;
-  --gold-hover: #ea580c;
-  --gold-light: #ffedd5;
-  --gold-foreground: #9a3412;
-  
-  --accent: #fff7ed;
-  --accent-foreground: #c2410c;
-  
-  --destructive: #ef4444;
+  --primary-light: #f5f5f4;
+
+  --secondary: #f5f5f4;
+  --secondary-hover: #eaeae8;
+  --secondary-foreground: #171717;
+
+  --amber: #d97706;
+  --amber-hover: #b45309;
+  --amber-light: #fffbeb;
+  --amber-foreground: #92400e;
+  --amber-border: #fde68a;
+
+  --gold: #ca8a04;
+  --gold-light: #fefce8;
+  --gold-foreground: #854d0e;
+
+  --destructive: #dc2626;
+  --destructive-hover: #b91c1c;
   --destructive-foreground: #ffffff;
-  
-  --success: #16a34a;
+  --destructive-light: #fef2f2;
+
+  --success: #15803d;
   --success-foreground: #ffffff;
   --success-light: #f0fdf4;
+  --success-border: #bbf7d0;
 
-  --radius: 1.5rem;
-  --radius-sm: 0.875rem;
-  --radius-md: 1.25rem;
-  --radius-lg: 1.75rem;
-  --radius-xl: 2.25rem;
+  /* ── Consistent Radius System (No Bubble UI) ─── */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
   --radius-full: 9999px;
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* Retain crisp white & orange theme with rich contrast */
-    --background: #ffffff;
-    --foreground: #18181b;
-    --card: #ffffff;
-    --card-foreground: #18181b;
-    --card-muted: #fffaf5;
-    --muted: #fbf6f0;
-    --muted-foreground: #71717a;
-    --border: #f0e6dd;
-    --border-subtle: #fbf5ef;
-    --ring: #ea580c;
-
-    --primary: #ea580c;
-    --primary-hover: #c2410c;
-    --primary-foreground: #ffffff;
-    --primary-light: #fff7ed;
-    
-    --secondary: #fff7ed;
-    --secondary-foreground: #c2410c;
-    
-    --gold: #f97316;
-    --gold-hover: #ea580c;
-    --gold-light: #ffedd5;
-    --gold-foreground: #9a3412;
-    
-    --accent: #fff7ed;
-    --accent-foreground: #c2410c;
-    
-    --destructive: #ef4444;
-    --destructive-foreground: #ffffff;
-    
-    --success: #16a34a;
-    --success-foreground: #ffffff;
-    --success-light: #f0fdf4;
-  }
+  /* ── Elevation Shadows ─── */
+  --shadow-level-1: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
+  --shadow-level-2: 0 4px 16px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
+  --shadow-level-3: 0 12px 32px -4px rgba(0, 0, 0, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.04);
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-background-secondary: var(--background-secondary);
   --color-foreground: var(--foreground);
+  --color-foreground-secondary: var(--foreground-secondary);
+  --color-foreground-muted: var(--foreground-muted);
+
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-card-muted: var(--card-muted);
+
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
+
   --color-border: var(--border);
   --color-border-subtle: var(--border-subtle);
   --color-ring: var(--ring);
-  
+
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-light: var(--brand-light);
+  --color-brand-border: var(--brand-border);
+
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary-light: var(--primary-light);
-  
+
   --color-secondary: var(--secondary);
+  --color-secondary-hover: var(--secondary-hover);
   --color-secondary-foreground: var(--secondary-foreground);
-  
+
+  --color-amber: var(--amber);
+  --color-amber-hover: var(--amber-hover);
+  --color-amber-light: var(--amber-light);
+  --color-amber-foreground: var(--amber-foreground);
+  --color-amber-border: var(--amber-border);
+
   --color-gold: var(--gold);
-  --color-gold-hover: var(--gold-hover);
   --color-gold-light: var(--gold-light);
   --color-gold-foreground: var(--gold-foreground);
-  
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  
+
   --color-destructive: var(--destructive);
+  --color-destructive-hover: var(--destructive-hover);
   --color-destructive-foreground: var(--destructive-foreground);
-  
+  --color-destructive-light: var(--destructive-light);
+
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
   --color-success-light: var(--success-light);
-  
-  --radius-base: var(--radius);
+  --color-success-border: var(--success-border);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -127,6 +128,7 @@
 /* ── Base Styles ─── */
 * {
   border-color: var(--border);
+  box-sizing: border-box;
 }
 
 body {
@@ -136,113 +138,284 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  text-rendering: optimizeLegibility;
 }
 
-/* ── Custom Scrollbar ─── */
+/* ── Scrollbar ─── */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--muted-foreground) 30%, transparent);
+  background: #d4d4d4;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--muted-foreground);
+  background: #a3a3a3;
 }
 
-/* ── Animations & Micro-Interactions ─── */
+/* ── Motion & Animation Tokens ─── */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
+  from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes scaleUp {
-  from { opacity: 0; transform: scale(0.96); }
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.98); }
   to { opacity: 1; transform: scale(1); }
 }
 
-@keyframes pulseSubtle {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.65; }
+.animate-fade-in {
+  animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-@keyframes shimmerGlow {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+.animate-scale-in {
+  animation: scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-@keyframes floatGentle {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-6px); }
-}
-
-.animate-fade-in { animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-.animate-scale-up { animation: scaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-.animate-pulse-subtle { animation: pulseSubtle 2.5s ease-in-out infinite; }
-.animate-float { animation: floatGentle 4s ease-in-out infinite; }
-
-.shimmer-effect {
-  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.08) 50%, transparent 100%);
-  background-size: 200% 100%;
-  animation: shimmerGlow 2.5s infinite;
-}
-
-/* ── Glass & Luxury Surfaces ─── */
-.glass-header {
-  background: color-mix(in srgb, var(--card) 85%, transparent);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-}
-
-.luxury-card {
+/* ── Premium Surface Utilities ─── */
+.premium-card {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 1.5rem;
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 16px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-.luxury-card:hover {
-  border-color: color-mix(in srgb, var(--primary) 35%, var(--border));
-  box-shadow: 0 12px 30px -4px rgba(234, 88, 12, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.04);
-  transform: translateY(-2px);
+.premium-card:hover {
+  border-color: #d1d1cf;
+  box-shadow: var(--shadow-level-2);
 }
 
-.luxury-card-interactive {
-  cursor: pointer;
+.premium-header {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
 }
 
-/* ── Gradients ─── */
-.gold-gradient-text {
-  background: linear-gradient(135deg, #f97316 0%, #ea580c 50%, #c2410c 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+/* ── Focus Ring ─── */
+.focus-ring {
+  outline: none;
 }
-
-.festive-hero-gradient {
-  background: radial-gradient(circle at 80% 20%, rgba(249, 115, 22, 0.12) 0%, rgba(255, 237, 213, 0.45) 40%, transparent 70%);
-}
-
-/* ── Button Shadow Glow ─── */
-.btn-primary-glow {
-  box-shadow: 0 4px 14px 0 rgba(234, 88, 12, 0.28);
-}
-.btn-primary-glow:hover {
-  box-shadow: 0 6px 20px 0 rgba(234, 88, 12, 0.38);
+.focus-ring:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
 }
 
 /* ── Utilities ─── */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-.focus-ring {
-  outline: none;
+/* ── Festive Pop Tactile Button System (Ecommerce Exclusive) ─── */
+.festive-btn,
+.festive-add-bag-btn {
+  --stone-50: #fafaf9;
+  --stone-800: #292524;
+  --yellow-400: #facc15;
+  --btn-bg: var(--yellow-400);
+  --btn-text: #1c1917;
+  --btn-border: rgba(255, 255, 255, 0.45);
+
+  cursor: pointer;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  line-height: 1;
+  padding: 1px;
+  transform: translate(-3px, -3px);
+  outline: 2px solid transparent;
+  outline-offset: 4px;
+  border-radius: 9999px;
+  background-color: var(--stone-800);
+  color: var(--btn-text);
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease;
+  text-align: center;
+  text-decoration: none;
+  box-shadow:
+    0.5px 0.5px 0 0 var(--stone-800),
+    1px 1px 0 0 var(--stone-800),
+    1.5px 1.5px 0 0 var(--stone-800),
+    2px 2px 0 0 var(--stone-800),
+    2.5px 2.5px 0 0 var(--stone-800),
+    3px 3px 0 0 var(--stone-800),
+    0 0 0 2px var(--stone-50),
+    0.5px 0.5px 0 2px var(--stone-50),
+    1px 1px 0 2px var(--stone-50),
+    1.5px 1.5px 0 2px var(--stone-50),
+    2px 2px 0 2px var(--stone-50),
+    2.5px 2.5px 0 2px var(--stone-50),
+    3px 3px 0 2px var(--stone-50);
 }
-.focus-ring:focus-visible {
-  outline: 2px solid var(--ring);
-  outline-offset: 2px;
+
+.festive-btn:hover:not(:disabled),
+.festive-add-bag-btn:hover:not(:disabled) {
+  transform: translate(0, 0);
+  box-shadow: 0 0 0 2px var(--stone-50);
 }
+
+.festive-btn:active:not(:disabled),
+.festive-btn:focus-visible,
+.festive-add-bag-btn:active:not(:disabled),
+.festive-add-bag-btn:focus-visible {
+  outline-color: var(--yellow-400);
+}
+
+.festive-btn:focus-visible,
+.festive-add-bag-btn:focus-visible {
+  outline-style: dashed;
+}
+
+.festive-btn:disabled,
+.festive-add-bag-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  pointer-events: none;
+}
+
+.festive-btn > div,
+.festive-add-bag-btn > div {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  background-color: var(--btn-bg);
+  border: 2px solid var(--btn-border);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.festive-btn > div::before,
+.festive-add-bag-btn > div::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  opacity: 0.45;
+  background-image: radial-gradient(
+      rgb(255 255 255 / 80%) 20%,
+      transparent 20%
+    ),
+    radial-gradient(rgb(255 255 255 / 100%) 20%, transparent 20%);
+  background-position:
+    0 0,
+    4px 4px;
+  background-size: 8px 8px;
+  mix-blend-mode: hard-light;
+  animation: bag-dots 0.5s infinite linear;
+}
+
+.festive-btn > div > span,
+.festive-add-bag-btn > div > span {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  filter: drop-shadow(0 -1px 0 rgba(255, 255, 255, 0.25));
+  font-weight: 700;
+  color: var(--btn-text);
+  white-space: nowrap;
+}
+
+.festive-btn > div > span:active,
+.festive-add-bag-btn > div > span:active {
+  transform: translateY(2px);
+}
+
+/* Variant Modifiers */
+.festive-btn-yellow,
+.festive-btn-primary {
+  --btn-bg: #facc15;
+  --btn-text: #1c1917;
+  --btn-border: rgba(255, 255, 255, 0.5);
+}
+
+.festive-btn-brand {
+  --btn-bg: #991b1b;
+  --btn-text: #ffffff;
+  --btn-border: rgba(254, 202, 202, 0.45);
+}
+.festive-btn-brand > div > span {
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35));
+}
+
+.festive-btn-dark {
+  --btn-bg: #1c1917;
+  --btn-text: #ffffff;
+  --btn-border: rgba(255, 255, 255, 0.3);
+}
+.festive-btn-dark > div > span {
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.4));
+}
+
+.festive-btn-secondary,
+.festive-btn-outline {
+  --btn-bg: #ffffff;
+  --btn-text: #1c1917;
+  --btn-border: rgba(209, 213, 219, 0.9);
+}
+
+.festive-btn-destructive {
+  --btn-bg: #dc2626;
+  --btn-text: #ffffff;
+  --btn-border: rgba(254, 202, 202, 0.45);
+}
+
+/* Size Modifiers */
+.festive-btn-sm {
+  font-size: 0.75rem;
+}
+.festive-btn-sm > div > span {
+  padding: 0.4rem 0.85rem;
+  gap: 0.25rem;
+}
+
+.festive-btn-md {
+  font-size: 0.875rem;
+}
+.festive-btn-md > div > span {
+  padding: 0.55rem 1.15rem;
+  gap: 0.375rem;
+}
+
+.festive-btn-lg {
+  font-size: 0.95rem;
+}
+.festive-btn-lg > div > span {
+  padding: 0.7rem 1.45rem;
+  gap: 0.5rem;
+}
+
+.festive-btn-icon {
+  font-size: 0.875rem;
+  padding: 1px;
+}
+.festive-btn-icon > div > span {
+  padding: 0.55rem;
+}
+
+@keyframes bag-dots {
+  0% {
+    background-position:
+      0 0,
+      4px 4px;
+  }
+  100% {
+    background-position:
+      8px 0,
+      12px 4px;
+  }
+}
+

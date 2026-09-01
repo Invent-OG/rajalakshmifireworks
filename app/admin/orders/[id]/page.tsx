@@ -82,10 +82,10 @@ export default function AdminOrderDetailPage({
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <Skeleton className="h-10 w-64 rounded-xl" />
+        <Skeleton className="h-8 w-48 rounded-xl" />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <Skeleton className="lg:col-span-2 h-96 rounded-3xl" />
-          <Skeleton className="h-96 rounded-3xl" />
+          <Skeleton className="lg:col-span-2 h-80 rounded-2xl" />
+          <Skeleton className="h-80 rounded-2xl" />
         </div>
       </div>
     );
@@ -94,10 +94,10 @@ export default function AdminOrderDetailPage({
   const order = data?.order;
   if (!order) {
     return (
-      <div className="text-center py-16 bg-card rounded-3xl border border-border">
-        <p className="font-bold text-lg">Order Not Found</p>
-        <Link href="/admin/orders" className="text-xs text-primary hover:underline mt-2 block">
-          ← Back to Orders
+      <div className="text-center py-16 bg-card rounded-2xl border border-border">
+        <p className="font-semibold text-base">Order not found</p>
+        <Link href="/admin/orders" className="text-xs text-brand hover:underline mt-2 block">
+          Back to Orders
         </Link>
       </div>
     );
@@ -126,7 +126,7 @@ export default function AdminOrderDetailPage({
   return (
     <div className="space-y-8 animate-fade-in">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-border/80 gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-border gap-4">
         <div className="flex items-center gap-3">
           <Link href="/admin/orders">
             <Button variant="outline" size="icon" className="rounded-xl">
@@ -135,7 +135,7 @@ export default function AdminOrderDetailPage({
           </Link>
           <div>
             <div className="flex items-center gap-2.5">
-              <h1 className="text-xl sm:text-2xl font-mono font-black text-foreground">
+              <h1 className="text-xl font-mono font-bold text-foreground">
                 {order.invoiceNumber}
               </h1>
               <StatusBadge status={currentStatus} className="text-xs px-2.5 py-0.5" />
@@ -147,8 +147,8 @@ export default function AdminOrderDetailPage({
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-card border border-border text-foreground">
-            {fulfillmentType === 'DELIVERY' ? '🚚 Doorstep Delivery' : '🏪 Sivakasi Counter Pickup'}
+          <span className="text-xs font-medium px-3 py-1.5 rounded-xl bg-card border border-border text-foreground">
+            {fulfillmentType === 'DELIVERY' ? 'Doorstep Delivery' : 'Sivakasi Counter Pickup'}
           </span>
         </div>
       </div>
@@ -158,28 +158,28 @@ export default function AdminOrderDetailPage({
         {/* Left Column: Customer & Items Breakdown */}
         <div className="lg:col-span-8 space-y-6">
           {/* Customer Details Card */}
-          <div className="p-6 rounded-3xl bg-card border border-border/80 luxury-card space-y-4">
-            <h2 className="font-extrabold text-sm uppercase tracking-wider text-muted-foreground pb-2 border-b border-border/60">
+          <div className="p-6 rounded-2xl bg-card border border-border space-y-4">
+            <h2 className="font-semibold text-xs uppercase tracking-wider text-muted-foreground pb-2 border-b border-border">
               Customer Information
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm">
               <div className="flex items-center gap-3">
-                <div className="h-9 w-9 rounded-xl bg-muted flex items-center justify-center text-muted-foreground shrink-0">
+                <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center text-muted-foreground shrink-0">
                   <User className="h-4 w-4" />
                 </div>
                 <div>
-                  <p className="text-muted-foreground text-[11px] font-semibold">Customer Name</p>
-                  <p className="font-bold text-foreground">{order.customerNameSnapshot}</p>
+                  <p className="text-muted-foreground text-[11px]">Customer Name</p>
+                  <p className="font-medium text-foreground">{order.customerNameSnapshot}</p>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="h-9 w-9 rounded-xl bg-muted flex items-center justify-center text-muted-foreground shrink-0">
+                <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center text-muted-foreground shrink-0">
                   <Phone className="h-4 w-4" />
                 </div>
                 <div>
-                  <p className="text-muted-foreground text-[11px] font-semibold">Contact Mobile</p>
-                  <p className="font-mono font-bold text-foreground">
+                  <p className="text-muted-foreground text-[11px]">Mobile Number</p>
+                  <p className="font-mono font-medium text-foreground">
                     {order.customerMobileSnapshot}
                   </p>
                 </div>
@@ -187,12 +187,12 @@ export default function AdminOrderDetailPage({
 
               {address && (
                 <div className="sm:col-span-2 flex items-start gap-3 pt-2">
-                  <div className="h-9 w-9 rounded-xl bg-muted flex items-center justify-center text-muted-foreground shrink-0 mt-0.5">
+                  <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center text-muted-foreground shrink-0 mt-0.5">
                     <MapPin className="h-4 w-4" />
                   </div>
                   <div>
-                    <p className="text-muted-foreground text-[11px] font-semibold">Delivery Address</p>
-                    <p className="font-medium text-foreground">
+                    <p className="text-muted-foreground text-[11px]">Delivery Address</p>
+                    <p className="font-normal text-foreground">
                       {address.address}, {address.city} - {address.pincode}
                     </p>
                   </div>
@@ -202,16 +202,16 @@ export default function AdminOrderDetailPage({
           </div>
 
           {/* Ordered Fireworks Items Card */}
-          <div className="p-6 rounded-3xl bg-card border border-border/80 luxury-card space-y-4">
-            <h2 className="font-extrabold text-sm uppercase tracking-wider text-muted-foreground pb-2 border-b border-border/60">
+          <div className="p-6 rounded-2xl bg-card border border-border space-y-4">
+            <h2 className="font-semibold text-xs uppercase tracking-wider text-muted-foreground pb-2 border-b border-border">
               Ordered Items ({order.items?.length ?? 0})
             </h2>
 
-            <div className="divide-y divide-border/60">
+            <div className="divide-y divide-border">
               {order.items.map((item: OrderItemDetail) => (
                 <div key={item.id} className="py-3 flex items-center justify-between gap-4 text-xs sm:text-sm">
                   <div className="space-y-0.5">
-                    <p className="font-bold text-foreground">{item.productNameSnapshot}</p>
+                    <p className="font-medium text-foreground">{item.productNameSnapshot}</p>
                     <p className="text-xs text-muted-foreground">
                       {formatCurrency(toNumber(item.sellingPriceSnapshot))} × {item.quantity}
                       {toNumber(item.mrpSnapshot) > toNumber(item.sellingPriceSnapshot) && (
@@ -221,7 +221,7 @@ export default function AdminOrderDetailPage({
                       )}
                     </p>
                   </div>
-                  <span className="font-black text-foreground">
+                  <span className="font-semibold text-foreground">
                     {formatCurrency(toNumber(item.lineTotal))}
                   </span>
                 </div>
@@ -229,34 +229,34 @@ export default function AdminOrderDetailPage({
             </div>
 
             {/* Calculations Breakdown */}
-            <div className="pt-4 border-t border-border/80 space-y-2 text-xs sm:text-sm">
+            <div className="pt-4 border-t border-border space-y-2 text-xs sm:text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Subtotal</span>
                 <span className="font-medium">{formatCurrency(toNumber(order.subtotal))}</span>
               </div>
               {toNumber(order.discountAmount) > 0 && (
-                <div className="flex justify-between text-emerald-600 dark:text-emerald-400 font-semibold">
-                  <span>Discount Savings</span>
+                <div className="flex justify-between text-emerald-700 font-medium">
+                  <span>Discount</span>
                   <span>-{formatCurrency(toNumber(order.discountAmount))}</span>
                 </div>
               )}
               {toNumber(order.deliveryCharge) > 0 && (
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Delivery Charge</span>
+                  <span className="text-muted-foreground">Delivery</span>
                   <span>{formatCurrency(toNumber(order.deliveryCharge))}</span>
                 </div>
               )}
-              <div className="flex justify-between font-black text-base sm:text-lg pt-3 border-t border-border text-foreground">
+              <div className="flex justify-between font-bold text-base pt-3 border-t border-border text-foreground">
                 <span>Grand Total</span>
-                <span className="gold-gradient-text">{formatCurrency(toNumber(order.totalAmount))}</span>
+                <span>{formatCurrency(toNumber(order.totalAmount))}</span>
               </div>
             </div>
           </div>
 
           {/* Notes */}
           {order.notes && (
-            <div className="p-5 rounded-3xl bg-muted/40 border border-border/80 space-y-1 text-xs">
-              <p className="font-bold uppercase tracking-wider text-muted-foreground">
+            <div className="p-4 rounded-xl bg-muted/40 border border-border space-y-1 text-xs">
+              <p className="font-semibold uppercase tracking-wider text-muted-foreground">
                 Customer Delivery Instructions
               </p>
               <p className="text-foreground">{order.notes}</p>
@@ -268,9 +268,9 @@ export default function AdminOrderDetailPage({
         <div className="lg:col-span-4 space-y-6">
           {/* Status Machine Actions Card */}
           {nextStatuses.length > 0 && (
-            <div className="p-6 rounded-3xl bg-card border border-border/80 luxury-card space-y-4">
-              <h2 className="font-extrabold text-sm uppercase tracking-wider text-muted-foreground">
-                Update Order Status
+            <div className="p-6 rounded-2xl bg-card border border-border space-y-4">
+              <h2 className="font-semibold text-xs uppercase tracking-wider text-muted-foreground">
+                Update Status
               </h2>
 
               <div className="space-y-2">
@@ -279,7 +279,7 @@ export default function AdminOrderDetailPage({
                   .map((status) => (
                     <Button
                       key={status}
-                      className="w-full justify-center font-bold"
+                      className="w-full justify-center font-medium"
                       variant="primary"
                       onClick={() => statusMutation.mutate({ newStatus: status })}
                       disabled={statusMutation.isPending}
@@ -291,11 +291,11 @@ export default function AdminOrderDetailPage({
                 {nextStatuses.includes('CANCELLED') && (
                   <Button
                     variant="destructive"
-                    className="w-full justify-center font-semibold mt-2"
+                    className="w-full justify-center font-medium mt-2"
                     onClick={() => {
                       if (
                         confirm(
-                          'Are you sure you want to cancel this order? Reserved inventory will be restored.'
+                          'Are you sure you want to cancel this order? Reserved stock will be restored.'
                         )
                       ) {
                         statusMutation.mutate({
@@ -314,31 +314,31 @@ export default function AdminOrderDetailPage({
           )}
 
           {/* Audit History Timeline */}
-          <div className="p-6 rounded-3xl bg-card border border-border/80 luxury-card space-y-4">
-            <h2 className="font-extrabold text-sm uppercase tracking-wider text-muted-foreground pb-2 border-b border-border/60">
-              Audit Status Trail
+          <div className="p-6 rounded-2xl bg-card border border-border space-y-4">
+            <h2 className="font-semibold text-xs uppercase tracking-wider text-muted-foreground pb-2 border-b border-border">
+              Audit Trail
             </h2>
 
-            <div className="relative pl-6 space-y-5 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-border">
+            <div className="relative pl-6 space-y-5 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-px before:bg-border">
               {order.statusHistory?.map((entry: OrderStatusHistoryEntry, idx: number) => {
                 const isLatest = idx === 0;
                 const Icon = statusIcons[entry.newStatus] || Clock;
                 return (
                   <div key={entry.id} className="relative flex items-start gap-3">
                     <div
-                      className={`absolute -left-6 top-0.5 h-6 w-6 rounded-full flex items-center justify-center border-2 border-card shadow-xs ${
+                      className={`absolute -left-6 top-0.5 h-5 w-5 rounded-full flex items-center justify-center border-2 border-card ${
                         isLatest
-                          ? 'bg-primary text-white ring-4 ring-primary/20'
+                          ? 'bg-foreground text-background ring-2 ring-foreground/10'
                           : 'bg-muted text-muted-foreground'
                       }`}
                     >
-                      <Icon className="h-3 w-3" />
+                      <Icon className="h-2.5 w-2.5" />
                     </div>
 
                     <div className="space-y-0.5">
                       <p
-                        className={`text-xs font-bold ${
-                          isLatest ? 'text-primary' : 'text-foreground'
+                        className={`text-xs font-semibold ${
+                          isLatest ? 'text-foreground' : 'text-muted-foreground'
                         }`}
                       >
                         {ORDER_STATUS_LABELS[entry.newStatus as OrderStatus] || entry.newStatus}

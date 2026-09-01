@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input, Select } from '@/components/ui/input';
 import { formatCurrency } from '@/lib/utils/format';
-import { ArrowLeft, Sparkles } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 
@@ -126,7 +126,7 @@ export default function BulkPriceUpdatePage() {
       return data;
     },
     onSuccess: (data) => {
-      toast.success(`Successfully updated ${data.updatedCount} products!`);
+      toast.success(`Successfully updated ${data.updatedCount} products`);
       queryClient.invalidateQueries({ queryKey: ['admin', 'products'] });
       setPreviewData(null);
       setSelectedIds([]);
@@ -139,18 +139,18 @@ export default function BulkPriceUpdatePage() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Top Header */}
-      <div className="flex items-center gap-3 pb-4 border-b border-border/80">
+      <div className="flex items-center gap-3 pb-4 border-b border-border">
         <Link href="/admin/products">
           <Button variant="outline" size="icon" className="rounded-xl">
             <ArrowLeft className="h-4 w-4" />
           </Button>
         </Link>
         <div>
-          <h1 className="text-2xl font-extrabold text-foreground tracking-tight">
-            Bulk Pricing Studio
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">
+            Bulk Pricing Tool
           </h1>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Apply global discounts, festive markdowns, or percentage adjustments across collections.
+            Apply percentage markdowns or adjustments across product groups.
           </p>
         </div>
       </div>
@@ -158,9 +158,9 @@ export default function BulkPriceUpdatePage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Side: Rule Settings */}
         <div className="lg:col-span-4 space-y-5">
-          <div className="p-6 rounded-3xl bg-card border border-border/80 luxury-card space-y-4">
-            <h2 className="font-extrabold text-sm uppercase tracking-wider text-muted-foreground pb-2 border-b border-border/60">
-              01. Scope & Category Filter
+          <div className="p-6 rounded-2xl bg-card border border-border space-y-4">
+            <h2 className="font-semibold text-xs uppercase tracking-wider text-muted-foreground pb-2 border-b border-border">
+              01. Scope & Category
             </h2>
 
             <Select
@@ -178,8 +178,8 @@ export default function BulkPriceUpdatePage() {
             />
           </div>
 
-          <div className="p-6 rounded-3xl bg-card border border-border/80 luxury-card space-y-4">
-            <h2 className="font-extrabold text-sm uppercase tracking-wider text-muted-foreground pb-2 border-b border-border/60">
+          <div className="p-6 rounded-2xl bg-card border border-border space-y-4">
+            <h2 className="font-semibold text-xs uppercase tracking-wider text-muted-foreground pb-2 border-b border-border">
               02. Adjustment Rule
             </h2>
 
@@ -218,13 +218,12 @@ export default function BulkPriceUpdatePage() {
             />
 
             <Button
-              className="w-full font-bold shadow-md shadow-orange-500/25"
+              className="w-full font-medium"
               variant="primary"
               onClick={handleCalculatePreview}
               loading={previewLoading}
               disabled={selectedIds.length === 0}
             >
-              <Sparkles className="h-4 w-4" />
               Preview Calculated Prices ({selectedIds.length})
             </Button>
           </div>
@@ -233,14 +232,14 @@ export default function BulkPriceUpdatePage() {
         {/* Right Side: Product Selector & Preview */}
         <div className="lg:col-span-8">
           {previewData ? (
-            <div className="p-6 rounded-3xl bg-card border border-border/80 luxury-card space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-border/60">
+            <div className="p-6 rounded-2xl bg-card border border-border space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-border">
                 <div>
-                  <h2 className="font-extrabold text-base text-primary">
+                  <h2 className="font-bold text-base text-foreground">
                     Previewing Calculated Prices
                   </h2>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Review adjusted selling prices. Values automatically cap at MRP.
+                    Review adjusted selling prices before committing to the database.
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -250,7 +249,7 @@ export default function BulkPriceUpdatePage() {
                   <Button
                     size="sm"
                     variant="primary"
-                    className="font-bold shadow-sm"
+                    className="font-medium"
                     loading={applyMutation.isPending}
                     onClick={() => {
                       if (
@@ -272,27 +271,27 @@ export default function BulkPriceUpdatePage() {
 
               <div className="overflow-x-auto max-h-[500px]">
                 <table className="w-full text-left text-xs sm:text-sm">
-                  <thead className="sticky top-0 bg-card border-b border-border text-[11px] uppercase font-bold text-muted-foreground">
+                  <thead className="sticky top-0 bg-card border-b border-border text-[11px] uppercase font-semibold text-muted-foreground">
                     <tr>
                       <th className="px-4 py-3">Product</th>
                       <th className="px-4 py-3">MRP</th>
                       <th className="px-4 py-3">Current</th>
-                      <th className="px-4 py-3 text-primary font-bold">New Selling</th>
+                      <th className="px-4 py-3 font-semibold text-foreground">New Selling</th>
                       <th className="px-4 py-3">Difference</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-border/60">
+                  <tbody className="divide-y divide-border">
                     {previewData.map((item) => (
                       <tr key={item.id} className="hover:bg-muted/30">
-                        <td className="px-4 py-3 font-bold text-foreground">{item.name}</td>
+                        <td className="px-4 py-3 font-medium text-foreground">{item.name}</td>
                         <td className="px-4 py-3 text-muted-foreground">{formatCurrency(item.mrp)}</td>
                         <td className="px-4 py-3 text-muted-foreground">{formatCurrency(item.currentPrice)}</td>
-                        <td className="px-4 py-3 font-black text-primary">
+                        <td className="px-4 py-3 font-semibold text-foreground">
                           {formatCurrency(item.newPrice)}
                         </td>
                         <td
-                          className={`px-4 py-3 font-bold ${
-                            item.difference >= 0 ? 'text-emerald-600' : 'text-amber-600'
+                          className={`px-4 py-3 font-medium ${
+                            item.difference >= 0 ? 'text-emerald-700' : 'text-amber-700'
                           }`}
                         >
                           {item.difference > 0 ? '+' : ''}
@@ -305,8 +304,8 @@ export default function BulkPriceUpdatePage() {
               </div>
             </div>
           ) : (
-            <div className="p-6 rounded-3xl bg-card border border-border/80 luxury-card space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-border/60">
+            <div className="p-6 rounded-2xl bg-card border border-border space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-border">
                 <label className="flex items-center gap-2.5 cursor-pointer">
                   <input
                     type="checkbox"
@@ -314,29 +313,29 @@ export default function BulkPriceUpdatePage() {
                       productsList.length > 0 && selectedIds.length === productsList.length
                     }
                     onChange={(e) => handleSelectAll(e.target.checked)}
-                    className="rounded text-primary h-4 w-4"
+                    className="rounded text-brand h-4 w-4"
                   />
-                  <span className="text-xs font-bold text-foreground">
+                  <span className="text-xs font-semibold text-foreground">
                     Select All in Scope ({productsList.length})
                   </span>
                 </label>
-                <span className="text-xs font-bold text-muted-foreground">
+                <span className="text-xs font-medium text-muted-foreground">
                   {selectedIds.length} items checked
                 </span>
               </div>
 
               <div className="overflow-x-auto max-h-[550px]">
                 <table className="w-full text-left text-xs sm:text-sm">
-                  <thead className="sticky top-0 bg-card border-b border-border text-[11px] uppercase font-bold text-muted-foreground">
+                  <thead className="sticky top-0 bg-card border-b border-border text-[11px] uppercase font-semibold text-muted-foreground">
                     <tr>
                       <th className="px-4 py-3 w-8"></th>
-                      <th className="px-4 py-3">Cracker Item</th>
+                      <th className="px-4 py-3">Product</th>
                       <th className="px-4 py-3">Category</th>
                       <th className="px-4 py-3">Selling Price</th>
                       <th className="px-4 py-3">MRP</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-border/60">
+                  <tbody className="divide-y divide-border">
                     {productsList.map((p: BulkProductItem) => (
                       <tr
                         key={p.id}
@@ -348,14 +347,14 @@ export default function BulkPriceUpdatePage() {
                             type="checkbox"
                             checked={selectedIds.includes(p.id)}
                             onChange={() => {}}
-                            className="rounded text-primary h-4 w-4"
+                            className="rounded text-brand h-4 w-4"
                           />
                         </td>
-                        <td className="px-4 py-3 font-bold text-foreground">{p.name}</td>
-                        <td className="px-4 py-3 font-medium text-muted-foreground">
+                        <td className="px-4 py-3 font-medium text-foreground">{p.name}</td>
+                        <td className="px-4 py-3 text-muted-foreground">
                           {p.category?.name || '—'}
                         </td>
-                        <td className="px-4 py-3 font-bold text-foreground">
+                        <td className="px-4 py-3 font-semibold text-foreground">
                           {formatCurrency(p.sellingPrice)}
                         </td>
                         <td className="px-4 py-3 text-muted-foreground line-through">

@@ -45,7 +45,6 @@ export function ProductMediaManager({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoFileInputRef = useRef<HTMLInputElement>(null);
 
-  // Sync internal state with prop if changed externally
   const currentList = mediaList;
 
   function updateList(newList: ProductMediaItem[]) {
@@ -81,7 +80,6 @@ export function ProductMediaManager({
       };
 
       if (productId) {
-        // Direct API call if editing existing product
         const apiRes = await fetch(`/api/admin/products/${productId}/media`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -91,13 +89,12 @@ export function ProductMediaManager({
         if (apiRes.ok) {
           const apiData = await apiRes.json();
           newMediaItem.id = apiData.media.id;
-          toast.success(`${detectedType === 'video' ? 'Demo video' : 'Image'} uploaded successfully`);
         }
       }
 
       const updated = [...currentList, newMediaItem];
       updateList(updated);
-      toast.success(`${detectedType === 'video' ? 'Demo Video' : 'Image'} added!`);
+      toast.success(`${detectedType === 'video' ? 'Demo video' : 'Image'} uploaded`);
     } catch {
       toast.error('Failed to upload file');
     } finally {
@@ -147,7 +144,7 @@ export function ProductMediaManager({
     updateList([...currentList, newMediaItem]);
     setVideoUrlInput('');
     setShowVideoModal(false);
-    toast.success('Demo video URL attached!');
+    toast.success('Demo video attached');
   }
 
   async function handleDelete(index: number) {
@@ -174,21 +171,20 @@ export function ProductMediaManager({
   }
 
   return (
-    <div className="p-6 rounded-3xl bg-card border border-border/80 luxury-card space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-border/60">
+    <div className="p-6 rounded-2xl bg-card border border-border space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-border">
         <div>
-          <h2 className="font-extrabold text-sm uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-            <ImageIcon className="h-4 w-4 text-primary" />
-            Product Images & Demo Videos
+          <h2 className="font-semibold text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+            <ImageIcon className="h-4 w-4 text-foreground" />
+            Media & Demo Videos
           </h2>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Upload photos and demo burst videos to showcase this cracker in action.
+            Attach high quality product photos and demo burst videos.
           </p>
         </div>
 
         {/* Upload Action Triggers */}
         <div className="flex items-center gap-2">
-          {/* Upload Image Button */}
           <input
             ref={fileInputRef}
             type="file"
@@ -201,15 +197,14 @@ export function ProductMediaManager({
             type="button"
             variant="outline"
             size="sm"
-            className="rounded-full gap-1.5 shadow-xs"
+            className="text-xs font-medium"
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
           >
-            <Upload className="h-3.5 w-3.5 text-primary" />
-            <span>Upload Photos</span>
+            <Upload className="h-3.5 w-3.5" />
+            <span>Upload photos</span>
           </Button>
 
-          {/* Upload Video / Link Video Button */}
           <input
             ref={videoFileInputRef}
             type="file"
@@ -221,62 +216,62 @@ export function ProductMediaManager({
             type="button"
             variant="primary"
             size="sm"
-            className="rounded-full gap-1.5 shadow-xs"
+            className="text-xs font-medium"
             onClick={() => setShowVideoModal(true)}
             disabled={uploading}
           >
             <Video className="h-3.5 w-3.5" />
-            <span>Add Demo Video</span>
+            <span>Add video</span>
           </Button>
         </div>
       </div>
 
       {uploading && (
-        <div className="p-4 rounded-2xl bg-primary/10 border border-primary/20 flex items-center gap-3 animate-pulse">
-          <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full" />
-          <span className="text-xs font-semibold text-primary">
-            Uploading media to Sivakasi storage... Please wait.
+        <div className="p-3.5 rounded-xl bg-muted/60 border border-border flex items-center gap-3 animate-pulse">
+          <div className="animate-spin h-4 w-4 border-2 border-foreground border-t-transparent rounded-full" />
+          <span className="text-xs text-muted-foreground">
+            Uploading media to storage...
           </span>
         </div>
       )}
 
       {/* Media Tiles Grid */}
       {currentList.length === 0 ? (
-        <div className="border-2 border-dashed border-border/80 rounded-3xl p-8 text-center space-y-3 bg-muted/20">
-          <div className="h-12 w-12 rounded-2xl bg-orange-500/10 text-orange-600 flex items-center justify-center mx-auto">
-            <Film className="h-6 w-6" />
+        <div className="border border-dashed border-border rounded-2xl p-8 text-center space-y-3 bg-muted/20">
+          <div className="h-10 w-10 rounded-xl bg-muted text-foreground-secondary flex items-center justify-center mx-auto border border-border">
+            <Film className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-sm font-bold text-foreground">No media attached yet</p>
+            <p className="text-xs sm:text-sm font-semibold text-foreground">No media attached yet</p>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Add clear packaging photos and customer demo videos to boost orders.
+              Add clear packaging photos and customer demo videos.
             </p>
           </div>
-          <div className="flex items-center justify-center gap-2 pt-2">
+          <div className="flex items-center justify-center gap-2 pt-1">
             <Button
               type="button"
               variant="outline"
               size="sm"
-              className="rounded-full text-xs"
+              className="text-xs font-medium"
               onClick={() => fileInputRef.current?.click()}
             >
-              <Plus className="h-3.5 w-3.5 mr-1 text-primary" />
-              Upload Photos
+              <Plus className="h-3.5 w-3.5 mr-1" />
+              Upload photos
             </Button>
             <Button
               type="button"
               variant="outline"
               size="sm"
-              className="rounded-full text-xs"
+              className="text-xs font-medium"
               onClick={() => setShowVideoModal(true)}
             >
-              <Video className="h-3.5 w-3.5 mr-1 text-primary" />
-              Add Demo Video
+              <Video className="h-3.5 w-3.5 mr-1" />
+              Add video
             </Button>
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
           {currentList.map((item, index) => {
             const isVideo = item.type === 'video';
             const isCover = index === 0;
@@ -284,16 +279,16 @@ export function ProductMediaManager({
             return (
               <div
                 key={item.id || item.url || index}
-                className="group relative rounded-2xl border border-border/80 bg-card overflow-hidden shadow-xs hover:border-primary/40 transition-all flex flex-col"
+                className="group relative rounded-xl border border-border bg-card overflow-hidden transition-all flex flex-col"
               >
                 {/* Media Container */}
-                <div className="relative aspect-square bg-muted/40 flex items-center justify-center overflow-hidden">
+                <div className="relative aspect-square bg-muted/30 flex items-center justify-center overflow-hidden">
                   {isVideo ? (
-                    <div className="w-full h-full flex flex-col items-center justify-center bg-stone-900 text-white p-3 text-center">
-                      <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                        <Play className="h-5 w-5 fill-current ml-0.5" />
+                    <div className="w-full h-full flex flex-col items-center justify-center bg-neutral-900 text-white p-3 text-center">
+                      <div className="h-8 w-8 rounded-full bg-brand flex items-center justify-center shadow-md">
+                        <Play className="h-4 w-4 fill-current ml-0.5 text-white" />
                       </div>
-                      <span className="text-[11px] font-bold mt-2 text-white/90 truncate max-w-full px-2">
+                      <span className="text-[10px] font-medium mt-1.5 text-neutral-300 truncate max-w-full px-2">
                         Demo Video
                       </span>
                     </div>
@@ -302,55 +297,46 @@ export function ProductMediaManager({
                     <img
                       src={item.url}
                       alt={item.alt || 'Product media'}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
                     />
                   )}
 
                   {/* Top Badges */}
                   <div className="absolute top-2 left-2 flex items-center gap-1">
                     {isCover && (
-                      <span className="px-2 py-0.5 rounded-full bg-primary text-white text-[10px] font-black shadow-xs flex items-center gap-1">
-                        <Sparkles className="h-2.5 w-2.5" /> Cover
+                      <span className="px-2 py-0.5 rounded-md bg-foreground text-background text-[10px] font-semibold flex items-center gap-1">
+                        Cover
                       </span>
                     )}
-                    <span
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold shadow-xs ${
-                        isVideo
-                          ? 'bg-amber-500 text-white'
-                          : 'bg-stone-900/80 text-white backdrop-blur-xs'
-                      }`}
-                    >
-                      {isVideo ? 'Demo Video' : 'Photo'}
-                    </span>
                   </div>
 
                   {/* Action Overlays */}
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                     <button
                       type="button"
                       onClick={() => setPreviewMedia(item)}
-                      className="h-8 w-8 rounded-full bg-white text-stone-900 flex items-center justify-center hover:scale-110 transition-transform shadow-md cursor-pointer"
+                      className="h-7 w-7 rounded-lg bg-card text-foreground flex items-center justify-center hover:scale-105 transition-transform shadow-xs cursor-pointer"
                       title="Preview Media"
                     >
-                      <Eye className="h-4 w-4" />
+                      <Eye className="h-3.5 w-3.5" />
                     </button>
                     <button
                       type="button"
                       onClick={() => handleDelete(index)}
-                      className="h-8 w-8 rounded-full bg-destructive text-white flex items-center justify-center hover:scale-110 transition-transform shadow-md cursor-pointer"
+                      className="h-7 w-7 rounded-lg bg-destructive text-destructive-foreground flex items-center justify-center hover:scale-105 transition-transform shadow-xs cursor-pointer"
                       title="Delete Media"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 </div>
 
                 {/* Footer details */}
-                <div className="p-2 bg-muted/20 border-t border-border/60 flex items-center justify-between text-[11px] text-muted-foreground">
-                  <span className="truncate max-w-[110px]" title={item.url}>
+                <div className="p-2 bg-muted/20 border-t border-border flex items-center justify-between text-[10px] text-muted-foreground">
+                  <span className="truncate max-w-[100px]" title={item.url}>
                     {item.url.split('/').pop()}
                   </span>
-                  <span className="font-mono text-[10px]">#{index + 1}</span>
+                  <span className="font-mono">#{index + 1}</span>
                 </div>
               </div>
             );
@@ -360,58 +346,51 @@ export function ProductMediaManager({
 
       {/* Video Upload & URL Modal Dialog */}
       {showVideoModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-card border border-border rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl animate-scale-up">
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-card border border-border rounded-2xl max-w-md w-full p-6 space-y-4 shadow-lg animate-scale-in">
             <div className="flex items-center justify-between pb-3 border-b border-border">
-              <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-xl bg-orange-500/10 text-orange-600 flex items-center justify-center">
-                  <Video className="h-4 w-4" />
-                </div>
-                <h3 className="font-extrabold text-base text-foreground">Add Product Demo Video</h3>
-              </div>
+              <h3 className="font-bold text-base text-foreground">Attach Demo Video</h3>
               <button
                 type="button"
                 onClick={() => setShowVideoModal(false)}
-                className="p-1.5 rounded-full hover:bg-muted text-muted-foreground"
+                className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
 
             {/* Option 1: File Upload */}
-            <div className="space-y-2">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Option A: Upload Video File (MP4, WebM)
+            <div className="space-y-1.5">
+              <label className="block text-xs font-medium text-muted-foreground">
+                Upload video file (.mp4, .webm)
               </label>
               <Button
                 type="button"
                 variant="outline"
                 size="md"
-                className="w-full rounded-2xl gap-2 justify-center border-dashed"
+                className="w-full gap-2 justify-center border-dashed"
                 onClick={() => {
                   setShowVideoModal(false);
                   videoFileInputRef.current?.click();
                 }}
               >
-                <Upload className="h-4 w-4 text-primary" />
-                <span>Choose Video File from Device</span>
+                <Upload className="h-4 w-4" />
+                <span>Choose video from device</span>
               </Button>
             </div>
 
-            <div className="relative flex items-center justify-center">
+            <div className="relative flex items-center justify-center my-2">
               <div className="border-t border-border w-full" />
-              <span className="bg-card px-3 text-[10px] uppercase font-bold text-muted-foreground absolute">
-                OR
+              <span className="bg-card px-2 text-[10px] uppercase font-semibold text-muted-foreground absolute">
+                or
               </span>
             </div>
 
             {/* Option 2: Video URL */}
             <div className="space-y-3">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Option B: Paste Video Link (YouTube / Vimeo / MP4 Link)
-              </label>
               <Input
-                placeholder="https://www.youtube.com/watch?v=... or .mp4 URL"
+                label="Paste video URL (YouTube, Vimeo, MP4)"
+                placeholder="https://www.youtube.com/watch?v=..."
                 value={videoUrlInput}
                 onChange={(e) => setVideoUrlInput(e.target.value)}
                 icon={<LinkIcon className="h-4 w-4" />}
@@ -420,11 +399,11 @@ export function ProductMediaManager({
                 type="button"
                 variant="primary"
                 size="md"
-                className="w-full font-bold"
+                className="w-full font-medium"
                 onClick={handleAddVideoUrl}
                 disabled={!videoUrlInput.trim()}
               >
-                Attach Video Link
+                Attach video URL
               </Button>
             </div>
           </div>
@@ -434,28 +413,27 @@ export function ProductMediaManager({
       {/* Media Preview Modal */}
       {previewMedia && (
         <div
-          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4"
           onClick={() => setPreviewMedia(null)}
         >
           <div
-            className="bg-card rounded-3xl border border-border p-4 max-w-2xl w-full overflow-hidden shadow-2xl relative"
+            className="bg-card rounded-2xl border border-border p-4 max-w-2xl w-full overflow-hidden shadow-lg relative"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between pb-3 mb-3 border-b border-border">
-              <span className="font-bold text-sm text-foreground flex items-center gap-2">
-                {previewMedia.type === 'video' ? <Video className="h-4 w-4 text-orange-600" /> : <ImageIcon className="h-4 w-4 text-orange-600" />}
+              <span className="font-semibold text-sm text-foreground flex items-center gap-2">
                 {previewMedia.type === 'video' ? 'Demo Video Preview' : 'Image Preview'}
               </span>
               <button
                 type="button"
                 onClick={() => setPreviewMedia(null)}
-                className="p-1.5 rounded-full hover:bg-muted text-muted-foreground cursor-pointer"
+                className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground cursor-pointer"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
 
-            <div className="aspect-video bg-black rounded-2xl overflow-hidden flex items-center justify-center">
+            <div className="aspect-video bg-neutral-900 rounded-xl overflow-hidden flex items-center justify-center">
               {previewMedia.type === 'video' ? (
                 previewMedia.url.includes('youtube.com') || previewMedia.url.includes('youtu.be') ? (
                   <iframe

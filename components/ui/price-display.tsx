@@ -12,7 +12,7 @@ export function PriceDisplay({
   sellingPrice,
   mrp,
   size = 'md',
-  showSavings = true,
+  showSavings = false,
   className = '',
 }: PriceDisplayProps) {
   const discount = mrp > sellingPrice ? Math.round(((mrp - sellingPrice) / mrp) * 100) : 0;
@@ -20,27 +20,27 @@ export function PriceDisplay({
 
   const sizeStyles = {
     sm: {
-      price: 'text-sm font-bold',
+      price: 'text-sm font-semibold',
       mrp: 'text-xs text-muted-foreground line-through',
-      discount: 'text-[10px] px-1.5 py-0.2',
+      discount: 'text-[10px] px-1.5 py-0.5 font-medium',
       savings: 'text-[11px]',
     },
     md: {
-      price: 'text-base sm:text-lg font-bold',
+      price: 'text-base font-semibold',
       mrp: 'text-xs sm:text-sm text-muted-foreground line-through',
-      discount: 'text-xs px-2 py-0.5',
+      discount: 'text-xs px-2 py-0.5 font-medium',
       savings: 'text-xs',
     },
     lg: {
       price: 'text-xl sm:text-2xl font-bold tracking-tight',
       mrp: 'text-sm sm:text-base text-muted-foreground line-through',
-      discount: 'text-xs font-bold px-2.5 py-0.5',
-      savings: 'text-sm',
+      discount: 'text-xs font-semibold px-2 py-0.5',
+      savings: 'text-xs sm:text-sm',
     },
     xl: {
       price: 'text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight',
       mrp: 'text-base sm:text-lg text-muted-foreground line-through',
-      discount: 'text-xs sm:text-sm font-bold px-3 py-1',
+      discount: 'text-xs sm:text-sm font-semibold px-2.5 py-1',
       savings: 'text-sm font-medium',
     },
   };
@@ -50,7 +50,7 @@ export function PriceDisplay({
   return (
     <div className={`space-y-0.5 ${className}`}>
       <div className="flex items-baseline flex-wrap gap-x-2 gap-y-1">
-        <span className={`text-foreground font-sans ${current.price}`}>
+        <span className={`text-foreground font-sans tracking-tight ${current.price}`}>
           {formatCurrency(sellingPrice)}
         </span>
         {discount > 0 && (
@@ -59,13 +59,13 @@ export function PriceDisplay({
           </span>
         )}
         {discount > 0 && (
-          <span className={`bg-amber-500/10 text-amber-700 dark:text-amber-400 font-semibold rounded-md border border-amber-500/20 ${current.discount}`}>
-            {discount}% OFF
+          <span className={`bg-amber-50 text-amber-900 border border-amber-200/80 rounded-md ${current.discount}`}>
+            {discount}% off
           </span>
         )}
       </div>
       {showSavings && savings > 0 && (
-        <p className={`text-emerald-600 dark:text-emerald-400 font-medium ${current.savings}`}>
+        <p className={`text-emerald-700 font-medium ${current.savings}`}>
           Save {formatCurrency(savings)}
         </p>
       )}

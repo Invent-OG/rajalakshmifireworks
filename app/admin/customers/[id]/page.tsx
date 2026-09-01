@@ -46,9 +46,9 @@ export default function CustomerDetailPage({
       <div className="space-y-6">
         <Skeleton className="h-8 w-48 rounded-xl" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Skeleton className="h-48 rounded-3xl" />
-          <Skeleton className="h-48 rounded-3xl" />
-          <Skeleton className="h-48 rounded-3xl" />
+          <Skeleton className="h-40 rounded-2xl" />
+          <Skeleton className="h-40 rounded-2xl" />
+          <Skeleton className="h-40 rounded-2xl" />
         </div>
       </div>
     );
@@ -56,10 +56,10 @@ export default function CustomerDetailPage({
 
   if (!customer) {
     return (
-      <div className="text-center py-16 bg-card rounded-3xl border border-border">
-        <p className="font-bold text-lg">Customer Not Found</p>
-        <Link href="/admin/customers" className="text-xs text-primary hover:underline mt-2 block">
-          ← Back to Customers
+      <div className="text-center py-16 bg-card rounded-2xl border border-border">
+        <p className="font-semibold text-base">Customer not found</p>
+        <Link href="/admin/customers" className="text-xs text-brand hover:underline mt-2 block">
+          Back to Customers
         </Link>
       </div>
     );
@@ -68,14 +68,14 @@ export default function CustomerDetailPage({
   return (
     <div className="space-y-8 animate-fade-in">
       {/* Header */}
-      <div className="flex items-center gap-3 pb-4 border-b border-border/80">
+      <div className="flex items-center gap-3 pb-4 border-b border-border">
         <Link href="/admin/customers">
           <Button variant="outline" size="icon" className="rounded-xl">
             <ArrowLeft className="h-4 w-4" />
           </Button>
         </Link>
         <div>
-          <h1 className="text-2xl font-extrabold text-foreground tracking-tight">
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">
             {customer.name}
           </h1>
           <p className="text-xs text-muted-foreground mt-0.5">
@@ -87,18 +87,18 @@ export default function CustomerDetailPage({
       {/* Customer 3-Card Summary Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Contact Info */}
-        <div className="p-6 rounded-3xl bg-card border border-border/80 luxury-card space-y-3">
-          <h2 className="font-extrabold text-xs uppercase tracking-wider text-muted-foreground">
+        <div className="p-6 rounded-2xl bg-card border border-border space-y-3">
+          <h2 className="font-semibold text-xs uppercase tracking-wider text-muted-foreground">
             Contact Information
           </h2>
           <div className="space-y-2 text-xs sm:text-sm">
             <div className="flex items-center gap-2.5">
-              <Phone className="h-4 w-4 text-primary shrink-0" />
-              <span className="font-mono font-bold text-foreground">{customer.mobile}</span>
+              <Phone className="h-4 w-4 text-muted-foreground shrink-0" />
+              <span className="font-mono font-medium text-foreground">{customer.mobile}</span>
             </div>
             {customer.email && (
               <div className="flex items-center gap-2.5">
-                <Mail className="h-4 w-4 text-primary shrink-0" />
+                <Mail className="h-4 w-4 text-muted-foreground shrink-0" />
                 <span className="text-foreground">{customer.email}</span>
               </div>
             )}
@@ -106,34 +106,34 @@ export default function CustomerDetailPage({
         </div>
 
         {/* Lifetime Value */}
-        <div className="p-6 rounded-3xl bg-card border border-border/80 luxury-card space-y-3">
-          <h2 className="font-extrabold text-xs uppercase tracking-wider text-muted-foreground">
+        <div className="p-6 rounded-2xl bg-card border border-border space-y-3">
+          <h2 className="font-semibold text-xs uppercase tracking-wider text-muted-foreground">
             Lifetime Purchase Value
           </h2>
           <div>
-            <p className="text-2xl sm:text-3xl font-black text-foreground">
+            <p className="text-2xl font-bold text-foreground">
               {formatCurrency(customer.totalSpent)}
             </p>
-            <p className="text-xs font-semibold text-muted-foreground mt-1">
-              Across {customer.totalOrders} completed bookings
+            <p className="text-xs text-muted-foreground mt-1">
+              Across {customer.totalOrders} bookings
             </p>
           </div>
         </div>
 
         {/* Saved Addresses */}
-        <div className="p-6 rounded-3xl bg-card border border-border/80 luxury-card space-y-3">
-          <h2 className="font-extrabold text-xs uppercase tracking-wider text-muted-foreground">
-            Saved Delivery Destinations
+        <div className="p-6 rounded-2xl bg-card border border-border space-y-3">
+          <h2 className="font-semibold text-xs uppercase tracking-wider text-muted-foreground">
+            Delivery Destinations
           </h2>
           {customer.addresses && customer.addresses.length > 0 ? (
             <div className="space-y-2 text-xs">
               {customer.addresses.map((a: AddressItem) => (
                 <div
                   key={a.id}
-                  className="flex items-start gap-2 bg-muted/40 p-2.5 rounded-xl border border-border/60"
+                  className="flex items-start gap-2 bg-muted/40 p-2.5 rounded-xl border border-border"
                 >
-                  <MapPin className="h-3.5 w-3.5 mt-0.5 text-primary shrink-0" />
-                  <span className="text-foreground font-medium">
+                  <MapPin className="h-3.5 w-3.5 mt-0.5 text-muted-foreground shrink-0" />
+                  <span className="text-foreground font-normal">
                     {a.address}, {a.city} - {a.pincode}
                   </span>
                 </div>
@@ -146,9 +146,9 @@ export default function CustomerDetailPage({
       </div>
 
       {/* Customer Order History */}
-      <div className="rounded-3xl bg-card border border-border/80 luxury-card overflow-hidden">
-        <div className="p-5 sm:p-6 border-b border-border/80">
-          <h2 className="font-extrabold text-base text-foreground tracking-tight">
+      <div className="rounded-2xl bg-card border border-border overflow-hidden">
+        <div className="p-5 border-b border-border">
+          <h2 className="font-semibold text-base text-foreground tracking-tight">
             Order History ({customer.orders?.length || 0})
           </h2>
         </div>
@@ -156,59 +156,59 @@ export default function CustomerDetailPage({
         {customer.orders && customer.orders.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs sm:text-sm">
-              <thead className="bg-muted/40 text-muted-foreground border-b border-border/60 text-[11px] uppercase tracking-wider font-bold">
+              <thead className="bg-muted/40 text-muted-foreground border-b border-border text-[11px] uppercase tracking-wider font-semibold">
                 <tr>
-                  <th className="px-5 py-3.5">Invoice</th>
-                  <th className="px-5 py-3.5">Items</th>
-                  <th className="px-5 py-3.5">Fulfillment</th>
-                  <th className="px-5 py-3.5">Order Total</th>
-                  <th className="px-5 py-3.5">Status</th>
-                  <th className="px-5 py-3.5">Date Placed</th>
-                  <th className="px-5 py-3.5 text-right">Inspect</th>
+                  <th className="px-5 py-3">Invoice</th>
+                  <th className="px-5 py-3">Items</th>
+                  <th className="px-5 py-3">Fulfillment</th>
+                  <th className="px-5 py-3 text-right">Order Total</th>
+                  <th className="px-5 py-3">Status</th>
+                  <th className="px-5 py-3">Date Placed</th>
+                  <th className="px-5 py-3 text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border/60">
+              <tbody className="divide-y divide-border">
                 {customer.orders.map((o: CustomerOrderItem) => (
                   <tr key={o.id} className="hover:bg-muted/30 transition-colors">
-                    <td className="px-5 py-4 font-mono font-bold text-foreground">
+                    <td className="px-5 py-3.5 font-mono font-medium text-foreground">
                       <Link
                         href={`/admin/orders/${o.id}`}
-                        className="text-primary hover:underline"
+                        className="hover:underline"
                       >
                         {o.invoiceNumber}
                       </Link>
                     </td>
-                    <td className="px-5 py-4 text-muted-foreground font-medium">
+                    <td className="px-5 py-3.5 text-muted-foreground">
                       {o.items?.length || 0} items
                     </td>
-                    <td className="px-5 py-4">
-                      <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2 py-0.5 rounded-lg bg-muted text-foreground">
+                    <td className="px-5 py-3.5">
+                      <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2 py-0.5 rounded-md bg-muted text-foreground">
                         {o.fulfillmentType === 'DELIVERY' ? (
                           <>
-                            <Truck className="h-3.5 w-3.5 text-primary" /> Delivery
+                            <Truck className="h-3 w-3 text-muted-foreground" /> Delivery
                           </>
                         ) : (
                           <>
-                            <Store className="h-3.5 w-3.5 text-primary" /> Pickup
+                            <Store className="h-3 w-3 text-muted-foreground" /> Pickup
                           </>
                         )}
                       </span>
                     </td>
-                    <td className="px-5 py-4 font-black text-foreground">
+                    <td className="px-5 py-3.5 font-semibold text-foreground text-right">
                       {formatCurrency(o.totalAmount)}
                     </td>
-                    <td className="px-5 py-4">
+                    <td className="px-5 py-3.5">
                       <StatusBadge status={o.orderStatus} />
                     </td>
-                    <td className="px-5 py-4 text-xs text-muted-foreground whitespace-nowrap">
+                    <td className="px-5 py-3.5 text-xs text-muted-foreground whitespace-nowrap">
                       {formatDateTime(o.placedAt)}
                     </td>
-                    <td className="px-5 py-4 text-right">
+                    <td className="px-5 py-3.5 text-right">
                       <Link
                         href={`/admin/orders/${o.id}`}
-                        className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline"
+                        className="inline-flex items-center gap-1 text-xs font-medium text-foreground hover:underline"
                       >
-                        Details <ArrowUpRight className="h-3.5 w-3.5" />
+                        Inspect <ArrowUpRight className="h-3 w-3 text-muted-foreground" />
                       </Link>
                     </td>
                   </tr>

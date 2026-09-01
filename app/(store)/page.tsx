@@ -2,9 +2,11 @@ import { db } from '@/db';
 import { categories, products } from '@/db/schema';
 import { eq, desc, and } from 'drizzle-orm';
 import Link from 'next/link';
-import { Sparkles, ArrowRight, ShieldCheck, Truck, Gift, Flame, Star, CheckCircle } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Truck, Gift, Sparkles, CheckCircle2, ChevronRight } from 'lucide-react';
 import { ProductCard } from '@/components/store/product-card';
-import { Button } from '@/components/ui/button';
+import { StoreButton } from '@/components/ui/store-button';
+import { CategoryIcon } from '@/components/ui/category-icon';
+import Featured_05 from '@/components/ui/globe-feature-section';
 
 export default async function HomePage() {
   const [categoryList, featuredProducts, bestsellerProducts] = await Promise.all([
@@ -35,49 +37,48 @@ export default async function HomePage() {
 
   return (
     <div className="space-y-16 sm:space-y-24 animate-fade-in">
-      {/* ── 1. Hero Section (Split Composition) ─── */}
-      <section className="relative overflow-hidden pt-8 sm:pt-14 pb-12 sm:pb-20 border-b border-border/60 festive-hero-gradient">
+      {/* ── 1. Editorial Hero Section ─── */}
+      <section className="relative pt-8 sm:pt-14 pb-12 sm:pb-20 border-b border-border bg-background-secondary">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
             {/* Left Content */}
             <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20 px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide">
-                <Sparkles className="h-4 w-4 text-amber-500" />
-                <span>DIRECT SIVAKASI FACTORY PRICING</span>
+              <div className="inline-flex items-center gap-2 bg-card border border-border px-3 py-1 rounded-full text-xs font-medium text-foreground tracking-tight shadow-xs">
+                <span className="h-1.5 w-1.5 rounded-full bg-brand" />
+                <span>Direct Sivakasi Factory Direct Commerce</span>
               </div>
 
               <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground leading-[1.1]">
-                Light Up Every <br className="hidden sm:inline" />
-                <span className="gold-gradient-text">Celebration</span> with Joy
+                Make every celebration <br className="hidden sm:inline" />
+                <span className="text-brand">brighter</span>.
               </h1>
 
               <p className="text-base sm:text-lg text-muted-foreground max-w-xl mx-auto lg:mx-0 font-normal leading-relaxed">
-                Discover India&apos;s finest handcrafted fireworks, dazzling aerial sparklers, and curated family gift boxes. Direct from Sivakasi manufacturers to your doorstep.
+                Discover premium handcrafted fireworks, vibrant ground sparklers, and curated celebration boxes directly from India&apos;s fireworks capital.
               </p>
 
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3.5 pt-2">
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
                 <Link href="/products">
-                  <Button size="lg" variant="primary" className="shadow-lg shadow-orange-500/25">
-                    <Flame className="h-4.5 w-4.5" />
-                    Shop Fireworks
-                  </Button>
+                  <StoreButton size="lg" variant="primary">
+                    Shop fireworks
+                    <ArrowRight className="h-4 w-4" />
+                  </StoreButton>
                 </Link>
                 <Link href="/products?featured=true">
-                  <Button size="lg" variant="outline" className="border-border hover:border-primary/40">
-                    <Gift className="h-4.5 w-4.5 text-primary" />
-                    Gift Combos
-                  </Button>
+                  <StoreButton size="lg" variant="secondary">
+                    Explore collections
+                  </StoreButton>
                 </Link>
               </div>
 
-              {/* Mini Social Proof */}
+              {/* Trust signals */}
               <div className="pt-4 flex flex-wrap items-center justify-center lg:justify-start gap-6 text-xs text-muted-foreground">
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-emerald-500" />
+                  <CheckCircle2 className="h-4 w-4 text-emerald-700" />
                   <span>100% Genuine Sivakasi Brand</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-emerald-500" />
+                  <CheckCircle2 className="h-4 w-4 text-emerald-700" />
                   <span>Doorstep & Pickup Options</span>
                 </div>
               </div>
@@ -85,30 +86,30 @@ export default async function HomePage() {
 
             {/* Right Hero Visual Showcase */}
             <div className="lg:col-span-5 relative">
-              <div className="relative mx-auto max-w-md bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent p-6 sm:p-8 rounded-3xl border border-amber-500/20 shadow-2xl backdrop-blur-sm">
-                <div className="relative aspect-4/3 rounded-2xl overflow-hidden bg-gradient-to-tr from-stone-900 via-stone-800 to-stone-900 border border-stone-700/50 flex flex-col items-center justify-center text-center p-6 text-white shadow-xl">
-                  <div className="text-6xl sm:text-7xl mb-3 animate-float select-none">
-                    ✨🎆✨
+              <div className="relative mx-auto max-w-md bg-card p-6 rounded-2xl border border-border shadow-xs">
+                <div className="relative aspect-4/3 rounded-xl overflow-hidden bg-neutral-900 border border-neutral-800 flex flex-col items-center justify-center text-center p-6 text-white shadow-inner">
+                  <div className="h-14 w-14 rounded-2xl bg-neutral-800 border border-neutral-700 flex items-center justify-center mb-3">
+                    <Sparkles className="h-7 w-7 text-amber-400" />
                   </div>
-                  <span className="text-xs uppercase font-extrabold tracking-widest text-amber-400 mb-1">
+                  <span className="text-[11px] uppercase font-semibold tracking-widest text-amber-400 mb-1">
                     Festive 2026 Collection
                   </span>
-                  <h3 className="text-xl sm:text-2xl font-bold tracking-tight">
-                    Mega Sivakasi Family Combos
+                  <h3 className="text-xl font-bold tracking-tight">
+                    Sivakasi Family Combos
                   </h3>
-                  <p className="text-xs text-stone-300 mt-1">
-                    Up to 40% Off on Assorted Gift Packages
+                  <p className="text-xs text-neutral-400 mt-1 max-w-xs">
+                    Factory sealed celebration gift assortments with up to 40% wholesale discount
                   </p>
                 </div>
 
                 {/* Floating highlights badge */}
-                <div className="absolute -bottom-4 -left-4 sm:-left-6 bg-card border border-border shadow-xl rounded-2xl p-3.5 flex items-center gap-3 animate-scale-up">
-                  <div className="h-10 w-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
-                    <ShieldCheck className="h-5 w-5" />
+                <div className="mt-4 bg-background-secondary border border-border rounded-xl p-3 flex items-center gap-3">
+                  <div className="h-8 w-8 rounded-lg bg-card text-emerald-700 border border-border flex items-center justify-center shrink-0">
+                    <ShieldCheck className="h-4 w-4" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-foreground">Safety Certified</p>
-                    <p className="text-[10px] text-muted-foreground">Standardized sound & smoke norms</p>
+                    <p className="text-xs font-semibold text-foreground">Safety Tested & Certified</p>
+                    <p className="text-[11px] text-muted-foreground">Standardized low-smoke and sound compliant</p>
                   </div>
                 </div>
               </div>
@@ -117,46 +118,40 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── 2. USP Trust Strip ─── */}
+      {/* ── 2. Minimal USP Trust Strip ─── */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
           {[
             {
-              icon: Star,
+              icon: Sparkles,
               title: 'Sivakasi Direct',
-              desc: 'Authentic crackers directly from manufacturers',
-              color: 'text-orange-500 bg-orange-500/10 border-orange-500/20',
+              desc: 'Authentic items direct from original manufacturers',
             },
             {
               icon: Truck,
               title: 'Flexible Dispatch',
-              desc: 'Doorstep home delivery or direct store pickup',
-              color: 'text-orange-600 bg-orange-500/10 border-orange-500/20',
+              desc: 'Doorstep transport delivery or counter pickup',
             },
             {
               icon: Gift,
               title: 'Curated Combos',
-              desc: 'Budget-friendly family & community packs',
-              color: 'text-amber-500 bg-amber-500/10 border-amber-500/20',
+              desc: 'Budget-friendly family & community boxes',
             },
             {
-              icon: Sparkles,
-              title: 'Wholesale Savings',
-              desc: 'Guaranteed 20% to 50% lower than market rates',
-              color: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20',
+              icon: ShieldCheck,
+              title: 'Wholesale Value',
+              desc: 'Guaranteed 20% to 50% savings below retail',
             },
           ].map((item) => (
             <div
               key={item.title}
-              className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-4 rounded-3xl bg-card border border-border/80 luxury-card"
+              className="p-4 rounded-xl bg-card border border-border flex items-start gap-3"
             >
-              <div
-                className={`h-11 w-11 rounded-2xl flex items-center justify-center shrink-0 border ${item.color}`}
-              >
-                <item.icon className="h-5 w-5" />
+              <div className="h-9 w-9 rounded-lg bg-muted text-foreground flex items-center justify-center shrink-0 border border-border">
+                <item.icon className="h-4.5 w-4.5 text-foreground-secondary" />
               </div>
               <div>
-                <h4 className="font-bold text-xs sm:text-sm text-foreground">{item.title}</h4>
+                <h4 className="font-semibold text-xs sm:text-sm text-foreground">{item.title}</h4>
                 <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug">{item.desc}</p>
               </div>
             </div>
@@ -164,23 +159,23 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── 3. Category Tiles ─── */}
+      {/* ── 3. Category Discovery Grid ─── */}
       {categoryList.length > 0 && (
         <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex items-end justify-between mb-8 pb-3 border-b border-border/60">
+          <div className="flex items-end justify-between mb-6 pb-3 border-b border-border">
             <div>
-              <span className="text-xs uppercase font-bold tracking-widest text-orange-600">
+              <span className="text-[11px] uppercase font-semibold tracking-widest text-muted-foreground">
                 Collections
               </span>
-              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground mt-1">
+              <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground mt-1">
                 Shop by Category
               </h2>
             </div>
             <Link
               href="/products"
-              className="text-xs sm:text-sm font-semibold text-primary hover:text-primary-hover flex items-center gap-1 group"
+              className="text-xs font-semibold text-foreground hover:text-brand flex items-center gap-1 group"
             >
-              View All <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              View all <ChevronRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
             </Link>
           </div>
 
@@ -189,19 +184,17 @@ export default async function HomePage() {
               <Link
                 key={cat.id}
                 href={`/category/${cat.slug}`}
-                className="group relative p-5 sm:p-6 rounded-3xl bg-card border border-border/80 luxury-card hover:border-primary/40 flex flex-col justify-between overflow-hidden"
+                className="group p-4 sm:p-5 rounded-2xl bg-card border border-border hover:border-neutral-300 hover:shadow-xs transition-all flex flex-col justify-between"
               >
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-3xl sm:text-4xl group-hover:scale-110 transition-transform select-none">
-                    {getCategoryEmoji(cat.name)}
-                  </span>
-                  <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground group-hover:bg-primary group-hover:text-white transition-colors">
-                    <ArrowRight className="h-4 w-4" />
+                  <div className="h-10 w-10 rounded-xl bg-muted flex items-center justify-center text-foreground group-hover:bg-foreground group-hover:text-background transition-colors">
+                    <CategoryIcon name={cat.name} className="h-5 w-5" />
                   </div>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
                 </div>
 
                 <div>
-                  <h3 className="font-bold text-sm sm:text-base text-foreground group-hover:text-primary transition-colors">
+                  <h3 className="font-semibold text-sm sm:text-base text-foreground group-hover:text-brand transition-colors">
                     {cat.name}
                   </h3>
                   {cat.description && (
@@ -219,24 +212,24 @@ export default async function HomePage() {
       {/* ── 4. Featured Products ─── */}
       {featuredProducts.length > 0 && (
         <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex items-end justify-between mb-8 pb-3 border-b border-border/60">
+          <div className="flex items-end justify-between mb-6 pb-3 border-b border-border">
             <div>
-              <span className="text-xs uppercase font-bold tracking-widest text-orange-600">
+              <span className="text-[11px] uppercase font-semibold tracking-widest text-muted-foreground">
                 Specials
               </span>
-              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground mt-1">
-                Featured Crackers
+              <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground mt-1">
+                Featured Fireworks
               </h2>
             </div>
             <Link
               href="/products?featured=true"
-              className="text-xs sm:text-sm font-semibold text-primary hover:text-primary-hover flex items-center gap-1 group"
+              className="text-xs font-semibold text-foreground hover:text-brand flex items-center gap-1 group"
             >
-              View Featured <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              View featured <ChevronRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
             {featuredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
@@ -247,24 +240,24 @@ export default async function HomePage() {
       {/* ── 5. Bestseller Showcase ─── */}
       {bestsellerProducts.length > 0 && (
         <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex items-end justify-between mb-8 pb-3 border-b border-border/60">
+          <div className="flex items-end justify-between mb-6 pb-3 border-b border-border">
             <div>
-              <span className="text-xs uppercase font-bold tracking-widest text-orange-600">
-                Crowd Favorites
+              <span className="text-[11px] uppercase font-semibold tracking-widest text-muted-foreground">
+                Favorites
               </span>
-              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground mt-1">
+              <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground mt-1">
                 Festive Bestsellers
               </h2>
             </div>
             <Link
               href="/products?bestseller=true"
-              className="text-xs sm:text-sm font-semibold text-primary hover:text-primary-hover flex items-center gap-1 group"
+              className="text-xs font-semibold text-foreground hover:text-brand flex items-center gap-1 group"
             >
-              View Bestsellers <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              View bestsellers <ChevronRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
             {bestsellerProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
@@ -272,46 +265,12 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* ── 6. Heritage Trust Banner ─── */}
+
+
+      {/* ── 7. Globe Feature Showcase ─── */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="rounded-3xl bg-gradient-to-br from-orange-600 via-amber-600 to-orange-700 text-white p-8 sm:p-12 border border-orange-500/30 relative overflow-hidden shadow-2xl">
-          <div className="relative z-10 max-w-2xl space-y-4">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/20 text-white text-xs font-bold border border-white/30 backdrop-blur-xs">
-              <Sparkles className="h-3.5 w-3.5 text-amber-200" />
-              SIVAKASI AUTHENTICITY GUARANTEE
-            </div>
-            <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight">
-              Celebrate Responsibly with Tested & Certified Fireworks
-            </h2>
-            <p className="text-sm text-amber-50 leading-relaxed font-normal">
-              Every cracker in our catalog undergoes rigorous safety compliance testing. Direct from Sivakasi factory units, packaged securely with moisture-resistant insulation for flawless festive bursts.
-            </p>
-            <div className="pt-2">
-              <Link href="/products">
-                <Button size="lg" variant="secondary" className="bg-white text-orange-600 font-bold hover:bg-white/90">
-                  Browse Complete Catalog
-                </Button>
-              </Link>
-            </div>
-          </div>
-          {/* Subtle ambient light glow */}
-          <div className="absolute -right-20 -bottom-20 w-80 h-80 bg-white/10 rounded-full blur-3xl pointer-events-none" />
-        </div>
+        <Featured_05 />
       </section>
     </div>
   );
-}
-
-function getCategoryEmoji(name: string): string {
-  const emojiMap: Record<string, string> = {
-    Sparklers: '✨',
-    'Flower Pots': '🌸',
-    Rockets: '🚀',
-    Chakras: '🎡',
-    Fountains: '⛲',
-    'Sound Crackers': '💥',
-    'Gift Boxes': '🎁',
-    'Family Packs': '🎉',
-  };
-  return emojiMap[name] || '🎆';
 }

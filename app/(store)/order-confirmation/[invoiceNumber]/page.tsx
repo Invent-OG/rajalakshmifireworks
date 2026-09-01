@@ -4,8 +4,8 @@ import { eq } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import { formatCurrency, formatDateTime, toNumber } from '@/lib/utils/format';
 import { generateWhatsAppUrl } from '@/lib/services/whatsapp-service';
-import { CheckCircle2, MessageCircle, ArrowRight, Sparkles, Truck, Store } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { CheckCircle2, MessageSquare, ArrowRight, Truck, Store } from 'lucide-react';
+import { StoreButton } from '@/components/ui/store-button';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 
@@ -42,71 +42,57 @@ export default async function OrderConfirmationPage({
   });
 
   return (
-    <div className="mx-auto max-w-3xl px-4 sm:px-6 py-12 animate-fade-in space-y-8">
+    <div className="mx-auto max-w-2xl px-4 sm:px-6 py-12 animate-fade-in space-y-8">
       {/* Success Celebration Header */}
       <div className="text-center space-y-3">
-        <div className="inline-flex items-center justify-center h-20 w-20 rounded-3xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shadow-lg shadow-emerald-500/10 animate-scale-up">
-          <CheckCircle2 className="h-10 w-10" />
+        <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-emerald-50 text-emerald-700 border border-emerald-200 mx-auto">
+          <CheckCircle2 className="h-8 w-8" />
         </div>
 
-        <div className="inline-flex items-center gap-1.5 text-xs uppercase font-bold tracking-wider text-amber-600 dark:text-amber-400">
-          <Sparkles className="h-3.5 w-3.5" />
-          <span>Order Registered Successfully</span>
-        </div>
-
-        <h1 className="text-2xl sm:text-4xl font-black text-foreground tracking-tight">
-          Thank You, {order.customerNameSnapshot}!
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
+          Order registered
         </h1>
 
-        <p className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
-          Your order has been recorded in our Sivakasi order desk. Click below to verify and receive instant WhatsApp order updates.
+        <p className="text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed">
+          Thank you, {order.customerNameSnapshot}. Your booking has been received at our Sivakasi order desk.
         </p>
       </div>
 
-      {/* Prominent WhatsApp Confirmation Card */}
-      <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-emerald-500/15 via-emerald-500/5 to-transparent border-2 border-emerald-500/30 text-center space-y-4 luxury-card shadow-xl shadow-emerald-500/10">
-        <div className="h-12 w-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center mx-auto shadow-md">
-          <MessageCircle className="h-6 w-6" />
-        </div>
-
-        <div className="space-y-1 max-w-md mx-auto">
-          <h2 className="font-extrabold text-lg sm:text-xl text-foreground">
-            Confirm Your Order on WhatsApp
+      {/* WhatsApp Confirmation CTA Card */}
+      <div className="p-6 rounded-2xl bg-background-secondary border border-border text-center space-y-4">
+        <div className="space-y-1">
+          <h2 className="font-bold text-base text-foreground">
+            Confirm on WhatsApp
           </h2>
-          <p className="text-xs sm:text-sm text-muted-foreground">
-            Send your generated order summary to our dispatch team for priority packing and tracking.
+          <p className="text-xs sm:text-sm text-muted-foreground max-w-sm mx-auto">
+            Send your order reference to our dispatch counter for immediate invoice verification.
           </p>
         </div>
 
-        <div className="pt-2">
-          <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="inline-block">
-            <Button
-              size="lg"
-              className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-base shadow-xl shadow-emerald-600/30 px-8 py-3.5"
-            >
-              <MessageCircle className="h-5 w-5" />
-              Confirm on WhatsApp
-            </Button>
-          </a>
-        </div>
+        <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="inline-block">
+          <StoreButton size="lg" variant="primary">
+            <MessageSquare className="h-4.5 w-4.5" />
+            Open WhatsApp Confirmation
+          </StoreButton>
+        </a>
       </div>
 
       {/* Itemized Order Receipt Card */}
-      <div className="p-6 sm:p-8 rounded-3xl bg-card border border-border/80 luxury-card space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-border/60 gap-2">
+      <div className="p-6 rounded-2xl bg-card border border-border space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-border gap-2">
           <div>
-            <span className="text-xs uppercase font-bold text-muted-foreground tracking-wider">
+            <span className="text-xs uppercase font-medium text-muted-foreground tracking-wider">
               Invoice Reference
             </span>
-            <p className="font-mono font-extrabold text-xl text-foreground mt-0.5">
+            <p className="font-mono font-bold text-lg text-foreground mt-0.5">
               {order.invoiceNumber}
             </p>
           </div>
           <div className="text-left sm:text-right">
-            <span className="text-xs uppercase font-bold text-muted-foreground tracking-wider">
+            <span className="text-xs uppercase font-medium text-muted-foreground tracking-wider">
               Date Placed
             </span>
-            <p className="text-xs font-semibold text-foreground mt-0.5">
+            <p className="text-xs text-muted-foreground mt-0.5">
               {formatDateTime(order.placedAt)}
             </p>
           </div>
@@ -114,16 +100,16 @@ export default async function OrderConfirmationPage({
 
         {/* Items List */}
         <div>
-          <h3 className="text-xs uppercase font-bold text-muted-foreground tracking-wider mb-3">
+          <h3 className="text-xs uppercase font-semibold text-muted-foreground tracking-wider mb-3">
             Item Breakdown
           </h3>
           <div className="space-y-2.5">
             {order.items.map((item) => (
               <div key={item.id} className="flex justify-between items-center text-xs sm:text-sm">
                 <span className="text-foreground font-medium">
-                  {item.productNameSnapshot} <span className="text-muted-foreground">× {item.quantity}</span>
+                  {item.productNameSnapshot} <span className="text-muted-foreground font-normal">× {item.quantity}</span>
                 </span>
-                <span className="font-bold text-foreground">
+                <span className="font-semibold text-foreground">
                   {formatCurrency(toNumber(item.lineTotal))}
                 </span>
               </div>
@@ -132,46 +118,46 @@ export default async function OrderConfirmationPage({
         </div>
 
         {/* Calculation Table */}
-        <div className="border-t border-border/80 pt-4 space-y-2 text-xs sm:text-sm">
+        <div className="border-t border-border pt-4 space-y-2 text-xs sm:text-sm">
           <div className="flex justify-between">
             <span className="text-muted-foreground">Subtotal</span>
             <span className="font-medium">{formatCurrency(toNumber(order.subtotal))}</span>
           </div>
 
           {toNumber(order.discountAmount) > 0 && (
-            <div className="flex justify-between text-emerald-600 dark:text-emerald-400 font-semibold">
-              <span>Festive Discount</span>
+            <div className="flex justify-between text-emerald-700 font-medium">
+              <span>Discount</span>
               <span>-{formatCurrency(toNumber(order.discountAmount))}</span>
             </div>
           )}
 
           {toNumber(order.deliveryCharge) > 0 && (
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Delivery Charges</span>
+              <span className="text-muted-foreground">Delivery</span>
               <span>{formatCurrency(toNumber(order.deliveryCharge))}</span>
             </div>
           )}
 
-          <div className="flex justify-between font-black text-lg pt-3 border-t border-border/80 text-foreground">
-            <span>Total Payable Amount</span>
-            <span className="gold-gradient-text">{formatCurrency(toNumber(order.totalAmount))}</span>
+          <div className="border-t border-border pt-2 flex justify-between font-bold text-base text-foreground">
+            <span>Payable Amount</span>
+            <span>{formatCurrency(toNumber(order.totalAmount))}</span>
           </div>
         </div>
 
-        {/* Fulfillment Mode */}
-        <div className="p-4 rounded-2xl bg-muted/40 border border-border/60 flex items-center gap-3 text-xs text-muted-foreground">
+        {/* Fulfillment Note */}
+        <div className="p-3.5 rounded-xl bg-background-secondary border border-border text-xs text-muted-foreground flex items-center gap-3">
           {order.fulfillmentType === 'DELIVERY' ? (
             <>
-              <Truck className="h-5 w-5 text-primary shrink-0" />
+              <Truck className="h-4.5 w-4.5 text-foreground shrink-0" />
               <span>
-                <strong>Home Delivery:</strong> Our Sivakasi dispatch agent will contact you before delivery.
+                <strong>Home Delivery:</strong> Our dispatch agent will coordinate shipment details via WhatsApp.
               </span>
             </>
           ) : (
             <>
-              <Store className="h-5 w-5 text-primary shrink-0" />
+              <Store className="h-4.5 w-4.5 text-foreground shrink-0" />
               <span>
-                <strong>Store Pickup:</strong> Please show your invoice number at our Sivakasi counter to collect.
+                <strong>Store Pickup:</strong> Please present your invoice number at our Sivakasi counter to collect.
               </span>
             </>
           )}
@@ -179,17 +165,17 @@ export default async function OrderConfirmationPage({
       </div>
 
       {/* Navigation Buttons */}
-      <div className="flex flex-col sm:flex-row gap-3.5 justify-center pt-2">
+      <div className="flex flex-col sm:flex-row gap-4 justify-center pt-2">
         <Link href="/products">
-          <Button variant="outline" size="lg" className="w-full sm:w-auto font-semibold">
-            Continue Shopping
-          </Button>
+          <StoreButton variant="outline" size="md" className="w-full sm:w-auto">
+            Continue shopping
+          </StoreButton>
         </Link>
         <Link href="/track-order">
-          <Button variant="ghost" size="lg" className="w-full sm:w-auto">
-            Track Consignment
+          <StoreButton variant="secondary" size="md" className="w-full sm:w-auto">
+            Track order status
             <ArrowRight className="h-4 w-4" />
-          </Button>
+          </StoreButton>
         </Link>
       </div>
     </div>

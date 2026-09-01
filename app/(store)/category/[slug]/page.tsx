@@ -43,17 +43,17 @@ export default async function CategoryPage({
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 animate-fade-in space-y-8">
       {/* Category Hero Banner */}
-      <div className="rounded-3xl bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-transparent border border-amber-500/20 p-6 sm:p-10 luxury-card">
+      <div className="rounded-2xl bg-background-secondary border border-border p-6 sm:p-8">
         <Link
           href="/products"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-primary mb-4 transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground mb-4 transition-colors"
         >
           <ArrowLeft className="h-3.5 w-3.5" /> Back to All Fireworks
         </Link>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-1.5 text-xs uppercase font-bold tracking-wider text-amber-600 dark:text-amber-400 mb-1">
-              <Sparkles className="h-3.5 w-3.5" />
+            <div className="inline-flex items-center gap-1.5 text-xs uppercase font-medium tracking-wider text-muted-foreground mb-1">
+              <Sparkles className="h-3.5 w-3.5 text-brand" />
               <span>Category Collection</span>
             </div>
             <h1 className="text-2xl sm:text-4xl font-extrabold text-foreground tracking-tight">
@@ -65,24 +65,24 @@ export default async function CategoryPage({
               </p>
             )}
           </div>
-          <div className="self-start sm:self-center px-4 py-2 rounded-2xl bg-card border border-border text-xs font-bold text-foreground">
-            {productList.length} {productList.length === 1 ? 'Product' : 'Products'} Available
+          <div className="self-start sm:self-center px-3.5 py-1.5 rounded-full bg-card border border-border text-xs font-medium text-foreground">
+            {productList.length} {productList.length === 1 ? 'item' : 'items'}
           </div>
         </div>
       </div>
 
       {/* Products Grid */}
       {productList.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
           {productList.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
       ) : (
         <EmptyState
-          title="No Products in This Category"
-          description="Check back soon! We are adding fresh stock to this category regularly."
-          actionLabel="Explore All Fireworks"
+          title="No products in this category"
+          description="Check back soon! We are replenishing fresh inventory to this category regularly."
+          actionLabel="Explore all fireworks"
           actionHref="/products"
         />
       )}

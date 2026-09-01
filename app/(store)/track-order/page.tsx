@@ -4,12 +4,12 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { orderTrackingSchema, type OrderTrackingInput } from '@/lib/validation/order';
-import { Button } from '@/components/ui/button';
+import { StoreButton } from '@/components/ui/store-button';
 import { Input } from '@/components/ui/input';
 import { StatusBadge } from '@/components/ui/badge';
 import { EmptyState } from '@/components/ui/empty-state';
 import { formatCurrency, formatDateTime, toNumber } from '@/lib/utils/format';
-import { Search, Package, CheckCircle2, Clock, Truck, Sparkles } from 'lucide-react';
+import { Search, Package, CheckCircle2, Clock, Truck } from 'lucide-react';
 
 interface TrackedOrder {
   invoiceNumber: string;
@@ -62,25 +62,21 @@ export default function TrackOrderPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-8 animate-fade-in space-y-8">
+    <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 py-8 animate-fade-in space-y-8">
       {/* Header */}
       <div className="text-center space-y-2">
-        <div className="inline-flex items-center gap-1.5 text-xs uppercase font-bold tracking-wider text-amber-600 dark:text-amber-400">
-          <Sparkles className="h-3.5 w-3.5" />
-          <span>Live Consignment Tracking</span>
-        </div>
         <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
-          Track Your Fireworks Order
+          Track Your Order
         </h1>
-        <p className="text-xs sm:text-sm text-muted-foreground max-w-md mx-auto">
-          Enter your 10-digit mobile number to view past and active orders from our Sivakasi desk.
+        <p className="text-xs sm:text-sm text-muted-foreground max-w-sm mx-auto">
+          Enter your 10-digit mobile number to view active order updates and status history.
         </p>
       </div>
 
       {/* Search Input Card */}
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="p-6 rounded-3xl bg-card border border-border/80 luxury-card space-y-4 shadow-lg shadow-black/5"
+        className="p-6 rounded-2xl bg-card border border-border space-y-4 shadow-xs"
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
@@ -96,24 +92,24 @@ export default function TrackOrderPage() {
           />
         </div>
 
-        <Button
+        <StoreButton
           type="submit"
           size="lg"
           variant="primary"
           loading={loading}
-          className="w-full font-bold shadow-md shadow-orange-500/25"
+          className="w-full"
         >
-          <Search className="h-4.5 w-4.5" />
-          Track Consignment
-        </Button>
+          <Search className="h-4 w-4" />
+          Track Order
+        </StoreButton>
       </form>
 
       {/* Empty / Not Found State */}
       {searched && orders.length === 0 && !loading && (
         <EmptyState
           icon={Package}
-          title="No Orders Found"
-          description="We couldn't locate any orders matching this mobile number. Please check the number and try again."
+          title="No orders found"
+          description="We couldn't locate any orders matching this mobile number. Please verify the number and try again."
         />
       )}
 
@@ -122,15 +118,15 @@ export default function TrackOrderPage() {
         {orders.map((order) => (
           <div
             key={order.invoiceNumber}
-            className="p-6 sm:p-8 rounded-3xl bg-card border border-border/80 luxury-card space-y-6 animate-scale-up"
+            className="p-6 sm:p-7 rounded-2xl bg-card border border-border space-y-6 animate-scale-in"
           >
             {/* Top Order Title Bar */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-border/60 gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-border gap-3">
               <div>
-                <span className="text-xs uppercase font-bold text-muted-foreground tracking-wider">
+                <span className="text-xs uppercase font-medium text-muted-foreground tracking-wider">
                   Invoice Number
                 </span>
-                <p className="font-mono font-extrabold text-lg sm:text-xl text-foreground">
+                <p className="font-mono font-bold text-lg text-foreground">
                   {order.invoiceNumber}
                 </p>
                 <p className="text-xs text-muted-foreground mt-0.5">
@@ -145,16 +141,16 @@ export default function TrackOrderPage() {
 
             {/* Items Summary */}
             <div>
-              <h4 className="text-xs uppercase font-bold text-muted-foreground tracking-wider mb-3">
-                Included Items
+              <h4 className="text-xs uppercase font-semibold text-muted-foreground tracking-wider mb-3">
+                Items ({order.items.length})
               </h4>
               <div className="space-y-2">
                 {order.items.map((item, i) => (
                   <div key={i} className="flex justify-between items-center text-xs sm:text-sm">
                     <span className="text-foreground font-medium">
-                      {item.productName} <span className="text-muted-foreground">× {item.quantity}</span>
+                      {item.productName} <span className="text-muted-foreground font-normal">× {item.quantity}</span>
                     </span>
-                    <span className="font-bold text-foreground">
+                    <span className="font-semibold text-foreground">
                       {formatCurrency(toNumber(item.lineTotal))}
                     </span>
                   </div>
@@ -163,41 +159,41 @@ export default function TrackOrderPage() {
             </div>
 
             {/* Total Row */}
-            <div className="pt-3 border-t border-border/60 flex justify-between items-baseline">
-              <span className="font-bold text-sm text-foreground">Total Order Amount</span>
-              <span className="font-black text-lg gold-gradient-text">
+            <div className="pt-3 border-t border-border flex justify-between items-baseline">
+              <span className="font-medium text-sm text-foreground">Total Payable</span>
+              <span className="font-bold text-base text-foreground">
                 {formatCurrency(toNumber(order.totalAmount))}
               </span>
             </div>
 
-            {/* Visual Status Machine Timeline */}
+            {/* Status Machine Timeline */}
             {order.statusHistory.length > 0 && (
-              <div className="pt-4 border-t border-border/60 space-y-4">
-                <h4 className="text-xs uppercase font-bold text-muted-foreground tracking-wider">
-                  Dispatch & Fulfillment Timeline
+              <div className="pt-4 border-t border-border space-y-4">
+                <h4 className="text-xs uppercase font-semibold text-muted-foreground tracking-wider">
+                  Fulfillment Timeline
                 </h4>
 
-                <div className="relative pl-6 space-y-6 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-border">
+                <div className="relative pl-6 space-y-5 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-px before:bg-border">
                   {order.statusHistory.map((entry, idx) => {
                     const isLatest = idx === 0;
                     const Icon = statusIcons[entry.status] || Clock;
                     return (
-                      <div key={idx} className="relative flex items-start gap-4">
+                      <div key={idx} className="relative flex items-start gap-3">
                         {/* Milestone dot */}
                         <div
-                          className={`absolute -left-6 top-0.5 h-6 w-6 rounded-full flex items-center justify-center border-2 border-card shadow-sm ${
+                          className={`absolute -left-6 top-0.5 h-5 w-5 rounded-full flex items-center justify-center border-2 border-card ${
                             isLatest
-                              ? 'bg-primary text-primary-foreground ring-4 ring-primary/20'
+                              ? 'bg-foreground text-background ring-2 ring-foreground/10'
                               : 'bg-muted text-muted-foreground'
                           }`}
                         >
-                          <Icon className="h-3 w-3" />
+                          <Icon className="h-2.5 w-2.5" />
                         </div>
 
                         <div className="space-y-0.5">
                           <p
-                            className={`text-xs sm:text-sm font-bold ${
-                              isLatest ? 'text-primary' : 'text-foreground'
+                            className={`text-xs font-semibold ${
+                              isLatest ? 'text-foreground' : 'text-muted-foreground'
                             }`}
                           >
                             {entry.status.replace(/_/g, ' ')}

@@ -65,7 +65,7 @@ export default function NewProductPage() {
         return;
       }
 
-      toast.success('Product created successfully with media');
+      toast.success('Product created successfully');
       router.push('/admin/products');
       router.refresh();
     } catch {
@@ -78,26 +78,26 @@ export default function NewProductPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-fade-in">
       {/* Header */}
-      <div className="flex items-center gap-3 pb-4 border-b border-border/80">
+      <div className="flex items-center gap-3 pb-4 border-b border-border">
         <Link href="/admin/products">
           <Button variant="outline" size="icon" className="rounded-xl">
             <ArrowLeft className="h-4 w-4" />
           </Button>
         </Link>
         <div>
-          <h1 className="text-2xl font-extrabold text-foreground tracking-tight">
-            Add New Fireworks Product
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">
+            Add Product
           </h1>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Create a new cracker item in your Sivakasi catalog.
+            Add a new firework item to your Sivakasi catalog.
           </p>
         </div>
       </div>
 
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         {/* Section 1: Basic Info */}
-        <div className="p-6 rounded-3xl bg-card border border-border/80 luxury-card space-y-5">
-          <h2 className="font-extrabold text-sm uppercase tracking-wider text-muted-foreground pb-2 border-b border-border/60">
+        <div className="p-6 rounded-2xl bg-card border border-border space-y-5">
+          <h2 className="font-semibold text-xs uppercase tracking-wider text-muted-foreground pb-2 border-b border-border">
             01. Product Information
           </h2>
 
@@ -121,7 +121,7 @@ export default function NewProductPage() {
             />
 
             <Input
-              label="SKU / Factory Code (Optional)"
+              label="SKU / Item Code (Optional)"
               placeholder="e.g. SPK-10CM-ELEC"
               error={form.formState.errors.sku?.message}
               {...form.register('sku')}
@@ -129,8 +129,8 @@ export default function NewProductPage() {
           </div>
 
           <Textarea
-            label="Product Details & Safety Notes"
-            placeholder="Describe the sparks, sound level, duration, and packaging..."
+            label="Description & Safety Instructions"
+            placeholder="Describe the effects, duration, spark patterns, and handling guidelines..."
             error={form.formState.errors.description?.message}
             {...form.register('description')}
           />
@@ -143,9 +143,9 @@ export default function NewProductPage() {
         />
 
         {/* Section 3: Pricing & Stock */}
-        <div className="p-6 rounded-3xl bg-card border border-border/80 luxury-card space-y-5">
-          <h2 className="font-extrabold text-sm uppercase tracking-wider text-muted-foreground pb-2 border-b border-border/60">
-            02. Pricing & Warehouse Inventory
+        <div className="p-6 rounded-2xl bg-card border border-border space-y-5">
+          <h2 className="font-semibold text-xs uppercase tracking-wider text-muted-foreground pb-2 border-b border-border">
+            02. Pricing & Inventory
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -159,7 +159,7 @@ export default function NewProductPage() {
             />
 
             <Input
-              label="Selling / Wholesale Price (₹) *"
+              label="Selling Price (₹) *"
               type="number"
               step="0.01"
               placeholder="60.00"
@@ -178,7 +178,7 @@ export default function NewProductPage() {
             />
 
             <Input
-              label="Low Stock Warning Limit"
+              label="Low Stock Alert Level"
               type="number"
               placeholder="15"
               error={form.formState.errors.lowStockThreshold?.message}
@@ -187,46 +187,46 @@ export default function NewProductPage() {
           </div>
         </div>
 
-        {/* Section 3: Flags */}
-        <div className="p-6 rounded-3xl bg-card border border-border/80 luxury-card space-y-4">
-          <h2 className="font-extrabold text-sm uppercase tracking-wider text-muted-foreground pb-2 border-b border-border/60">
-            03. Storefront Visibility & Badges
+        {/* Section 4: Storefront Visibility */}
+        <div className="p-6 rounded-2xl bg-card border border-border space-y-4">
+          <h2 className="font-semibold text-xs uppercase tracking-wider text-muted-foreground pb-2 border-b border-border">
+            03. Storefront Status
           </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
-            <label className="flex items-center gap-3 p-3.5 rounded-2xl border border-border bg-muted/30 cursor-pointer">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+            <label className="flex items-center gap-3 p-3.5 rounded-xl border border-border bg-card hover:bg-muted/40 cursor-pointer transition-colors">
               <input
                 type="checkbox"
-                className="rounded text-primary h-4 w-4"
+                className="rounded text-brand h-4 w-4"
                 {...form.register('isActive')}
               />
               <div>
-                <p className="text-xs font-bold text-foreground">Active in Store</p>
-                <p className="text-[10px] text-muted-foreground">Visible to shoppers</p>
+                <p className="text-xs font-medium text-foreground">Active in Store</p>
+                <p className="text-[11px] text-muted-foreground">Visible to shoppers</p>
               </div>
             </label>
 
-            <label className="flex items-center gap-3 p-3.5 rounded-2xl border border-border bg-muted/30 cursor-pointer">
+            <label className="flex items-center gap-3 p-3.5 rounded-xl border border-border bg-card hover:bg-muted/40 cursor-pointer transition-colors">
               <input
                 type="checkbox"
-                className="rounded text-primary h-4 w-4"
+                className="rounded text-brand h-4 w-4"
                 {...form.register('isFeatured')}
               />
               <div>
-                <p className="text-xs font-bold text-foreground">Featured Highlight</p>
-                <p className="text-[10px] text-muted-foreground">Show in Combos & Boxes</p>
+                <p className="text-xs font-medium text-foreground">Featured Highlight</p>
+                <p className="text-[11px] text-muted-foreground">Show in Combos grid</p>
               </div>
             </label>
 
-            <label className="flex items-center gap-3 p-3.5 rounded-2xl border border-border bg-muted/30 cursor-pointer">
+            <label className="flex items-center gap-3 p-3.5 rounded-xl border border-border bg-card hover:bg-muted/40 cursor-pointer transition-colors">
               <input
                 type="checkbox"
-                className="rounded text-primary h-4 w-4"
+                className="rounded text-brand h-4 w-4"
                 {...form.register('isBestseller')}
               />
               <div>
-                <p className="text-xs font-bold text-foreground">Bestseller Badge</p>
-                <p className="text-[10px] text-muted-foreground">Festive crowd favorite</p>
+                <p className="text-xs font-medium text-foreground">Bestseller Badge</p>
+                <p className="text-[11px] text-muted-foreground">Festive crowd favorite</p>
               </div>
             </label>
           </div>
@@ -244,9 +244,9 @@ export default function NewProductPage() {
             size="md"
             variant="primary"
             loading={submitting}
-            className="font-bold shadow-md shadow-orange-500/25"
+            className="font-medium"
           >
-            Create Product
+            Create product
           </Button>
         </div>
       </form>

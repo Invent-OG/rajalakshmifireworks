@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import { useCart, useCartItemQuantity } from '@/hooks/use-cart';
-import { Button } from '@/components/ui/button';
+import { StoreButton } from '@/components/ui/store-button';
+import { AddToBagButton } from '@/components/ui/add-to-bag-button';
 import { QuantityStepper } from '@/components/ui/quantity-stepper';
-import { ShoppingBag, Check } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface ProductDetailClientProps {
@@ -36,17 +37,15 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
       maxStock: product.stockQuantity,
       quantity: selectedQuantity,
     });
-    toast.success(`${product.name} added to cart`, {
-      description: `${selectedQuantity} items added to your shopping bag.`,
-    });
+    toast.success(`${product.name} added to cart`);
   }
 
   if (isOutOfStock) {
     return (
       <div className="pt-2">
-        <Button size="lg" variant="outline" disabled className="w-full opacity-60 cursor-not-allowed">
+        <StoreButton size="lg" variant="outline" disabled className="w-full opacity-50 cursor-not-allowed">
           Currently Out of Stock
-        </Button>
+        </StoreButton>
       </div>
     );
   }
@@ -54,13 +53,13 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
   return (
     <div className="space-y-4 pt-2">
       {cartQuantity > 0 ? (
-        <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 space-y-3">
-          <div className="flex items-center justify-between text-xs font-semibold text-amber-800 dark:text-amber-300">
+        <div className="p-4 rounded-xl bg-muted/60 border border-border space-y-2.5">
+          <div className="flex items-center justify-between text-xs font-medium text-foreground">
             <span className="flex items-center gap-1.5">
-              <Check className="h-4 w-4 text-emerald-500" />
-              {cartQuantity} in your shopping cart
+              <Check className="h-4 w-4 text-emerald-700" />
+              {cartQuantity} in your shopping bag
             </span>
-            <span>Update quantity below</span>
+            <span className="text-muted-foreground">Update quantity below</span>
           </div>
 
           <div className="flex items-center gap-3">
@@ -74,14 +73,14 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                   : updateQuantity(product.id, cartQuantity - 1)
               }
               size="lg"
-              className="w-44"
+              className="w-40"
             />
           </div>
         </div>
       ) : (
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
               Qty:
             </span>
             <QuantityStepper
@@ -90,19 +89,16 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
               onIncrement={() => setSelectedQuantity(Math.min(product.stockQuantity, selectedQuantity + 1))}
               onDecrement={() => setSelectedQuantity(Math.max(1, selectedQuantity - 1))}
               size="lg"
-              className="w-36"
+              className="w-32"
             />
           </div>
 
-          <Button
-            size="lg"
-            variant="primary"
-            className="flex-1 text-base font-bold shadow-lg shadow-orange-500/25"
+          <AddToBagButton
+            className="flex-1"
             onClick={handleAddToCart}
           >
-            <ShoppingBag className="h-5 w-5" />
-            Add to Shopping Cart
-          </Button>
+            Add to bag
+          </AddToBagButton>
         </div>
       )}
     </div>

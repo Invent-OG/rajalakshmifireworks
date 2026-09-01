@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input, Textarea } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Save, Truck, MessageCircle } from 'lucide-react';
+import { Save, Truck, MessageSquare } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function AdminSettingsPage() {
@@ -62,7 +62,7 @@ export default function AdminSettingsPage() {
       return resData;
     },
     onSuccess: () => {
-      toast.success('Store configurations updated successfully');
+      toast.success('Store settings updated successfully');
       queryClient.invalidateQueries({ queryKey: ['admin', 'settings'] });
       queryClient.invalidateQueries({ queryKey: ['settings'] });
     },
@@ -75,47 +75,47 @@ export default function AdminSettingsPage() {
     return (
       <div className="max-w-4xl space-y-6">
         <Skeleton className="h-8 w-48 rounded-xl" />
-        <Skeleton className="h-64 rounded-3xl" />
-        <Skeleton className="h-64 rounded-3xl" />
+        <Skeleton className="h-56 rounded-2xl" />
+        <Skeleton className="h-56 rounded-2xl" />
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl space-y-8 animate-fade-in">
+    <div className="max-w-3xl space-y-8 animate-fade-in">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border/80">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
         <div>
-          <h1 className="text-2xl font-extrabold text-foreground tracking-tight">
-            Store & Logistics Configuration
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">
+            Settings
           </h1>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Configure order thresholds, Sivakasi dispatch parameters, and WhatsApp helpline.
+            Configure order thresholds, dispatch charges, and contact desk details.
           </p>
         </div>
 
         <Button
           variant="primary"
           size="md"
-          className="font-bold text-xs shadow-md shadow-orange-500/25 self-start sm:self-auto"
+          className="font-medium text-xs self-start sm:self-auto"
           onClick={() => saveMutation.mutate()}
           loading={saveMutation.isPending}
         >
-          <Save className="h-4 w-4" /> Save Configuration
+          <Save className="h-4 w-4" /> Save Settings
         </Button>
       </div>
 
       <div className="space-y-6">
         {/* Cart & Ordering Rules */}
-        <div className="p-6 rounded-3xl bg-card border border-border/80 luxury-card space-y-5">
-          <div className="flex items-center gap-2.5 pb-2 border-b border-border/60">
-            <Truck className="h-5 w-5 text-primary" />
-            <h2 className="font-extrabold text-sm uppercase tracking-wider text-muted-foreground">
-              01. Cart & Delivery Parameters
+        <div className="p-6 rounded-2xl bg-card border border-border space-y-5">
+          <div className="flex items-center gap-2 pb-2 border-b border-border">
+            <Truck className="h-4 w-4 text-foreground" />
+            <h2 className="font-semibold text-xs uppercase tracking-wider text-muted-foreground">
+              01. Order & Fulfillment Parameters
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
               label="Minimum Order Value (₹) *"
               type="number"
@@ -131,44 +131,28 @@ export default function AdminSettingsPage() {
               onChange={(e) => setDeliveryCharge(e.target.value)}
               hint="Flat courier / transport fee for doorstep dispatch"
             />
-
-            {/* <Input
-              label="Free Delivery Threshold (₹)"
-              type="number"
-              value={freeDeliveryAbove}
-              onChange={(e) => setFreeDeliveryAbove(e.target.value)}
-              hint="Orders above this amount qualify for zero delivery fee"
-            />
-
-            <Input
-              label="Max Quantity per Item in Bag"
-              type="number"
-              value={maxQuantityPerItem}
-              onChange={(e) => setMaxQuantityPerItem(e.target.value)}
-              hint="Prevents stock hoarding on single cracker item"
-            /> */}
           </div>
         </div>
 
         {/* Store Contact & WhatsApp Details */}
-        <div className="p-6 rounded-3xl bg-card border border-border/80 luxury-card space-y-5">
-          <div className="flex items-center gap-2.5 pb-2 border-b border-border/60">
-            <MessageCircle className="h-5 w-5 text-emerald-500" />
-            <h2 className="font-extrabold text-sm uppercase tracking-wider text-muted-foreground">
+        <div className="p-6 rounded-2xl bg-card border border-border space-y-5">
+          <div className="flex items-center gap-2 pb-2 border-b border-border">
+            <MessageSquare className="h-4 w-4 text-foreground" />
+            <h2 className="font-semibold text-xs uppercase tracking-wider text-muted-foreground">
               02. Store Contact & WhatsApp Desk
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
-              label="Direct Helpline Phone"
+              label="Store Helpline Phone"
               value={storePhone}
               onChange={(e) => setStorePhone(e.target.value)}
               placeholder="+91 98765 43210"
             />
 
             <Input
-              label="Official WhatsApp Order Number"
+              label="WhatsApp Order Mobile"
               value={whatsappNumber}
               onChange={(e) => setWhatsappNumber(e.target.value)}
               hint="Country code with mobile number (e.g. 919876543210)"
@@ -176,11 +160,11 @@ export default function AdminSettingsPage() {
           </div>
 
           <Textarea
-            label="Factory Counter & Warehouse Address"
+            label="Factory Warehouse Address"
             rows={3}
             value={storeAddress}
             onChange={(e) => setStoreAddress(e.target.value)}
-            placeholder="Enter full physical address in Sivakasi..."
+            placeholder="Enter physical address in Sivakasi..."
           />
         </div>
       </div>

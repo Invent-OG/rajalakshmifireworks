@@ -40,14 +40,14 @@ export default async function SearchPage({
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 animate-fade-in space-y-8">
-      {/* Top Search Input Header */}
-      <div className="max-w-2xl mx-auto text-center space-y-4">
-        <div className="inline-flex items-center gap-1.5 text-xs uppercase font-bold tracking-wider text-amber-600 dark:text-amber-400">
-          <Sparkles className="h-3.5 w-3.5" />
+      {/* Search Input Header */}
+      <div className="max-w-2xl mx-auto text-center space-y-4 pt-4">
+        <div className="inline-flex items-center gap-1.5 text-xs uppercase font-medium tracking-wider text-muted-foreground">
+          <Sparkles className="h-3.5 w-3.5 text-brand" />
           <span>Catalog Search</span>
         </div>
         <h1 className="text-2xl sm:text-4xl font-extrabold text-foreground tracking-tight">
-          Find Your Festive Crackers
+          Find your fireworks
         </h1>
 
         <form method="GET" action="/search" className="relative max-w-xl mx-auto">
@@ -55,27 +55,27 @@ export default async function SearchPage({
             type="text"
             name="q"
             defaultValue={query}
-            placeholder="Search by cracker name (e.g. Sparklers, Pots, Rockets)..."
-            className="w-full h-13 pl-12 pr-28 rounded-2xl border-2 border-border/80 bg-card text-foreground text-sm placeholder:text-muted-foreground/70 shadow-lg shadow-black/5 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+            placeholder="Search fireworks..."
+            className="w-full h-12 pl-11 pr-24 rounded-xl border border-border bg-card text-foreground text-sm placeholder:text-muted-foreground/60 shadow-xs focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/15 transition-all"
             autoFocus
           />
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <button
             type="submit"
-            className="absolute right-2 top-1/2 -translate-y-1/2 h-9 px-5 bg-primary text-primary-foreground text-xs font-bold rounded-xl hover:bg-primary-hover active:scale-95 transition-all cursor-pointer shadow-sm"
+            className="absolute right-1.5 top-1/2 -translate-y-1/2 h-9 px-4 bg-primary text-primary-foreground text-xs font-medium rounded-lg hover:bg-primary-hover active:scale-95 transition-all cursor-pointer"
           >
             Search
           </button>
         </form>
 
-        {/* Quick Search Category Tags */}
+        {/* Quick Search Suggestions */}
         <div className="flex flex-wrap items-center justify-center gap-2 pt-2 text-xs text-muted-foreground">
-          <span>Popular searches:</span>
+          <span>Popular:</span>
           {categoryList.map((cat) => (
             <Link
               key={cat.id}
               href={`/search?q=${encodeURIComponent(cat.name)}`}
-              className="px-2.5 py-1 rounded-lg bg-muted hover:bg-muted/80 text-foreground transition-colors font-medium border border-border/60"
+              className="px-2.5 py-1 rounded-lg bg-muted hover:bg-muted/80 text-foreground transition-colors font-medium border border-border"
             >
               {cat.name}
             </Link>
@@ -85,18 +85,18 @@ export default async function SearchPage({
 
       {/* Results View */}
       {query ? (
-        <div className="space-y-6">
-          <div className="flex items-center justify-between pb-4 border-b border-border/80">
-            <h2 className="text-lg font-bold text-foreground">
-              Search Results for <span className="text-primary">&ldquo;{query}&rdquo;</span>
+        <div className="space-y-6 pt-4">
+          <div className="flex items-center justify-between pb-4 border-b border-border">
+            <h2 className="text-base font-semibold text-foreground">
+              Results for &ldquo;{query}&rdquo;
             </h2>
-            <span className="text-xs font-semibold px-3 py-1 rounded-full bg-muted text-muted-foreground">
-              {results.length} {results.length === 1 ? 'result' : 'results'} found
+            <span className="text-xs font-medium px-3 py-1 rounded-full bg-muted text-muted-foreground">
+              {results.length} {results.length === 1 ? 'item' : 'items'} found
             </span>
           </div>
 
           {results.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
               {results.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
@@ -104,16 +104,16 @@ export default async function SearchPage({
           ) : (
             <EmptyState
               icon={Search}
-              title="No Fireworks Found"
-              description={`We couldn't find any crackers matching "${query}". Try checking the spelling or search by broader categories.`}
-              actionLabel="View All Fireworks"
+              title="No fireworks found"
+              description={`We couldn't find any items matching "${query}". Try searching for categories like "Sparklers" or "Flower Pots".`}
+              actionLabel="View all fireworks"
               actionHref="/products"
             />
           )}
         </div>
       ) : (
-        <div className="text-center py-16 text-muted-foreground text-sm">
-          Type a keyword above to search through our Sivakasi fireworks collection.
+        <div className="text-center py-16 text-muted-foreground text-xs sm:text-sm">
+          Type a search term above to browse through our Sivakasi fireworks catalog.
         </div>
       )}
     </div>

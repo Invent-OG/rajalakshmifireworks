@@ -1,11 +1,10 @@
 export type BadgeVariant =
   | 'default'
-  | 'primary'
+  | 'brand'
   | 'success'
   | 'warning'
   | 'error'
   | 'info'
-  | 'gold'
   | 'outline';
 
 interface BadgeProps {
@@ -17,31 +16,28 @@ interface BadgeProps {
 
 const variantClasses: Record<BadgeVariant, string> = {
   default:
-    'bg-muted text-muted-foreground border-border/60',
-  primary:
-    'bg-primary/10 text-primary border-primary/20',
-  gold:
-    'bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30',
+    'bg-muted text-muted-foreground border-border',
+  brand:
+    'bg-brand-light text-brand border-brand-border',
   success:
-    'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20',
+    'bg-emerald-50 text-emerald-800 border-emerald-200',
   warning:
-    'bg-amber-500/10 text-amber-800 dark:text-amber-400 border-amber-500/25',
+    'bg-amber-50 text-amber-900 border-amber-200',
   error:
-    'bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-500/20',
+    'bg-rose-50 text-rose-800 border-rose-200',
   info:
-    'bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/20',
+    'bg-sky-50 text-sky-800 border-sky-200',
   outline:
     'border-border text-foreground bg-transparent',
 };
 
 const dotClasses: Record<BadgeVariant, string> = {
   default: 'bg-muted-foreground',
-  primary: 'bg-primary',
-  gold: 'bg-amber-500',
-  success: 'bg-emerald-500',
-  warning: 'bg-amber-500',
-  error: 'bg-rose-500',
-  info: 'bg-sky-500',
+  brand: 'bg-brand',
+  success: 'bg-emerald-600',
+  warning: 'bg-amber-600',
+  error: 'bg-rose-600',
+  info: 'bg-sky-600',
   outline: 'bg-foreground',
 };
 
@@ -54,8 +50,8 @@ export function Badge({
   return (
     <span
       className={`
-        inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold
-        border transition-colors tracking-wide
+        inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium
+        border transition-colors tracking-normal
         ${variantClasses[variant]}
         ${className}
       `}
@@ -76,10 +72,10 @@ export function StatusBadge({
   const variantMap: Record<string, BadgeVariant> = {
     PENDING: 'warning',
     CONFIRMED: 'info',
-    PROCESSING: 'gold',
-    READY: 'primary',
-    READY_FOR_PICKUP: 'primary',
-    OUT_FOR_DELIVERY: 'gold',
+    PROCESSING: 'brand',
+    READY: 'info',
+    READY_FOR_PICKUP: 'info',
+    OUT_FOR_DELIVERY: 'warning',
     COMPLETED: 'success',
     CANCELLED: 'error',
     IN_STOCK: 'success',

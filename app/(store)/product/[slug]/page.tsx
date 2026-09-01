@@ -9,7 +9,7 @@ import { ProductMediaGallery } from '@/components/store/product-media-gallery';
 import { PriceDisplay } from '@/components/ui/price-display';
 import { StatusBadge } from '@/components/ui/badge';
 import Link from 'next/link';
-import { ArrowLeft, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, AlertCircle } from 'lucide-react';
 
 export async function generateMetadata({
   params,
@@ -50,19 +50,19 @@ export default async function ProductPage({
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 animate-fade-in space-y-8">
       {/* Breadcrumb Navigation */}
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
-        <Link href="/products" className="hover:text-primary transition-colors flex items-center gap-1">
-          <ArrowLeft className="h-3 w-3" /> All Fireworks
+        <Link href="/products" className="hover:text-foreground transition-colors flex items-center gap-1">
+          <ArrowLeft className="h-3 w-3" /> Catalog
         </Link>
         {product.category && (
           <>
             <span>/</span>
-            <Link href={`/category/${product.category.slug}`} className="hover:text-primary transition-colors">
+            <Link href={`/category/${product.category.slug}`} className="hover:text-foreground transition-colors">
               {product.category.name}
             </Link>
           </>
         )}
         <span>/</span>
-        <span className="text-foreground font-semibold truncate max-w-xs">{product.name}</span>
+        <span className="text-foreground font-medium truncate max-w-xs">{product.name}</span>
       </div>
 
       {/* Main Product Showcase Grid */}
@@ -78,27 +78,27 @@ export default async function ProductPage({
 
         {/* Right: Product Details & Purchase Form */}
         <div className="lg:col-span-6 space-y-6">
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             {product.category && (
-              <span className="text-xs uppercase font-bold tracking-widest text-amber-600 dark:text-amber-400">
+              <span className="text-xs uppercase font-semibold tracking-wider text-muted-foreground">
                 {product.category.name}
               </span>
             )}
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-foreground tracking-tight leading-tight">
               {product.name}
             </h1>
-            <p className="text-xs font-mono text-muted-foreground">SKU: {product.sku}</p>
+            <p className="text-xs font-mono text-muted-foreground">SKU: {product.sku || 'N/A'}</p>
           </div>
 
           {/* Pricing Hierarchy */}
-          <div className="p-5 rounded-2xl bg-card border border-border/80 luxury-card space-y-3">
+          <div className="p-5 rounded-2xl bg-card border border-border space-y-2">
             <PriceDisplay
               sellingPrice={price}
               mrp={mrp}
               size="xl"
             />
             <p className="text-[11px] text-muted-foreground">
-              Inclusive of GST & Factory Packaging. No Hidden Charges.
+              Inclusive of GST & Factory Packaging. No hidden charges.
             </p>
           </div>
 
@@ -115,7 +115,7 @@ export default async function ProductPage({
             )}
             <span className="text-xs text-muted-foreground">
               {product.stockQuantity > 0
-                ? `${product.stockQuantity} boxes currently available in warehouse`
+                ? `${product.stockQuantity} units in stock`
                 : 'Restocking soon'}
             </span>
           </div>
@@ -135,26 +135,26 @@ export default async function ProductPage({
 
           {/* Description Section */}
           {product.description && (
-            <div className="border-t border-border/80 pt-6 space-y-2">
-              <h3 className="font-bold text-xs uppercase tracking-wider text-muted-foreground">
-                Product Description
+            <div className="border-t border-border pt-6 space-y-2">
+              <h3 className="font-semibold text-xs uppercase tracking-wider text-foreground">
+                Description
               </h3>
-              <p className="text-sm text-foreground/90 leading-relaxed">
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 {product.description}
               </p>
             </div>
           )}
 
           {/* Safety & Handling Notice */}
-          <div className="rounded-2xl bg-muted/40 border border-border/80 p-4 space-y-2.5 text-xs text-muted-foreground">
-            <div className="flex items-center gap-2 font-bold text-foreground">
-              <AlertTriangle className="h-4 w-4 text-amber-500" />
+          <div className="rounded-xl bg-muted/40 border border-border p-4 space-y-2 text-xs text-muted-foreground">
+            <div className="flex items-center gap-2 font-semibold text-foreground">
+              <AlertCircle className="h-4 w-4 text-brand" />
               <span>Safety & Usage Instructions</span>
             </div>
             <ul className="space-y-1 pl-4 list-disc">
               <li>Use outdoors in open areas clear of dry grass or flammable objects.</li>
               <li>Light using an agarbatti or sparkler at arm&apos;s length.</li>
-              <li>Ensure adult presence and keep a water bucket on standby.</li>
+              <li>Always ensure adult presence and keep a water bucket nearby.</li>
             </ul>
           </div>
         </div>
@@ -162,4 +162,3 @@ export default async function ProductPage({
     </div>
   );
 }
-

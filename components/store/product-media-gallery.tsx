@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Play, Sparkles, Film, CheckCircle } from 'lucide-react';
+import { ProductVisualPlaceholder } from '@/components/ui/category-icon';
 
 export interface StoreMediaItem {
   id?: number;
@@ -37,10 +38,10 @@ export function ProductMediaGallery({
   return (
     <div className="space-y-4">
       {/* Main Showcase Viewport */}
-      <div className="relative aspect-square sm:aspect-4/3 rounded-3xl bg-gradient-to-b from-muted/60 to-muted/20 border border-border/80 p-4 sm:p-6 flex items-center justify-center luxury-card overflow-hidden">
+      <div className="relative aspect-square sm:aspect-4/3 rounded-2xl bg-muted/30 border border-border flex items-center justify-center overflow-hidden">
         {activeMedia ? (
           activeMedia.type === 'video' ? (
-            <div className="w-full h-full rounded-2xl overflow-hidden bg-black flex items-center justify-center shadow-lg relative">
+            <div className="w-full h-full rounded-xl overflow-hidden bg-black flex items-center justify-center relative">
               {isYoutubeUrl(activeMedia.url) ? (
                 <iframe
                   src={getYoutubeEmbedUrl(activeMedia.url)}
@@ -64,36 +65,34 @@ export function ProductMediaGallery({
             <img
               src={activeMedia.url}
               alt={activeMedia.alt || productName}
-              className="w-full h-full object-contain hover:scale-105 transition-transform duration-500 rounded-2xl"
+              className="w-full h-full object-cover rounded-xl"
             />
           )
         ) : (
-          <div className="text-8xl sm:text-9xl select-none animate-float">
-            {getProductCategoryEmoji(categoryName || productName)}
-          </div>
+          <ProductVisualPlaceholder name={categoryName || productName} className="w-full h-full text-5xl" />
         )}
 
         {/* Top Badges */}
         <div className="absolute top-4 left-4 flex flex-wrap items-center gap-2 pointer-events-none">
-          <div className="bg-white/95 backdrop-blur-md px-3 py-1 rounded-full border border-border text-[11px] font-bold text-foreground flex items-center gap-1.5 shadow-sm">
-            <Sparkles className="h-3.5 w-3.5 text-orange-600" />
+          <div className="bg-card/95 backdrop-blur-md px-3 py-1 rounded-full border border-border text-[11px] font-medium text-foreground flex items-center gap-1.5 shadow-xs">
+            <Sparkles className="h-3.5 w-3.5 text-brand" />
             <span>Sivakasi Authentic</span>
           </div>
 
           {activeMedia?.type === 'video' && (
-            <div className="bg-orange-600 text-white px-3 py-1 rounded-full text-[11px] font-bold flex items-center gap-1.5 shadow-md animate-pulse">
+            <div className="bg-foreground text-background px-3 py-1 rounded-full text-[11px] font-medium flex items-center gap-1.5 shadow-xs">
               <Play className="h-3 w-3 fill-current" />
-              <span>Playing Demo Burst Video</span>
+              <span>Demo Video</span>
             </div>
           )}
         </div>
 
-        {/* Quick Demo Video Jump Button (when viewing photo and video is available) */}
+        {/* Quick Demo Video Jump Button */}
         {hasDemoVideo && activeMedia?.type !== 'video' && (
           <button
             type="button"
             onClick={handleSelectVideo}
-            className="absolute bottom-4 right-4 bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg shadow-orange-600/30 flex items-center gap-2 active:scale-95 transition-all cursor-pointer"
+            className="absolute bottom-4 right-4 bg-foreground hover:bg-neutral-800 text-background text-xs font-medium px-3.5 py-2 rounded-xl shadow-sm flex items-center gap-2 active:scale-95 transition-all cursor-pointer"
           >
             <Play className="h-3.5 w-3.5 fill-current" />
             <span>Watch Demo Video</span>
@@ -101,9 +100,9 @@ export function ProductMediaGallery({
         )}
       </div>
 
-      {/* Thumbnails Row (when there are 2 or more media items) */}
+      {/* Thumbnails Row */}
       {media.length > 1 && (
-        <div className="flex items-center gap-3 overflow-x-auto no-scrollbar py-1">
+        <div className="flex items-center gap-2.5 overflow-x-auto no-scrollbar py-1">
           {media.map((item, idx) => {
             const isSelected = idx === selectedIndex;
             const isVideo = item.type === 'video';
@@ -114,20 +113,20 @@ export function ProductMediaGallery({
                 type="button"
                 onClick={() => setSelectedIndex(idx)}
                 className={`
-                  relative h-18 w-18 sm:h-20 sm:w-20 rounded-2xl border-2 overflow-hidden shrink-0 transition-all cursor-pointer bg-muted/40
+                  relative h-18 w-18 sm:h-20 sm:w-20 rounded-xl border overflow-hidden shrink-0 transition-all cursor-pointer bg-muted/40
                   ${
                     isSelected
-                      ? 'border-primary ring-2 ring-primary/30 scale-105 shadow-md'
-                      : 'border-border/80 hover:border-primary/50 opacity-80 hover:opacity-100'
+                      ? 'border-brand ring-2 ring-brand/20 shadow-xs'
+                      : 'border-border hover:border-neutral-400 opacity-80 hover:opacity-100'
                   }
                 `}
               >
                 {isVideo ? (
-                  <div className="w-full h-full bg-stone-900 flex flex-col items-center justify-center text-white relative">
-                    <div className="h-7 w-7 rounded-full bg-orange-600 flex items-center justify-center shadow-xs">
-                      <Play className="h-3.5 w-3.5 fill-current ml-0.5" />
+                  <div className="w-full h-full bg-neutral-900 flex flex-col items-center justify-center text-white relative">
+                    <div className="h-6 w-6 rounded-full bg-brand flex items-center justify-center shadow-xs">
+                      <Play className="h-3 w-3 fill-current ml-0.5" />
                     </div>
-                    <span className="text-[9px] font-bold mt-1 text-amber-200">Video</span>
+                    <span className="text-[9px] font-medium mt-1 text-white">Video</span>
                   </div>
                 ) : (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -138,9 +137,8 @@ export function ProductMediaGallery({
                   />
                 )}
 
-                {/* Video icon overlay badge */}
                 {isVideo && (
-                  <span className="absolute top-1 right-1 h-3.5 w-3.5 rounded-full bg-orange-600 flex items-center justify-center">
+                  <span className="absolute top-1 right-1 h-3.5 w-3.5 rounded-full bg-brand flex items-center justify-center">
                     <Film className="h-2 w-2 text-white" />
                   </span>
                 )}
@@ -153,12 +151,12 @@ export function ProductMediaGallery({
       {/* Feature callout */}
       <div className="flex items-center justify-between text-xs text-muted-foreground px-1 pt-1">
         <span className="flex items-center gap-1.5 font-medium">
-          <CheckCircle className="h-3.5 w-3.5 text-emerald-600" />
+          <CheckCircle className="h-3.5 w-3.5 text-emerald-700" />
           Factory direct sealed packaging
         </span>
         {hasDemoVideo && (
-          <span className="text-orange-600 font-semibold flex items-center gap-1">
-            <Film className="h-3.5 w-3.5" /> Demo video available
+          <span className="text-foreground font-medium flex items-center gap-1">
+            <Film className="h-3.5 w-3.5 text-muted-foreground" /> Demo burst video available
           </span>
         )}
       </div>
@@ -185,17 +183,4 @@ function getYoutubeEmbedUrl(url: string): string {
     // fallback
   }
   return url;
-}
-
-function getProductCategoryEmoji(name: string): string {
-  const lower = name.toLowerCase();
-  if (lower.includes('sparkler')) return '✨';
-  if (lower.includes('flower') || lower.includes('pot')) return '🌸';
-  if (lower.includes('rocket')) return '🚀';
-  if (lower.includes('chakra') || lower.includes('wheel')) return '🎡';
-  if (lower.includes('fountain') || lower.includes('cone')) return '⛲';
-  if (lower.includes('sound') || lower.includes('bomb') || lower.includes('wala')) return '💥';
-  if (lower.includes('gift') || lower.includes('box')) return '🎁';
-  if (lower.includes('family') || lower.includes('pack')) return '🎉';
-  return '🎆';
 }

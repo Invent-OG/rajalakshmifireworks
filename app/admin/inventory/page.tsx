@@ -81,77 +81,75 @@ export default function AdminInventoryPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-border/80">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-border">
         <div>
-          <h1 className="text-2xl font-extrabold text-foreground tracking-tight">
-            Warehouse Inventory Desk
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">
+            Inventory
           </h1>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Monitor cracker stock balances, audit inventory movements, and replenish units.
+            Monitor stock balances, audit inventory movements, and replenish warehouse units.
           </p>
         </div>
       </div>
 
       {/* Stock Health KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-5 rounded-2xl bg-card border border-border/80 luxury-card space-y-2">
-          <span className="text-xs uppercase font-bold text-muted-foreground tracking-wider">
-            Total Listed SKUs
+        <div className="p-5 rounded-2xl bg-card border border-border space-y-1.5">
+          <span className="text-xs font-medium text-muted-foreground">
+            Listed Products
           </span>
-          <p className="text-2xl sm:text-3xl font-extrabold text-foreground">{stats.totalProducts}</p>
-          <p className="text-[11px] text-muted-foreground font-medium">Catalog fireworks count</p>
+          <p className="text-2xl font-bold text-foreground">{stats.totalProducts}</p>
+          <p className="text-[11px] text-muted-foreground">Active catalog SKUs</p>
         </div>
 
-        <div className="p-5 rounded-2xl bg-card border border-border/80 luxury-card space-y-2">
-          <span className="text-xs uppercase font-bold text-muted-foreground tracking-wider">
+        <div className="p-5 rounded-2xl bg-card border border-border space-y-1.5">
+          <span className="text-xs font-medium text-muted-foreground">
             Total Warehouse Units
           </span>
-          <p className="text-2xl sm:text-3xl font-extrabold text-foreground">{stats.totalStockUnits}</p>
-          <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">
-            Ready for dispatch
-          </p>
+          <p className="text-2xl font-bold text-foreground">{stats.totalStockUnits}</p>
+          <p className="text-[11px] text-emerald-700 font-medium">Ready for dispatch</p>
         </div>
 
-        <div className="p-5 rounded-2xl bg-card border border-border/80 luxury-card space-y-2">
-          <span className="text-xs uppercase font-bold text-muted-foreground tracking-wider">
+        <div className="p-5 rounded-2xl bg-card border border-border space-y-1.5">
+          <span className="text-xs font-medium text-muted-foreground">
             Low Stock Warnings
           </span>
-          <p className="text-2xl sm:text-3xl font-extrabold text-amber-600 dark:text-amber-400">
+          <p className="text-2xl font-bold text-amber-700">
             {stats.lowStockCount}
           </p>
-          <p className="text-[11px] text-muted-foreground font-medium">Under safe threshold</p>
+          <p className="text-[11px] text-muted-foreground">Under reorder threshold</p>
         </div>
 
-        <div className="p-5 rounded-2xl bg-card border border-border/80 luxury-card space-y-2">
-          <span className="text-xs uppercase font-bold text-muted-foreground tracking-wider">
-            Depleted Stock
+        <div className="p-5 rounded-2xl bg-card border border-border space-y-1.5">
+          <span className="text-xs font-medium text-muted-foreground">
+            Out of Stock
           </span>
-          <p className="text-2xl sm:text-3xl font-extrabold text-rose-600 dark:text-rose-400">
+          <p className="text-2xl font-bold text-rose-700">
             {stats.outOfStockCount}
           </p>
-          <p className="text-[11px] text-muted-foreground font-medium">Immediate reorder required</p>
+          <p className="text-[11px] text-muted-foreground">Depleted inventory</p>
         </div>
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="flex flex-wrap items-center gap-3 p-3.5 rounded-2xl bg-card border border-border/80 luxury-card">
+      <div className="flex flex-wrap items-center gap-3 p-3 rounded-xl bg-card border border-border">
         <div className="relative flex-1 min-w-[220px]">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Search by cracker name or SKU..."
+            placeholder="Search by name or SKU..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full h-10 pl-10 pr-3.5 rounded-xl border border-border bg-muted/40 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+            className="w-full h-10 pl-9 pr-3 rounded-lg border border-border bg-muted/30 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand transition-all"
           />
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <Button
             variant={filter === 'all' ? 'primary' : 'outline'}
             size="sm"
             onClick={() => setFilter('all')}
-            className="font-bold text-xs"
+            className="text-xs"
           >
             All Products
           </Button>
@@ -159,7 +157,7 @@ export default function AdminInventoryPage() {
             variant={filter === 'low' ? 'primary' : 'outline'}
             size="sm"
             onClick={() => setFilter('low')}
-            className="font-bold text-xs"
+            className="text-xs"
           >
             Low Stock ({stats.lowStockCount})
           </Button>
@@ -167,7 +165,7 @@ export default function AdminInventoryPage() {
             variant={filter === 'out' ? 'primary' : 'outline'}
             size="sm"
             onClick={() => setFilter('out')}
-            className="font-bold text-xs"
+            className="text-xs"
           >
             Out of Stock ({stats.outOfStockCount})
           </Button>
@@ -178,24 +176,24 @@ export default function AdminInventoryPage() {
       {isLoading ? (
         <div className="space-y-3">
           {Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={i} className="h-16 rounded-2xl" />
+            <Skeleton key={i} className="h-14 rounded-xl" />
           ))}
         </div>
       ) : inventory.length > 0 ? (
-        <div className="rounded-3xl bg-card border border-border/80 luxury-card overflow-hidden">
+        <div className="rounded-2xl bg-card border border-border overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs sm:text-sm">
-              <thead className="bg-muted/40 text-muted-foreground border-b border-border/60 text-[11px] uppercase tracking-wider font-bold">
+              <thead className="bg-muted/40 text-muted-foreground border-b border-border text-[11px] uppercase tracking-wider font-semibold">
                 <tr>
-                  <th className="px-5 py-3.5">Cracker Product</th>
-                  <th className="px-5 py-3.5">Category</th>
-                  <th className="px-5 py-3.5">Warehouse Balance</th>
-                  <th className="px-5 py-3.5">Reorder Limit</th>
-                  <th className="px-5 py-3.5">Stock Health</th>
-                  <th className="px-5 py-3.5 text-right">Action</th>
+                  <th className="px-5 py-3">Product</th>
+                  <th className="px-5 py-3">Category</th>
+                  <th className="px-5 py-3">Warehouse Balance</th>
+                  <th className="px-5 py-3">Reorder Threshold</th>
+                  <th className="px-5 py-3">Stock Health</th>
+                  <th className="px-5 py-3 text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border/60">
+              <tbody className="divide-y divide-border">
                 {inventory.map((item: InventoryItem) => {
                   const stock = item.stockQuantity;
                   const status =
@@ -207,24 +205,24 @@ export default function AdminInventoryPage() {
 
                   return (
                     <tr key={item.id} className="hover:bg-muted/30 transition-colors">
-                      <td className="px-5 py-4 font-bold text-foreground">{item.name}</td>
-                      <td className="px-5 py-4 font-medium text-muted-foreground">
+                      <td className="px-5 py-3.5 font-medium text-foreground">{item.name}</td>
+                      <td className="px-5 py-3.5 text-muted-foreground">
                         {item.category?.name || '—'}
                       </td>
-                      <td className="px-5 py-4 font-mono font-black text-sm text-foreground">
+                      <td className="px-5 py-3.5 font-mono font-semibold text-foreground">
                         {stock} units
                       </td>
-                      <td className="px-5 py-4 text-muted-foreground font-mono">
+                      <td className="px-5 py-3.5 text-muted-foreground font-mono">
                         {item.lowStockThreshold} units
                       </td>
-                      <td className="px-5 py-4">
+                      <td className="px-5 py-3.5">
                         <StatusBadge status={status} />
                       </td>
-                      <td className="px-5 py-4 text-right">
+                      <td className="px-5 py-3.5 text-right">
                         <Button
                           size="sm"
                           variant="outline"
-                          className="font-bold text-xs"
+                          className="text-xs font-medium"
                           onClick={() => {
                             setAdjustingProduct(item);
                             setQuantityChange(10);
@@ -232,7 +230,7 @@ export default function AdminInventoryPage() {
                             setNote('');
                           }}
                         >
-                          Adjust Stock
+                          Adjust
                         </Button>
                       </td>
                     </tr>
@@ -243,21 +241,21 @@ export default function AdminInventoryPage() {
           </div>
         </div>
       ) : (
-        <div className="text-center py-16 bg-card rounded-3xl border border-border/80 p-8 luxury-card">
-          <Warehouse className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-          <p className="font-bold text-foreground">No inventory records matching query</p>
+        <div className="text-center py-16 bg-card rounded-2xl border border-border p-8">
+          <Warehouse className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+          <p className="font-semibold text-foreground">No inventory records found</p>
         </div>
       )}
 
       {/* Stock Adjustment Modal */}
       {adjustingProduct && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in">
-          <div className="bg-card rounded-3xl border border-border max-w-md w-full p-6 sm:p-8 space-y-5 shadow-2xl luxury-card">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4 animate-fade-in">
+          <div className="bg-card rounded-2xl border border-border max-w-md w-full p-6 sm:p-7 space-y-5 shadow-lg">
             <div>
-              <h2 className="font-extrabold text-base sm:text-lg text-foreground tracking-tight">
-                Adjust Warehouse Inventory
+              <h2 className="font-bold text-base text-foreground tracking-tight">
+                Adjust Inventory
               </h2>
-              <p className="text-xs font-bold text-primary mt-1">{adjustingProduct.name}</p>
+              <p className="text-xs font-medium text-brand mt-0.5">{adjustingProduct.name}</p>
               <p className="text-[11px] text-muted-foreground">
                 Current warehouse balance: <strong>{adjustingProduct.stockQuantity} units</strong>
               </p>
@@ -280,7 +278,7 @@ export default function AdminInventoryPage() {
               />
 
               <Input
-                label="Quantity Count"
+                label="Quantity"
                 type="number"
                 min={1}
                 value={quantityChange}
@@ -288,26 +286,26 @@ export default function AdminInventoryPage() {
               />
 
               <Textarea
-                label="Audit Remarks (Optional)"
-                placeholder="e.g. Sivakasi factory lot #2026-08 batch received"
+                label="Audit Note (Optional)"
+                placeholder="e.g. Sivakasi factory lot shipment received"
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 rows={2}
               />
             </div>
 
-            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-border/60">
+            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-border">
               <Button variant="outline" size="md" onClick={() => setAdjustingProduct(null)}>
                 Cancel
               </Button>
               <Button
                 size="md"
                 variant="primary"
-                className="font-bold shadow-sm"
+                className="font-medium"
                 onClick={() => adjustMutation.mutate()}
                 loading={adjustMutation.isPending}
               >
-                Confirm Adjustment
+                Confirm adjustment
               </Button>
             </div>
           </div>
