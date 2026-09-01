@@ -3,15 +3,15 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ShoppingBag, Search, Sparkles, Truck, Phone, ShieldCheck } from 'lucide-react';
-import { useCart } from '@/hooks/use-cart';
+import { useCart, useIsHydrated } from '@/hooks/use-cart';
 import { APP_CONFIG } from '@/lib/constants/config';
 import { MobileBottomNav } from '@/components/store/mobile-bottom-nav';
 
 function AnnouncementBar() {
   return (
-    <div className="bg-gradient-to-r from-stone-900 via-amber-950 to-stone-900 text-amber-200/90 text-xs py-2 px-4 text-center font-medium border-b border-amber-900/30">
+    <div className="bg-gradient-to-r from-orange-600 via-amber-500 to-orange-600 text-white text-xs py-2 px-4 text-center font-medium shadow-xs">
       <div className="mx-auto max-w-7xl flex items-center justify-center gap-2">
-        <Sparkles className="h-3.5 w-3.5 text-amber-400 shrink-0" />
+        <Sparkles className="h-3.5 w-3.5 text-amber-200 shrink-0" />
         <span>Direct from Sivakasi • 100% Factory Sealed Genuine Crackers • Best Wholesale Prices</span>
       </div>
     </div>
@@ -21,9 +21,12 @@ function AnnouncementBar() {
 function Header() {
   const { itemCount } = useCart();
   const pathname = usePathname();
+  const isHydrated = useIsHydrated();
+
+  const displayCount = isHydrated ? itemCount : 0;
 
   return (
-    <header className="sticky top-0 z-40 glass-header border-b border-border/80 transition-all">
+    <header className="sticky top-0 z-40 glass-header border-b border-border/80 transition-all bg-white/95 backdrop-blur-md">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 sm:h-18 items-center justify-between gap-4 sm:gap-8">
           {/* Brand Logo */}
@@ -35,7 +38,7 @@ function Header() {
               <span className="font-extrabold text-lg sm:text-xl tracking-tight text-foreground block leading-tight">
                 {APP_CONFIG.STORE_NAME}
               </span>
-              <span className="text-[10px] uppercase font-bold tracking-widest text-amber-600 dark:text-amber-400 block">
+              <span className="text-[10px] uppercase font-bold tracking-widest text-orange-600 block">
                 Sivakasi Fireworks
               </span>
             </div>
@@ -84,7 +87,7 @@ function Header() {
             {/* Desktop Search Trigger */}
             <Link
               href="/search"
-              className="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-xl bg-muted/70 hover:bg-muted text-muted-foreground hover:text-foreground text-xs font-medium border border-border/80 transition-all w-48 lg:w-64"
+              className="hidden sm:flex items-center gap-2.5 px-4 py-2 rounded-full bg-muted/70 hover:bg-muted text-muted-foreground hover:text-foreground text-xs font-medium border border-border/80 transition-all w-48 lg:w-64 shadow-xs"
             >
               <Search className="h-4 w-4 shrink-0 text-primary" />
               <span>Search crackers...</span>
@@ -93,7 +96,7 @@ function Header() {
             {/* Mobile Search Icon */}
             <Link
               href="/search"
-              className="sm:hidden h-10 w-10 flex items-center justify-center rounded-xl bg-muted/60 text-foreground hover:bg-muted transition-colors"
+              className="sm:hidden h-10 w-10 flex items-center justify-center rounded-full bg-muted/60 text-foreground hover:bg-muted transition-colors"
               aria-label="Search"
             >
               <Search className="h-5 w-5" />
@@ -102,14 +105,14 @@ function Header() {
             {/* Shopping Bag Button */}
             <Link
               href="/cart"
-              className="relative h-10 sm:h-11 px-3 sm:px-4 flex items-center gap-2 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary-hover active:scale-95 transition-all shadow-md shadow-primary/20"
-              aria-label={`Shopping Bag with ${itemCount} items`}
+              className="relative h-10 sm:h-11 px-4 sm:px-5 flex items-center gap-2 rounded-full bg-primary text-primary-foreground font-semibold hover:bg-primary-hover active:scale-95 transition-all shadow-md shadow-primary/20"
+              aria-label={`Shopping Bag with ${displayCount} items`}
             >
               <ShoppingBag className="h-4.5 w-4.5" />
               <span className="hidden sm:inline text-sm">Cart</span>
-              {itemCount > 0 && (
+              {displayCount > 0 && (
                 <span className="h-5 min-w-5 px-1.5 rounded-full bg-white text-primary text-xs font-black flex items-center justify-center shadow-xs">
-                  {itemCount > 99 ? '99+' : itemCount}
+                  {displayCount > 99 ? '99+' : displayCount}
                 </span>
               )}
             </Link>
@@ -128,7 +131,7 @@ function Footer() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/20">
+              <div className="h-12 w-12 rounded-2xl bg-orange-500/10 text-orange-600 flex items-center justify-center shrink-0 border border-orange-500/20">
                 <ShieldCheck className="h-6 w-6" />
               </div>
               <div>
@@ -138,7 +141,7 @@ function Footer() {
             </div>
 
             <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-2xl bg-orange-500/10 text-orange-600 dark:text-orange-400 flex items-center justify-center shrink-0 border border-orange-500/20">
+              <div className="h-12 w-12 rounded-2xl bg-orange-500/10 text-orange-600 flex items-center justify-center shrink-0 border border-orange-500/20">
                 <Truck className="h-6 w-6" />
               </div>
               <div>
@@ -148,7 +151,7 @@ function Footer() {
             </div>
 
             <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/20">
+              <div className="h-12 w-12 rounded-2xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-500/20">
                 <Phone className="h-6 w-6" />
               </div>
               <div>

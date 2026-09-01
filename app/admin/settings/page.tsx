@@ -132,7 +132,7 @@ export default function AdminSettingsPage() {
               hint="Flat courier / transport fee for doorstep dispatch"
             />
 
-            <Input
+            {/* <Input
               label="Free Delivery Threshold (₹)"
               type="number"
               value={freeDeliveryAbove}
@@ -146,7 +146,7 @@ export default function AdminSettingsPage() {
               value={maxQuantityPerItem}
               onChange={(e) => setMaxQuantityPerItem(e.target.value)}
               hint="Prevents stock hoarding on single cracker item"
-            />
+            /> */}
           </div>
         </div>
 

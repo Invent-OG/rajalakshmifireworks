@@ -2,6 +2,16 @@
 
 import { createContext, useContext, useState, useSyncExternalStore } from 'react';
 
+const emptySubscribe = () => () => {};
+
+export function useIsHydrated() {
+  return useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
+}
+
 export interface CartItem {
   productId: number;
   name: string;
@@ -140,16 +150,25 @@ export function useCart() {
     getServerSnapshot
   );
 
+  const items = state.items;
+  const itemCount = items.reduce((sum, i) => sum + i.quantity, 0);
+  const subtotal = items.reduce((sum, i) => sum + i.sellingPrice * i.quantity, 0);
+  const totalMrp = items.reduce((sum, i) => sum + i.mrp * i.quantity, 0);
+  const totalSavings = items.reduce(
+    (sum, i) => sum + (i.mrp - i.sellingPrice) * i.quantity,
+    0
+  );
+
   return {
-    items: state.items,
+    items,
     addItem: store.addItem,
     removeItem: store.removeItem,
     updateQuantity: store.updateQuantity,
     clearCart: store.clearCart,
-    itemCount: store.getItemCount(),
-    subtotal: store.getSubtotal(),
-    totalMrp: store.getTotalMrp(),
-    totalSavings: store.getTotalSavings(),
+    itemCount,
+    subtotal,
+    totalMrp,
+    totalSavings,
   };
 }
 

@@ -41,11 +41,11 @@ export async function GET(request: NextRequest) {
 
     const formattedCustomers = customerList.map((c: { orders: any[]; id: any; name: any; mobile: any; email: any; createdAt: any; }) => {
       const totalSpent = c.orders
-        .filter((o: { orderStatus: string; }) => o.orderStatus !== 'CANCELLED')
-        .reduce((sum: number, o: { totalAmount: any; }) => sum + parseFloat(o.totalAmount || '0'), 0);
+        .filter((o) => o.orderStatus !== 'CANCELLED')
+        .reduce((sum, o) => sum + parseFloat(o.totalAmount || '0'), 0);
 
-      const latestOrder = c.orders.sort(
-        (a: { placedAt: string | number | Date; }, b: { placedAt: string | number | Date; }) => new Date(b.placedAt).getTime() - new Date(a.placedAt).getTime()
+      const latestOrder = [...c.orders].sort(
+        (a, b) => new Date(b.placedAt).getTime() - new Date(a.placedAt).getTime()
       )[0];
 
       return {

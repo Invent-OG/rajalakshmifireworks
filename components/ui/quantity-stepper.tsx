@@ -19,20 +19,20 @@ export function QuantityStepper({
 }: QuantityStepperProps) {
   const sizeStyles = {
     sm: {
-      container: 'h-8 px-1 rounded-lg',
-      button: 'h-6 w-6 text-xs rounded-md',
+      container: 'h-8 px-1.5 rounded-full',
+      button: 'h-6 w-6 text-xs rounded-full',
       text: 'text-xs w-6',
       icon: 'h-3 w-3',
     },
     md: {
-      container: 'h-9 px-1.5 rounded-xl',
-      button: 'h-7 w-7 text-sm rounded-lg',
+      container: 'h-9 px-2 rounded-full',
+      button: 'h-7 w-7 text-sm rounded-full',
       text: 'text-sm w-8 font-semibold',
       icon: 'h-3.5 w-3.5',
     },
     lg: {
-      container: 'h-11 px-2 rounded-xl',
-      button: 'h-8 w-8 text-base rounded-lg',
+      container: 'h-11 px-2.5 rounded-full',
+      button: 'h-8 w-8 text-base rounded-full',
       text: 'text-base w-10 font-bold',
       icon: 'h-4 w-4',
     },

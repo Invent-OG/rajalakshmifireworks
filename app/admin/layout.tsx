@@ -91,7 +91,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <span className="font-extrabold text-sm text-foreground block leading-none">
                 Operations Desk
               </span>
-              <span className="text-[10px] uppercase tracking-wider font-bold text-amber-600 dark:text-amber-400">
+              <span className="text-[10px] uppercase tracking-wider font-bold text-orange-600">
                 Rajalakshmi
               </span>
             </div>
@@ -125,7 +125,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     href={item.href}
                     onClick={() => setSidebarOpen(false)}
                     className={`
-                      flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition-all
+                      flex items-center gap-3 px-3.5 py-2.5 rounded-full text-xs font-semibold transition-all
                       ${
                         isActive
                           ? 'bg-primary/10 text-primary border border-primary/20 shadow-xs'
@@ -149,7 +149,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="p-3 border-t border-border/80">
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3 w-full px-3 py-2 rounded-xl text-xs font-semibold text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
+            className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-full text-xs font-semibold text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
           >
             <LogOut className="h-4 w-4" />
             <span>Sign Out</span>
@@ -163,7 +163,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <header className="h-16 border-b border-border/80 bg-card/80 backdrop-blur-md flex items-center justify-between px-4 lg:px-8 sticky top-0 z-30">
           <div className="flex items-center gap-3">
             <button
-              className="lg:hidden p-2 rounded-xl border border-border bg-card text-foreground"
+              className="lg:hidden p-2 rounded-full border border-border bg-card text-foreground"
               onClick={() => setSidebarOpen(true)}
               aria-label="Open sidebar"
             >
@@ -178,7 +178,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <Link
               href="/"
               target="_blank"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-border bg-card hover:bg-muted text-xs font-semibold text-foreground transition-colors shadow-xs"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-border bg-card hover:bg-muted text-xs font-semibold text-foreground transition-colors shadow-xs"
             >
               <span>Storefront</span>
               <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />

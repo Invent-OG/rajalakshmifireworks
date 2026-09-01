@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { db } from '@/db';
-import { products } from '@/db/schema';
-import { eq, and, ilike, sql, desc } from 'drizzle-orm';
+import { products, productMedia } from '@/db/schema';
+import { eq, and, ilike, sql, desc, asc, AnyColumn, SQLWrapper } from 'drizzle-orm';
 import { getSession } from '@/lib/auth/session';
 import { productCreateSchema } from '@/lib/validation/product';
 import { slugify } from '@/lib/utils/format';
@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
         where: whereClause,
         with: {
           category: { columns: { id: true, name: true, slug: true } },
-          media: { orderBy: (m, { asc }) => [asc(m.sortOrder)], limit: 1 },
+          media: { orderBy: (m: { sortOrder: SQLWrapper | AnyColumn; }) => [asc(m.sortOrder)], limit: 1 },
         },
         orderBy: [desc(products.createdAt)],
         limit,
@@ -66,18 +66,32 @@ export async function POST(request: NextRequest) {
       return Response.json({ message: 'Validation failed', errors: result.error.flatten().fieldErrors }, { status: 400 });
     }
 
-    const slug = slugify(result.data.name);
+    const { media, ...productData } = result.data;
+    const slug = slugify(productData.name);
 
     // Check slug uniqueness
     const existing = await db.query.products.findFirst({ where: eq(products.slug, slug) });
     const finalSlug = existing ? `${slug}-${Date.now()}` : slug;
 
     const [product] = await db.insert(products).values({
-      ...result.data,
+      ...productData,
       slug: finalSlug,
-      mrp: String(result.data.mrp),
-      sellingPrice: String(result.data.sellingPrice),
+      mrp: String(productData.mrp),
+      sellingPrice: String(productData.sellingPrice),
     }).returning();
+
+    // Insert associated media if provided
+    if (media && media.length > 0) {
+      await db.insert(productMedia).values(
+        media.map((m, idx) => ({
+          productId: product.id,
+          type: m.type === 'video' ? 'video' : 'image',
+          url: m.url,
+          alt: m.alt || product.name,
+          sortOrder: m.sortOrder ?? idx,
+        }))
+      );
+    }
 
     return Response.json({ product }, { status: 201 });
   } catch (error) {

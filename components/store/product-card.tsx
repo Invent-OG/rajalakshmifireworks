@@ -47,11 +47,11 @@ export function ProductCard({ product }: ProductCardProps) {
   }
 
   return (
-    <div className="group relative flex flex-col justify-between rounded-2xl bg-card border border-border/80 overflow-hidden luxury-card hover:border-primary/30 transition-all duration-300">
+    <div className="group relative flex flex-col justify-between rounded-3xl bg-card border border-border/80 overflow-hidden luxury-card hover:border-primary/30 transition-all duration-300 p-2.5 sm:p-3">
       {/* Top Image Showcase */}
       <Link
         href={`/product/${product.slug}`}
-        className="block relative aspect-4/3 sm:aspect-square overflow-hidden bg-gradient-to-b from-muted/50 to-muted/20"
+        className="block relative aspect-4/3 sm:aspect-square overflow-hidden rounded-2xl bg-gradient-to-b from-muted/50 to-muted/20"
       >
         <div className="w-full h-full flex items-center justify-center text-5xl sm:text-6xl group-hover:scale-110 transition-transform duration-500 ease-out select-none">
           {imageUrl ? (

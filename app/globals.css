@@ -1,85 +1,86 @@
 @import "tailwindcss";
 
-/* ── Custom Design Tokens & Color System ─── */
 :root {
-  /* Warm Ivory / Off-White light palette */
-  --background: #faf8f5;
-  --foreground: #1c1917;
+  /* Crisp White & Vibrant Orange Palette */
+  --background: #ffffff;
+  --foreground: #18181b;
   --card: #ffffff;
-  --card-foreground: #1c1917;
-  --card-muted: #f7f4ee;
-  --muted: #f4efe6;
-  --muted-foreground: #78716c;
-  --border: #e7e0d5;
-  --border-subtle: #f0ebe1;
+  --card-foreground: #18181b;
+  --card-muted: #fffaf5;
+  --muted: #fbf6f0;
+  --muted-foreground: #71717a;
+  --border: #f0e6dd;
+  --border-subtle: #fbf5ef;
   --ring: #ea580c;
 
-  /* Brand Accents (Rich Saffron & Warm Gold) */
+  /* Vibrant Orange Brand Colors */
   --primary: #ea580c;
   --primary-hover: #c2410c;
   --primary-foreground: #ffffff;
   --primary-light: #fff7ed;
   
-  --secondary: #1f1d1a;
-  --secondary-foreground: #faf8f5;
+  --secondary: #fff7ed;
+  --secondary-foreground: #c2410c;
   
-  --gold: #d97706;
-  --gold-hover: #b45309;
-  --gold-light: #fef3c7;
-  --gold-foreground: #78350f;
+  --gold: #f97316;
+  --gold-hover: #ea580c;
+  --gold-light: #ffedd5;
+  --gold-foreground: #9a3412;
   
-  --accent: #fef3c7;
-  --accent-foreground: #92400e;
+  --accent: #fff7ed;
+  --accent-foreground: #c2410c;
   
-  --destructive: #dc2626;
+  --destructive: #ef4444;
   --destructive-foreground: #ffffff;
   
-  --success: #15803d;
+  --success: #16a34a;
   --success-foreground: #ffffff;
   --success-light: #f0fdf4;
 
-  --radius: 0.875rem;
-  --radius-sm: 0.5rem;
-  --radius-lg: 1.25rem;
+  --radius: 1.5rem;
+  --radius-sm: 0.875rem;
+  --radius-md: 1.25rem;
+  --radius-lg: 1.75rem;
+  --radius-xl: 2.25rem;
   --radius-full: 9999px;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    /* Obsidian / Charcoal dark luxury palette */
-    --background: #0f0e0d;
-    --foreground: #fcfbf9;
-    --card: #181614;
-    --card-foreground: #fcfbf9;
-    --card-muted: #211e1a;
-    --muted: #24201c;
-    --muted-foreground: #a8a29e;
-    --border: #332d27;
-    --border-subtle: #26221d;
-    --ring: #f97316;
+    /* Retain crisp white & orange theme with rich contrast */
+    --background: #ffffff;
+    --foreground: #18181b;
+    --card: #ffffff;
+    --card-foreground: #18181b;
+    --card-muted: #fffaf5;
+    --muted: #fbf6f0;
+    --muted-foreground: #71717a;
+    --border: #f0e6dd;
+    --border-subtle: #fbf5ef;
+    --ring: #ea580c;
 
-    --primary: #f97316;
-    --primary-hover: #fb923c;
-    --primary-foreground: #0f0e0d;
-    --primary-light: #2c1a0e;
+    --primary: #ea580c;
+    --primary-hover: #c2410c;
+    --primary-foreground: #ffffff;
+    --primary-light: #fff7ed;
     
-    --secondary: #fcfbf9;
-    --secondary-foreground: #0f0e0d;
+    --secondary: #fff7ed;
+    --secondary-foreground: #c2410c;
     
-    --gold: #f59e0b;
-    --gold-hover: #fbbf24;
-    --gold-light: #2d1d07;
-    --gold-foreground: #fef3c7;
+    --gold: #f97316;
+    --gold-hover: #ea580c;
+    --gold-light: #ffedd5;
+    --gold-foreground: #9a3412;
     
-    --accent: #3b1d08;
-    --accent-foreground: #fed7aa;
+    --accent: #fff7ed;
+    --accent-foreground: #c2410c;
     
     --destructive: #ef4444;
     --destructive-foreground: #ffffff;
     
-    --success: #22c55e;
-    --success-foreground: #0f0e0d;
-    --success-light: #0d2818;
+    --success: #16a34a;
+    --success-foreground: #ffffff;
+    --success-light: #f0fdf4;
   }
 }
 
@@ -200,6 +201,7 @@ body {
 .luxury-card {
   background: var(--card);
   border: 1px solid var(--border);
+  border-radius: 1.5rem;
   box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -216,25 +218,21 @@ body {
 
 /* ── Gradients ─── */
 .gold-gradient-text {
-  background: linear-gradient(135deg, #d97706 0%, #ea580c 50%, #b45309 100%);
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 50%, #c2410c 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .festive-hero-gradient {
-  background: radial-gradient(circle at 80% 20%, rgba(249, 115, 22, 0.12) 0%, rgba(245, 158, 11, 0.06) 35%, transparent 70%);
-}
-
-.dark .festive-hero-gradient {
-  background: radial-gradient(circle at 80% 20%, rgba(249, 115, 22, 0.2) 0%, rgba(217, 119, 6, 0.1) 40%, transparent 70%);
+  background: radial-gradient(circle at 80% 20%, rgba(249, 115, 22, 0.12) 0%, rgba(255, 237, 213, 0.45) 40%, transparent 70%);
 }
 
 /* ── Button Shadow Glow ─── */
 .btn-primary-glow {
-  box-shadow: 0 4px 14px 0 rgba(234, 88, 12, 0.35);
+  box-shadow: 0 4px 14px 0 rgba(234, 88, 12, 0.28);
 }
 .btn-primary-glow:hover {
-  box-shadow: 0 6px 20px 0 rgba(234, 88, 12, 0.45);
+  box-shadow: 0 6px 20px 0 rgba(234, 88, 12, 0.38);
 }
 
 /* ── Utilities ─── */

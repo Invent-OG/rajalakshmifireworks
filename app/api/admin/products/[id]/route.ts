@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { db } from '@/db';
 import { products } from '@/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, asc, AnyColumn, SQLWrapper } from 'drizzle-orm';
 import { getSession } from '@/lib/auth/session';
 import { productUpdateSchema } from '@/lib/validation/product';
 import { slugify } from '@/lib/utils/format';
@@ -20,7 +20,7 @@ export async function GET(
       where: eq(products.id, parseInt(id)),
       with: {
         category: true,
-        media: { orderBy: (m, { asc }) => [asc(m.sortOrder)] },
+        media: { orderBy: (m: { sortOrder: SQLWrapper | AnyColumn; }) => [asc(m.sortOrder)] },
       },
     });
 

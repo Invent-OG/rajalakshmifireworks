@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useCart } from '@/hooks/use-cart';
@@ -64,7 +64,11 @@ export default function CheckoutPage() {
     },
   });
 
-  const fulfillmentType = form.watch('fulfillmentType');
+  const fulfillmentType = useWatch({
+    control: form.control,
+    name: 'fulfillmentType',
+    defaultValue: 'DELIVERY',
+  });
 
   if (items.length === 0) {
     return (
@@ -149,7 +153,7 @@ export default function CheckoutPage() {
             {/* Step 01: Customer Details */}
             <div className="p-6 rounded-3xl bg-card border border-border/80 luxury-card space-y-5">
               <div className="flex items-center gap-3">
-                <span className="h-7 w-7 rounded-lg bg-primary text-primary-foreground text-xs font-black flex items-center justify-center">
+                <span className="h-7 w-7 rounded-full bg-primary text-primary-foreground text-xs font-black flex items-center justify-center">
                   01
                 </span>
                 <h2 className="font-extrabold text-base sm:text-lg text-foreground tracking-tight">
@@ -176,7 +180,7 @@ export default function CheckoutPage() {
             {/* Step 02: Fulfillment Method */}
             <div className="p-6 rounded-3xl bg-card border border-border/80 luxury-card space-y-5">
               <div className="flex items-center gap-3">
-                <span className="h-7 w-7 rounded-lg bg-primary text-primary-foreground text-xs font-black flex items-center justify-center">
+                <span className="h-7 w-7 rounded-full bg-primary text-primary-foreground text-xs font-black flex items-center justify-center">
                   02
                 </span>
                 <h2 className="font-extrabold text-base sm:text-lg text-foreground tracking-tight">

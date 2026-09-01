@@ -12,9 +12,12 @@ import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 
+import { ProductMediaManager, type ProductMediaItem } from '@/components/admin/product-media-manager';
+
 export default function NewProductPage() {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
+  const [mediaItems, setMediaItems] = useState<ProductMediaItem[]>([]);
 
   const { data: catData } = useQuery({
     queryKey: ['admin', 'categories', 'list'],
@@ -50,7 +53,10 @@ export default function NewProductPage() {
       const res = await fetch('/api/admin/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          ...data,
+          media: mediaItems,
+        }),
       });
 
       const resData = await res.json();
@@ -59,7 +65,7 @@ export default function NewProductPage() {
         return;
       }
 
-      toast.success('Product created successfully');
+      toast.success('Product created successfully with media');
       router.push('/admin/products');
       router.refresh();
     } catch {
@@ -130,7 +136,13 @@ export default function NewProductPage() {
           />
         </div>
 
-        {/* Section 2: Pricing & Stock */}
+        {/* Section 2: Media & Demo Video */}
+        <ProductMediaManager
+          media={mediaItems}
+          onChange={setMediaItems}
+        />
+
+        {/* Section 3: Pricing & Stock */}
         <div className="p-6 rounded-3xl bg-card border border-border/80 luxury-card space-y-5">
           <h2 className="font-extrabold text-sm uppercase tracking-wider text-muted-foreground pb-2 border-b border-border/60">
             02. Pricing & Warehouse Inventory

@@ -125,19 +125,19 @@ export default async function HomePage() {
               icon: Star,
               title: 'Sivakasi Direct',
               desc: 'Authentic crackers directly from manufacturers',
-              color: 'text-amber-500 bg-amber-500/10 border-amber-500/20',
+              color: 'text-orange-500 bg-orange-500/10 border-orange-500/20',
             },
             {
               icon: Truck,
               title: 'Flexible Dispatch',
               desc: 'Doorstep home delivery or direct store pickup',
-              color: 'text-orange-500 bg-orange-500/10 border-orange-500/20',
+              color: 'text-orange-600 bg-orange-500/10 border-orange-500/20',
             },
             {
               icon: Gift,
               title: 'Curated Combos',
               desc: 'Budget-friendly family & community packs',
-              color: 'text-rose-500 bg-rose-500/10 border-rose-500/20',
+              color: 'text-amber-500 bg-amber-500/10 border-amber-500/20',
             },
             {
               icon: Sparkles,
@@ -148,10 +148,10 @@ export default async function HomePage() {
           ].map((item) => (
             <div
               key={item.title}
-              className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-4 rounded-2xl bg-card border border-border/80 luxury-card"
+              className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-4 rounded-3xl bg-card border border-border/80 luxury-card"
             >
               <div
-                className={`h-11 w-11 rounded-xl flex items-center justify-center shrink-0 border ${item.color}`}
+                className={`h-11 w-11 rounded-2xl flex items-center justify-center shrink-0 border ${item.color}`}
               >
                 <item.icon className="h-5 w-5" />
               </div>
@@ -169,7 +169,7 @@ export default async function HomePage() {
         <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between mb-8 pb-3 border-b border-border/60">
             <div>
-              <span className="text-xs uppercase font-bold tracking-widest text-amber-600 dark:text-amber-400">
+              <span className="text-xs uppercase font-bold tracking-widest text-orange-600">
                 Collections
               </span>
               <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground mt-1">
@@ -189,14 +189,14 @@ export default async function HomePage() {
               <Link
                 key={cat.id}
                 href={`/category/${cat.slug}`}
-                className="group relative p-5 sm:p-6 rounded-2xl bg-card border border-border/80 luxury-card hover:border-primary/40 flex flex-col justify-between overflow-hidden"
+                className="group relative p-5 sm:p-6 rounded-3xl bg-card border border-border/80 luxury-card hover:border-primary/40 flex flex-col justify-between overflow-hidden"
               >
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-3xl sm:text-4xl group-hover:scale-110 transition-transform select-none">
                     {getCategoryEmoji(cat.name)}
                   </span>
-                  <div className="h-7 w-7 rounded-full bg-muted flex items-center justify-center text-muted-foreground group-hover:bg-primary group-hover:text-white transition-colors">
-                    <ArrowRight className="h-3.5 w-3.5" />
+                  <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground group-hover:bg-primary group-hover:text-white transition-colors">
+                    <ArrowRight className="h-4 w-4" />
                   </div>
                 </div>
 
@@ -221,18 +221,18 @@ export default async function HomePage() {
         <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between mb-8 pb-3 border-b border-border/60">
             <div>
-              <span className="text-xs uppercase font-bold tracking-widest text-orange-600 dark:text-orange-400">
-                Handpicked
+              <span className="text-xs uppercase font-bold tracking-widest text-orange-600">
+                Specials
               </span>
               <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground mt-1">
-                Featured Fireworks
+                Featured Crackers
               </h2>
             </div>
             <Link
               href="/products?featured=true"
               className="text-xs sm:text-sm font-semibold text-primary hover:text-primary-hover flex items-center gap-1 group"
             >
-              Explore Featured <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              View Featured <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
 
@@ -244,12 +244,12 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* ── 5. Bestseller Products ─── */}
+      {/* ── 5. Bestseller Showcase ─── */}
       {bestsellerProducts.length > 0 && (
         <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between mb-8 pb-3 border-b border-border/60">
             <div>
-              <span className="text-xs uppercase font-bold tracking-widest text-amber-600 dark:text-amber-400">
+              <span className="text-xs uppercase font-bold tracking-widest text-orange-600">
                 Crowd Favorites
               </span>
               <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground mt-1">
@@ -274,28 +274,28 @@ export default async function HomePage() {
 
       {/* ── 6. Heritage Trust Banner ─── */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="rounded-3xl bg-gradient-to-br from-stone-900 via-stone-950 to-stone-900 text-white p-8 sm:p-12 border border-stone-800 relative overflow-hidden shadow-2xl">
+        <div className="rounded-3xl bg-gradient-to-br from-orange-600 via-amber-600 to-orange-700 text-white p-8 sm:p-12 border border-orange-500/30 relative overflow-hidden shadow-2xl">
           <div className="relative z-10 max-w-2xl space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-bold border border-amber-500/30">
-              <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/20 text-white text-xs font-bold border border-white/30 backdrop-blur-xs">
+              <Sparkles className="h-3.5 w-3.5 text-amber-200" />
               SIVAKASI AUTHENTICITY GUARANTEE
             </div>
             <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight">
               Celebrate Responsibly with Tested & Certified Fireworks
             </h2>
-            <p className="text-sm text-stone-300 leading-relaxed font-normal">
+            <p className="text-sm text-amber-50 leading-relaxed font-normal">
               Every cracker in our catalog undergoes rigorous safety compliance testing. Direct from Sivakasi factory units, packaged securely with moisture-resistant insulation for flawless festive bursts.
             </p>
             <div className="pt-2">
               <Link href="/products">
-                <Button size="lg" variant="gold" className="text-stone-950 font-bold">
+                <Button size="lg" variant="secondary" className="bg-white text-orange-600 font-bold hover:bg-white/90">
                   Browse Complete Catalog
                 </Button>
               </Link>
             </div>
           </div>
           {/* Subtle ambient light glow */}
-          <div className="absolute -right-20 -bottom-20 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -right-20 -bottom-20 w-80 h-80 bg-white/10 rounded-full blur-3xl pointer-events-none" />
         </div>
       </section>
     </div>

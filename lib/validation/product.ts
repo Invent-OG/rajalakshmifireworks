@@ -1,5 +1,13 @@
 import { z } from 'zod';
 
+export const productMediaItemSchema = z.object({
+  id: z.number().optional(),
+  type: z.enum(['image', 'video']),
+  url: z.string().min(1, 'Media URL is required'),
+  alt: z.string().max(255).optional(),
+  sortOrder: z.number().int(),
+});
+
 export const productBaseSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').max(255).trim(),
   categoryId: z.number().int().positive('Please select a category'),
@@ -12,6 +20,7 @@ export const productBaseSchema = z.object({
   isActive: z.boolean(),
   isFeatured: z.boolean(),
   isBestseller: z.boolean(),
+  media: z.array(productMediaItemSchema).optional(),
 });
 
 export const productCreateSchema = productBaseSchema.refine(

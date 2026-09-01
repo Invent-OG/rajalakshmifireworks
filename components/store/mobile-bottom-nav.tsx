@@ -3,18 +3,21 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, Sparkles, Search, ShoppingBag, Truck } from 'lucide-react';
-import { useCart } from '@/hooks/use-cart';
+import { useCart, useIsHydrated } from '@/hooks/use-cart';
 
 export function MobileBottomNav() {
   const pathname = usePathname();
   const { itemCount } = useCart();
+  const isHydrated = useIsHydrated();
+
+  const displayCount = isHydrated ? itemCount : 0;
 
   const navItems = [
     { href: '/', icon: Home, label: 'Home' },
     { href: '/products', icon: Sparkles, label: 'Products' },
     { href: '/search', icon: Search, label: 'Search' },
     { href: '/track-order', icon: Truck, label: 'Track' },
-    { href: '/cart', icon: ShoppingBag, label: 'Cart', badge: itemCount },
+    { href: '/cart', icon: ShoppingBag, label: 'Cart', badge: displayCount },
   ];
 
   // Don't show bottom nav on checkout to avoid distraction
@@ -36,9 +39,9 @@ export function MobileBottomNav() {
             <Link
               key={item.href}
               href={item.href}
-              className={`relative flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all duration-200 ${
+              className={`relative flex flex-col items-center justify-center py-1 px-3.5 rounded-full transition-all duration-200 ${
                 isActive
-                  ? 'text-primary font-semibold'
+                  ? 'text-primary font-semibold bg-primary/10'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >

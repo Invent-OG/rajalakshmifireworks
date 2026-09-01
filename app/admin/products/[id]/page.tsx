@@ -13,6 +13,8 @@ import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 
+import { ProductMediaManager } from '@/components/admin/product-media-manager';
+
 export default function EditProductPage({
   params,
 }: {
@@ -168,7 +170,13 @@ export default function EditProductPage({
           />
         </div>
 
-        {/* Section 2: Pricing & Inventory */}
+        {/* Section 2: Media & Demo Video */}
+        <ProductMediaManager
+          productId={productId}
+          media={product.media || []}
+        />
+
+        {/* Section 3: Pricing & Inventory */}
         <div className="p-6 rounded-3xl bg-card border border-border/80 luxury-card space-y-5">
           <h2 className="font-extrabold text-sm uppercase tracking-wider text-muted-foreground pb-2 border-b border-border/60">
             02. Pricing & Warehouse Inventory

@@ -72,10 +72,10 @@ export default function CartPage() {
           {items.map((item) => (
             <div
               key={item.productId}
-              className="p-4 sm:p-5 rounded-2xl bg-card border border-border/80 luxury-card flex gap-4 sm:gap-6 items-center"
+              className="p-4 sm:p-5 rounded-3xl bg-card border border-border/80 luxury-card flex gap-4 sm:gap-6 items-center"
             >
               {/* Product Thumbnail */}
-              <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-xl bg-gradient-to-b from-muted/60 to-muted/20 border border-border/60 flex items-center justify-center text-3xl sm:text-4xl shrink-0 select-none overflow-hidden">
+              <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-2xl bg-gradient-to-b from-muted/60 to-muted/20 border border-border/60 flex items-center justify-center text-3xl sm:text-4xl shrink-0 select-none overflow-hidden">
                 {item.image ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
@@ -108,7 +108,7 @@ export default function CartPage() {
 
                   <button
                     onClick={() => removeItem(item.productId)}
-                    className="text-muted-foreground hover:text-destructive p-1.5 rounded-lg hover:bg-muted transition-colors cursor-pointer"
+                    className="text-muted-foreground hover:text-destructive p-2 rounded-full hover:bg-muted transition-colors cursor-pointer"
                     aria-label={`Remove ${item.name}`}
                   >
                     <Trash2 className="h-4 w-4" />

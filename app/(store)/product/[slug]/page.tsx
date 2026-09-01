@@ -5,10 +5,11 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { toNumber } from '@/lib/utils/format';
 import { ProductDetailClient } from './product-detail-client';
+import { ProductMediaGallery } from '@/components/store/product-media-gallery';
 import { PriceDisplay } from '@/components/ui/price-display';
 import { StatusBadge } from '@/components/ui/badge';
 import Link from 'next/link';
-import { ArrowLeft, Sparkles, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, AlertTriangle } from 'lucide-react';
 
 export async function generateMetadata({
   params,
@@ -35,7 +36,7 @@ export default async function ProductPage({
     where: eq(products.slug, slug),
     with: {
       category: true,
-      media: { orderBy: (m, { asc }) => [asc(m.sortOrder)] },
+      media: { orderBy: (m) => [m.sortOrder] },
     },
   });
 
@@ -43,7 +44,7 @@ export default async function ProductPage({
 
   const mrp = toNumber(product.mrp);
   const price = toNumber(product.sellingPrice);
-  const imageUrl = product.media?.[0]?.url || null;
+  const imageUrl = product.media?.find((m: { type: string; }) => m.type === 'image')?.url || product.media?.[0]?.url || null;
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 animate-fade-in space-y-8">
@@ -66,28 +67,13 @@ export default async function ProductPage({
 
       {/* Main Product Showcase Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-        {/* Left: Product Visual Showcase */}
+        {/* Left: Product Visual & Video Gallery Showcase */}
         <div className="lg:col-span-6 space-y-4">
-          <div className="relative aspect-square rounded-3xl bg-gradient-to-b from-muted/60 to-muted/20 border border-border/80 p-8 flex items-center justify-center luxury-card overflow-hidden">
-            {imageUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={imageUrl}
-                alt={product.name}
-                className="w-full h-full object-contain hover:scale-105 transition-transform duration-500"
-              />
-            ) : (
-              <div className="text-8xl sm:text-9xl select-none animate-float">
-                {getProductEmoji(product.category?.name || product.name)}
-              </div>
-            )}
-
-            {/* Sivakasi authentic stamp */}
-            <div className="absolute top-4 left-4 bg-card/90 backdrop-blur-md px-3 py-1 rounded-full border border-border text-[11px] font-bold text-foreground flex items-center gap-1.5 shadow-sm">
-              <Sparkles className="h-3.5 w-3.5 text-amber-500" />
-              <span>Sivakasi Authentic</span>
-            </div>
-          </div>
+          <ProductMediaGallery
+            productName={product.name}
+            categoryName={product.category?.name}
+            media={product.media || []}
+          />
         </div>
 
         {/* Right: Product Details & Purchase Form */}
@@ -177,15 +163,3 @@ export default async function ProductPage({
   );
 }
 
-function getProductEmoji(name: string): string {
-  const lower = name.toLowerCase();
-  if (lower.includes('sparkler')) return '✨';
-  if (lower.includes('flower') || lower.includes('pot')) return '🌸';
-  if (lower.includes('rocket')) return '🚀';
-  if (lower.includes('chakra') || lower.includes('wheel')) return '🎡';
-  if (lower.includes('fountain') || lower.includes('cone')) return '⛲';
-  if (lower.includes('sound') || lower.includes('bomb') || lower.includes('wala')) return '💥';
-  if (lower.includes('gift') || lower.includes('box')) return '🎁';
-  if (lower.includes('family') || lower.includes('pack')) return '🎉';
-  return '🎆';
-}

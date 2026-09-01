@@ -25,11 +25,11 @@ const variantClasses: Record<ButtonVariant, string> = {
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
-  sm: 'h-8 px-3.5 text-xs rounded-lg gap-1.5',
-  md: 'h-10 px-4 text-sm rounded-xl gap-2',
-  lg: 'h-12 px-6 text-base rounded-xl gap-2.5 font-semibold',
-  icon: 'h-10 w-10 rounded-xl p-0',
-  'icon-sm': 'h-8 w-8 rounded-lg p-0',
+  sm: 'h-8 px-4 text-xs rounded-full gap-1.5',
+  md: 'h-10 px-5 text-sm rounded-full gap-2',
+  lg: 'h-12 px-7 text-base rounded-full gap-2.5 font-semibold',
+  icon: 'h-10 w-10 rounded-full p-0',
+  'icon-sm': 'h-8 w-8 rounded-full p-0',
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
