@@ -1,26 +1,250 @@
 @import "tailwindcss";
 
+/* ── Custom Design Tokens & Color System ─── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Warm Ivory / Off-White light palette */
+  --background: #faf8f5;
+  --foreground: #1c1917;
+  --card: #ffffff;
+  --card-foreground: #1c1917;
+  --card-muted: #f7f4ee;
+  --muted: #f4efe6;
+  --muted-foreground: #78716c;
+  --border: #e7e0d5;
+  --border-subtle: #f0ebe1;
+  --ring: #ea580c;
+
+  /* Brand Accents (Rich Saffron & Warm Gold) */
+  --primary: #ea580c;
+  --primary-hover: #c2410c;
+  --primary-foreground: #ffffff;
+  --primary-light: #fff7ed;
+  
+  --secondary: #1f1d1a;
+  --secondary-foreground: #faf8f5;
+  
+  --gold: #d97706;
+  --gold-hover: #b45309;
+  --gold-light: #fef3c7;
+  --gold-foreground: #78350f;
+  
+  --accent: #fef3c7;
+  --accent-foreground: #92400e;
+  
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  
+  --success: #15803d;
+  --success-foreground: #ffffff;
+  --success-light: #f0fdf4;
+
+  --radius: 0.875rem;
+  --radius-sm: 0.5rem;
+  --radius-lg: 1.25rem;
+  --radius-full: 9999px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Obsidian / Charcoal dark luxury palette */
+    --background: #0f0e0d;
+    --foreground: #fcfbf9;
+    --card: #181614;
+    --card-foreground: #fcfbf9;
+    --card-muted: #211e1a;
+    --muted: #24201c;
+    --muted-foreground: #a8a29e;
+    --border: #332d27;
+    --border-subtle: #26221d;
+    --ring: #f97316;
+
+    --primary: #f97316;
+    --primary-hover: #fb923c;
+    --primary-foreground: #0f0e0d;
+    --primary-light: #2c1a0e;
+    
+    --secondary: #fcfbf9;
+    --secondary-foreground: #0f0e0d;
+    
+    --gold: #f59e0b;
+    --gold-hover: #fbbf24;
+    --gold-light: #2d1d07;
+    --gold-foreground: #fef3c7;
+    
+    --accent: #3b1d08;
+    --accent-foreground: #fed7aa;
+    
+    --destructive: #ef4444;
+    --destructive-foreground: #ffffff;
+    
+    --success: #22c55e;
+    --success-foreground: #0f0e0d;
+    --success-light: #0d2818;
+  }
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-card-muted: var(--card-muted);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-border-subtle: var(--border-subtle);
+  --color-ring: var(--ring);
+  
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-light: var(--primary-light);
+  
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  
+  --color-gold: var(--gold);
+  --color-gold-hover: var(--gold-hover);
+  --color-gold-light: var(--gold-light);
+  --color-gold-foreground: var(--gold-foreground);
+  
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-success-light: var(--success-light);
+  
+  --radius-base: var(--radius);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ── Base Styles ─── */
+* {
+  border-color: var(--border);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* ── Custom Scrollbar ─── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--muted-foreground) 30%, transparent);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
+
+/* ── Animations & Micro-Interactions ─── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleUp {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulseSubtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.65; }
+}
+
+@keyframes shimmerGlow {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes floatGentle {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+.animate-fade-in { animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.animate-scale-up { animation: scaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.animate-pulse-subtle { animation: pulseSubtle 2.5s ease-in-out infinite; }
+.animate-float { animation: floatGentle 4s ease-in-out infinite; }
+
+.shimmer-effect {
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.08) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmerGlow 2.5s infinite;
+}
+
+/* ── Glass & Luxury Surfaces ─── */
+.glass-header {
+  background: color-mix(in srgb, var(--card) 85%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.luxury-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.luxury-card:hover {
+  border-color: color-mix(in srgb, var(--primary) 35%, var(--border));
+  box-shadow: 0 12px 30px -4px rgba(234, 88, 12, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.04);
+  transform: translateY(-2px);
+}
+
+.luxury-card-interactive {
+  cursor: pointer;
+}
+
+/* ── Gradients ─── */
+.gold-gradient-text {
+  background: linear-gradient(135deg, #d97706 0%, #ea580c 50%, #b45309 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.festive-hero-gradient {
+  background: radial-gradient(circle at 80% 20%, rgba(249, 115, 22, 0.12) 0%, rgba(245, 158, 11, 0.06) 35%, transparent 70%);
+}
+
+.dark .festive-hero-gradient {
+  background: radial-gradient(circle at 80% 20%, rgba(249, 115, 22, 0.2) 0%, rgba(217, 119, 6, 0.1) 40%, transparent 70%);
+}
+
+/* ── Button Shadow Glow ─── */
+.btn-primary-glow {
+  box-shadow: 0 4px 14px 0 rgba(234, 88, 12, 0.35);
+}
+.btn-primary-glow:hover {
+  box-shadow: 0 6px 20px 0 rgba(234, 88, 12, 0.45);
+}
+
+/* ── Utilities ─── */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+.focus-ring {
+  outline: none;
+}
+.focus-ring:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
 }
