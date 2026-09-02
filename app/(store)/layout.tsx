@@ -7,6 +7,10 @@ import { useCart, useIsHydrated } from '@/hooks/use-cart';
 import { APP_CONFIG } from '@/lib/constants/config';
 import { MobileBottomNav } from '@/components/store/mobile-bottom-nav';
 
+import { useRef } from 'react';
+import { useGSAP } from '@gsap/react';
+import { gsap, isReducedMotion } from '@/lib/motion';
+
 function AnnouncementBar() {
   return (
     <div className="bg-foreground text-background text-xs py-2 px-4 text-center font-medium tracking-tight">
@@ -15,6 +19,34 @@ function AnnouncementBar() {
         <span>Direct from Sivakasi • 100% Genuine Factory Sealed Fireworks • Wholesale Pricing</span>
       </div>
     </div>
+  );
+}
+
+function CartBadge({ count }: { count: number }) {
+  const badgeRef = useRef<HTMLSpanElement>(null);
+  const isFirstRender = useRef(true);
+
+  useGSAP(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    if (isReducedMotion() || !badgeRef.current) return;
+
+    gsap.timeline()
+      .to(badgeRef.current, { scale: 1.18, duration: 0.12, ease: 'power2.out' })
+      .to(badgeRef.current, { scale: 1, duration: 0.14, ease: 'power2.inOut' });
+  }, [count]);
+
+  if (count <= 0) return null;
+
+  return (
+    <span
+      ref={badgeRef}
+      className="h-5 min-w-5 px-1.5 rounded-full bg-brand text-white text-[11px] font-bold flex items-center justify-center transform-gpu"
+    >
+      {count > 99 ? '99+' : count}
+    </span>
   );
 }
 
@@ -110,11 +142,7 @@ function Header() {
             >
               <ShoppingBag className="h-4 w-4" />
               <span className="hidden sm:inline">Bag</span>
-              {displayCount > 0 && (
-                <span className="h-5 min-w-5 px-1.5 rounded-full bg-brand text-white text-[11px] font-bold flex items-center justify-center">
-                  {displayCount > 99 ? '99+' : displayCount}
-                </span>
-              )}
+              <CartBadge count={displayCount} />
             </Link>
           </div>
         </div>

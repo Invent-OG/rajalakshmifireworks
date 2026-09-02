@@ -2,13 +2,16 @@
 
 import { useCart } from '@/hooks/use-cart';
 import { StoreButton } from '@/components/ui/store-button';
-import { formatCurrency } from '@/lib/utils/format';
 import { QuantityStepper } from '@/components/ui/quantity-stepper';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ProductVisualPlaceholder } from '@/components/ui/category-icon';
 import { Trash2, ShoppingBag, ArrowRight, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import NumberFlow from '@number-flow/react';
 import Link from 'next/link';
-import { useSyncExternalStore } from 'react';
+import { useSyncExternalStore, useRef } from 'react';
+import { useGSAP } from '@gsap/react';
+import { gsap, isReducedMotion } from '@/lib/motion';
+import { formatCurrency } from '@/lib/utils/format';
 
 function useIsHydrated() {
   return useSyncExternalStore(
@@ -23,6 +26,39 @@ export default function CartPage() {
     useCart();
   const minOrderValue = 500;
   const hydrated = useIsHydrated();
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // GSAP Entrance Stagger for cart page items
+  useGSAP(
+    () => {
+      if (!hydrated || isReducedMotion() || !containerRef.current) return;
+
+      gsap.fromTo(
+        '.cart-page-item',
+        { opacity: 0, y: 15, scale: 0.98 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.35, ease: 'power2.out', stagger: 0.05 }
+      );
+    },
+    { dependencies: [hydrated], scope: containerRef }
+  );
+
+  const handleRemoveWithAnim = (productId: number, targetEl: HTMLElement | null) => {
+    if (!targetEl || isReducedMotion()) {
+      removeItem(productId);
+      return;
+    }
+
+    gsap.to(targetEl, {
+      opacity: 0,
+      scale: 0.9,
+      x: 20,
+      duration: 0.22,
+      ease: 'power2.in',
+      onComplete: () => {
+        removeItem(productId);
+      },
+    });
+  };
 
   if (!hydrated) return null;
 
@@ -45,12 +81,15 @@ export default function CartPage() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 animate-fade-in space-y-8">
+    <div ref={containerRef} className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 animate-fade-in space-y-8">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-border">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
-            Shopping Bag ({itemCount} {itemCount === 1 ? 'item' : 'items'})
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground flex items-center gap-2">
+            <span>Shopping Bag</span>
+            <span className="text-muted-foreground font-normal text-lg sm:text-xl">
+              ({itemCount} {itemCount === 1 ? 'item' : 'items'})
+            </span>
           </h1>
         </div>
 
@@ -69,7 +108,7 @@ export default function CartPage() {
           {items.map((item) => (
             <div
               key={item.productId}
-              className="p-4 sm:p-5 rounded-2xl bg-card border border-border flex gap-4 sm:gap-6 items-center"
+              className="cart-page-item p-4 sm:p-5 rounded-2xl bg-card border border-border flex gap-4 sm:gap-6 items-center shadow-xs transition-all hover:border-neutral-300"
             >
               {/* Product Thumbnail */}
               <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-xl bg-muted/40 border border-border flex items-center justify-center shrink-0 select-none overflow-hidden">
@@ -87,7 +126,7 @@ export default function CartPage() {
                   <div>
                     <Link
                       href={`/product/${item.slug}`}
-                      className="font-medium text-sm sm:text-base text-foreground hover:text-brand transition-colors line-clamp-1"
+                      className="font-semibold text-sm sm:text-base text-foreground hover:text-brand transition-colors line-clamp-1"
                     >
                       {item.name}
                     </Link>
@@ -96,16 +135,19 @@ export default function CartPage() {
                         {formatCurrency(item.sellingPrice)}
                       </span>
                       {item.mrp > item.sellingPrice && (
-                        <span className="text-xs text-muted-foreground line-through">
-                          {formatCurrency(item.mrp)}
+                        <span className="text-xs text-muted-foreground line-through font-mono">
+                          ₹{new Intl.NumberFormat('en-IN').format(item.mrp)}
                         </span>
                       )}
                     </div>
                   </div>
 
                   <button
-                    onClick={() => removeItem(item.productId)}
-                    className="text-muted-foreground hover:text-destructive p-1.5 rounded-lg hover:bg-muted transition-colors cursor-pointer"
+                    onClick={(e) => {
+                      const card = e.currentTarget.closest('.cart-page-item') as HTMLElement | null;
+                      handleRemoveWithAnim(item.productId, card);
+                    }}
+                    className="text-muted-foreground hover:text-destructive p-1.5 rounded-lg hover:bg-destructive-light transition-colors cursor-pointer"
                     aria-label={`Remove ${item.name}`}
                   >
                     <Trash2 className="h-4 w-4" />
@@ -126,8 +168,8 @@ export default function CartPage() {
                   />
 
                   <div className="text-right">
-                    <span className="text-[11px] text-muted-foreground block">Item Total</span>
-                    <span className="font-semibold text-sm sm:text-base text-foreground">
+                    <span className="text-[11px] text-muted-foreground block font-medium">Item Total</span>
+                    <span className="font-semibold text-sm sm:text-base text-foreground font-mono">
                       {formatCurrency(item.sellingPrice * item.quantity)}
                     </span>
                   </div>
@@ -139,7 +181,7 @@ export default function CartPage() {
 
         {/* Right Column: Order Summary & Checkout Trigger */}
         <div className="lg:col-span-4">
-          <div className="p-6 rounded-2xl bg-card border border-border sticky top-24 space-y-6">
+          <div className="p-6 rounded-2xl bg-card border border-border sticky top-24 space-y-6 shadow-sm">
             <h2 className="font-bold text-base text-foreground tracking-tight pb-3 border-b border-border">
               Order Summary
             </h2>
@@ -148,8 +190,8 @@ export default function CartPage() {
             <div className="p-4 rounded-xl bg-background-secondary border border-border space-y-2">
               <div className="flex items-center justify-between text-xs">
                 <span className="font-medium text-foreground">Minimum Order</span>
-                <span className="font-semibold text-muted-foreground">
-                  {formatCurrency(subtotal)} / {formatCurrency(minOrderValue)}
+                <span className="font-semibold text-muted-foreground font-mono">
+                  {formatCurrency(subtotal)} / ₹{minOrderValue}
                 </span>
               </div>
 
@@ -172,7 +214,7 @@ export default function CartPage() {
                 </p>
               ) : (
                 <p className="text-xs text-muted-foreground">
-                  Add <span className="font-semibold text-foreground">{formatCurrency(remaining)}</span> more to continue.
+                  Add <span className="font-semibold text-foreground font-mono">{formatCurrency(remaining)}</span> more to continue.
                 </p>
               )}
             </div>
@@ -181,13 +223,17 @@ export default function CartPage() {
             <div className="space-y-2.5 text-xs sm:text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Items subtotal</span>
-                <span className="font-medium">{formatCurrency(subtotal)}</span>
+                <span className="font-semibold">
+                  {formatCurrency(subtotal)}
+                </span>
               </div>
 
               {totalSavings > 0 && (
                 <div className="flex justify-between text-emerald-700 font-medium">
                   <span>Wholesale savings</span>
-                  <span>-{formatCurrency(totalSavings)}</span>
+                  <span className="font-semibold">
+                    -{formatCurrency(totalSavings)}
+                  </span>
                 </div>
               )}
 
@@ -201,11 +247,24 @@ export default function CartPage() {
             <div className="pt-3 border-t border-border space-y-1">
               <div className="flex justify-between items-baseline font-bold text-lg text-foreground">
                 <span>Estimated Total</span>
-                <span>{formatCurrency(subtotal)}</span>
+                <span className="text-xl">
+                  <NumberFlow
+                    value={subtotal}
+                    format={{
+                      style: 'currency',
+                      currency: 'INR',
+                      trailingZeroDisplay: 'stripIfInteger',
+                    }}
+                    transformTiming={{
+                      duration: 400,
+                      easing: 'ease-out',
+                    }}
+                  />
+                </span>
               </div>
               {totalSavings > 0 && (
-                <p className="text-[11px] text-muted-foreground">
-                  MRP Total: {formatCurrency(totalMrp)}
+                <p className="text-[11px] text-muted-foreground font-mono">
+                  MRP Total: ₹{new Intl.NumberFormat('en-IN').format(totalMrp)}
                 </p>
               )}
             </div>
@@ -221,7 +280,7 @@ export default function CartPage() {
             ) : (
               <Link href="/products" className="block">
                 <StoreButton size="lg" variant="outline" className="w-full">
-                  Add {formatCurrency(remaining)} more
+                  Add ₹{remaining} more
                 </StoreButton>
               </Link>
             )}

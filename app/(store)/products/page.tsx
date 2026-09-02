@@ -4,6 +4,7 @@ import { eq, and, desc, asc, ilike } from 'drizzle-orm';
 import { ProductCard } from '@/components/store/product-card';
 import { SortSelector } from '@/components/store/sort-selector';
 import { EmptyState } from '@/components/ui/empty-state';
+import { QuickCartSidebar, QuickCartMobileFloating } from '@/components/store/quick-cart-drawer';
 import Link from 'next/link';
 import { Sparkles, Filter } from 'lucide-react';
 import type { Metadata } from 'next';
@@ -155,10 +156,10 @@ export default async function ProductsPage({
         ))}
       </div>
 
-      {/* Main Catalog View */}
-      <div className="flex gap-8 items-start">
+      {/* Main Catalog View: Category Sidebar + Product Grid + Quick Cart Widget */}
+      <div className="flex gap-6 items-start">
         {/* Desktop Category Sidebar */}
-        <aside className="hidden lg:block w-56 shrink-0 bg-card rounded-2xl border border-border p-4 sticky top-24">
+        <aside className="hidden lg:block w-52 shrink-0 bg-card rounded-2xl border border-border p-4 sticky top-24">
           <div className="flex items-center gap-2 pb-3 mb-3 border-b border-border font-semibold text-xs uppercase tracking-wider text-muted-foreground">
             <Filter className="h-3.5 w-3.5" />
             <span>Categories</span>
@@ -224,9 +225,9 @@ export default async function ProductsPage({
         </aside>
 
         {/* Product Grid Area */}
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           {productList.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-3 sm:gap-4">
               {productList.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
@@ -244,7 +245,13 @@ export default async function ProductsPage({
             />
           )}
         </div>
+
+        {/* Desktop Quick Cart Widget */}
+        <QuickCartSidebar />
       </div>
+
+      {/* Mobile Sticky Quick Cart Floating Bar & Drawer */}
+      <QuickCartMobileFloating />
     </div>
   );
 }

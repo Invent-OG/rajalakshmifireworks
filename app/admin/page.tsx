@@ -1,5 +1,6 @@
 'use client';
 
+import { useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/query/keys';
 import { formatCurrency, formatDateTime } from '@/lib/utils/format';
@@ -13,6 +14,8 @@ import {
   ArrowUpRight,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useGSAP } from '@gsap/react';
+import { gsap, isReducedMotion } from '@/lib/motion';
 
 interface DashboardData {
   todayOrders: number;
@@ -35,7 +38,44 @@ interface DashboardData {
   }>;
 }
 
+function KpiValueCounter({
+  target,
+  isCurrency = false,
+}: {
+  target: number;
+  isCurrency?: boolean;
+}) {
+  const nodeRef = useRef<HTMLSpanElement>(null);
+  const animatedRef = useRef(false);
+
+  useGSAP(() => {
+    if (animatedRef.current || isReducedMotion() || !nodeRef.current) return;
+    animatedRef.current = true;
+
+    const counterObj = { val: 0 };
+    gsap.to(counterObj, {
+      val: target,
+      duration: 0.75,
+      ease: 'power2.out',
+      onUpdate: () => {
+        if (nodeRef.current) {
+          nodeRef.current.textContent = isCurrency
+            ? formatCurrency(Math.round(counterObj.val))
+            : Math.round(counterObj.val).toLocaleString('en-IN');
+        }
+      },
+    });
+  }, [target]);
+
+  return (
+    <span ref={nodeRef}>
+      {isCurrency ? formatCurrency(target) : target.toLocaleString('en-IN')}
+    </span>
+  );
+}
+
 export default function AdminDashboardPage() {
+  const containerRef = useRef<HTMLDivElement>(null);
   const { data, isLoading } = useQuery<{ dashboard: DashboardData }>({
     queryKey: queryKeys.admin.dashboard(),
     queryFn: () => fetch('/api/admin/dashboard').then((r) => r.json()),
@@ -43,6 +83,33 @@ export default function AdminDashboardPage() {
   });
 
   const d = data?.dashboard;
+
+  useGSAP(
+    () => {
+      if (isReducedMotion() || !containerRef.current || isLoading) return;
+
+      const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+
+      tl.fromTo(
+        '.admin-kpi-card',
+        { opacity: 0, y: 14 },
+        { opacity: 1, y: 0, duration: 0.4, stagger: 0.06 }
+      )
+        .fromTo(
+          '.admin-fulfillment-card',
+          { opacity: 0, y: 10 },
+          { opacity: 1, y: 0, duration: 0.35, stagger: 0.04 },
+          '-=0.2'
+        )
+        .fromTo(
+          '.admin-table-card',
+          { opacity: 0, y: 12 },
+          { opacity: 1, y: 0, duration: 0.45 },
+          '-=0.15'
+        );
+    },
+    { dependencies: [isLoading], scope: containerRef }
+  );
 
   if (isLoading) {
     return (
@@ -61,25 +128,29 @@ export default function AdminDashboardPage() {
   const kpis = [
     {
       label: "Today's Gross Sales",
-      value: formatCurrency(d?.todaySales ?? 0),
+      valueNumber: d?.todaySales ?? 0,
+      isCurrency: true,
       trend: 'Live updates',
       icon: IndianRupee,
     },
     {
       label: "Today's Bookings",
-      value: d?.todayOrders ?? 0,
+      valueNumber: d?.todayOrders ?? 0,
+      isCurrency: false,
       trend: `${d?.completedToday ?? 0} dispatched`,
       icon: ShoppingCart,
     },
     {
       label: 'Requires Attention',
-      value: d?.pendingOrders ?? 0,
+      valueNumber: d?.pendingOrders ?? 0,
+      isCurrency: false,
       trend: 'Pending verification',
       icon: Clock,
     },
     {
       label: 'Registered Customers',
-      value: d?.totalCustomers ?? 0,
+      valueNumber: d?.totalCustomers ?? 0,
+      isCurrency: false,
       trend: 'Buyer accounts',
       icon: Users,
     },
@@ -109,7 +180,7 @@ export default function AdminDashboardPage() {
   ];
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div ref={containerRef} className="space-y-8">
       {/* Welcome Greeting */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-6 border-b border-border">
         <div>
@@ -132,7 +203,7 @@ export default function AdminDashboardPage() {
         {kpis.map((kpi) => (
           <div
             key={kpi.label}
-            className="p-5 rounded-2xl bg-card border border-border space-y-3"
+            className="admin-kpi-card p-5 rounded-2xl bg-card border border-border space-y-3"
           >
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-muted-foreground">
@@ -145,7 +216,10 @@ export default function AdminDashboardPage() {
 
             <div className="space-y-0.5">
               <p className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
-                {kpi.value}
+                <KpiValueCounter
+                  target={kpi.valueNumber}
+                  isCurrency={kpi.isCurrency}
+                />
               </p>
               <p className="text-[11px] text-muted-foreground">
                 {kpi.trend}
@@ -161,7 +235,7 @@ export default function AdminDashboardPage() {
           <Link
             key={card.label}
             href={card.href}
-            className="p-4 rounded-xl bg-card border border-border hover:border-neutral-300 transition-all flex items-center justify-between"
+            className="admin-fulfillment-card p-4 rounded-xl bg-card border border-border hover:border-neutral-300 transition-all flex items-center justify-between"
           >
             <div>
               <p className="text-2xl font-bold text-foreground">{card.value}</p>
@@ -173,7 +247,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Recent Orders Section */}
-      <div className="rounded-2xl bg-card border border-border overflow-hidden">
+      <div className="admin-table-card rounded-2xl bg-card border border-border overflow-hidden">
         <div className="p-5 border-b border-border flex items-center justify-between">
           <div>
             <h2 className="font-semibold text-base text-foreground tracking-tight">

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { orderTrackingSchema, type OrderTrackingInput } from '@/lib/validation/order';
@@ -10,6 +10,8 @@ import { StatusBadge } from '@/components/ui/badge';
 import { EmptyState } from '@/components/ui/empty-state';
 import { formatCurrency, formatDateTime, toNumber } from '@/lib/utils/format';
 import { Search, Package, CheckCircle2, Clock, Truck } from 'lucide-react';
+import { useGSAP } from '@gsap/react';
+import { gsap, isReducedMotion } from '@/lib/motion';
 
 interface TrackedOrder {
   invoiceNumber: string;
@@ -37,6 +39,27 @@ export default function TrackOrderPage() {
   const [orders, setOrders] = useState<TrackedOrder[]>([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
+  const resultsContainerRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(
+    () => {
+      if (isReducedMotion() || !resultsContainerRef.current || orders.length === 0) return;
+
+      const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+
+      tl.fromTo(
+        '.order-card-reveal',
+        { opacity: 0, y: 16 },
+        { opacity: 1, y: 0, duration: 0.45, stagger: 0.08 }
+      ).fromTo(
+        '.timeline-node-reveal',
+        { opacity: 0, x: -8 },
+        { opacity: 1, x: 0, duration: 0.35, stagger: 0.05 },
+        '-=0.2'
+      );
+    },
+    { dependencies: [orders], scope: resultsContainerRef }
+  );
 
   const form = useForm<OrderTrackingInput>({
     resolver: zodResolver(orderTrackingSchema),
@@ -114,11 +137,11 @@ export default function TrackOrderPage() {
       )}
 
       {/* Order Cards List */}
-      <div className="space-y-6">
+      <div ref={resultsContainerRef} className="space-y-6">
         {orders.map((order) => (
           <div
             key={order.invoiceNumber}
-            className="p-6 sm:p-7 rounded-2xl bg-card border border-border space-y-6 animate-scale-in"
+            className="order-card-reveal p-6 sm:p-7 rounded-2xl bg-card border border-border space-y-6"
           >
             {/* Top Order Title Bar */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-border gap-3">
@@ -178,7 +201,7 @@ export default function TrackOrderPage() {
                     const isLatest = idx === 0;
                     const Icon = statusIcons[entry.status] || Clock;
                     return (
-                      <div key={idx} className="relative flex items-start gap-3">
+                      <div key={idx} className="timeline-node-reveal relative flex items-start gap-3">
                         {/* Milestone dot */}
                         <div
                           className={`absolute -left-6 top-0.5 h-5 w-5 rounded-full flex items-center justify-center border-2 border-card ${

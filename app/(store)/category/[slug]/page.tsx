@@ -3,6 +3,7 @@ import { products, categories } from '@/db/schema';
 import { eq, and, desc } from 'drizzle-orm';
 import { ProductCard } from '@/components/store/product-card';
 import { EmptyState } from '@/components/ui/empty-state';
+import { QuickCartSidebar, QuickCartMobileFloating } from '@/components/store/quick-cart-drawer';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Sparkles } from 'lucide-react';
@@ -71,21 +72,32 @@ export default async function CategoryPage({
         </div>
       </div>
 
-      {/* Products Grid */}
-      {productList.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-          {productList.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
+      {/* Main Content Layout with Products & Quick Cart */}
+      <div className="flex gap-6 items-start">
+        {/* Products Grid */}
+        <div className="flex-1 min-w-0">
+          {productList.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3 gap-3 sm:gap-4">
+              {productList.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              title="No products in this category"
+              description="Check back soon! We are replenishing fresh inventory to this category regularly."
+              actionLabel="Explore all fireworks"
+              actionHref="/products"
+            />
+          )}
         </div>
-      ) : (
-        <EmptyState
-          title="No products in this category"
-          description="Check back soon! We are replenishing fresh inventory to this category regularly."
-          actionLabel="Explore all fireworks"
-          actionHref="/products"
-        />
-      )}
+
+        {/* Desktop Quick Cart Widget */}
+        <QuickCartSidebar />
+      </div>
+
+      {/* Mobile Sticky Quick Cart Floating Bar & Drawer */}
+      <QuickCartMobileFloating />
     </div>
   );
 }

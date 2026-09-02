@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useCart, useCartItemQuantity } from '@/hooks/use-cart';
 import { StoreButton } from '@/components/ui/store-button';
 import { AddToBagButton } from '@/components/ui/add-to-bag-button';
 import { QuantityStepper } from '@/components/ui/quantity-stepper';
 import { Check } from 'lucide-react';
 import { toast } from 'sonner';
+import { gsap, isReducedMotion } from '@/lib/motion';
 
 interface ProductDetailClientProps {
   product: {
@@ -25,8 +26,17 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
   const cartQuantity = useCartItemQuantity(product.id);
   const [selectedQuantity, setSelectedQuantity] = useState(1);
   const isOutOfStock = product.stockQuantity <= 0;
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   function handleAddToCart() {
+    if (buttonRef.current && !isReducedMotion()) {
+      gsap.fromTo(
+        buttonRef.current,
+        { scale: 0.94 },
+        { scale: 1, duration: 0.3, ease: 'back.out(2)' }
+      );
+    }
+
     addItem({
       productId: product.id,
       name: product.name,
@@ -94,6 +104,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
           </div>
 
           <AddToBagButton
+            ref={buttonRef}
             className="flex-1"
             onClick={handleAddToCart}
           >

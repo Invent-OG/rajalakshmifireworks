@@ -1,5 +1,6 @@
 'use client';
 
+import { useRef } from 'react';
 import Link from 'next/link';
 import { useCart, useCartItemQuantity } from '@/hooks/use-cart';
 import { toNumber } from '@/lib/utils/format';
@@ -9,6 +10,7 @@ import { PriceDisplay } from '@/components/ui/price-display';
 import { QuantityStepper } from '@/components/ui/quantity-stepper';
 import { ProductVisualPlaceholder } from '@/components/ui/category-icon';
 import { toast } from 'sonner';
+import { gsap, isReducedMotion } from '@/lib/motion';
 
 interface ProductCardProps {
   product: {
@@ -30,8 +32,18 @@ export function ProductCard({ product }: ProductCardProps) {
   const price = toNumber(product.sellingPrice);
   const isOutOfStock = product.stockQuantity <= 0;
   const imageUrl = product.media?.[0]?.url || null;
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
 
   function handleAddToCart() {
+    if (buttonRef.current && !isReducedMotion()) {
+      gsap.fromTo(
+        buttonRef.current,
+        { scale: 0.92 },
+        { scale: 1, duration: 0.3, ease: 'back.out(2)' }
+      );
+    }
+
     addItem({
       productId: product.id,
       name: product.name,
@@ -46,7 +58,10 @@ export function ProductCard({ product }: ProductCardProps) {
   }
 
   return (
-    <div className="group relative flex flex-col justify-between rounded-2xl bg-card border border-border overflow-hidden transition-all duration-200 hover:border-neutral-300 hover:shadow-xs p-3">
+    <div
+      ref={cardRef}
+      className="group relative flex flex-col justify-between rounded-2xl bg-card border border-border overflow-hidden transition-all duration-200 hover:border-neutral-300 hover:shadow-md p-3"
+    >
       {/* Top Image Showcase */}
       <Link
         href={`/product/${product.slug}`}
@@ -85,7 +100,7 @@ export function ProductCard({ product }: ProductCardProps) {
           )}
 
           <Link href={`/product/${product.slug}`} className="block">
-            <h3 className="font-medium text-sm sm:text-base text-foreground leading-snug line-clamp-2 hover:text-brand transition-colors">
+            <h3 className="font-semibold text-sm sm:text-base text-foreground leading-snug line-clamp-2 hover:text-brand transition-colors">
               {product.name}
             </h3>
           </Link>
@@ -118,6 +133,7 @@ export function ProductCard({ product }: ProductCardProps) {
             </div>
           ) : (
             <AddToBagButton
+              ref={buttonRef}
               className="w-full"
               onClick={handleAddToCart}
             >

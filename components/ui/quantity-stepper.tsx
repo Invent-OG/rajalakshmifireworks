@@ -1,4 +1,9 @@
+'use client';
+
+import { useRef } from 'react';
 import { Minus, Plus } from 'lucide-react';
+import { useGSAP } from '@gsap/react';
+import { gsap, isReducedMotion } from '@/lib/motion';
 
 interface QuantityStepperProps {
   quantity: number;
@@ -17,6 +22,23 @@ export function QuantityStepper({
   size = 'md',
   className = '',
 }: QuantityStepperProps) {
+  const numberRef = useRef<HTMLSpanElement>(null);
+  const isFirstRender = useRef(true);
+
+  useGSAP(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    if (isReducedMotion() || !numberRef.current) return;
+
+    gsap.fromTo(
+      numberRef.current,
+      { y: -3, opacity: 0.5, scale: 0.95 },
+      { y: 0, opacity: 1, scale: 1, duration: 0.15, ease: 'power2.out' }
+    );
+  }, [quantity]);
+
   const sizeStyles = {
     sm: {
       container: 'h-8 px-1 rounded-lg',
@@ -53,7 +75,7 @@ export function QuantityStepper({
         <Minus className={style.icon} />
       </button>
 
-      <span className={`text-center select-none text-foreground ${style.text}`}>
+      <span ref={numberRef} className={`text-center select-none text-foreground ${style.text}`}>
         {quantity}
       </span>
 
