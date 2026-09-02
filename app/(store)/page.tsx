@@ -8,6 +8,7 @@ import { StoreButton } from '@/components/ui/store-button';
 import { CategoryIcon } from '@/components/ui/category-icon';
 import Featured_05 from '@/components/ui/globe-feature-section';
 import { HomeMotion } from '@/components/store/home-motion';
+import { HeroMouseArrow } from '@/components/store/hero-mouse-arrow';
 
 export default async function HomePage() {
   const [categoryList, featuredProducts, bestsellerProducts] = await Promise.all([
@@ -41,7 +42,10 @@ export default async function HomePage() {
       <div className="space-y-16 sm:space-y-24">
         {/* ── 1. Editorial Hero Section ─── */}
         <section className="relative pt-8 sm:pt-14 pb-12 sm:pb-20 border-b border-border bg-background-secondary overflow-hidden">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          {/* Dynamic interactive dashed mouse-guided arrow */}
+          <HeroMouseArrow targetSelector="#hero-shop-fireworks-btn" />
+
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
               {/* Left Content */}
               <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
@@ -60,7 +64,7 @@ export default async function HomePage() {
                 </p>
 
                 <div className="hero-ctas flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
-                  <Link href="/products">
+                  <Link href="/products" id="hero-shop-fireworks-btn" className="inline-block">
                     <StoreButton size="lg" variant="primary">
                       Shop fireworks
                       <ArrowRight className="h-4 w-4" />

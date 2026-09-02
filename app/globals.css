@@ -172,6 +172,11 @@ p, span, input, select, textarea, button {
 
 /* ── Motion & Animation Tokens ─── */
 @keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
 }
@@ -181,12 +186,26 @@ p, span, input, select, textarea, button {
   to { opacity: 1; transform: scale(1); }
 }
 
+@keyframes dashStream {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+
 .animate-fade-in {
   animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+.animate-slide-up {
+  animation: slideUp 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 .animate-scale-in {
   animation: scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-dash-stream {
+  animation: dashStream 1s linear infinite;
 }
 
 /* ── Premium Surface Utilities ─── */

@@ -1,21 +1,21 @@
-"use client";
+"use client"
 
-import { useRef, useState } from "react";
-import { animate, motion, useAnimate, useMotionValue } from "motion/react";
-import "./motion-add-to-basket-utils/index.css";
+import { useRef, useState } from "react"
+import { animate, motion, useAnimate, useMotionValue } from "motion/react"
+import "./motion-add-to-basket-utils/index.css"
 
-const TILE = 160;
-const BASKET = 56;
-const TILE_TO_BASKET = BASKET / TILE;
+const TILE = 160
+const BASKET = 56
+const TILE_TO_BASKET = BASKET / TILE
 
 function wrap(min: number, max: number, value: number) {
-  const range = max - min;
-  return ((((value - min) % range) + range) % range) + min;
+  const range = max - min
+  return ((((value - min) % range) + range) % range) + min
 }
 
 function quadratic(t: number, p0: number, p1: number, p2: number) {
-  const rest = 1 - t;
-  return rest * rest * p0 + 2 * rest * t * p1 + t * t * p2;
+  const rest = 1 - t
+  return rest * rest * p0 + 2 * rest * t * p1 + t * t * p2
 }
 
 function tangentAngle(
@@ -27,9 +27,9 @@ function tangentAngle(
   cy: number,
   y1: number,
 ) {
-  const dx = 2 * (1 - t) * (cx - x0) + 2 * t * (x1 - cx);
-  const dy = 2 * (1 - t) * (cy - y0) + 2 * t * (y1 - cy);
-  return (Math.atan2(dy, dx) * 180) / Math.PI;
+  const dx = 2 * (1 - t) * (cx - x0) + 2 * t * (x1 - cx)
+  const dy = 2 * (1 - t) * (cy - y0) + 2 * t * (y1 - cy)
+  return (Math.atan2(dy, dx) * 180) / Math.PI
 }
 
 function controlPoint(
@@ -40,16 +40,16 @@ function controlPoint(
   strength: number,
   peak: number,
 ) {
-  const dx = x1 - x0;
-  const dy = y1 - y0;
-  const length = Math.sqrt(dx * dx + dy * dy);
+  const dx = x1 - x0
+  const dy = y1 - y0
+  const length = Math.sqrt(dx * dx + dy * dy)
   if (length > 0) {
     return {
       x: x0 + dx * peak + (-dy / length) * strength * length,
       y: y0 + dy * peak + (dx / length) * strength * length,
-    };
+    }
   }
-  return { x: x0, y: y0 };
+  return { x: x0, y: y0 }
 }
 
 function createArcMixer({
@@ -58,18 +58,17 @@ function createArcMixer({
   direction,
   rotate = false,
 }: {
-  strength?: number;
-  peak?: number;
-  direction?: "cw" | "ccw";
-  rotate?: boolean | number;
+  strength?: number
+  peak?: number
+  direction?: "cw" | "ccw"
+  rotate?: boolean | number
 } = {}) {
-  const rotateAmount =
-    rotate === true ? 1 : typeof rotate === "number" ? rotate : 0;
-  let lastSign: number | undefined;
+  const rotateAmount = rotate === true ? 1 : typeof rotate === "number" ? rotate : 0
+  let lastSign: number | undefined
 
   return (from: { x: number; y: number }, to: { x: number; y: number }) => {
-    const dx = to.x - from.x;
-    const dy = to.y - from.y;
+    const dx = to.x - from.x
+    const dy = to.y - from.y
     let curve =
       direction === "cw"
         ? -strength
@@ -77,54 +76,43 @@ function createArcMixer({
           ? strength
           : (Math.abs(dx) >= Math.abs(dy) ? dx : dy) < 0
             ? -strength
-            : strength;
+            : strength
 
-    let ctrl = controlPoint(from.x, from.y, to.x, to.y, curve, peak);
+    let ctrl = controlPoint(from.x, from.y, to.x, to.y, curve, peak)
 
     if (direction === undefined) {
-      const vertical = Math.abs(dx) < Math.abs(dy);
-      const midX = from.x + dx * peak;
-      const midY = from.y + dy * peak;
-      const sign = Math.sign(vertical ? ctrl.x - midX : ctrl.y - midY);
+      const vertical = Math.abs(dx) < Math.abs(dy)
+      const midX = from.x + dx * peak
+      const midY = from.y + dy * peak
+      const sign = Math.sign(vertical ? ctrl.x - midX : ctrl.y - midY)
       if (lastSign !== undefined && sign !== 0 && sign !== lastSign) {
-        curve = -curve;
-        ctrl = controlPoint(from.x, from.y, to.x, to.y, curve, peak);
+        curve = -curve
+        ctrl = controlPoint(from.x, from.y, to.x, to.y, curve, peak)
       } else if (sign !== 0) {
-        lastSign = sign;
+        lastSign = sign
       }
     }
 
     const startAngle = rotateAmount
       ? tangentAngle(0, from.x, ctrl.x, to.x, from.y, ctrl.y, to.y)
-      : 0;
+      : 0
     const endAngle = rotateAmount
       ? tangentAngle(1, from.x, ctrl.x, to.x, from.y, ctrl.y, to.y)
-      : 0;
-    const angleDelta = rotateAmount
-      ? wrap(-180, 180, endAngle - startAngle)
-      : 0;
+      : 0
+    const angleDelta = rotateAmount ? wrap(-180, 180, endAngle - startAngle) : 0
 
     return (t: number) => {
       const point: { x: number; y: number; rotate?: number } = {
         x: quadratic(t, from.x, ctrl.x, to.x),
         y: quadratic(t, from.y, ctrl.y, to.y),
-      };
-      if (rotateAmount) {
-        const angle = tangentAngle(
-          t,
-          from.x,
-          ctrl.x,
-          to.x,
-          from.y,
-          ctrl.y,
-          to.y,
-        );
-        point.rotate =
-          wrap(-180, 180, angle - (startAngle + angleDelta * t)) * rotateAmount;
       }
-      return point;
-    };
-  };
+      if (rotateAmount) {
+        const angle = tangentAngle(t, from.x, ctrl.x, to.x, from.y, ctrl.y, to.y)
+        point.rotate = wrap(-180, 180, angle - (startAngle + angleDelta * t)) * rotateAmount
+      }
+      return point
+    }
+  }
 }
 
 function BasketIcon() {
@@ -149,16 +137,16 @@ function BasketIcon() {
       <path d="m5 11 4-7" />
       <path d="m9 11 1 9" />
     </svg>
-  );
+  )
 }
 
 export interface AddToBasketProps {
-  strength?: number;
-  peak?: number;
-  rotate?: number | boolean;
-  duration?: number;
-  basketVelocityFactor?: number;
-  direction?: "cw" | "ccw" | "auto";
+  strength?: number
+  peak?: number
+  rotate?: boolean | number
+  duration?: number
+  basketVelocityFactor?: number
+  direction?: "cw" | "ccw" | "auto"
 }
 
 export function AddToBasket({
@@ -169,48 +157,48 @@ export function AddToBasket({
   basketVelocityFactor = 0.05,
   direction = "cw",
 }: AddToBasketProps = {}) {
-  const [scope, animateElement] = useAnimate();
-  const shoeRef = useRef<HTMLDivElement>(null);
-  const basketRef = useRef<HTMLDivElement>(null);
-  const pingRef = useRef<HTMLDivElement>(null);
-  const [busy, setBusy] = useState(false);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const rotation = useMotionValue(0);
-  const scale = useMotionValue(1);
-  const opacity = useMotionValue(1);
+  const [scope, animateElement] = useAnimate()
+  const shoeRef = useRef<HTMLDivElement>(null)
+  const basketRef = useRef<HTMLDivElement>(null)
+  const pingRef = useRef<HTMLDivElement>(null)
+  const [busy, setBusy] = useState(false)
+  const x = useMotionValue(0)
+  const y = useMotionValue(0)
+  const rotation = useMotionValue(0)
+  const scale = useMotionValue(1)
+  const opacity = useMotionValue(1)
 
   const addToBasket = async () => {
-    const shoe = shoeRef.current;
-    const basket = basketRef.current;
-    const ping = pingRef.current;
-    if (!shoe || !basket || !ping || busy) return;
+    const shoe = shoeRef.current
+    const basket = basketRef.current
+    const ping = pingRef.current
+    if (!shoe || !basket || !ping || busy) return
 
-    setBusy(true);
-    const from = shoe.getBoundingClientRect();
-    const to = basket.getBoundingClientRect();
-    const dx = to.left + to.width / 2 - (from.left + from.width / 2);
-    const dy = to.top + to.height / 2 - (from.top + from.height / 2);
+    setBusy(true)
+    const from = shoe.getBoundingClientRect()
+    const to = basket.getBoundingClientRect()
+    const dx = to.left + to.width / 2 - (from.left + from.width / 2)
+    const dy = to.top + to.height / 2 - (from.top + from.height / 2)
     const mix = createArcMixer({
       strength,
       peak,
       rotate,
       direction: direction === "auto" ? undefined : direction,
-    });
-    const path = mix({ x: 0, y: 0 }, { x: dx, y: dy });
+    })
+    const path = mix({ x: 0, y: 0 }, { x: dx, y: dy })
 
     await animate(0, 1, {
       duration,
       ease: [0.74, 0.18, 0.93, 0.69],
       onUpdate: (progress) => {
-        const point = path(progress);
-        x.set(point.x);
-        y.set(point.y);
-        if (point.rotate !== undefined) rotation.set(point.rotate);
-        scale.set(1 + (TILE_TO_BASKET - 1) * progress);
-        opacity.set(progress < 0.95 ? 1 : 1 - (progress - 0.95) / 0.05);
+        const point = path(progress)
+        x.set(point.x)
+        y.set(point.y)
+        if (point.rotate !== undefined) rotation.set(point.rotate)
+        scale.set(1 + (TILE_TO_BASKET - 1) * progress)
+        opacity.set(progress < 0.95 ? 1 : 1 - (progress - 0.95) / 0.05)
       },
-    });
+    })
 
     animateElement(
       basket,
@@ -222,18 +210,18 @@ export function AddToBasket({
         x: { inherit: true, velocity: x.getVelocity() * basketVelocityFactor },
         y: { inherit: true, velocity: y.getVelocity() * basketVelocityFactor },
       },
-    );
+    )
     animateElement(
       ping,
       { scale: [1, 2.2], opacity: [0.8, 0] },
       { duration: 0.5, ease: "easeOut" },
-    );
+    )
 
-    x.set(0);
-    y.set(0);
-    rotation.set(0);
-    scale.set(0.9);
-    opacity.set(0);
+    x.set(0)
+    y.set(0)
+    rotation.set(0)
+    scale.set(0.9)
+    opacity.set(0)
     await animateElement(
       shoe,
       { opacity: 1, scale: 1 },
@@ -241,11 +229,11 @@ export function AddToBasket({
         scale: { type: "spring", visualDuration: 0.4, bounce: 0.35 },
         opacity: { duration: 0.25, ease: "easeOut" },
       },
-    );
-    scale.set(1);
-    opacity.set(1);
-    setBusy(false);
-  };
+    )
+    scale.set(1)
+    opacity.set(1)
+    setBusy(false)
+  }
 
   return (
     <div ref={scope} className="add-to-basket">
@@ -281,7 +269,7 @@ export function AddToBasket({
         </motion.button>
       </div>
     </div>
-  );
+  )
 }
 
-export default AddToBasket;
+export default AddToBasket

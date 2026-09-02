@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input, Textarea } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Portal } from '@/components/ui/portal';
 import { Plus, Edit2, Trash2, FolderTree } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -219,68 +220,70 @@ export default function AdminCategoriesPage() {
 
       {/* Modal Dialog for Category Edit/Create */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4 animate-fade-in">
-          <div className="bg-card rounded-2xl border border-border max-w-md w-full p-6 sm:p-7 space-y-5 shadow-lg">
-            <div className="flex items-center justify-between pb-3 border-b border-border">
-              <h2 className="font-bold text-base text-foreground tracking-tight">
-                {editingCategory ? 'Edit Category' : 'Create Category'}
-              </h2>
-            </div>
+        <Portal>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4 animate-fade-in">
+            <div className="bg-card rounded-2xl border border-border max-w-md w-full p-6 sm:p-7 space-y-5 shadow-lg">
+              <div className="flex items-center justify-between pb-3 border-b border-border">
+                <h2 className="font-bold text-base text-foreground tracking-tight">
+                  {editingCategory ? 'Edit Category' : 'Create Category'}
+                </h2>
+              </div>
 
-            <div className="space-y-4">
-              <Input
-                label="Category Name *"
-                placeholder="e.g. Sparklers"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
-
-              <Textarea
-                label="Description"
-                placeholder="Brief summary of items in this category..."
-                rows={3}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              />
-
-              <div className="grid grid-cols-2 gap-4 items-center">
+              <div className="space-y-4">
                 <Input
-                  label="Display Order #"
-                  type="number"
-                  value={sortOrder}
-                  onChange={(e) => setSortOrder(parseInt(e.target.value) || 0)}
+                  label="Category Name *"
+                  placeholder="e.g. Sparklers"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
                 />
 
-                <label className="flex items-center gap-2 pt-4 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={isActive}
-                    onChange={(e) => setIsActive(e.target.checked)}
-                    className="rounded text-brand h-4 w-4"
+                <Textarea
+                  label="Description"
+                  placeholder="Brief summary of items in this category..."
+                  rows={3}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                />
+
+                <div className="grid grid-cols-2 gap-4 items-center">
+                  <Input
+                    label="Display Order #"
+                    type="number"
+                    value={sortOrder}
+                    onChange={(e) => setSortOrder(parseInt(e.target.value) || 0)}
                   />
-                  <span className="text-xs font-medium text-foreground">Active in Store</span>
-                </label>
+
+                  <label className="flex items-center gap-2 pt-4 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={isActive}
+                      onChange={(e) => setIsActive(e.target.checked)}
+                      className="rounded text-brand h-4 w-4"
+                    />
+                    <span className="text-xs font-medium text-foreground">Active in Store</span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-border">
+                <Button variant="outline" size="md" onClick={() => setIsModalOpen(false)}>
+                  Cancel
+                </Button>
+                <Button
+                  size="md"
+                  variant="primary"
+                  className="font-medium"
+                  onClick={() => saveMutation.mutate()}
+                  loading={saveMutation.isPending}
+                  disabled={!name.trim()}
+                >
+                  Save category
+                </Button>
               </div>
             </div>
-
-            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-border">
-              <Button variant="outline" size="md" onClick={() => setIsModalOpen(false)}>
-                Cancel
-              </Button>
-              <Button
-                size="md"
-                variant="primary"
-                className="font-medium"
-                onClick={() => saveMutation.mutate()}
-                loading={saveMutation.isPending}
-                disabled={!name.trim()}
-              >
-                Save category
-              </Button>
-            </div>
           </div>
-        </div>
+        </Portal>
       )}
     </div>
   );

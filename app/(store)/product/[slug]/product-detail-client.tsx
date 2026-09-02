@@ -6,7 +6,6 @@ import { StoreButton } from '@/components/ui/store-button';
 import { AddToBagButton } from '@/components/ui/add-to-bag-button';
 import { QuantityStepper } from '@/components/ui/quantity-stepper';
 import { Check } from 'lucide-react';
-import { toast } from 'sonner';
 import { gsap, isReducedMotion } from '@/lib/motion';
 
 interface ProductDetailClientProps {
@@ -47,7 +46,6 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
       maxStock: product.stockQuantity,
       quantity: selectedQuantity,
     });
-    toast.success(`${product.name} added to cart`);
   }
 
   if (isOutOfStock) {

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input, Select, Textarea } from '@/components/ui/input';
 import { StatusBadge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Portal } from '@/components/ui/portal';
 import { Warehouse, Search } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -249,67 +250,69 @@ export default function AdminInventoryPage() {
 
       {/* Stock Adjustment Modal */}
       {adjustingProduct && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4 animate-fade-in">
-          <div className="bg-card rounded-2xl border border-border max-w-md w-full p-6 sm:p-7 space-y-5 shadow-lg">
-            <div>
-              <h2 className="font-bold text-base text-foreground tracking-tight">
-                Adjust Inventory
-              </h2>
-              <p className="text-xs font-medium text-brand mt-0.5">{adjustingProduct.name}</p>
-              <p className="text-[11px] text-muted-foreground">
-                Current warehouse balance: <strong>{adjustingProduct.stockQuantity} units</strong>
-              </p>
-            </div>
+        <Portal>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4 animate-fade-in">
+            <div className="bg-card rounded-2xl border border-border max-w-md w-full p-6 sm:p-7 space-y-5 shadow-lg">
+              <div>
+                <h2 className="font-bold text-base text-foreground tracking-tight">
+                  Adjust Inventory
+                </h2>
+                <p className="text-xs font-medium text-brand mt-0.5">{adjustingProduct.name}</p>
+                <p className="text-[11px] text-muted-foreground">
+                  Current warehouse balance: <strong>{adjustingProduct.stockQuantity} units</strong>
+                </p>
+              </div>
 
-            <div className="space-y-4">
-              <Select
-                label="Adjustment Reason"
-                value={adjustType}
-                onChange={(e) =>
-                  setAdjustType(
-                    e.target.value as 'STOCK_ADDED' | 'STOCK_REMOVED' | 'MANUAL_ADJUSTMENT'
-                  )
-                }
-                options={[
-                  { value: 'STOCK_ADDED', label: 'Add Stock (+ Factory Shipment)' },
-                  { value: 'STOCK_REMOVED', label: 'Remove Stock (- Damaged / Sample)' },
-                  { value: 'MANUAL_ADJUSTMENT', label: 'Manual Physical Count' },
-                ]}
-              />
+              <div className="space-y-4">
+                <Select
+                  label="Adjustment Reason"
+                  value={adjustType}
+                  onChange={(e) =>
+                    setAdjustType(
+                      e.target.value as 'STOCK_ADDED' | 'STOCK_REMOVED' | 'MANUAL_ADJUSTMENT'
+                    )
+                  }
+                  options={[
+                    { value: 'STOCK_ADDED', label: 'Add Stock (+ Factory Shipment)' },
+                    { value: 'STOCK_REMOVED', label: 'Remove Stock (- Damaged / Sample)' },
+                    { value: 'MANUAL_ADJUSTMENT', label: 'Manual Physical Count' },
+                  ]}
+                />
 
-              <Input
-                label="Quantity"
-                type="number"
-                min={1}
-                value={quantityChange}
-                onChange={(e) => setQuantityChange(Math.max(1, parseInt(e.target.value) || 0))}
-              />
+                <Input
+                  label="Quantity"
+                  type="number"
+                  min={1}
+                  value={quantityChange}
+                  onChange={(e) => setQuantityChange(Math.max(1, parseInt(e.target.value) || 0))}
+                />
 
-              <Textarea
-                label="Audit Note (Optional)"
-                placeholder="e.g. Sivakasi factory lot shipment received"
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
-                rows={2}
-              />
-            </div>
+                <Textarea
+                  label="Audit Note (Optional)"
+                  placeholder="e.g. Sivakasi factory lot shipment received"
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  rows={2}
+                />
+              </div>
 
-            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-border">
-              <Button variant="outline" size="md" onClick={() => setAdjustingProduct(null)}>
-                Cancel
-              </Button>
-              <Button
-                size="md"
-                variant="primary"
-                className="font-medium"
-                onClick={() => adjustMutation.mutate()}
-                loading={adjustMutation.isPending}
-              >
-                Confirm adjustment
-              </Button>
+              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-border">
+                <Button variant="outline" size="md" onClick={() => setAdjustingProduct(null)}>
+                  Cancel
+                </Button>
+                <Button
+                  size="md"
+                  variant="primary"
+                  className="font-medium"
+                  onClick={() => adjustMutation.mutate()}
+                  loading={adjustMutation.isPending}
+                >
+                  Confirm adjustment
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
+        </Portal>
       )}
     </div>
   );

@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Portal } from '@/components/ui/portal';
 import { toast } from 'sonner';
 
 export interface ProductMediaItem {
@@ -346,112 +347,116 @@ export function ProductMediaManager({
 
       {/* Video Upload & URL Modal Dialog */}
       {showVideoModal && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-card border border-border rounded-2xl max-w-md w-full p-6 space-y-4 shadow-lg animate-scale-in">
-            <div className="flex items-center justify-between pb-3 border-b border-border">
-              <h3 className="font-bold text-base text-foreground">Attach Demo Video</h3>
-              <button
-                type="button"
-                onClick={() => setShowVideoModal(false)}
-                className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
+        <Portal>
+          <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+            <div className="bg-card border border-border rounded-2xl max-w-md w-full p-6 space-y-4 shadow-lg animate-scale-in">
+              <div className="flex items-center justify-between pb-3 border-b border-border">
+                <h3 className="font-bold text-base text-foreground">Attach Demo Video</h3>
+                <button
+                  type="button"
+                  onClick={() => setShowVideoModal(false)}
+                  className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
 
-            {/* Option 1: File Upload */}
-            <div className="space-y-1.5">
-              <label className="block text-xs font-medium text-muted-foreground">
-                Upload video file (.mp4, .webm)
-              </label>
-              <Button
-                type="button"
-                variant="outline"
-                size="md"
-                className="w-full gap-2 justify-center border-dashed"
-                onClick={() => {
-                  setShowVideoModal(false);
-                  videoFileInputRef.current?.click();
-                }}
-              >
-                <Upload className="h-4 w-4" />
-                <span>Choose video from device</span>
-              </Button>
-            </div>
+              {/* Option 1: File Upload */}
+              <div className="space-y-1.5">
+                <label className="block text-xs font-medium text-muted-foreground">
+                  Upload video file (.mp4, .webm)
+                </label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="md"
+                  className="w-full gap-2 justify-center border-dashed"
+                  onClick={() => {
+                    setShowVideoModal(false);
+                    videoFileInputRef.current?.click();
+                  }}
+                >
+                  <Upload className="h-4 w-4" />
+                  <span>Choose video from device</span>
+                </Button>
+              </div>
 
-            <div className="relative flex items-center justify-center my-2">
-              <div className="border-t border-border w-full" />
-              <span className="bg-card px-2 text-[10px] uppercase font-semibold text-muted-foreground absolute">
-                or
-              </span>
-            </div>
+              <div className="relative flex items-center justify-center my-2">
+                <div className="border-t border-border w-full" />
+                <span className="bg-card px-2 text-[10px] uppercase font-semibold text-muted-foreground absolute">
+                  or
+                </span>
+              </div>
 
-            {/* Option 2: Video URL */}
-            <div className="space-y-3">
-              <Input
-                label="Paste video URL (YouTube, Vimeo, MP4)"
-                placeholder="https://www.youtube.com/watch?v=..."
-                value={videoUrlInput}
-                onChange={(e) => setVideoUrlInput(e.target.value)}
-                icon={<LinkIcon className="h-4 w-4" />}
-              />
-              <Button
-                type="button"
-                variant="primary"
-                size="md"
-                className="w-full font-medium"
-                onClick={handleAddVideoUrl}
-                disabled={!videoUrlInput.trim()}
-              >
-                Attach video URL
-              </Button>
+              {/* Option 2: Video URL */}
+              <div className="space-y-3">
+                <Input
+                  label="Paste video URL (YouTube, Vimeo, MP4)"
+                  placeholder="https://www.youtube.com/watch?v=..."
+                  value={videoUrlInput}
+                  onChange={(e) => setVideoUrlInput(e.target.value)}
+                  icon={<LinkIcon className="h-4 w-4" />}
+                />
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="md"
+                  className="w-full font-medium"
+                  onClick={handleAddVideoUrl}
+                  disabled={!videoUrlInput.trim()}
+                >
+                  Attach video URL
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
+        </Portal>
       )}
 
       {/* Media Preview Modal */}
       {previewMedia && (
-        <div
-          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4"
-          onClick={() => setPreviewMedia(null)}
-        >
+        <Portal>
           <div
-            className="bg-card rounded-2xl border border-border p-4 max-w-2xl w-full overflow-hidden shadow-lg relative"
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4"
+            onClick={() => setPreviewMedia(null)}
           >
-            <div className="flex items-center justify-between pb-3 mb-3 border-b border-border">
-              <span className="font-semibold text-sm text-foreground flex items-center gap-2">
-                {previewMedia.type === 'video' ? 'Demo Video Preview' : 'Image Preview'}
-              </span>
-              <button
-                type="button"
-                onClick={() => setPreviewMedia(null)}
-                className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground cursor-pointer"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
+            <div
+              className="bg-card rounded-2xl border border-border p-4 max-w-2xl w-full overflow-hidden shadow-lg relative"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between pb-3 mb-3 border-b border-border">
+                <span className="font-semibold text-sm text-foreground flex items-center gap-2">
+                  {previewMedia.type === 'video' ? 'Demo Video Preview' : 'Image Preview'}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setPreviewMedia(null)}
+                  className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground cursor-pointer"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
 
-            <div className="aspect-video bg-neutral-900 rounded-xl overflow-hidden flex items-center justify-center">
-              {previewMedia.type === 'video' ? (
-                previewMedia.url.includes('youtube.com') || previewMedia.url.includes('youtu.be') ? (
-                  <iframe
-                    src={getYoutubeEmbedUrl(previewMedia.url)}
-                    className="w-full h-full border-0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
+              <div className="aspect-video bg-neutral-900 rounded-xl overflow-hidden flex items-center justify-center">
+                {previewMedia.type === 'video' ? (
+                  previewMedia.url.includes('youtube.com') || previewMedia.url.includes('youtu.be') ? (
+                    <iframe
+                      src={getYoutubeEmbedUrl(previewMedia.url)}
+                      className="w-full h-full border-0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  ) : (
+                    <video src={previewMedia.url} controls autoPlay className="w-full h-full object-contain" />
+                  )
                 ) : (
-                  <video src={previewMedia.url} controls autoPlay className="w-full h-full object-contain" />
-                )
-              ) : (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={previewMedia.url} alt="Preview" className="w-full h-full object-contain" />
-              )}
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={previewMedia.url} alt="Preview" className="w-full h-full object-contain" />
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        </Portal>
       )}
     </div>
   );

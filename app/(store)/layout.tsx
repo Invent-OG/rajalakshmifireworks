@@ -6,6 +6,7 @@ import { ShoppingBag, Search, Sparkles, Truck, Phone, ShieldCheck, MapPin, Messa
 import { useCart, useIsHydrated } from '@/hooks/use-cart';
 import { APP_CONFIG } from '@/lib/constants/config';
 import { MobileBottomNav } from '@/components/store/mobile-bottom-nav';
+import { QuickCartMobileFloating } from '@/components/store/quick-cart-drawer';
 
 import { useRef } from 'react';
 import { useGSAP } from '@gsap/react';
@@ -260,8 +261,9 @@ export default function StoreLayout({ children }: { children: React.ReactNode })
     <>
       <AnnouncementBar />
       <Header />
-      <main className="flex-1 pb-12">{children}</main>
+      <main className="flex-1 pb-24 md:pb-12">{children}</main>
       <Footer />
+      <QuickCartMobileFloating />
       <MobileBottomNav />
     </>
   );

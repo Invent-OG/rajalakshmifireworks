@@ -9,7 +9,6 @@ import { AddToBagButton } from '@/components/ui/add-to-bag-button';
 import { PriceDisplay } from '@/components/ui/price-display';
 import { QuantityStepper } from '@/components/ui/quantity-stepper';
 import { ProductVisualPlaceholder } from '@/components/ui/category-icon';
-import { toast } from 'sonner';
 import { gsap, isReducedMotion } from '@/lib/motion';
 
 interface ProductCardProps {
@@ -54,7 +53,6 @@ export function ProductCard({ product }: ProductCardProps) {
       maxStock: product.stockQuantity,
       quantity: 1,
     });
-    toast.success(`${product.name} added to cart`);
   }
 
   return (

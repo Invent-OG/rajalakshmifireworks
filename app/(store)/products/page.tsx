@@ -4,7 +4,7 @@ import { eq, and, desc, asc, ilike } from 'drizzle-orm';
 import { ProductCard } from '@/components/store/product-card';
 import { SortSelector } from '@/components/store/sort-selector';
 import { EmptyState } from '@/components/ui/empty-state';
-import { QuickCartSidebar, QuickCartMobileFloating } from '@/components/store/quick-cart-drawer';
+import { QuickCartSidebar } from '@/components/store/quick-cart-drawer';
 import Link from 'next/link';
 import { Sparkles, Filter } from 'lucide-react';
 import type { Metadata } from 'next';
@@ -249,9 +249,6 @@ export default async function ProductsPage({
         {/* Desktop Quick Cart Widget */}
         <QuickCartSidebar />
       </div>
-
-      {/* Mobile Sticky Quick Cart Floating Bar & Drawer */}
-      <QuickCartMobileFloating />
     </div>
   );
 }

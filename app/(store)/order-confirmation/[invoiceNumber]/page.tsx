@@ -7,6 +7,7 @@ import { generateWhatsAppUrl } from '@/lib/services/whatsapp-service';
 import { CheckCircle2, MessageSquare, ArrowRight, Truck, Store } from 'lucide-react';
 import { StoreButton } from '@/components/ui/store-button';
 import { OrderSuccessMotion } from '@/components/store/order-success-motion';
+import { OrderFireworksCelebration } from '@/components/store/order-fireworks-celebration';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 
@@ -44,7 +45,10 @@ export default async function OrderConfirmationPage({
 
   return (
     <OrderSuccessMotion>
-      <div className="mx-auto max-w-2xl px-4 sm:px-6 py-12 space-y-8">
+      {/* Sivakasi Celebratory Fireworks Effect via fireworks-js */}
+      <OrderFireworksCelebration />
+
+      <div className="mx-auto max-w-2xl px-4 sm:px-6 py-12 space-y-8 relative z-10">
         {/* Success Celebration Header */}
         <div className="text-center space-y-3">
           <div className="success-icon inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-emerald-50 text-emerald-700 border border-emerald-200 mx-auto">
