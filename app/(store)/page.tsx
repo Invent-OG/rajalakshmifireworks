@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { ArrowRight, ShieldCheck, Truck, Gift, Sparkles, CheckCircle2, ChevronRight } from 'lucide-react';
 import { ProductCard } from '@/components/store/product-card';
 import { StoreButton } from '@/components/ui/store-button';
-import { CategoryIcon } from '@/components/ui/category-icon';
+import { CategoryIcon, getCategory3DImage } from '@/components/ui/category-icon';
 import Featured_05 from '@/components/ui/globe-feature-section';
 import { HomeMotion } from '@/components/store/home-motion';
 import { HeroMouseArrow } from '@/components/store/hero-mouse-arrow';
@@ -92,25 +92,29 @@ export default async function HomePage() {
 
               {/* Right Hero Visual Showcase */}
               <div className="lg:col-span-5 relative">
-                <div className="hero-showcase relative mx-auto max-w-md bg-card p-6 rounded-2xl border border-border shadow-xs">
-                  <div className="relative aspect-4/3 rounded-xl overflow-hidden bg-neutral-900 border border-neutral-800 flex flex-col items-center justify-center text-center p-6 text-white shadow-inner">
-                    <div className="hero-sparkle-glow h-14 w-14 rounded-2xl bg-neutral-800 border border-neutral-700 flex items-center justify-center mb-3">
-                      <Sparkles className="h-7 w-7 text-amber-400" />
+                <div className="hero-showcase relative mx-auto max-w-md bg-card p-4 sm:p-5 rounded-2xl border border-border shadow-md overflow-hidden group">
+                  <div className="relative aspect-4/3 rounded-xl overflow-hidden bg-muted border border-border">
+                    <img
+                      src="/images/3d/usp-curated-combos.jpg"
+                      alt="Sivakasi Celebration Box 3D"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex flex-col justify-end p-5 text-white">
+                      <span className="text-[11px] uppercase font-bold tracking-widest text-amber-400 mb-1">
+                        Festive Celebration Collection
+                      </span>
+                      <h3 className="text-xl font-extrabold tracking-tight">
+                        Sivakasi Family Combos
+                      </h3>
+                      <p className="text-xs text-neutral-200 mt-1 line-clamp-2">
+                        Factory sealed celebration gift assortments with up to 50% direct savings
+                      </p>
                     </div>
-                    <span className="text-[11px] uppercase font-semibold tracking-widest text-amber-400 mb-1">
-                      Festive 2026 Collection
-                    </span>
-                    <h3 className="text-xl font-bold tracking-tight">
-                      Sivakasi Family Combos
-                    </h3>
-                    <p className="text-xs text-neutral-400 mt-1 max-w-xs">
-                      Factory sealed celebration gift assortments with up to 40% wholesale discount
-                    </p>
                   </div>
 
                   {/* Floating highlights badge */}
                   <div className="mt-4 bg-background-secondary border border-border rounded-xl p-3 flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-lg bg-card text-emerald-700 border border-border flex items-center justify-center shrink-0">
+                    <div className="h-8 w-8 rounded-lg bg-card text-emerald-700 border border-border flex items-center justify-center shrink-0 shadow-xs">
                       <ShieldCheck className="h-4 w-4" />
                     </div>
                     <div>
@@ -124,48 +128,57 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* ── 2. Minimal USP Trust Strip ─── */}
+        {/* ── 2. 3D USP Trust Strip ─── */}
         <section className="reveal-section mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
             {[
               {
-                icon: Sparkles,
+                image: '/images/3d/usp-sivakasi-direct.jpg',
                 title: 'Sivakasi Direct',
                 desc: 'Authentic items direct from original manufacturers',
               },
               {
-                icon: Truck,
+                image: '/images/3d/usp-flexible-dispatch.jpg',
                 title: 'Flexible Dispatch',
                 desc: 'Doorstep transport delivery or counter pickup',
               },
               {
-                icon: Gift,
+                image: '/images/3d/usp-curated-combos.jpg',
                 title: 'Curated Combos',
                 desc: 'Budget-friendly family & community boxes',
               },
               {
-                icon: ShieldCheck,
+                image: '/images/3d/usp-wholesale-value.jpg',
                 title: 'Wholesale Value',
                 desc: 'Guaranteed 20% to 50% savings below retail',
               },
             ].map((item) => (
               <div
                 key={item.title}
-                className="p-4 rounded-xl bg-card border border-border flex items-start gap-3"
+                className="group p-4 sm:p-5 rounded-2xl bg-card border border-border hover:border-amber-400/50 hover:shadow-lg transition-all duration-300 flex items-center gap-4"
               >
-                <div className="h-9 w-9 rounded-lg bg-muted text-foreground flex items-center justify-center shrink-0 border border-border">
-                  <item.icon className="h-4.5 w-4.5 text-foreground-secondary" />
+                <div className="h-16 w-16 sm:h-18 sm:w-18 rounded-2xl overflow-hidden bg-muted shrink-0 border border-border shadow-xs group-hover:scale-108 transition-transform duration-300">
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
                 </div>
-                <div>
-                  <h4 className="font-semibold text-xs sm:text-sm text-foreground">{item.title}</h4>
-                  <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug">{item.desc}</p>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-bold text-sm sm:text-base text-foreground group-hover:text-brand transition-colors">
+                    {item.title}
+                  </h4>
+                  <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 leading-snug">
+                    {item.desc}
+                  </p>
                 </div>
               </div>
             ))}
           </div>
         </section>
 
-        {/* ── 3. Category Discovery Grid ─── */}
+        {/* ── 3. 3D Category Discovery Grid ─── */}
         {categoryList.length > 0 && (
           <section className="reveal-section mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="flex items-end justify-between mb-6 pb-3 border-b border-border">
@@ -185,29 +198,37 @@ export default async function HomePage() {
               </Link>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
               {categoryList.map((cat) => (
                 <Link
                   key={cat.id}
                   href={`/category/${cat.slug}`}
-                  className="group p-4 sm:p-5 rounded-2xl bg-card border border-border hover:border-neutral-300 hover:shadow-xs transition-all flex flex-col justify-between"
+                  className="group rounded-2xl bg-card border border-border hover:border-amber-400/60 hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden"
                 >
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="h-10 w-10 rounded-xl bg-muted flex items-center justify-center text-foreground group-hover:bg-foreground group-hover:text-background transition-colors">
-                      <CategoryIcon name={cat.name} className="h-5 w-5" />
-                    </div>
-                    <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                  <div className="relative aspect-4/3 w-full overflow-hidden bg-muted">
+                    <img
+                      src={getCategory3DImage(cat.name)}
+                      alt={cat.name}
+                      className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500 ease-out"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
                   </div>
 
-                  <div>
-                    <h3 className="font-semibold text-sm sm:text-base text-foreground group-hover:text-brand transition-colors">
-                      {cat.name}
-                    </h3>
-                    {cat.description && (
-                      <p className="text-[11px] text-muted-foreground mt-1 line-clamp-1">
-                        {cat.description}
-                      </p>
-                    )}
+                  <div className="p-4 flex items-center justify-between gap-2 flex-1">
+                    <div className="min-w-0">
+                      <h3 className="font-bold text-sm sm:text-base text-foreground group-hover:text-brand transition-colors truncate">
+                        {cat.name}
+                      </h3>
+                      {cat.description && (
+                        <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">
+                          {cat.description}
+                        </p>
+                      )}
+                    </div>
+                    <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground group-hover:bg-brand group-hover:text-white transition-colors shrink-0">
+                      <ChevronRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+                    </div>
                   </div>
                 </Link>
               ))}

@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { BrandLogo } from '@/components/ui/brand-logo';
 
 const navGroups = [
   {
@@ -82,20 +83,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       `}
       >
         {/* Brand Console Logo Header */}
-        <div className="h-16 flex items-center justify-between px-5 border-b border-border shrink-0">
-          <div className="flex items-center gap-2.5">
-            <div className="h-8 w-8 rounded-lg bg-foreground text-background flex items-center justify-center">
-              <Sparkles className="h-4 w-4" />
-            </div>
-            <div>
-              <span className="font-semibold text-sm text-foreground block leading-none">
-                Operations
-              </span>
-              <span className="text-[10px] uppercase tracking-wider font-medium text-muted-foreground mt-0.5 block">
-                Rajalakshmi
-              </span>
-            </div>
-          </div>
+        <div className="h-18 flex items-center justify-between px-4 border-b border-border shrink-0">
+          <Link href="/admin" className="flex items-center gap-2 py-1">
+            <BrandLogo className="h-11 w-auto" />
+          </Link>
 
           <button
             className="lg:hidden p-1.5 rounded-lg hover:bg-muted text-muted-foreground"

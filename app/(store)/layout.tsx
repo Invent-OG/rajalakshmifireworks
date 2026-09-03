@@ -12,6 +12,8 @@ import { useRef } from 'react';
 import { useGSAP } from '@gsap/react';
 import { gsap, isReducedMotion } from '@/lib/motion';
 
+import { BrandLogo } from '@/components/ui/brand-logo';
+
 function AnnouncementBar() {
   return (
     <div className="bg-foreground text-background text-xs py-2 px-4 text-center font-medium tracking-tight">
@@ -61,20 +63,10 @@ function Header() {
   return (
     <header className="sticky top-0 z-40 premium-header transition-all">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 sm:h-18 items-center justify-between gap-4 sm:gap-8">
+        <div className="flex h-20 sm:h-24 items-center justify-between gap-4 sm:gap-8">
           {/* Brand Logo */}
-          <Link href="/" className="flex items-center gap-3 shrink-0 group">
-            <div className="h-9 w-9 rounded-xl bg-foreground text-background flex items-center justify-center group-hover:bg-brand transition-colors">
-              <Sparkles className="h-4.5 w-4.5" />
-            </div>
-            <div>
-              <span className="font-semibold text-base sm:text-lg tracking-tight text-foreground block leading-none">
-                {APP_CONFIG.STORE_NAME}
-              </span>
-              <span className="text-[10px] uppercase font-medium tracking-widest text-muted-foreground block mt-1">
-                Sivakasi Fireworks
-              </span>
-            </div>
+          <Link href="/" className="flex items-center gap-3 shrink-0 group py-2">
+            <BrandLogo className="h-14 sm:h-16 md:h-18 w-auto group-hover:scale-105 transition-transform" />
           </Link>
 
           {/* Desktop Navigation Links */}
@@ -197,10 +189,7 @@ function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="md:col-span-1 space-y-3">
             <div className="flex items-center gap-2.5">
-              <div className="h-7 w-7 rounded-lg bg-foreground text-background flex items-center justify-center">
-                <Sparkles className="h-3.5 w-3.5" />
-              </div>
-              <span className="font-semibold text-sm text-foreground">{APP_CONFIG.STORE_NAME}</span>
+              <BrandLogo className="h-14 sm:h-16 w-auto" />
             </div>
             <p className="text-muted-foreground leading-relaxed">
               Premium quality Sivakasi fireworks and celebration gift boxes. Safety tested and certified for family celebrations.

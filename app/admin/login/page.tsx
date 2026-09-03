@@ -4,8 +4,9 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Sparkles, Lock, ShieldCheck } from 'lucide-react';
+import { Lock, ShieldCheck } from 'lucide-react';
 import { toast } from 'sonner';
+import { BrandLogo } from '@/components/ui/brand-logo';
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -44,8 +45,8 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-sm space-y-6">
         {/* Brand Console Header */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center h-12 w-12 rounded-xl bg-foreground text-background mb-2">
-            <Sparkles className="h-6 w-6" />
+          <div className="flex justify-center mb-4">
+            <BrandLogo className="h-24 w-auto" />
           </div>
           <h1 className="text-2xl font-bold text-foreground tracking-tight">
             Store Operations
