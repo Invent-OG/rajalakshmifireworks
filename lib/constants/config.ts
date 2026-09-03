@@ -17,6 +17,10 @@ export const DEFAULT_SETTINGS = {
   DELIVERY_CHARGE: '50',
   FREE_DELIVERY_ABOVE: '2000',
   MAX_QUANTITY_PER_ITEM: '50',
+  ANNOUNCEMENT_BANNER_ENABLED: 'true',
+  ANNOUNCEMENT_BANNER_TEXT: 'Direct from Sivakasi • 100% Genuine Factory Sealed Fireworks • Wholesale Pricing',
+  ANNOUNCEMENT_BANNER_LINK: '/products',
+  ANNOUNCEMENT_BANNER_VARIANT: 'rainbow',
 } as const;
 
 export type SettingKey = keyof typeof DEFAULT_SETTINGS;

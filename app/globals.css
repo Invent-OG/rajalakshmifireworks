@@ -121,6 +121,10 @@
   --color-success-light: var(--success-light);
   --color-success-border: var(--success-border);
 
+  --color-fd-secondary: var(--secondary);
+  --color-fd-background: var(--background);
+  --color-fd-muted-foreground: var(--muted-foreground);
+
   --font-sans: var(--font-sans), 'Plus Jakarta Sans', system-ui, sans-serif;
   --font-heading: var(--font-heading), 'Outfit', sans-serif;
   --font-rubik: var(--font-rubik), 'Rubik', sans-serif;

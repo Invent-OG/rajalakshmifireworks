@@ -13,17 +13,7 @@ import { useGSAP } from '@gsap/react';
 import { gsap, isReducedMotion } from '@/lib/motion';
 
 import { BrandLogo } from '@/components/ui/brand-logo';
-
-function AnnouncementBar() {
-  return (
-    <div className="bg-foreground text-background text-xs py-2 px-4 text-center font-medium tracking-tight">
-      <div className="mx-auto max-w-7xl flex items-center justify-center gap-2">
-        <span className="h-1.5 w-1.5 rounded-full bg-brand" />
-        <span>Direct from Sivakasi • 100% Genuine Factory Sealed Fireworks • Wholesale Pricing</span>
-      </div>
-    </div>
-  );
-}
+import { StoreBanner } from '@/components/store/store-banner';
 
 function CartBadge({ count }: { count: number }) {
   const badgeRef = useRef<HTMLSpanElement>(null);
@@ -248,7 +238,7 @@ function Footer() {
 export default function StoreLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <AnnouncementBar />
+      <StoreBanner />
       <Header />
       <main className="flex-1 pb-24 md:pb-12">{children}</main>
       <Footer />

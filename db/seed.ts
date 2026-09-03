@@ -45,6 +45,10 @@ async function seed() {
     { key: 'STORE_PHONE', value: '+91 98765 43210', description: 'Customer support contact phone' },
     { key: 'WHATSAPP_NUMBER', value: '919876543210', description: 'WhatsApp order confirmation phone number' },
     { key: 'STORE_ADDRESS', value: '123 Main Road, Sivakasi, Tamil Nadu 626123', description: 'Physical store pickup address' },
+    { key: 'ANNOUNCEMENT_BANNER_ENABLED', value: 'true', description: 'Show or hide store announcement banner' },
+    { key: 'ANNOUNCEMENT_BANNER_TEXT', value: 'Direct from Sivakasi • 100% Genuine Factory Sealed Fireworks • Wholesale Pricing', description: 'Top announcement banner text' },
+    { key: 'ANNOUNCEMENT_BANNER_LINK', value: '/products', description: 'Top announcement banner link URL' },
+    { key: 'ANNOUNCEMENT_BANNER_VARIANT', value: 'rainbow', description: 'Banner variant (rainbow or normal)' },
   ];
 
   for (const s of defaultSettings) {
