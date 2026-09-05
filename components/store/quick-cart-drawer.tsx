@@ -98,7 +98,7 @@ export function QuickCartMobileFloating() {
   return (
     <>
       {/* Mobile Floating Bottom Bar - Sticky above mobile nav or viewport bottom */}
-      <div className="xl:hidden fixed bottom-16 md:bottom-6 left-0 right-0 z-40 px-4 pointer-events-none transition-all">
+      <div className="xl:hidden fixed bottom-20 md:bottom-6 left-0 right-0 z-40 px-4 pointer-events-none transition-all">
         <div className="mx-auto max-w-md pointer-events-auto">
           <div
             ref={barRef}

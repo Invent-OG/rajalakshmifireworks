@@ -1,138 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { ShoppingBag, Search, Sparkles, Truck, Phone, ShieldCheck, MapPin, MessageSquare } from 'lucide-react';
-import { useCart, useIsHydrated } from '@/hooks/use-cart';
+import { Truck, Phone, ShieldCheck, MapPin, MessageSquare } from 'lucide-react';
 import { APP_CONFIG } from '@/lib/constants/config';
 import { MobileBottomNav } from '@/components/store/mobile-bottom-nav';
 import { QuickCartMobileFloating } from '@/components/store/quick-cart-drawer';
-
-import { useRef } from 'react';
-import { useGSAP } from '@gsap/react';
-import { gsap, isReducedMotion } from '@/lib/motion';
-
 import { BrandLogo } from '@/components/ui/brand-logo';
 import { StoreBanner } from '@/components/store/store-banner';
-
-function CartBadge({ count }: { count: number }) {
-  const badgeRef = useRef<HTMLSpanElement>(null);
-  const isFirstRender = useRef(true);
-
-  useGSAP(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-    if (isReducedMotion() || !badgeRef.current) return;
-
-    gsap.timeline()
-      .to(badgeRef.current, { scale: 1.18, duration: 0.12, ease: 'power2.out' })
-      .to(badgeRef.current, { scale: 1, duration: 0.14, ease: 'power2.inOut' });
-  }, [count]);
-
-  if (count <= 0) return null;
-
-  return (
-    <span
-      ref={badgeRef}
-      className="h-5 min-w-5 px-1.5 rounded-full bg-brand text-white text-[11px] font-bold flex items-center justify-center transform-gpu"
-    >
-      {count > 99 ? '99+' : count}
-    </span>
-  );
-}
-
-function Header() {
-  const { itemCount } = useCart();
-  const pathname = usePathname();
-  const isHydrated = useIsHydrated();
-
-  const displayCount = isHydrated ? itemCount : 0;
-
-  return (
-    <header className="sticky top-0 z-40 premium-header transition-all">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-20 sm:h-24 items-center justify-between gap-4 sm:gap-8">
-          {/* Brand Logo */}
-          <Link href="/" className="flex items-center gap-3 shrink-0 group py-2">
-            <BrandLogo className="h-14 sm:h-16 md:h-18 w-auto group-hover:scale-105 transition-transform" />
-          </Link>
-
-          {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-7 text-sm font-medium">
-            <Link
-              href="/"
-              className={`transition-colors hover:text-foreground ${
-                pathname === '/' ? 'text-foreground font-semibold' : 'text-muted-foreground'
-              }`}
-            >
-              Home
-            </Link>
-            <Link
-              href="/products"
-              className={`transition-colors hover:text-foreground ${
-                pathname.startsWith('/products') || pathname.startsWith('/category')
-                  ? 'text-foreground font-semibold'
-                  : 'text-muted-foreground'
-              }`}
-            >
-              Catalog
-            </Link>
-            <Link
-              href="/products?featured=true"
-              className={`transition-colors hover:text-foreground ${
-                pathname.includes('featured=true') ? 'text-foreground font-semibold' : 'text-muted-foreground'
-              }`}
-            >
-              Gift Boxes
-            </Link>
-            <Link
-              href="/track-order"
-              className={`transition-colors hover:text-foreground ${
-                pathname === '/track-order' ? 'text-foreground font-semibold' : 'text-muted-foreground'
-              }`}
-            >
-              Track Order
-            </Link>
-          </nav>
-
-          {/* Search & Cart Actions */}
-          <div className="flex items-center gap-3">
-            {/* Desktop Search Trigger */}
-            <Link
-              href="/search"
-              className="hidden sm:flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-muted/60 hover:bg-muted text-muted-foreground hover:text-foreground text-xs font-medium border border-border transition-all w-44 lg:w-56"
-            >
-              <Search className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-              <span>Search fireworks...</span>
-            </Link>
-
-            {/* Mobile Search Icon */}
-            <Link
-              href="/search"
-              className="sm:hidden h-10 w-10 flex items-center justify-center rounded-xl bg-muted/60 text-foreground hover:bg-muted transition-colors border border-border"
-              aria-label="Search"
-            >
-              <Search className="h-4.5 w-4.5" />
-            </Link>
-
-            {/* Shopping Bag CTA */}
-            <Link
-              href="/cart"
-              className="relative h-10 sm:h-11 px-4 flex items-center gap-2.5 rounded-xl bg-primary text-primary-foreground font-medium hover:bg-primary-hover active:scale-95 transition-all text-xs sm:text-sm"
-              aria-label={`Shopping Bag with ${displayCount} items`}
-            >
-              <ShoppingBag className="h-4 w-4" />
-              <span className="hidden sm:inline">Bag</span>
-              <CartBadge count={displayCount} />
-            </Link>
-          </div>
-        </div>
-      </div>
-    </header>
-  );
-}
+import { FloatingNavbar } from '@/components/store/floating-navbar';
 
 function Footer() {
   return (
@@ -239,7 +114,7 @@ export default function StoreLayout({ children }: { children: React.ReactNode })
   return (
     <>
       <StoreBanner />
-      <Header />
+      <FloatingNavbar />
       <main className="flex-1 pb-24 md:pb-12">{children}</main>
       <Footer />
       <QuickCartMobileFloating />
