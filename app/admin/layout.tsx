@@ -10,6 +10,7 @@ import {
   Users,
   BarChart3,
   Settings,
+  UserCog,
   LogOut,
   Sparkles,
   Menu,
@@ -45,7 +46,10 @@ const navGroups = [
   },
   {
     group: 'SYSTEM',
-    items: [{ href: '/admin/settings', icon: Settings, label: 'Settings' }],
+    items: [
+      { href: '/admin/profile', icon: UserCog, label: 'Profile & Security' },
+      { href: '/admin/settings', icon: Settings, label: 'Settings' },
+    ],
   },
 ];
 
@@ -136,8 +140,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           ))}
         </nav>
 
-        {/* Logout Footer */}
-        <div className="p-3 border-t border-border">
+        {/* Profile & Logout Footer */}
+        <div className="p-3 border-t border-border space-y-1">
+          <Link
+            href="/admin/profile"
+            onClick={() => setSidebarOpen(false)}
+            className={`
+              flex items-center gap-2.5 w-full px-3 py-2 rounded-xl text-xs font-medium transition-colors
+              ${
+                pathname === '/admin/profile'
+                  ? 'bg-muted text-foreground font-semibold'
+                  : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
+              }
+            `}
+          >
+            <UserCog className="h-4 w-4" />
+            <span>Profile & Security</span>
+          </Link>
           <button
             onClick={handleLogout}
             className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl text-xs font-medium text-muted-foreground hover:text-destructive hover:bg-muted transition-colors cursor-pointer"
@@ -165,7 +184,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </span>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
+            <Link
+              href="/admin/profile"
+              className={`
+                inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-medium transition-colors
+                ${
+                  pathname === '/admin/profile'
+                    ? 'border-brand/40 bg-brand/10 text-brand'
+                    : 'border-border bg-card hover:bg-muted text-foreground'
+                }
+              `}
+            >
+              <UserCog className="h-3.5 w-3.5" />
+              <span>Profile</span>
+            </Link>
+
             <Link
               href="/"
               target="_blank"

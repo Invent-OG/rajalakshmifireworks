@@ -1,11 +1,12 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input, Textarea } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Save, Truck, MessageSquare, Sparkles } from 'lucide-react';
+import { Save, Truck, MessageSquare, Sparkles, UserCog, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { Banner } from '@/components/ui/banner';
 
@@ -122,6 +123,30 @@ export default function AdminSettingsPage() {
       </div>
 
       <div className="space-y-6">
+        {/* Admin Account & Security Shortcut */}
+        <div className="p-5 rounded-2xl bg-brand/5 border border-brand/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-brand/10 text-brand flex items-center justify-center shrink-0">
+              <UserCog className="h-5 w-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-foreground">
+                Admin Profile & Password Security
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                Update your login email address, staff display name, and manage account password.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/admin/profile"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-brand text-white hover:bg-brand/90 text-xs font-semibold shrink-0 transition-colors shadow-xs self-start sm:self-auto"
+          >
+            <span>Manage Password & Email</span>
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+
         {/* Cart & Ordering Rules */}
         <div className="p-6 rounded-2xl bg-card border border-border space-y-5">
           <div className="flex items-center gap-2 pb-2 border-b border-border">
