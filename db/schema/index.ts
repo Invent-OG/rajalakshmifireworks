@@ -12,3 +12,5 @@ export { inventoryTransactions, inventoryTransactionsRelations } from './invento
 export type { InventoryTransactionType } from './inventory-transactions';
 export { adminUsers } from './admin-users';
 export { settings } from './settings';
+export { whatsappMessages, whatsappMessagesRelations } from './whatsapp-messages';
+export type { WhatsAppMessageStatus } from './whatsapp-messages';

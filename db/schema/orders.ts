@@ -14,6 +14,7 @@ import { relations } from 'drizzle-orm';
 import { customers } from './customers';
 import { orderItems } from './order-items';
 import { orderStatusHistory } from './order-status-history';
+import { whatsappMessages } from './whatsapp-messages';
 
 export type OrderStatus =
   | 'PENDING'
@@ -73,4 +74,5 @@ export const ordersRelations = relations(orders, ({ one, many }) => ({
   }),
   items: many(orderItems),
   statusHistory: many(orderStatusHistory),
+  whatsappMessages: many(whatsappMessages),
 }));

@@ -1,7 +1,9 @@
 import { NextRequest } from 'next/server';
 import { checkoutSchema } from '@/lib/validation/order';
 import { createOrder } from '@/lib/services/order-service';
+import { whatsAppService } from '@/lib/whatsapp/service';
 import { toErrorResponse } from '@/lib/utils/errors';
+import { logger } from '@/lib/utils/logger';
 
 export async function POST(request: NextRequest) {
   try {
@@ -26,9 +28,19 @@ export async function POST(request: NextRequest) {
 
     const order = await createOrder(result.data);
 
+    // Asynchronously dispatch WhatsApp order received notification
+    // Any WhatsApp API failure will NOT affect or roll back the committed order
+    whatsAppService.sendOrderReceived(order.orderId).catch((err) => {
+      logger.error('order.checkout', 'WhatsApp notification dispatch failed in background', {
+        orderId: order.orderId,
+        error: (err as Error).message,
+      });
+    });
+
     return Response.json({ order }, { status: 201 });
   } catch (error) {
     const { message, statusCode } = toErrorResponse(error);
     return Response.json({ message }, { status: statusCode });
   }
 }
+

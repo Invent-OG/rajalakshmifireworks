@@ -20,6 +20,11 @@ import {
   Truck,
   XCircle,
   Package,
+  MessageSquare,
+  RefreshCw,
+  Check,
+  CheckCheck,
+  AlertCircle,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -39,6 +44,22 @@ interface OrderStatusHistoryEntry {
   note: string | null;
   createdAt: string;
   changedBy: string | null;
+}
+
+interface WhatsAppMessageEntry {
+  id: number;
+  messageType: string;
+  templateName: string;
+  providerMessageId: string | null;
+  status: 'PENDING' | 'SENT' | 'DELIVERED' | 'READ' | 'FAILED';
+  errorCode: string | null;
+  errorMessage: string | null;
+  attemptCount: number;
+  sentAt: string | null;
+  deliveredAt: string | null;
+  readAt: string | null;
+  failedAt: string | null;
+  createdAt: string;
 }
 
 export default function AdminOrderDetailPage({
@@ -78,6 +99,29 @@ export default function AdminOrderDetailPage({
       toast.error(error.message);
     },
   });
+
+  const whatsAppRetryMutation = useMutation({
+    mutationFn: async (messageId?: number) => {
+      const res = await fetch(`/api/admin/orders/${orderId}/whatsapp/retry`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messageId }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.message || 'Failed to retry WhatsApp message');
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.orders.detail(orderId) });
+      toast.success('WhatsApp notification dispatched successfully');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message);
+    },
+  });
+
 
   if (isLoading) {
     return (
@@ -312,6 +356,106 @@ export default function AdminOrderDetailPage({
               </div>
             </div>
           )}
+
+          {/* WhatsApp Cloud API Notification Card */}
+          <div className="p-6 rounded-2xl bg-card border border-border space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-border">
+              <div className="flex items-center gap-2">
+                <MessageSquare className="h-4 w-4 text-emerald-600" />
+                <h2 className="font-semibold text-xs uppercase tracking-wider text-foreground">
+                  WhatsApp Updates
+                </h2>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 text-xs px-2.5 rounded-lg"
+                onClick={() => whatsAppRetryMutation.mutate(undefined)}
+                disabled={whatsAppRetryMutation.isPending}
+              >
+                <RefreshCw
+                  className={`h-3 w-3 mr-1 ${
+                    whatsAppRetryMutation.isPending ? 'animate-spin' : ''
+                  }`}
+                />
+                Resend
+              </Button>
+            </div>
+
+            {order.whatsappMessages && order.whatsappMessages.length > 0 ? (
+              <div className="space-y-3">
+                {order.whatsappMessages.map((msg: WhatsAppMessageEntry) => {
+                  const statusColors: Record<string, string> = {
+                    SENT: 'bg-blue-50 text-blue-700 border-blue-200',
+                    DELIVERED: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                    READ: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+                    PENDING: 'bg-amber-50 text-amber-700 border-amber-200',
+                    FAILED: 'bg-red-50 text-red-700 border-red-200',
+                  };
+
+                  const StatusIcon =
+                    msg.status === 'READ'
+                      ? CheckCheck
+                      : msg.status === 'DELIVERED' || msg.status === 'SENT'
+                      ? Check
+                      : msg.status === 'FAILED'
+                      ? AlertCircle
+                      : Clock;
+
+                  const readableType = msg.messageType
+                    .replace(/_/g, ' ')
+                    .toLowerCase()
+                    .replace(/\b\w/g, (l) => l.toUpperCase());
+
+                  return (
+                    <div
+                      key={msg.id}
+                      className="p-3 rounded-xl bg-background-secondary border border-border/70 space-y-2 text-xs"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-medium text-foreground">{readableType}</span>
+                        <span
+                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold border ${
+                            statusColors[msg.status] || 'bg-muted text-muted-foreground'
+                          }`}
+                        >
+                          <StatusIcon className="h-2.5 w-2.5" />
+                          {msg.status}
+                        </span>
+                      </div>
+
+                      {msg.errorMessage && (
+                        <p className="text-[11px] text-red-600 bg-red-50/50 p-2 rounded-lg border border-red-100 font-mono">
+                          {msg.errorMessage}
+                        </p>
+                      )}
+
+                      <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-1 border-t border-border/40">
+                        <span>
+                          {msg.sentAt
+                            ? `Sent: ${formatDateTime(msg.sentAt)}`
+                            : `Logged: ${formatDateTime(msg.createdAt)}`}
+                        </span>
+                        {msg.status === 'FAILED' && (
+                          <button
+                            onClick={() => whatsAppRetryMutation.mutate(msg.id)}
+                            disabled={whatsAppRetryMutation.isPending}
+                            className="text-brand hover:underline font-medium ml-2"
+                          >
+                            Retry this
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-4 text-xs text-muted-foreground">
+                <p>No WhatsApp notifications recorded for this order.</p>
+              </div>
+            )}
+          </div>
 
           {/* Audit History Timeline */}
           <div className="p-6 rounded-2xl bg-card border border-border space-y-4">

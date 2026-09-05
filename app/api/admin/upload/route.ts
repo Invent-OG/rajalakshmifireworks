@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { getSession } from '@/lib/auth/session';
-import { writeFile, mkdir } from 'fs/promises';
+import { uploadMediaToSupabase } from '@/lib/supabase/storage';
+import { logger } from '@/lib/utils/logger';
 import path from 'path';
 
 export async function POST(request: NextRequest) {
@@ -21,7 +22,7 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(bytes);
 
     // Validate mime type
-    const mimeType = file.type;
+    const mimeType = file.type || 'application/octet-stream';
     const isImage = mimeType.startsWith('image/');
     const isVideo = mimeType.startsWith('video/');
 
@@ -34,10 +35,6 @@ export async function POST(request: NextRequest) {
 
     const mediaType: 'image' | 'video' = isVideo ? 'video' : 'image';
 
-    // Ensure uploads directory exists
-    const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
-    await mkdir(uploadsDir, { recursive: true });
-
     // Sanitize extension and filename
     const originalExt = path.extname(file.name) || (isVideo ? '.mp4' : '.jpg');
     const safeExt = originalExt.toLowerCase().replace(/[^a-z0-9.]/g, '');
@@ -47,14 +44,26 @@ export async function POST(request: NextRequest) {
       .replace(/[^a-z0-9]/g, '-');
     const uniqueFileName = `${cleanName}-${Date.now()}-${Math.random().toString(36).substring(2, 7)}${safeExt}`;
 
-    const filePath = path.join(uploadsDir, uniqueFileName);
-    await writeFile(filePath, buffer);
+    // Upload to Supabase Storage Bucket
+    const folder = mediaType === 'video' ? 'videos' : 'images';
+    const uploadResult = await uploadMediaToSupabase({
+      buffer,
+      filename: uniqueFileName,
+      contentType: mimeType,
+      folder,
+    });
 
-    const publicUrl = `/uploads/${uniqueFileName}`;
+    logger.info('media.upload', 'Media uploaded to Supabase Storage', {
+      filename: uniqueFileName,
+      mediaType,
+      size: file.size,
+      url: uploadResult.url,
+      adminEmail: session.email,
+    });
 
     return Response.json(
       {
-        url: publicUrl,
+        url: uploadResult.url,
         type: mediaType,
         name: file.name,
         size: file.size,
@@ -62,7 +71,13 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    console.error('Error uploading file:', error);
-    return Response.json({ message: 'File upload failed' }, { status: 500 });
+    logger.error('media.upload', 'Error uploading file to Supabase', {
+      error: (error as Error).message,
+    });
+    return Response.json(
+      { message: (error as Error).message || 'File upload failed' },
+      { status: 500 }
+    );
   }
 }
+

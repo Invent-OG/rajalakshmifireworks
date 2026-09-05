@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { db } from '@/db';
 import { productMedia } from '@/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, asc } from 'drizzle-orm';
 import { getSession } from '@/lib/auth/session';
 
 export async function GET(
@@ -17,7 +17,7 @@ export async function GET(
   try {
     const mediaList = await db.query.productMedia.findMany({
       where: eq(productMedia.productId, productId),
-      orderBy: (m: { sortOrder: any; }, { asc }: any) => [asc(m.sortOrder)],
+      orderBy: [asc(productMedia.sortOrder)],
     });
 
     return Response.json({ media: mediaList });
