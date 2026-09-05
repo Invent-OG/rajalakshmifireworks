@@ -25,6 +25,7 @@ import {
   Check,
   CheckCheck,
   AlertCircle,
+  Printer,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -190,12 +191,18 @@ export default function AdminOrderDetailPage({
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
+          <Link href={`/admin/orders/${order.id}/print`} target="_blank">
+            <Button variant="outline" size="sm" className="rounded-xl text-xs font-medium">
+              <Printer className="h-3.5 w-3.5 mr-1 text-muted-foreground" /> Print Slip
+            </Button>
+          </Link>
           <span className="text-xs font-medium px-3 py-1.5 rounded-xl bg-card border border-border text-foreground">
             {fulfillmentType === 'DELIVERY' ? 'Doorstep Delivery' : 'Sivakasi Counter Pickup'}
           </span>
         </div>
       </div>
+
 
       {/* Main 2-Column Inspector Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
