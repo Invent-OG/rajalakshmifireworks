@@ -73,21 +73,23 @@ export function FeaturedProductsSlider({
   if (products.length === 0) return null;
 
   return (
-    <section className="reveal-section w-full max-w-[1440px] mx-auto px-3 sm:px-6 lg:px-10 xl:px-12">
+    <section className="reveal-section w-full max-w-[1280px] mx-auto px-4 sm:px-8 md:px-[80px]">
       {/* ── Section Header with Arrows ── */}
-      <div className="section-header flex flex-col sm:flex-row sm:items-end justify-between mb-6 sm:mb-8 pb-4  border-neutral-100 gap-4">
-        <div className="space-y-3">
-          <SectionTag label={tagLabel} />
-          <h2 className="text-2xl sm:text-4xl font-bold tracking-tight text-neutral-950">
+      <div className="section-header flex flex-col md:flex-row justify-between items-start md:items-end mb-8 md:mb-[48px] gap-4 md:gap-6">
+        <div className="max-w-[640px]">
+          <div className="mb-5 sm:mb-8">
+            <SectionTag label={tagLabel} />
+          </div>
+          <h2 className="text-3xl sm:text-4xl md:text-[58px] font-medium text-[#111010] leading-[1.15] md:leading-[1.1] tracking-tight">
             {title}
           </h2>
-          <p className="text-xs sm:text-sm text-neutral-500 font-normal max-w-xl">
+          <p className="text-[14px] sm:text-[15px] text-[#555455] font-normal leading-relaxed mt-3 max-w-xl">
             {subtitle}
           </p>
         </div>
 
         {/* Header Action & Slider Navigation Controls */}
-        <div className="flex items-center gap-2.5 self-start sm:self-auto shrink-0">
+        <div className="flex items-center gap-3 self-start md:self-end shrink-0 pb-1">
           <Link
             href={viewAllHref}
             className="inline-flex items-center gap-2 h-12 px-6 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-900 text-xs sm:text-sm font-bold shadow-xs active:scale-95 transition-all justify-center"
@@ -123,13 +125,13 @@ export function FeaturedProductsSlider({
       {/* ── Horizontal Scrollable Track ── */}
       <div
         ref={scrollContainerRef}
-        className="flex gap-4 sm:gap-6 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory py-2 -my-2 px-1 -mx-1"
+        className="flex gap-[20px] md:gap-[32px] overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory py-2 -my-2 px-1 -mx-1"
         style={{ WebkitOverflowScrolling: 'touch' }}
       >
         {products.map((product) => (
           <div
             key={product.id}
-            className="snap-start shrink-0 w-[280px] sm:w-[320px] lg:w-[340px] flex flex-col"
+            className="snap-start shrink-0 w-[280px] sm:w-[320px] md:w-[350px] flex flex-col"
           >
             <ProductCard product={product} />
           </div>

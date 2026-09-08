@@ -10,21 +10,23 @@ import { cn } from "@/lib/utils";
 
 export default function Featured_05() {
   return (
-    <section className="relative w-full mx-auto overflow-hidden rounded-[36px] sm:rounded-[40px] bg-white border-none shadow-sm px-6 py-12 md:px-14 md:py-18">
+    <section className="relative w-full max-w-[1280px] mx-auto overflow-hidden rounded-[36px] sm:rounded-[40px] bg-white border-none shadow-sm p-8 sm:p-10 md:p-14">
       <div className="flex flex-col-reverse items-center justify-between gap-10 md:flex-row">
         <div className="z-10 max-w-xl text-left space-y-4">
-          <SectionTag label="Sivakasi Supply Network" />
+          <div className="mb-5 sm:mb-8">
+            <SectionTag label="Sivakasi Supply Network" />
+          </div>
 
-          <h2 className="text-2xl sm:text-4xl font-bold tracking-tight text-foreground leading-tight">
-            Lighting Up Celebrations Across{" "}
-            <span className="text-neutral-950 font-extrabold">Every Corner of India</span>
+          <h2 className="text-3xl sm:text-4xl md:text-[52px] font-medium text-[#111010] leading-[1.15] md:leading-[1.1] tracking-tight">
+            Lighting up celebrations across{' '}
+            <span className="text-black font-semibold">every corner of India</span>
           </h2>
 
-          <p className="text-sm sm:text-base text-muted-foreground font-normal leading-relaxed">
+          <p className="text-[14px] sm:text-[15px] text-[#555455] font-normal leading-relaxed pt-1">
             Direct from Sivakasi&apos;s certified manufacturing facilities to your home. Premium handcrafted sparklers, vibrant sound crackers, and grand sky shots with secure nationwide transit.
           </p>
 
-          <div className="pt-2">
+          <div className="pt-4">
             <Link href="/products">
               <StoreButton size="lg" variant="primary">
                 Explore Fireworks Collection <ArrowRight className="h-4 w-4" />

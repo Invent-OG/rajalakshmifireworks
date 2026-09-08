@@ -147,9 +147,9 @@ export function OrganicCategoriesGrid({
 
   return (
     <section className="w-full py-4 sm:py-6 items-center justify-center lg:py-8">
-      <div className="w-full px-3.5 sm:px-6 lg:px-10 xl:px-12 sm:max-w-[85%] lg:max-w-[80%] mx-auto">
+      <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-8 md:px-[80px]">
         {/* ── 3-Column Bento Grid ── */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-3.5 sm:gap-4 lg:gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-[20px] md:gap-[32px]">
           {/* ── 1. Left Main Promo Card ── */}
           <div className="md:col-span-2 lg:col-span-5">
             <Link
@@ -190,13 +190,13 @@ export function OrganicCategoriesGrid({
           </div>
 
           {/* ── 2. Middle Stack (2 Top Square Cards + 1 Bottom Wide Card) ── */}
-          <div className="md:col-span-1 lg:col-span-4 flex flex-col gap-3.5 sm:gap-4 lg:gap-5 h-auto md:h-[400px] sm:md:h-[460px] lg:h-[490px]">
+          <div className="md:col-span-1 lg:col-span-4 flex flex-col gap-[20px] md:gap-[32px] h-auto md:h-[400px] sm:md:h-[460px] lg:h-[490px]">
             {/* Top Row: 2 Cards Side-by-Side */}
-            <div className="grid grid-cols-2 gap-3.5 sm:gap-4 lg:gap-5 flex-1 min-h-[190px] sm:min-h-[220px]">
+            <div className="grid grid-cols-2 gap-[20px] md:gap-[32px] flex-1 min-h-[190px] sm:min-h-[220px]">
               {/* Card 1 */}
               <Link
                 href={resolvedTopMiddle1.link}
-                className="group relative w-full h-full min-h-[190px] sm:min-h-[220px] rounded-[28px] sm:rounded-[32px] overflow-hidden flex items-center justify-center select-none shadow-sm hover:shadow-xl transition-all duration-500 block"
+                className="group relative w-full h-full min-h-[190px] sm:min-h-[220px] rounded-[28px] sm:rounded-[36px] overflow-hidden flex items-center justify-center select-none shadow-sm hover:shadow-xl transition-all duration-500 block"
               >
                 <img
                   src={resolvedTopMiddle1.image}
@@ -212,7 +212,7 @@ export function OrganicCategoriesGrid({
               {/* Card 2 */}
               <Link
                 href={resolvedTopMiddle2.link}
-                className="group relative w-full h-full min-h-[190px] sm:min-h-[220px] rounded-[28px] sm:rounded-[32px] overflow-hidden flex items-center justify-center select-none shadow-sm hover:shadow-xl transition-all duration-500 block"
+                className="group relative w-full h-full min-h-[190px] sm:min-h-[220px] rounded-[28px] sm:rounded-[36px] overflow-hidden flex items-center justify-center select-none shadow-sm hover:shadow-xl transition-all duration-500 block"
               >
                 <img
                   src={resolvedTopMiddle2.image}
@@ -230,7 +230,7 @@ export function OrganicCategoriesGrid({
             <div className="flex-1 min-h-[190px] sm:min-h-[220px]">
               <Link
                 href={resolvedBottomMiddle.link}
-                className="group relative w-full h-full min-h-[190px] sm:min-h-[220px] rounded-[28px] sm:rounded-[32px] overflow-hidden flex items-center justify-center select-none shadow-sm hover:shadow-xl transition-all duration-500 block"
+                className="group relative w-full h-full min-h-[190px] sm:min-h-[220px] rounded-[28px] sm:rounded-[36px] overflow-hidden flex items-center justify-center select-none shadow-sm hover:shadow-xl transition-all duration-500 block"
               >
                 <img
                   src={resolvedBottomMiddle.image}
@@ -265,10 +265,10 @@ export function OrganicCategoriesGrid({
         </div>
 
         {/* ── 4. Bottom Centered CTA: ALL CATEGORIES ── */}
-        <div className="mt-6 sm:mt-8 flex justify-center items-center">
+        <div className="mt-8 md:mt-[48px] flex justify-center items-center">
           <Link
             href={allCategoriesLink}
-            className="inline-flex items-center gap-3 h-12 px-7 rounded-full bg-white shadow-sm hover:shadow-lg transition-all duration-300 group select-none cursor-pointer"
+            className="inline-flex items-center gap-3 h-12 px-8 rounded-full bg-white shadow-sm hover:shadow-lg transition-all duration-300 group select-none cursor-pointer"
           >
             <span className="font-extrabold text-xs sm:text-[13px] tracking-widest uppercase text-neutral-950">
               {allCategoriesText}

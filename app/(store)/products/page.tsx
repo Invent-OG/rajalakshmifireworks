@@ -77,12 +77,12 @@ export default async function ProductsPage({
   const pageHeading = activeCategory
     ? activeCategory.name
     : featured
-    ? 'Featured Gift Boxes & Combos'
-    : bestseller
-    ? 'Festive Bestsellers'
-    : search
-    ? `Results for "${search}"`
-    : 'All Fireworks & Crackers';
+      ? 'Featured Gift Boxes & Combos'
+      : bestseller
+        ? 'Festive Bestsellers'
+        : search
+          ? `Results for "${search}"`
+          : 'All Fireworks & Crackers';
 
   return (
     <div className="w-full px-4 sm:px-8 lg:px-12 py-8 animate-fade-in space-y-8">
@@ -99,7 +99,10 @@ export default async function ProductsPage({
         </div>
 
         {/* Sort selector */}
-        <div className="self-start sm:self-auto">
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <label htmlFor="sort" className="text-xs font-medium text-muted-foreground shrink-0">
+            Sort:
+          </label>
           <SortSelector current={sort} />
         </div>
       </div>
@@ -108,31 +111,28 @@ export default async function ProductsPage({
       <div className="lg:hidden flex gap-2 overflow-x-auto no-scrollbar pb-2">
         <Link
           href="/products"
-          className={`px-4 py-2 rounded-full text-xs font-semibold shrink-0 transition-all ${
-            !categorySlug && !featured && !bestseller
+          className={`px-4 py-2 rounded-full text-xs font-semibold shrink-0 transition-all ${!categorySlug && !featured && !bestseller
               ? 'bg-neutral-900 text-white shadow-xs'
               : 'bg-white text-neutral-600 shadow-xs hover:bg-neutral-100'
-          }`}
+            }`}
         >
           All
         </Link>
         <Link
           href="/products?featured=true"
-          className={`px-4 py-2 rounded-full text-xs font-semibold shrink-0 transition-all ${
-            featured
+          className={`px-4 py-2 rounded-full text-xs font-semibold shrink-0 transition-all ${featured
               ? 'bg-neutral-900 text-white shadow-xs'
               : 'bg-white text-neutral-600 shadow-xs hover:bg-neutral-100'
-          }`}
+            }`}
         >
           Featured
         </Link>
         <Link
           href="/products?bestseller=true"
-          className={`px-4 py-2 rounded-full text-xs font-semibold shrink-0 transition-all ${
-            bestseller
+          className={`px-4 py-2 rounded-full text-xs font-semibold shrink-0 transition-all ${bestseller
               ? 'bg-neutral-900 text-white shadow-xs'
               : 'bg-white text-neutral-600 shadow-xs hover:bg-neutral-100'
-          }`}
+            }`}
         >
           Bestsellers
         </Link>
@@ -140,11 +140,10 @@ export default async function ProductsPage({
           <Link
             key={cat.id}
             href={`/products?category=${cat.slug}`}
-            className={`px-4 py-2 rounded-full text-xs font-semibold shrink-0 transition-all ${
-              categorySlug === cat.slug
+            className={`px-4 py-2 rounded-full text-xs font-semibold shrink-0 transition-all ${categorySlug === cat.slug
                 ? 'bg-neutral-900 text-white shadow-xs'
                 : 'bg-white text-neutral-600 shadow-xs hover:bg-neutral-100'
-            }`}
+              }`}
           >
             {cat.name}
           </Link>
@@ -164,11 +163,10 @@ export default async function ProductsPage({
             <li>
               <Link
                 href="/products"
-                className={`block px-3.5 py-2 rounded-full text-xs font-semibold transition-all ${
-                  !categorySlug && !featured && !bestseller
+                className={`block px-3.5 py-2 rounded-full text-xs font-semibold transition-all ${!categorySlug && !featured && !bestseller
                     ? 'bg-neutral-900 text-white shadow-xs'
                     : 'text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900'
-                }`}
+                  }`}
               >
                 All Fireworks
               </Link>
@@ -176,11 +174,10 @@ export default async function ProductsPage({
             <li>
               <Link
                 href="/products?featured=true"
-                className={`block px-3.5 py-2 rounded-full text-xs font-semibold transition-all ${
-                  featured
+                className={`block px-3.5 py-2 rounded-full text-xs font-semibold transition-all ${featured
                     ? 'bg-neutral-900 text-white shadow-xs'
                     : 'text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900'
-                }`}
+                  }`}
               >
                 Featured Combos
               </Link>
@@ -188,11 +185,10 @@ export default async function ProductsPage({
             <li>
               <Link
                 href="/products?bestseller=true"
-                className={`block px-3.5 py-2 rounded-full text-xs font-semibold transition-all ${
-                  bestseller
+                className={`block px-3.5 py-2 rounded-full text-xs font-semibold transition-all ${bestseller
                     ? 'bg-neutral-900 text-white shadow-xs'
                     : 'text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900'
-                }`}
+                  }`}
               >
                 Festive Bestsellers
               </Link>
@@ -206,11 +202,10 @@ export default async function ProductsPage({
               <li key={cat.id}>
                 <Link
                   href={`/products?category=${cat.slug}`}
-                  className={`block px-3.5 py-2 rounded-full text-xs font-semibold transition-all ${
-                    categorySlug === cat.slug
+                  className={`block px-3.5 py-2 rounded-full text-xs font-semibold transition-all ${categorySlug === cat.slug
                       ? 'bg-neutral-900 text-white shadow-xs'
                       : 'text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900'
-                  }`}
+                    }`}
                 >
                   {cat.name}
                 </Link>

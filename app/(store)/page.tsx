@@ -43,7 +43,7 @@ export default async function HomePage() {
 
   return (
     <HomeMotion>
-      <div className="w-full space-y-16 sm:space-y-24 pb-12 overflow-hidden" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+      <div className="w-full space-y-16 sm:space-y-24 md:space-y-[100px] pb-12 overflow-hidden" style={{ fontFamily: "'DM Sans', sans-serif" }}>
         {/* ── 1. Hero Section ─── */}
         <OrganicHero initialConfig={heroConfig} />
 
@@ -69,15 +69,13 @@ export default async function HomePage() {
           <FeaturedProductsSlider products={featuredProducts} />
         )}
 
-
-
         {/* ── 5. Testimonial 02 Blaze ─── */}
         <section className="reveal-section w-full">
           <Testimonial02Blaze />
         </section>
 
         {/* ── 6. Globe Feature Showcase ─── */}
-        <section className="reveal-section w-full max-w-[1440px] mx-auto px-3 sm:px-6 lg:px-10 xl:px-12">
+        <section className="reveal-section w-full max-w-[1280px] mx-auto px-4 sm:px-8 md:px-[80px]">
           <Featured_05 />
         </section>
       </div>
