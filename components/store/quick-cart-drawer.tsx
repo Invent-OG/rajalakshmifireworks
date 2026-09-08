@@ -139,7 +139,7 @@ export function QuickCartMobileFloating() {
             <Link href="/checkout" className="shrink-0">
               <button
                 type="button"
-                className="px-5 sm:px-6 py-2.5 sm:py-3 rounded-full bg-neutral-950 hover:bg-neutral-800 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer"
+                className="h-12 px-6 rounded-full bg-neutral-950 hover:bg-neutral-800 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer justify-center"
               >
                 <CreditCard className="h-4 w-4" />
                 <span>Checkout</span>

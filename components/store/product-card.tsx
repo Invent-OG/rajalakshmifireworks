@@ -165,22 +165,22 @@ export function ProductCard({ product }: ProductCardProps) {
             <button
               type="button"
               disabled
-              className="w-full py-2.5 sm:py-3.5 px-4 sm:px-6 rounded-full bg-neutral-100 text-neutral-400 text-xs sm:text-sm font-bold text-center opacity-70 cursor-not-allowed"
+              className="w-full h-12 px-4 sm:px-6 rounded-full bg-neutral-100 text-neutral-400 text-xs sm:text-sm font-bold text-center opacity-70 cursor-not-allowed flex items-center justify-center"
             >
               Sold Out
             </button>
           ) : quantity > 0 ? (
-            <div className="h-10 sm:h-12 px-1.5 sm:px-2 rounded-full bg-neutral-100 flex items-center justify-between shadow-xs">
+            <div className="h-12 px-2 rounded-full bg-neutral-100 flex items-center justify-between shadow-xs">
               <button
                 type="button"
                 onClick={() => (quantity === 1 ? removeItem(product.id) : updateQuantity(product.id, quantity - 1))}
                 aria-label="Decrease quantity"
-                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-neutral-950 text-white hover:bg-neutral-800 flex items-center justify-center transition-all active:scale-90 cursor-pointer shadow-2xs shrink-0"
+                className="w-8 h-8 rounded-full bg-neutral-950 text-white hover:bg-neutral-800 flex items-center justify-center transition-all active:scale-90 cursor-pointer shadow-2xs shrink-0"
               >
                 <Minus size={13} />
               </button>
 
-              <span className="text-xs sm:text-sm font-bold text-neutral-900 select-none px-1.5 truncate">
+              <span className="text-xs sm:text-sm font-bold text-neutral-900 select-none px-2 truncate">
                 {quantity}
               </span>
 
@@ -189,7 +189,7 @@ export function ProductCard({ product }: ProductCardProps) {
                 onClick={() => updateQuantity(product.id, quantity + 1)}
                 disabled={quantity >= product.stockQuantity}
                 aria-label="Increase quantity"
-                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-neutral-950 text-white hover:bg-neutral-800 flex items-center justify-center transition-all active:scale-90 disabled:opacity-30 disabled:pointer-events-none cursor-pointer shadow-2xs shrink-0"
+                className="w-8 h-8 rounded-full bg-neutral-950 text-white hover:bg-neutral-800 flex items-center justify-center transition-all active:scale-90 disabled:opacity-30 disabled:pointer-events-none cursor-pointer shadow-2xs shrink-0"
               >
                 <Plus size={13} />
               </button>
@@ -199,7 +199,7 @@ export function ProductCard({ product }: ProductCardProps) {
               ref={buttonRef}
               type="button"
               onClick={handleAddToCart}
-              className="w-full py-2.5 sm:py-3.5 px-3 sm:px-6 rounded-full bg-neutral-950 hover:bg-neutral-800 text-white font-bold text-xs sm:text-sm shadow-md flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer active:scale-98 transition-all duration-300"
+              className="w-full h-12 px-4 sm:px-6 rounded-full bg-neutral-950 hover:bg-neutral-800 text-white font-bold text-xs sm:text-sm shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-98 transition-all duration-300"
             >
               <ShoppingCart size={15} />
               <span>Add To Cart</span>

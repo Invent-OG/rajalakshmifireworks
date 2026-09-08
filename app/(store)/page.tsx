@@ -72,7 +72,7 @@ export default async function HomePage() {
               </div>
               <Link
                 href="/products?featured=true"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-900 text-xs sm:text-sm font-bold shadow-xs active:scale-95 transition-all self-start sm:self-auto shrink-0"
+                className="inline-flex items-center gap-2 h-12 px-6 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-900 text-xs sm:text-sm font-bold shadow-xs active:scale-95 transition-all self-start sm:self-auto shrink-0 justify-center"
               >
                 <span>View All Featured</span>
                 <ChevronRight className="h-4 w-4" />
@@ -102,7 +102,7 @@ export default async function HomePage() {
               </div>
               <Link
                 href="/products?bestseller=true"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-900 text-xs sm:text-sm font-bold shadow-xs active:scale-95 transition-all self-start sm:self-auto shrink-0"
+                className="inline-flex items-center gap-2 h-12 px-6 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-900 text-xs sm:text-sm font-bold shadow-xs active:scale-95 transition-all self-start sm:self-auto shrink-0 justify-center"
               >
                 <span>View All Bestsellers</span>
                 <ChevronRight className="h-4 w-4" />

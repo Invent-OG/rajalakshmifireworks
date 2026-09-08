@@ -268,12 +268,12 @@ export function OrganicCategoriesGrid({
         <div className="mt-6 sm:mt-8 flex justify-center items-center">
           <Link
             href={allCategoriesLink}
-            className="inline-flex items-center gap-3 px-8 py-3.5 rounded-full bg-white shadow-sm hover:shadow-lg transition-all duration-300 group select-none cursor-pointer"
+            className="inline-flex items-center gap-3 h-12 px-7 rounded-full bg-white shadow-sm hover:shadow-lg transition-all duration-300 group select-none cursor-pointer"
           >
             <span className="font-extrabold text-xs sm:text-[13px] tracking-widest uppercase text-neutral-950">
               {allCategoriesText}
             </span>
-            <span className="h-6.5 w-6.5 rounded-full bg-neutral-950 text-white flex items-center justify-center group-hover:translate-x-1 transition-transform duration-300">
+            <span className="h-7 w-7 rounded-full bg-neutral-950 text-white flex items-center justify-center group-hover:translate-x-1 transition-transform duration-300">
               <ArrowRight className="h-3.5 w-3.5" />
             </span>
           </Link>

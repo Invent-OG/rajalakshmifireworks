@@ -140,17 +140,17 @@ export function Testimonial02Blaze() {
                 </p>
 
                 {/* Button Group */}
-                <div className="flex items-center gap-[8px] group">
+                <div className="flex items-center gap-2 group">
                   <Link
                     href="/products"
-                    className="px-8 py-[14px] bg-[#111010] text-white text-[15px] font-bold rounded-full hover:bg-black transition-all cursor-pointer whitespace-nowrap duration-300 active:scale-95 shadow-sm"
+                    className="h-12 px-6 sm:px-8 bg-neutral-950 text-white text-xs sm:text-sm font-bold rounded-full hover:bg-neutral-800 transition-all cursor-pointer whitespace-nowrap duration-300 active:scale-95 shadow-sm inline-flex items-center justify-center"
                   >
                     Plan your fireworks
                   </Link>
                   <Link
                     href="/products"
                     aria-label="Submit trip plan"
-                    className="w-[48px] h-[48px] bg-[#111010] rounded-full flex items-center justify-center text-white hover:bg-black transition-all cursor-pointer shadow-sm duration-300 group-hover:-translate-x-2 active:scale-95"
+                    className="h-12 w-12 bg-neutral-950 rounded-full flex items-center justify-center text-white hover:bg-neutral-800 transition-all cursor-pointer shadow-sm duration-300 group-hover:translate-x-1 active:scale-95 shrink-0"
                   >
                     <ArrowUpRight size={18} />
                   </Link>

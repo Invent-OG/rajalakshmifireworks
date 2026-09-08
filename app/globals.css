@@ -410,6 +410,7 @@ p, span, input, select, textarea, button {
 /* Size Modifiers */
 .festive-btn-sm {
   font-size: 0.8125rem;
+  height: 2.5rem;
 }
 .festive-btn-sm > div > span {
   padding: 0.5rem 1.15rem;
@@ -418,22 +419,26 @@ p, span, input, select, textarea, button {
 
 .festive-btn-md {
   font-size: 0.875rem;
+  height: 3rem;
 }
 .festive-btn-md > div > span {
-  padding: 0.65rem 1.45rem;
+  padding: 0.75rem 1.5rem;
   gap: 0.45rem;
 }
 
 .festive-btn-lg {
-  font-size: 0.95rem;
+  font-size: 0.875rem;
+  height: 3rem;
 }
 .festive-btn-lg > div > span {
-  padding: 0.85rem 1.85rem;
+  padding: 0.75rem 1.75rem;
   gap: 0.5rem;
 }
 
 .festive-btn-icon {
   font-size: 0.875rem;
+  height: 3rem;
+  width: 3rem;
   padding: 1px;
 }
 .festive-btn-icon > div > span {

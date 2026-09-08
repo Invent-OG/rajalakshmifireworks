@@ -286,7 +286,7 @@ export function QuickCartWidget({ className = '', onClose }: QuickCartWidgetProp
           <Link href="/checkout" className="block w-full">
             <button
               type="button"
-              className="w-full py-4 px-6 rounded-full bg-neutral-950 text-white font-bold text-sm tracking-wide flex items-center justify-center gap-2 hover:bg-neutral-800 transition-all shadow-md active:scale-98 cursor-pointer"
+              className="w-full h-12 px-6 rounded-full bg-neutral-950 text-white font-bold text-xs sm:text-sm tracking-wide flex items-center justify-center gap-2 hover:bg-neutral-800 transition-all shadow-md active:scale-98 cursor-pointer"
             >
               <CreditCard className="h-4 w-4" />
               <span>Proceed to Checkout</span>

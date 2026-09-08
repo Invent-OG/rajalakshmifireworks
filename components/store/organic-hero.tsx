@@ -118,7 +118,7 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
                 <Link
                   href={currentSlide.ctaLink || '/products'}
                   id="hero-see-products-btn"
-                  className="inline-flex items-center justify-center px-9 py-4 rounded-full bg-neutral-950 text-white text-xs sm:text-sm font-bold tracking-widest uppercase hover:bg-neutral-800 active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg gap-2"
+                  className="inline-flex items-center justify-center h-12 sm:h-14 px-8 sm:px-9 rounded-full bg-neutral-950 text-white text-xs sm:text-sm font-bold tracking-widest uppercase hover:bg-neutral-800 active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg gap-2"
                 >
                   <span>{currentSlide.ctaText || 'SEE PRODUCTS'}</span>
                   <ArrowRight className="h-4 w-4" />

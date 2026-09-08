@@ -236,7 +236,7 @@ export function FloatingNavbar() {
             <div className="flex md:hidden items-center">
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="h-11 w-11 sm:h-12 sm:w-12 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-900 transition-colors flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                className="h-12 w-12 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-900 transition-colors flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 aria-label="Toggle menu"
               >
                 {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -307,7 +307,7 @@ export function FloatingNavbar() {
             {/* Quick Search Button */}
             <Link
               href="/search"
-              className="hidden lg:inline-flex items-center gap-2 h-11 sm:h-12 px-5 rounded-full bg-neutral-100/90 hover:bg-neutral-200/90 text-neutral-700 hover:text-neutral-950 text-xs sm:text-sm font-semibold transition-all shadow-xs whitespace-nowrap active:scale-95"
+              className="hidden lg:inline-flex items-center gap-2 h-12 px-5 rounded-full bg-neutral-100/90 hover:bg-neutral-200/90 text-neutral-700 hover:text-neutral-950 text-xs sm:text-sm font-semibold transition-all shadow-xs whitespace-nowrap active:scale-95"
             >
               <Search className="h-4 w-4 text-neutral-400" />
               <span>Search...</span>
@@ -315,7 +315,7 @@ export function FloatingNavbar() {
 
             <Link
               href="/search"
-              className="lg:hidden h-11 w-11 sm:h-12 sm:w-12 flex items-center justify-center rounded-full bg-neutral-100 text-neutral-900 hover:bg-neutral-200 transition-colors shadow-xs active:scale-95"
+              className="lg:hidden h-12 w-12 flex items-center justify-center rounded-full bg-neutral-100 text-neutral-900 hover:bg-neutral-200 transition-colors shadow-xs active:scale-95"
               aria-label="Search"
             >
               <Search className="h-4.5 w-4.5" />
@@ -324,7 +324,7 @@ export function FloatingNavbar() {
             {/* Download Price List Pill Button */}
             <Link
               href="/products"
-              className="hidden sm:inline-flex items-center gap-2 h-11 sm:h-12 px-5 sm:px-6 rounded-full bg-neutral-100/90 hover:bg-neutral-200/90 text-neutral-900 text-xs sm:text-sm font-bold transition-all active:scale-95 shadow-xs whitespace-nowrap"
+              className="hidden sm:inline-flex items-center gap-2 h-12 px-5 sm:px-6 rounded-full bg-neutral-100/90 hover:bg-neutral-200/90 text-neutral-900 text-xs sm:text-sm font-bold transition-all active:scale-95 shadow-xs whitespace-nowrap"
             >
               <Download className="h-4 w-4 text-neutral-700" />
               <span>Price List</span>
@@ -333,7 +333,7 @@ export function FloatingNavbar() {
             {/* Shopping Bag Pill Button */}
             <Link
               href="/cart"
-              className="relative h-11 sm:h-12 px-5 sm:px-6 rounded-full bg-neutral-950 text-white text-xs sm:text-sm font-bold hover:bg-neutral-800 active:scale-95 transition-all flex items-center gap-2.5 shadow-md whitespace-nowrap cursor-pointer"
+              className="relative h-12 px-5 sm:px-6 rounded-full bg-neutral-950 text-white text-xs sm:text-sm font-bold hover:bg-neutral-800 active:scale-95 transition-all flex items-center gap-2.5 shadow-md whitespace-nowrap cursor-pointer justify-center"
               aria-label={`Shopping bag with ${displayCount} items`}
             >
               <ShoppingBag className="h-4.5 w-4.5" />
@@ -472,7 +472,7 @@ export function FloatingNavbar() {
                 <Link
                   href="/products"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="inline-flex items-center justify-center gap-2 h-11 sm:h-12 px-6 rounded-full bg-neutral-100 hover:bg-neutral-200 text-xs sm:text-sm font-bold text-neutral-900 shadow-xs transition-all active:scale-95 flex-1"
+                  className="inline-flex items-center justify-center gap-2 h-12 px-6 rounded-full bg-neutral-100 hover:bg-neutral-200 text-xs sm:text-sm font-bold text-neutral-900 shadow-xs transition-all active:scale-95 flex-1"
                 >
                   <Download className="h-4 w-4 text-neutral-700" />
                   <span>Price List</span>
@@ -481,7 +481,7 @@ export function FloatingNavbar() {
                 <Link
                   href="/cart"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="inline-flex items-center justify-center gap-2 h-11 sm:h-12 px-6 rounded-full bg-neutral-950 hover:bg-neutral-800 text-xs sm:text-sm font-bold text-white shadow-md transition-all active:scale-95 flex-1"
+                  className="inline-flex items-center justify-center gap-2 h-12 px-6 rounded-full bg-neutral-950 hover:bg-neutral-800 text-xs sm:text-sm font-bold text-white shadow-md transition-all active:scale-95 flex-1"
                 >
                   <ShoppingBag className="h-4.5 w-4.5" />
                   <span>Bag ({displayCount})</span>
