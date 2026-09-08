@@ -53,16 +53,16 @@ export function Testimonial02Blaze() {
       `}</style>
 
       <section
-        className="w-full bg-white py-[80px] md:py-[120px] px-4 sm:px-8 md:px-[80px] selection:bg-black selection:text-white"
+        className="w-full bg-white py-12 md:py-[120px] px-4 sm:px-8 md:px-[80px] selection:bg-black selection:text-white"
         style={{ fontFamily: "'DM Sans', sans-serif" }}
       >
         <div className="max-w-[1280px] mx-auto">
           {/* 1. Top Header Row */}
-          <div className="flex flex-col md:flex-row justify-between items-end mb-[48px] gap-6">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 md:mb-[48px] gap-4 md:gap-6">
             {/* Left Block */}
             <div className="max-w-[600px]">
               {/* Section Tag Row */}
-              <div className="flex items-center gap-1.5 mb-8">
+              <div className="flex items-center gap-1.5 mb-5 sm:mb-8">
                 {/* Circular Rotating Sparkle Badge */}
                 <div className="w-[44px] h-[44px] rounded-full border border-[#e2e8f1] flex items-center justify-center bg-white overflow-hidden shadow-xs">
                   <motion.div
@@ -76,14 +76,14 @@ export function Testimonial02Blaze() {
 
                 {/* Pill Tag */}
                 <div className="px-[12px] py-[12px] rounded-full border border-[#e2e8f1] flex items-center justify-center bg-white shadow-xs">
-                  <span className="text-[16px] font-medium text-[#0f162b] px-3 whitespace-nowrap tracking-tight">
+                  <span className="text-[15px] sm:text-[16px] font-medium text-[#0f162b] px-3 whitespace-nowrap tracking-tight">
                     Testimonials
                   </span>
                 </div>
               </div>
 
               {/* Heading */}
-              <h2 className="text-[44px] md:text-[58px] font-medium text-[#111010] leading-[1.1] tracking-tight">
+              <h2 className="text-3xl sm:text-4xl md:text-[58px] font-medium text-[#111010] leading-[1.15] md:leading-[1.1] tracking-tight">
                 What families say
                 <br />
                 <span className="text-black">about our fireworks</span>
@@ -91,8 +91,8 @@ export function Testimonial02Blaze() {
             </div>
 
             {/* Right Block */}
-            <div className="max-w-[280px] md:text-right pb-2">
-              <p className="text-[15px] text-[#555455] font-normal leading-relaxed">
+            <div className="w-full md:w-auto md:max-w-[280px] text-left md:text-right pb-2">
+              <p className="text-[14px] sm:text-[15px] text-[#555455] font-normal leading-relaxed">
                 Every celebration is built on trust, safety, and unforgettable fireworks – shared by those who lived it.
               </p>
             </div>

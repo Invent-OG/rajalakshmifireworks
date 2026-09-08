@@ -26,7 +26,7 @@ export function MobileBottomNav() {
     <div className="md:hidden fixed bottom-4 left-0 right-0 z-50 px-4 pointer-events-none transition-all">
       <nav
         aria-label="Mobile Navigation"
-        className="mx-auto max-w-[340px] w-full pointer-events-auto rounded-[2.5rem] bg-brand text-white p-1.5 shadow-[0_15px_40px_rgba(153,27,27,0.45),0_0_1px_1px_rgba(255,255,255,0.2)] border border-white/20 flex items-center justify-between backdrop-blur-xl"
+        className="mx-auto max-w-[340px] w-full pointer-events-auto rounded-full bg-neutral-950 text-white p-1.5 shadow-[0_15px_40px_rgba(0,0,0,0.5),0_0_1px_1px_rgba(255,255,255,0.15)] border border-neutral-800 flex items-center justify-between backdrop-blur-xl"
       >
         {navItems.map((item) => {
           const isActive =
@@ -40,14 +40,14 @@ export function MobileBottomNav() {
               href={item.href}
               className={`relative h-11 w-11 rounded-full flex items-center justify-center transition-all duration-300 ${
                 isActive
-                  ? 'bg-white text-brand shadow-md scale-105'
-                  : 'text-white/80 hover:text-white hover:bg-white/15'
+                  ? 'bg-white text-neutral-950 shadow-md scale-105'
+                  : 'text-white/70 hover:text-white hover:bg-white/15'
               }`}
               aria-label={item.label}
             >
               <item.icon
                 className={`h-5 w-5 transition-transform duration-200 ${
-                  isActive ? 'text-brand stroke-[2.4]' : 'text-white/85 stroke-[1.8]'
+                  isActive ? 'text-neutral-950 stroke-[2.4]' : 'text-white/80 stroke-[1.8]'
                 }`}
               />
 
@@ -56,8 +56,8 @@ export function MobileBottomNav() {
                 <span
                   className={`absolute -top-0.5 -right-0.5 h-4 min-w-4 px-1 rounded-full text-[10px] font-bold flex items-center justify-center ${
                     isActive
-                      ? 'bg-neutral-900 text-white shadow-xs'
-                      : 'bg-white text-brand shadow-xs ring-2 ring-brand'
+                      ? 'bg-neutral-950 text-white shadow-xs'
+                      : 'bg-white text-neutral-950 shadow-xs ring-2 ring-neutral-950'
                   }`}
                 >
                   {item.badge > 99 ? '99+' : item.badge}

@@ -147,7 +147,7 @@ export function OrganicCategoriesGrid({
 
   return (
     <section className="w-full py-4 sm:py-6 items-center justify-center lg:py-8">
-      <div className="w-full max-w-[80%] px-3 sm:px-6 lg:px-10 xl:px-12 mx-auto">
+      <div className="w-full px-3.5 sm:px-6 lg:px-10 xl:px-12 sm:max-w-[85%] lg:max-w-[80%] mx-auto">
         {/* ── 3-Column Bento Grid ── */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-3.5 sm:gap-4 lg:gap-5">
           {/* ── 1. Left Main Promo Card ── */}
