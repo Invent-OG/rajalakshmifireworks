@@ -8,6 +8,7 @@ import { OrganicHero } from '@/components/store/organic-hero';
 import { OrganicCategoriesGrid } from '@/components/store/organic-categories-grid';
 import { parseHeroConfig } from '@/lib/hero-config';
 import { Testimonial02Blaze } from '@/components/sections/testimonial-02-blaze';
+import { InfiniteRibbonPreview } from '@/components/ui/infinite-ribbon-demo';
 
 export default async function HomePage() {
   const [categoryList, featuredProducts, bestsellerProducts, heroConfigRow] = await Promise.all([
@@ -46,6 +47,9 @@ export default async function HomePage() {
       <div className="w-full space-y-16 sm:space-y-24 md:space-y-[100px] pb-12 overflow-hidden" style={{ fontFamily: "'DM Sans', sans-serif" }}>
         {/* ── 1. Hero Section ─── */}
         <OrganicHero initialConfig={heroConfig} />
+
+        {/* ── Infinite Ribbon Ticker ─── */}
+        <InfiniteRibbonPreview />
 
         {/* ── 4. Festive Bestsellers Slider ─── */}
         {bestsellerProducts.length > 0 && (
