@@ -37,6 +37,12 @@ const navGroups = [
     ],
   },
   {
+    group: 'CONTENT',
+    items: [
+      { href: '/admin/hero-slides', icon: Sparkles, label: 'Hero Carousel' },
+    ],
+  },
+  {
     group: 'CUSTOMERS',
     items: [{ href: '/admin/customers', icon: Users, label: 'Customers' }],
   },

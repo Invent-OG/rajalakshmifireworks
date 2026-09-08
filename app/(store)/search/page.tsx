@@ -39,7 +39,7 @@ export default async function SearchPage({
   ]);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 animate-fade-in space-y-8">
+    <div className="w-full px-4 sm:px-8 lg:px-12 py-8 animate-fade-in space-y-8">
       {/* Search Input Header */}
       <div className="max-w-2xl mx-auto text-center space-y-4 pt-4">
         <div className="inline-flex items-center gap-1.5 text-xs uppercase font-medium tracking-wider text-muted-foreground">

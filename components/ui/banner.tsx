@@ -101,7 +101,13 @@ export function Banner({
   const globalKey = id ? `nd-banner-${id}` : null;
 
   useEffect(() => {
-    if (globalKey) setOpen(localStorage.getItem(globalKey) !== "true");
+    if (globalKey) {
+      const isClosed = localStorage.getItem(globalKey) === "true";
+      setOpen(!isClosed);
+      if (isClosed) {
+        document.documentElement.classList.add(globalKey);
+      }
+    }
   }, [globalKey]);
 
   if (!open) return null;
@@ -131,13 +137,6 @@ export function Banner({
       ) : null}
       {globalKey ? (
         <style>{`.${globalKey} #${id} { display: none; }`}</style>
-      ) : null}
-      {globalKey ? (
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `if (localStorage.getItem('${globalKey}') === 'true') document.documentElement.classList.add('${globalKey}');`,
-          }}
-        />
       ) : null}
 
       {variant === "rainbow"

@@ -43,7 +43,7 @@ export default async function CategoryPage({
   });
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 animate-fade-in space-y-8">
+    <div className="w-full px-4 sm:px-8 lg:px-12 py-8 animate-fade-in space-y-8">
       {/* Category Hero Banner */}
       <div className="rounded-2xl bg-background-secondary border border-border p-6 sm:p-8">
         <Link

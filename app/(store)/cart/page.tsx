@@ -68,7 +68,7 @@ export default function CartPage() {
 
   if (items.length === 0) {
     return (
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
+      <div className="w-full px-4 sm:px-8 lg:px-12 py-16">
         <EmptyState
           icon={ShoppingBag}
           title="Your shopping bag is empty"
@@ -81,7 +81,7 @@ export default function CartPage() {
   }
 
   return (
-    <div ref={containerRef} className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 animate-fade-in space-y-8">
+    <div ref={containerRef} className="w-full px-4 sm:px-8 lg:px-12 py-8 animate-fade-in space-y-8">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-border">
         <div>

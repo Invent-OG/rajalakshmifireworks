@@ -47,7 +47,7 @@ export default async function ProductPage({
   const imageUrl = product.media?.find((m: { type: string; }) => m.type === 'image')?.url || product.media?.[0]?.url || null;
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 animate-fade-in space-y-8">
+    <div className="w-full px-4 sm:px-8 lg:px-12 py-8 animate-fade-in space-y-8">
       {/* Breadcrumb Navigation */}
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
         <Link href="/products" className="hover:text-foreground transition-colors flex items-center gap-1">

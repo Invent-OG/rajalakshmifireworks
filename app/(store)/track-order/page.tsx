@@ -85,7 +85,8 @@ export default function TrackOrderPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 py-8 animate-fade-in space-y-8">
+    <div className="w-full px-4 sm:px-8 lg:px-12 py-8 animate-fade-in space-y-8">
+      <div className="max-w-3xl mx-auto space-y-8">
       {/* Header */}
       <div className="text-center space-y-2">
         <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
@@ -238,6 +239,7 @@ export default function TrackOrderPage() {
             )}
           </div>
         ))}
+      </div>
       </div>
     </div>
   );

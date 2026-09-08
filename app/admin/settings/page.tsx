@@ -123,10 +123,33 @@ export default function AdminSettingsPage() {
       </div>
 
       <div className="space-y-6">
-        {/* Admin Account & Security Shortcut */}
+        {/* Hero Carousel Visual Director Shortcut */}
         <div className="p-5 rounded-2xl bg-brand/5 border border-brand/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-xl bg-brand/10 text-brand flex items-center justify-center shrink-0">
+              <Sparkles className="h-5 w-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-foreground">
+                Hero Carousel & Visual Slides
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                Configure slides, custom colors, titles, images, USP trust signals & category preview tiles.
+              </p>
+            </div>
+          </div>
+
+          <Link href="/admin/hero-slides">
+            <Button variant="outline" size="sm" className="font-medium text-xs whitespace-nowrap">
+              Open Hero Slides <ArrowRight className="h-3.5 w-3.5 ml-1" />
+            </Button>
+          </Link>
+        </div>
+
+        {/* Admin Account & Security Shortcut */}
+        <div className="p-5 rounded-2xl bg-card border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-muted text-foreground flex items-center justify-center shrink-0">
               <UserCog className="h-5 w-5" />
             </div>
             <div>

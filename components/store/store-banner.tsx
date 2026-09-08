@@ -50,7 +50,7 @@ export function StoreBanner() {
       changeLayout={false}
       className="bg-neutral-950 text-white border-b border-white/10 shadow-xs z-50 text-xs sm:text-sm font-medium tracking-tight"
     >
-      <div className="flex items-center justify-center gap-2 max-w-7xl mx-auto px-4 truncate">
+      <div className="flex items-center justify-center gap-2 w-full px-4 sm:px-8 truncate">
         <Sparkles className="h-3.5 w-3.5 text-amber-300 shrink-0 animate-pulse" />
         <span className="truncate">{text}</span>
         {link && (

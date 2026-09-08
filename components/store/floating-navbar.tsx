@@ -223,12 +223,12 @@ export function FloatingNavbar() {
   return (
     <div
       ref={navContainerRef}
-      className="sticky top-0 z-50 w-full pt-3 px-3 sm:px-6 pointer-events-auto transition-all duration-300"
+      className="sticky top-0 z-50 w-full pt-3 px-3 sm:px-6 lg:px-10 xl:px-12 pointer-events-auto transition-all duration-300"
       onMouseLeave={handleMouseLeave}
     >
-      <div className="max-w-6xl mx-auto relative">
+      <div className="w-full relative">
         {/* Floating Frosted Pill Bar with White Glassmorphism */}
-        <header className="relative h-14 sm:h-16 px-3 sm:px-5 rounded-full bg-white/95 backdrop-blur-xl border border-neutral-200/90 text-neutral-900 shadow-[0_10px_35px_-5px_rgba(0,0,0,0.1),0_0_1px_1px_rgba(0,0,0,0.05)] grid grid-cols-[1fr_auto_1fr] items-center gap-2 sm:gap-4 transition-all duration-300">
+        <header className="relative h-14 sm:h-16 px-3 sm:px-5 rounded-full bg-white/95 backdrop-blur-md border border-neutral-200/90 text-neutral-900 shadow-sm grid grid-cols-[1fr_auto_1fr] items-center gap-2 sm:gap-4 transition-all duration-300">
           {/* Left Column: Capsule Pill Navigation Links & Mobile Hamburger */}
           <div className="flex items-center justify-start min-w-0">
             {/* Mobile Menu Hamburger Button */}
@@ -246,11 +246,10 @@ export function FloatingNavbar() {
             <nav className="hidden md:inline-flex items-center gap-0.5 bg-neutral-100/90 p-1 rounded-full border border-neutral-200/60 shadow-inner shrink-0">
               <Link
                 href="/products"
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 whitespace-nowrap ${
-                  pathname === '/products' && !activeMenu
-                    ? 'bg-white text-neutral-950 font-semibold shadow-xs'
-                    : 'text-neutral-600 hover:text-neutral-950 hover:bg-white/80'
-                }`}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 whitespace-nowrap ${pathname === '/products' && !activeMenu
+                  ? 'bg-white text-neutral-950 font-semibold shadow-xs'
+                  : 'text-neutral-600 hover:text-neutral-950 hover:bg-white/80'
+                  }`}
               >
                 Catalog
               </Link>
@@ -264,18 +263,16 @@ export function FloatingNavbar() {
                     type="button"
                     onMouseEnter={() => handleMouseEnter(key)}
                     onClick={() => setActiveMenu(activeMenu === key ? null : key)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 flex items-center gap-1 cursor-pointer select-none whitespace-nowrap ${
-                      isHovered
-                        ? 'bg-white text-neutral-950 font-semibold shadow-xs'
-                        : 'text-neutral-600 hover:text-neutral-950 hover:bg-white/80'
-                    }`}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 flex items-center gap-1 cursor-pointer select-none whitespace-nowrap ${isHovered
+                      ? 'bg-white text-neutral-950 font-semibold shadow-xs'
+                      : 'text-neutral-600 hover:text-neutral-950 hover:bg-white/80'
+                      }`}
                     aria-expanded={isHovered}
                   >
                     <span>{menu.label}</span>
                     <ChevronDown
-                      className={`h-3 w-3 transition-transform duration-200 ${
-                        isHovered ? 'rotate-180 text-neutral-950' : 'text-neutral-400'
-                      }`}
+                      className={`h-3 w-3 transition-transform duration-200 ${isHovered ? 'rotate-180 text-neutral-950' : 'text-neutral-400'
+                        }`}
                     />
                   </button>
                 );
@@ -283,11 +280,10 @@ export function FloatingNavbar() {
 
               <Link
                 href="/track-order"
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 whitespace-nowrap ${
-                  pathname === '/track-order' && !activeMenu
-                    ? 'bg-white text-neutral-950 font-semibold shadow-xs'
-                    : 'text-neutral-600 hover:text-neutral-950 hover:bg-white/80'
-                }`}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 whitespace-nowrap ${pathname === '/track-order' && !activeMenu
+                  ? 'bg-white text-neutral-950 font-semibold shadow-xs'
+                  : 'text-neutral-600 hover:text-neutral-950 hover:bg-white/80'
+                  }`}
               >
                 Track
               </Link>
@@ -297,7 +293,7 @@ export function FloatingNavbar() {
           {/* Center Column: Brand Logo (Guaranteed non-overlapping center) */}
           <div className="flex items-center justify-center px-1 shrink-0">
             <Link href="/" className="flex items-center gap-2 group py-1">
-              <BrandLogo className="h-7 sm:h-8 md:h-9 max-h-9 w-auto transition-transform duration-200 group-hover:scale-105 drop-shadow-sm shrink-0" />
+              <BrandLogo className="h-10 sm:h-10 md:h-10 max-h-10 w-auto transition-transform duration-200 group-hover:scale-105 drop-shadow-sm shrink-0" />
             </Link>
           </div>
 

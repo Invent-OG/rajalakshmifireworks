@@ -14,7 +14,7 @@ function Footer() {
     <footer className="border-t border-border bg-card mt-auto pb-16 md:pb-0 text-xs">
       {/* Trust Highlights */}
       <div className="border-b border-border bg-background-secondary">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+        <div className="w-full px-4 sm:px-8 lg:px-12 py-8">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             <div className="flex items-center gap-3.5">
               <div className="h-10 w-10 rounded-xl bg-card text-foreground flex items-center justify-center shrink-0 border border-border shadow-xs">
@@ -50,7 +50,7 @@ function Footer() {
       </div>
 
       {/* Main Footer Links */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
+      <div className="w-full px-4 sm:px-8 lg:px-12 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="md:col-span-1 space-y-3">
             <div className="flex items-center gap-2.5">

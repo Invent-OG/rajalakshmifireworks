@@ -4,7 +4,7 @@ import Link from "next/link";
 import { StoreButton } from "@/components/ui/store-button";
 import { ArrowRight, Sparkles } from "lucide-react";
 import createGlobe, { COBEOptions } from "cobe";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 export default function Featured_05() {
@@ -43,19 +43,19 @@ export default function Featured_05() {
   );
 }
 
-// Markers placed on India's major transport & supply hubs originating from Sivakasi
+// Optimized lightweight markers
 const GLOBE_CONFIG: COBEOptions = {
-  width: 800,
-  height: 800,
-  devicePixelRatio: 2,
+  width: 500,
+  height: 500,
+  devicePixelRatio: 1.2,
   phi: 1.35, // Centered facing India
   theta: 0.25,
   dark: 0,
   diffuse: 0.4,
-  mapSamples: 16000,
+  mapSamples: 4000, // Reduced from 16000 for 4x performance boost
   mapBrightness: 1.2,
   baseColor: [1, 1, 1],
-  markerColor: [234 / 255, 88 / 255, 12 / 255], // Warm festive brand orange
+  markerColor: [234 / 255, 88 / 255, 12 / 255],
   glowColor: [254 / 255, 240 / 255, 138 / 255],
   markers: [
     { location: [9.4533, 77.7972], size: 0.12 }, // Sivakasi (HQ hub)
@@ -78,10 +78,28 @@ export function Globe({
   className?: string;
   config?: COBEOptions;
 }) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const pointerInteracting = useRef<number | null>(null);
   const pointerInteractionMovement = useRef(0);
   const rotationOffset = useRef(0);
+  const [isVisible, setIsVisible] = useState(false);
+
+  // Only animate when visible in viewport
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting);
+      },
+      { rootMargin: "100px" }
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
 
   const updatePointerInteraction = (value: number | null) => {
     pointerInteracting.current = value;
@@ -99,6 +117,8 @@ export function Globe({
   };
 
   useEffect(() => {
+    if (!isVisible) return;
+
     let phi = config.phi ?? 1.35;
     let width = 0;
 
@@ -116,8 +136,8 @@ export function Globe({
 
     const globe = createGlobe(canvas, {
       ...config,
-      width: (width || 400) * 2,
-      height: (width || 400) * 2,
+      width: (width || 350) * 1.5,
+      height: (width || 350) * 1.5,
     });
 
     let animationFrameId: number;
@@ -128,29 +148,28 @@ export function Globe({
       }
       globe.update({
         phi: phi + rotationOffset.current,
-        width: (width || 400) * 2,
-        height: (width || 400) * 2,
+        width: (width || 350) * 1.5,
+        height: (width || 350) * 1.5,
       });
       animationFrameId = requestAnimationFrame(animate);
     };
 
     animate();
 
-    setTimeout(() => {
-      if (canvasRef.current) {
-        canvasRef.current.style.opacity = "1";
-      }
-    });
+    if (canvasRef.current) {
+      canvasRef.current.style.opacity = "1";
+    }
 
     return () => {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener("resize", onResize);
       globe.destroy();
     };
-  }, [config]);
+  }, [config, isVisible]);
 
   return (
     <div
+      ref={containerRef}
       className={cn(
         "absolute inset-0 mx-auto aspect-[1/1] w-full max-w-[600px]",
         className,

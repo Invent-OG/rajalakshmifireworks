@@ -1,5 +1,5 @@
 import { db } from '@/db';
-import { categories, products } from '@/db/schema';
+import { categories, products, settings } from '@/db/schema';
 import { eq, desc, and } from 'drizzle-orm';
 import Link from 'next/link';
 import { ArrowRight, ShieldCheck, Truck, Gift, Sparkles, CheckCircle2, ChevronRight } from 'lucide-react';
@@ -8,10 +8,11 @@ import { StoreButton } from '@/components/ui/store-button';
 import { CategoryIcon, getCategory3DImage } from '@/components/ui/category-icon';
 import Featured_05 from '@/components/ui/globe-feature-section';
 import { HomeMotion } from '@/components/store/home-motion';
-import { HeroMouseArrow } from '@/components/store/hero-mouse-arrow';
+import { OrganicHero } from '@/components/store/organic-hero';
+import { parseHeroConfig } from '@/lib/hero-config';
 
 export default async function HomePage() {
-  const [categoryList, featuredProducts, bestsellerProducts] = await Promise.all([
+  const [categoryList, featuredProducts, bestsellerProducts, heroConfigRow] = await Promise.all([
     db.query.categories.findMany({
       where: eq(categories.isActive, true),
       orderBy: (c, { asc }) => [asc(c.sortOrder)],
@@ -35,101 +36,21 @@ export default async function HomePage() {
       limit: 8,
       orderBy: [desc(products.createdAt)],
     }),
+    db.query.settings.findFirst({
+      where: eq(settings.key, 'HERO_SLIDES_CONFIG'),
+    }),
   ]);
+
+  const heroConfig = parseHeroConfig(heroConfigRow?.value);
 
   return (
     <HomeMotion>
-      <div className="space-y-16 sm:space-y-24">
-        {/* ── 1. Editorial Hero Section ─── */}
-        <section className="relative pt-8 sm:pt-14 pb-12 sm:pb-20 border-b border-border bg-background-secondary overflow-hidden">
-          {/* Dynamic interactive dashed mouse-guided arrow */}
-          <HeroMouseArrow targetSelector="#hero-shop-fireworks-btn" />
-
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
-              {/* Left Content */}
-              <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-                <div className="hero-badge inline-flex items-center gap-2 bg-card border border-border px-3 py-1 rounded-full text-xs font-medium text-foreground tracking-tight shadow-xs">
-                  <span className="h-1.5 w-1.5 rounded-full bg-brand" />
-                  <span>Direct Sivakasi Factory Direct Commerce</span>
-                </div>
-
-                <h1 className="hero-heading text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground leading-[1.1]">
-                  Make every celebration <br className="hidden sm:inline" />
-                  <span className="text-brand">brighter</span>.
-                </h1>
-
-                <p className="hero-text text-base sm:text-lg text-muted-foreground max-w-xl mx-auto lg:mx-0 font-normal leading-relaxed">
-                  Discover premium handcrafted fireworks, vibrant ground sparklers, and curated celebration boxes directly from India&apos;s fireworks capital.
-                </p>
-
-                <div className="hero-ctas flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
-                  <Link href="/products" id="hero-shop-fireworks-btn" className="inline-block">
-                    <StoreButton size="lg" variant="primary">
-                      Shop fireworks
-                      <ArrowRight className="h-4 w-4" />
-                    </StoreButton>
-                  </Link>
-                  <Link href="/products?featured=true">
-                    <StoreButton size="lg" variant="secondary">
-                      Explore collections
-                    </StoreButton>
-                  </Link>
-                </div>
-
-                {/* Trust signals */}
-                <div className="hero-signals pt-4 flex flex-wrap items-center justify-center lg:justify-start gap-6 text-xs text-muted-foreground">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-700" />
-                    <span>100% Genuine Sivakasi Brand</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-700" />
-                    <span>Doorstep & Pickup Options</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Right Hero Visual Showcase */}
-              <div className="lg:col-span-5 relative">
-                <div className="hero-showcase relative mx-auto max-w-md bg-card p-4 sm:p-5 rounded-2xl border border-border shadow-md overflow-hidden group">
-                  <div className="relative aspect-4/3 rounded-xl overflow-hidden bg-muted border border-border">
-                    <img
-                      src="/images/3d/usp-curated-combos.jpg"
-                      alt="Sivakasi Celebration Box 3D"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex flex-col justify-end p-5 text-white">
-                      <span className="text-[11px] uppercase font-bold tracking-widest text-amber-400 mb-1">
-                        Festive Celebration Collection
-                      </span>
-                      <h3 className="text-xl font-extrabold tracking-tight">
-                        Sivakasi Family Combos
-                      </h3>
-                      <p className="text-xs text-neutral-200 mt-1 line-clamp-2">
-                        Factory sealed celebration gift assortments with up to 50% direct savings
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Floating highlights badge */}
-                  <div className="mt-4 bg-background-secondary border border-border rounded-xl p-3 flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-lg bg-card text-emerald-700 border border-border flex items-center justify-center shrink-0 shadow-xs">
-                      <ShieldCheck className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold text-foreground">Safety Tested & Certified</p>
-                      <p className="text-[11px] text-muted-foreground">Standardized low-smoke and sound compliant</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+      <div className="space-y-12 sm:space-y-16">
+        {/* ── 1. Hero Section (Design Matched from Reference) ─── */}
+        <OrganicHero initialConfig={heroConfig} />
 
         {/* ── 2. 3D USP Trust Strip ─── */}
-        <section className="reveal-section mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* <section className="reveal-section w-full px-4 sm:px-8 lg:px-12">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
             {[
               {
@@ -176,11 +97,11 @@ export default async function HomePage() {
               </div>
             ))}
           </div>
-        </section>
+        </section> */}
 
         {/* ── 3. 3D Category Discovery Grid ─── */}
         {categoryList.length > 0 && (
-          <section className="reveal-section mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <section className="reveal-section w-full px-4 sm:px-8 lg:px-12">
             <div className="flex items-end justify-between mb-6 pb-3 border-b border-border">
               <div>
                 <span className="text-[11px] uppercase font-semibold tracking-widest text-muted-foreground">
@@ -238,7 +159,7 @@ export default async function HomePage() {
 
         {/* ── 4. Featured Products ─── */}
         {featuredProducts.length > 0 && (
-          <section className="reveal-section mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <section className="reveal-section w-full px-4 sm:px-8 lg:px-12">
             <div className="flex items-end justify-between mb-6 pb-3 border-b border-border">
               <div>
                 <span className="text-[11px] uppercase font-semibold tracking-widest text-muted-foreground">
@@ -256,7 +177,7 @@ export default async function HomePage() {
               </Link>
             </div>
 
-            <div className="product-stagger-grid grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div className="product-stagger-grid grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4">
               {featuredProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
@@ -266,7 +187,7 @@ export default async function HomePage() {
 
         {/* ── 5. Bestseller Showcase ─── */}
         {bestsellerProducts.length > 0 && (
-          <section className="reveal-section mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <section className="reveal-section w-full px-4 sm:px-8 lg:px-12">
             <div className="flex items-end justify-between mb-6 pb-3 border-b border-border">
               <div>
                 <span className="text-[11px] uppercase font-semibold tracking-widest text-muted-foreground">
@@ -284,7 +205,7 @@ export default async function HomePage() {
               </Link>
             </div>
 
-            <div className="product-stagger-grid grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div className="product-stagger-grid grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4">
               {bestsellerProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
@@ -293,7 +214,7 @@ export default async function HomePage() {
         )}
 
         {/* ── 6. Globe Feature Showcase ─── */}
-        <section className="reveal-section mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <section className="reveal-section w-full px-4 sm:px-8 lg:px-12">
           <Featured_05 />
         </section>
       </div>
