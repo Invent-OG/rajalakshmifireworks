@@ -18,7 +18,7 @@ export function SortSelector({ current }: { current: string }) {
       name="sort"
       value={current}
       aria-label="Sort products by"
-      className="h-9 px-3 rounded-lg border border-border bg-card text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 cursor-pointer shadow-xs"
+      className="h-9 px-4 rounded-full border border-neutral-200/80 bg-white text-xs font-semibold text-neutral-800 focus:outline-none focus:ring-2 focus:ring-brand/15 cursor-pointer shadow-xs transition-all"
       onChange={(e) => handleSortChange(e.target.value)}
     >
       <option value="newest">Featured & Newest</option>

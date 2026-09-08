@@ -102,21 +102,21 @@ export function QuickCartMobileFloating() {
         <div className="mx-auto max-w-md pointer-events-auto">
           <div
             ref={barRef}
-            className="bg-card/95 backdrop-blur-xl text-foreground border border-border rounded-2xl p-2.5 shadow-2xl flex items-center justify-between gap-3 transform-gpu"
+            className="bg-white/95 backdrop-blur-xl text-neutral-900 rounded-full p-2.5 shadow-2xl flex items-center justify-between gap-3 transform-gpu"
           >
             <button
               type="button"
               onClick={openDrawer}
-              className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl hover:bg-muted transition-colors text-left cursor-pointer flex-1 min-w-0"
+              className="flex items-center gap-2.5 px-3 py-1.5 rounded-full hover:bg-neutral-100 transition-colors text-left cursor-pointer flex-1 min-w-0"
             >
-              <div className="relative h-9 w-9 rounded-xl bg-brand-light border border-brand-border flex items-center justify-center shrink-0">
-                <ShoppingBag className="h-4.5 w-4.5 text-brand" />
+              <div className="relative h-9 w-9 rounded-full bg-brand-light flex items-center justify-center shrink-0 text-brand">
+                <ShoppingBag className="h-4.5 w-4.5" />
                 <span className="absolute -top-1 -right-1 h-4 min-w-4 px-1 rounded-full bg-brand text-[10px] font-bold text-white flex items-center justify-center font-mono">
                   {itemCount}
                 </span>
               </div>
               <div className="min-w-0">
-                <div className="text-xs font-bold leading-tight text-foreground font-mono truncate">
+                <div className="text-xs font-bold leading-tight text-neutral-900 font-mono truncate">
                   <NumberFlow
                     value={subtotal}
                     format={{
@@ -130,20 +130,20 @@ export function QuickCartMobileFloating() {
                     }}
                   />
                 </div>
-                <p className="text-[10px] text-muted-foreground font-medium flex items-center gap-0.5">
+                <p className="text-[10px] text-neutral-500 font-medium flex items-center gap-0.5">
                   View Items <ChevronUp className="h-2.5 w-2.5" />
                 </p>
               </div>
             </button>
 
             <Link href="/checkout" className="shrink-0">
-              <StoreButton
-                size="sm"
-                variant="primary"
-                icon={<CreditCard className="h-3.5 w-3.5" />}
+              <button
+                type="button"
+                className="px-5 py-2.5 rounded-full bg-brand text-white font-bold text-xs flex items-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer"
               >
-                Checkout
-              </StoreButton>
+                <CreditCard className="h-3.5 w-3.5" />
+                <span>Checkout</span>
+              </button>
             </Link>
           </div>
         </div>

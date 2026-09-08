@@ -155,7 +155,7 @@ export function OrganicCategoriesGrid({
             <Link
               href={resolvedMainCard.link}
               style={{ backgroundColor: resolvedMainCard.bgColor || '#fef3c7' }}
-              className="group relative w-full h-[400px] sm:h-[460px] lg:h-[490px] rounded-[1.75rem] sm:rounded-[2.25rem] lg:rounded-[2.5rem] overflow-hidden p-6 sm:p-8 lg:p-10 flex flex-col justify-between select-none shadow-xs hover:shadow-md border border-black/5 dark:border-white/10 transition-all duration-500 block"
+              className="group relative w-full h-[400px] sm:h-[460px] lg:h-[490px] rounded-[36px] sm:rounded-[40px] overflow-hidden p-6 sm:p-8 lg:p-10 flex flex-col justify-between select-none shadow-sm hover:shadow-xl transition-all duration-500 block"
             >
               {/* Background Image with Ambient Gradient */}
               <div className="absolute inset-0 z-0">
@@ -164,24 +164,24 @@ export function OrganicCategoriesGrid({
                   alt={resolvedMainCard.title}
                   className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
                 />
-                <div className="absolute inset-0 bg-gradient-to-b from-[#fef3c7]/95 via-[#fef3c7]/50 to-transparent dark:from-neutral-950/90 dark:via-neutral-950/50 dark:to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-b from-[#fef3c7]/95 via-[#fef3c7]/50 to-transparent pointer-events-none" />
               </div>
 
               {/* Text Header (Top Left) */}
               <div className="relative z-10 max-w-[90%]">
-                <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-black text-neutral-950 dark:text-white tracking-tight leading-[1.05] uppercase">
+                <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-black text-neutral-950 tracking-tight leading-[1.05] uppercase">
                   {headingLine1}
                   <br />
                   {headingLine2}
                 </h2>
-                <p className="text-neutral-800/90 dark:text-neutral-200/90 font-medium text-sm sm:text-base mt-2 sm:mt-3">
+                <p className="text-neutral-800/90 font-medium text-sm sm:text-base mt-2 sm:mt-3">
                   {subheading}
                 </p>
               </div>
 
               {/* Pill Button (Bottom Left) */}
               <div className="relative z-10">
-                <span className="inline-flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-full bg-neutral-950 text-white font-black text-xs sm:text-[13px] tracking-wider uppercase shadow-lg shadow-black/15 group-hover:scale-105 group-hover:bg-brand group-active:scale-95 transition-all duration-300">
+                <span className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-neutral-950 text-white font-black text-xs sm:text-[13px] tracking-wider uppercase shadow-lg shadow-black/15 group-hover:scale-105 group-hover:bg-brand group-active:scale-95 transition-all duration-300">
                   <Sparkles className="h-3.5 w-3.5 text-amber-400" />
                   {resolvedMainCard.badgeText || resolvedMainCard.title}
                 </span>
@@ -196,7 +196,7 @@ export function OrganicCategoriesGrid({
               {/* Card 1 */}
               <Link
                 href={resolvedTopMiddle1.link}
-                className="group relative w-full h-full min-h-[190px] sm:min-h-[220px] rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden flex items-center justify-center select-none shadow-xs hover:shadow-md border border-black/5 dark:border-white/10 transition-all duration-500 block"
+                className="group relative w-full h-full min-h-[190px] sm:min-h-[220px] rounded-[28px] sm:rounded-[32px] overflow-hidden flex items-center justify-center select-none shadow-sm hover:shadow-xl transition-all duration-500 block"
               >
                 <img
                   src={resolvedTopMiddle1.image}
@@ -204,7 +204,7 @@ export function OrganicCategoriesGrid({
                   className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                 />
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300" />
-                <span className="relative z-10 inline-flex items-center px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-neutral-950/90 backdrop-blur-xs text-white font-black text-[11px] sm:text-xs tracking-wider uppercase shadow-lg shadow-black/20 group-hover:scale-105 group-hover:bg-neutral-950 group-active:scale-95 transition-all duration-300">
+                <span className="relative z-10 inline-flex items-center px-4 sm:px-5 py-2.5 rounded-full bg-neutral-950/90 backdrop-blur-xs text-white font-black text-[11px] sm:text-xs tracking-wider uppercase shadow-lg shadow-black/20 group-hover:scale-105 group-hover:bg-neutral-950 group-active:scale-95 transition-all duration-300">
                   {resolvedTopMiddle1.badgeText || resolvedTopMiddle1.title}
                 </span>
               </Link>
@@ -212,7 +212,7 @@ export function OrganicCategoriesGrid({
               {/* Card 2 */}
               <Link
                 href={resolvedTopMiddle2.link}
-                className="group relative w-full h-full min-h-[190px] sm:min-h-[220px] rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden flex items-center justify-center select-none shadow-xs hover:shadow-md border border-black/5 dark:border-white/10 transition-all duration-500 block"
+                className="group relative w-full h-full min-h-[190px] sm:min-h-[220px] rounded-[28px] sm:rounded-[32px] overflow-hidden flex items-center justify-center select-none shadow-sm hover:shadow-xl transition-all duration-500 block"
               >
                 <img
                   src={resolvedTopMiddle2.image}
@@ -220,7 +220,7 @@ export function OrganicCategoriesGrid({
                   className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                 />
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300" />
-                <span className="relative z-10 inline-flex items-center px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-neutral-950/90 backdrop-blur-xs text-white font-black text-[11px] sm:text-xs tracking-wider uppercase shadow-lg shadow-black/20 group-hover:scale-105 group-hover:bg-neutral-950 group-active:scale-95 transition-all duration-300">
+                <span className="relative z-10 inline-flex items-center px-4 sm:px-5 py-2.5 rounded-full bg-neutral-950/90 backdrop-blur-xs text-white font-black text-[11px] sm:text-xs tracking-wider uppercase shadow-lg shadow-black/20 group-hover:scale-105 group-hover:bg-neutral-950 group-active:scale-95 transition-all duration-300">
                   {resolvedTopMiddle2.badgeText || resolvedTopMiddle2.title}
                 </span>
               </Link>
@@ -230,7 +230,7 @@ export function OrganicCategoriesGrid({
             <div className="flex-1 min-h-[190px] sm:min-h-[220px]">
               <Link
                 href={resolvedBottomMiddle.link}
-                className="group relative w-full h-full min-h-[190px] sm:min-h-[220px] rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden flex items-center justify-center select-none shadow-xs hover:shadow-md border border-black/5 dark:border-white/10 transition-all duration-500 block"
+                className="group relative w-full h-full min-h-[190px] sm:min-h-[220px] rounded-[28px] sm:rounded-[32px] overflow-hidden flex items-center justify-center select-none shadow-sm hover:shadow-xl transition-all duration-500 block"
               >
                 <img
                   src={resolvedBottomMiddle.image}
@@ -238,7 +238,7 @@ export function OrganicCategoriesGrid({
                   className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                 />
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300" />
-                <span className="relative z-10 inline-flex items-center px-5 sm:px-6 py-2 sm:py-2.5 rounded-full bg-neutral-950/90 backdrop-blur-xs text-white font-black text-xs sm:text-[13px] tracking-wider uppercase shadow-lg shadow-black/20 group-hover:scale-105 group-hover:bg-neutral-950 group-active:scale-95 transition-all duration-300">
+                <span className="relative z-10 inline-flex items-center px-5 sm:px-6 py-2.5 rounded-full bg-neutral-950/90 backdrop-blur-xs text-white font-black text-xs sm:text-[13px] tracking-wider uppercase shadow-lg shadow-black/20 group-hover:scale-105 group-hover:bg-neutral-950 group-active:scale-95 transition-all duration-300">
                   {resolvedBottomMiddle.badgeText || resolvedBottomMiddle.title}
                 </span>
               </Link>
@@ -249,7 +249,7 @@ export function OrganicCategoriesGrid({
           <div className="md:col-span-1 lg:col-span-3">
             <Link
               href={resolvedRightCard.link}
-              className="group relative w-full h-[380px] md:h-[400px] sm:md:h-[460px] lg:h-[490px] rounded-[1.75rem] sm:rounded-[2.25rem] lg:rounded-[2.5rem] overflow-hidden flex items-center justify-center select-none shadow-xs hover:shadow-md border border-black/5 dark:border-white/10 transition-all duration-500 block"
+              className="group relative w-full h-[380px] md:h-[400px] sm:md:h-[460px] lg:h-[490px] rounded-[36px] sm:rounded-[40px] overflow-hidden flex items-center justify-center select-none shadow-sm hover:shadow-xl transition-all duration-500 block"
             >
               <img
                 src={resolvedRightCard.image}
@@ -257,7 +257,7 @@ export function OrganicCategoriesGrid({
                 className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-700 ease-out"
               />
               <div className="absolute inset-0 bg-black/15 group-hover:bg-black/5 transition-colors duration-300" />
-              <span className="relative z-10 inline-flex items-center px-5 sm:px-6 py-2 sm:py-2.5 rounded-full bg-neutral-950/90 backdrop-blur-xs text-white font-black text-xs sm:text-[13px] tracking-wider uppercase shadow-lg shadow-black/20 group-hover:scale-105 group-hover:bg-neutral-950 group-active:scale-95 transition-all duration-300">
+              <span className="relative z-10 inline-flex items-center px-5 sm:px-6 py-2.5 rounded-full bg-neutral-950/90 backdrop-blur-xs text-white font-black text-xs sm:text-[13px] tracking-wider uppercase shadow-lg shadow-black/20 group-hover:scale-105 group-hover:bg-neutral-950 group-active:scale-95 transition-all duration-300">
                 {resolvedRightCard.badgeText || resolvedRightCard.title}
               </span>
             </Link>
@@ -268,12 +268,12 @@ export function OrganicCategoriesGrid({
         <div className="mt-6 sm:mt-8 flex justify-center items-center">
           <Link
             href={allCategoriesLink}
-            className="inline-flex items-center gap-3 px-6 py-2.5 sm:py-3 rounded-full bg-white dark:bg-card border border-neutral-200/90 dark:border-neutral-800 shadow-xs hover:shadow-md hover:border-neutral-400 dark:hover:border-neutral-600 transition-all duration-300 group select-none cursor-pointer"
+            className="inline-flex items-center gap-3 px-8 py-3.5 rounded-full bg-white shadow-sm hover:shadow-lg transition-all duration-300 group select-none cursor-pointer"
           >
-            <span className="font-extrabold text-xs sm:text-[13px] tracking-widest uppercase text-neutral-950 dark:text-neutral-100">
+            <span className="font-extrabold text-xs sm:text-[13px] tracking-widest uppercase text-neutral-950">
               {allCategoriesText}
             </span>
-            <span className="h-6 w-6 sm:h-6.5 sm:w-6.5 rounded-full bg-neutral-950 text-white flex items-center justify-center group-hover:translate-x-1 transition-transform duration-300">
+            <span className="h-6.5 w-6.5 rounded-full bg-neutral-950 text-white flex items-center justify-center group-hover:translate-x-1 transition-transform duration-300">
               <ArrowRight className="h-3.5 w-3.5" />
             </span>
           </Link>

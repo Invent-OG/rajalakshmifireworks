@@ -113,30 +113,30 @@ export default async function ProductsPage({
       <div className="lg:hidden flex gap-2 overflow-x-auto no-scrollbar pb-2">
         <Link
           href="/products"
-          className={`px-3.5 py-1.5 rounded-full text-xs font-medium shrink-0 border transition-all ${
+          className={`px-4 py-2 rounded-full text-xs font-semibold shrink-0 transition-all ${
             !categorySlug && !featured && !bestseller
-              ? 'bg-foreground text-background border-foreground'
-              : 'bg-card text-muted-foreground border-border hover:border-neutral-300'
+              ? 'bg-neutral-900 text-white shadow-xs'
+              : 'bg-white text-neutral-600 shadow-xs hover:bg-neutral-100'
           }`}
         >
           All
         </Link>
         <Link
           href="/products?featured=true"
-          className={`px-3.5 py-1.5 rounded-full text-xs font-medium shrink-0 border transition-all ${
+          className={`px-4 py-2 rounded-full text-xs font-semibold shrink-0 transition-all ${
             featured
-              ? 'bg-foreground text-background border-foreground'
-              : 'bg-card text-muted-foreground border-border hover:border-neutral-300'
+              ? 'bg-neutral-900 text-white shadow-xs'
+              : 'bg-white text-neutral-600 shadow-xs hover:bg-neutral-100'
           }`}
         >
           Featured
         </Link>
         <Link
           href="/products?bestseller=true"
-          className={`px-3.5 py-1.5 rounded-full text-xs font-medium shrink-0 border transition-all ${
+          className={`px-4 py-2 rounded-full text-xs font-semibold shrink-0 transition-all ${
             bestseller
-              ? 'bg-foreground text-background border-foreground'
-              : 'bg-card text-muted-foreground border-border hover:border-neutral-300'
+              ? 'bg-neutral-900 text-white shadow-xs'
+              : 'bg-white text-neutral-600 shadow-xs hover:bg-neutral-100'
           }`}
         >
           Bestsellers
@@ -145,10 +145,10 @@ export default async function ProductsPage({
           <Link
             key={cat.id}
             href={`/products?category=${cat.slug}`}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-medium shrink-0 border transition-all ${
+            className={`px-4 py-2 rounded-full text-xs font-semibold shrink-0 transition-all ${
               categorySlug === cat.slug
-                ? 'bg-foreground text-background border-foreground'
-                : 'bg-card text-muted-foreground border-border hover:border-neutral-300'
+                ? 'bg-neutral-900 text-white shadow-xs'
+                : 'bg-white text-neutral-600 shadow-xs hover:bg-neutral-100'
             }`}
           >
             {cat.name}
@@ -159,20 +159,20 @@ export default async function ProductsPage({
       {/* Main Catalog View: Category Sidebar + Product Grid + Quick Cart Widget */}
       <div className="flex gap-6 items-start">
         {/* Desktop Category Sidebar */}
-        <aside className="hidden lg:block w-52 shrink-0 bg-card rounded-2xl border border-border p-4 sticky top-24">
-          <div className="flex items-center gap-2 pb-3 mb-3 border-b border-border font-semibold text-xs uppercase tracking-wider text-muted-foreground">
-            <Filter className="h-3.5 w-3.5" />
+        <aside className="hidden lg:block w-56 shrink-0 bg-white rounded-[28px] sm:rounded-[32px] p-5 sticky top-24 shadow-sm">
+          <div className="flex items-center gap-2 pb-3 mb-3 border-b border-neutral-100 font-bold text-xs uppercase tracking-wider text-neutral-500">
+            <Filter className="h-3.5 w-3.5 text-brand" />
             <span>Categories</span>
           </div>
 
-          <ul className="space-y-1">
+          <ul className="space-y-1.5">
             <li>
               <Link
                 href="/products"
-                className={`block px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                className={`block px-3.5 py-2 rounded-full text-xs font-semibold transition-all ${
                   !categorySlug && !featured && !bestseller
-                    ? 'bg-muted text-foreground font-semibold'
-                    : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
+                    ? 'bg-neutral-900 text-white shadow-xs'
+                    : 'text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900'
                 }`}
               >
                 All Fireworks
@@ -181,10 +181,10 @@ export default async function ProductsPage({
             <li>
               <Link
                 href="/products?featured=true"
-                className={`block px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                className={`block px-3.5 py-2 rounded-full text-xs font-semibold transition-all ${
                   featured
-                    ? 'bg-muted text-foreground font-semibold'
-                    : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
+                    ? 'bg-neutral-900 text-white shadow-xs'
+                    : 'text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900'
                 }`}
               >
                 Featured Combos
@@ -193,17 +193,17 @@ export default async function ProductsPage({
             <li>
               <Link
                 href="/products?bestseller=true"
-                className={`block px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                className={`block px-3.5 py-2 rounded-full text-xs font-semibold transition-all ${
                   bestseller
-                    ? 'bg-muted text-foreground font-semibold'
-                    : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
+                    ? 'bg-neutral-900 text-white shadow-xs'
+                    : 'text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900'
                 }`}
               >
                 Festive Bestsellers
               </Link>
             </li>
 
-            <li className="pt-2 pb-1 border-t border-border my-2 text-[10px] uppercase font-semibold text-muted-foreground tracking-wider px-2">
+            <li className="pt-2 pb-1 border-t border-neutral-100 my-2 text-[10px] uppercase font-bold text-neutral-400 tracking-wider px-3">
               Types
             </li>
 
@@ -211,10 +211,10 @@ export default async function ProductsPage({
               <li key={cat.id}>
                 <Link
                   href={`/products?category=${cat.slug}`}
-                  className={`block px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  className={`block px-3.5 py-2 rounded-full text-xs font-semibold transition-all ${
                     categorySlug === cat.slug
-                      ? 'bg-muted text-foreground font-semibold'
-                      : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
+                      ? 'bg-neutral-900 text-white shadow-xs'
+                      : 'text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900'
                   }`}
                 >
                   {cat.name}

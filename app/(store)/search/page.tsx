@@ -56,13 +56,13 @@ export default async function SearchPage({
             name="q"
             defaultValue={query}
             placeholder="Search fireworks..."
-            className="w-full h-12 pl-11 pr-24 rounded-xl border border-border bg-card text-foreground text-sm placeholder:text-muted-foreground/60 shadow-xs focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/15 transition-all"
+            className="w-full h-13 pl-12 pr-28 rounded-full border border-neutral-200/80 bg-white text-foreground text-sm placeholder:text-muted-foreground/60 shadow-sm focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/15 transition-all"
             autoFocus
           />
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <button
             type="submit"
-            className="absolute right-1.5 top-1/2 -translate-y-1/2 h-9 px-4 bg-primary text-primary-foreground text-xs font-medium rounded-lg hover:bg-primary-hover active:scale-95 transition-all cursor-pointer"
+            className="absolute right-2 top-1/2 -translate-y-1/2 h-9 px-5 bg-neutral-900 text-white text-xs font-semibold rounded-full hover:opacity-90 active:scale-95 transition-all cursor-pointer shadow-xs"
           >
             Search
           </button>
@@ -70,12 +70,12 @@ export default async function SearchPage({
 
         {/* Quick Search Suggestions */}
         <div className="flex flex-wrap items-center justify-center gap-2 pt-2 text-xs text-muted-foreground">
-          <span>Popular:</span>
+          <span className="font-medium">Popular:</span>
           {categoryList.map((cat) => (
             <Link
               key={cat.id}
               href={`/search?q=${encodeURIComponent(cat.name)}`}
-              className="px-2.5 py-1 rounded-lg bg-muted hover:bg-muted/80 text-foreground transition-colors font-medium border border-border"
+              className="px-3.5 py-1.5 rounded-full bg-white hover:bg-neutral-100 text-neutral-800 transition-colors font-semibold shadow-xs"
             >
               {cat.name}
             </Link>

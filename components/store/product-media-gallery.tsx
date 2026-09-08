@@ -38,10 +38,10 @@ export function ProductMediaGallery({
   return (
     <div className="space-y-4">
       {/* Main Showcase Viewport */}
-      <div className="relative aspect-square sm:aspect-4/3 rounded-2xl bg-muted/30 border border-border flex items-center justify-center overflow-hidden">
+      <div className="relative aspect-square sm:aspect-4/3 rounded-[32px] sm:rounded-[36px] bg-white p-2 sm:p-2.5 shadow-sm flex items-center justify-center overflow-hidden">
         {activeMedia ? (
           activeMedia.type === 'video' ? (
-            <div className="w-full h-full rounded-xl overflow-hidden bg-black flex items-center justify-center relative">
+            <div className="w-full h-full rounded-[24px] sm:rounded-[28px] overflow-hidden bg-black flex items-center justify-center relative">
               {isYoutubeUrl(activeMedia.url) ? (
                 <iframe
                   src={getYoutubeEmbedUrl(activeMedia.url)}
@@ -65,22 +65,22 @@ export function ProductMediaGallery({
             <img
               src={activeMedia.url}
               alt={activeMedia.alt || productName}
-              className="w-full h-full object-cover rounded-xl"
+              className="w-full h-full object-cover rounded-[24px] sm:rounded-[28px]"
             />
           )
         ) : (
-          <ProductVisualPlaceholder name={categoryName || productName} className="w-full h-full text-5xl" />
+          <ProductVisualPlaceholder name={categoryName || productName} className="w-full h-full text-5xl rounded-[24px] sm:rounded-[28px]" />
         )}
 
         {/* Top Badges */}
-        <div className="absolute top-4 left-4 flex flex-wrap items-center gap-2 pointer-events-none">
-          <div className="bg-card/95 backdrop-blur-md px-3 py-1 rounded-full border border-border text-[11px] font-medium text-foreground flex items-center gap-1.5 shadow-xs">
+        <div className="absolute top-5 left-5 flex flex-wrap items-center gap-2 pointer-events-none">
+          <div className="bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-full text-[11px] font-semibold text-neutral-900 flex items-center gap-1.5 shadow-sm">
             <Sparkles className="h-3.5 w-3.5 text-brand" />
             <span>Sivakasi Authentic</span>
           </div>
 
           {activeMedia?.type === 'video' && (
-            <div className="bg-foreground text-background px-3 py-1 rounded-full text-[11px] font-medium flex items-center gap-1.5 shadow-xs">
+            <div className="bg-neutral-900 text-white px-3.5 py-1.5 rounded-full text-[11px] font-semibold flex items-center gap-1.5 shadow-sm">
               <Play className="h-3 w-3 fill-current" />
               <span>Demo Video</span>
             </div>
@@ -92,7 +92,7 @@ export function ProductMediaGallery({
           <button
             type="button"
             onClick={handleSelectVideo}
-            className="absolute bottom-4 right-4 bg-foreground hover:bg-neutral-800 text-background text-xs font-medium px-3.5 py-2 rounded-xl shadow-sm flex items-center gap-2 active:scale-95 transition-all cursor-pointer"
+            className="absolute bottom-5 right-5 bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-semibold px-4 py-2.5 rounded-full shadow-md flex items-center gap-2 active:scale-95 transition-all cursor-pointer"
           >
             <Play className="h-3.5 w-3.5 fill-current" />
             <span>Watch Demo Video</span>
@@ -113,33 +113,33 @@ export function ProductMediaGallery({
                 type="button"
                 onClick={() => setSelectedIndex(idx)}
                 className={`
-                  relative h-18 w-18 sm:h-20 sm:w-20 rounded-xl border overflow-hidden shrink-0 transition-all cursor-pointer bg-muted/40
+                  relative h-18 w-18 sm:h-20 sm:w-20 rounded-[20px] sm:rounded-[22px] overflow-hidden shrink-0 transition-all cursor-pointer bg-white p-1
                   ${
                     isSelected
-                      ? 'border-brand ring-2 ring-brand/20 shadow-xs'
-                      : 'border-border hover:border-neutral-400 opacity-80 hover:opacity-100'
+                      ? 'ring-2 ring-brand shadow-md scale-105'
+                      : 'shadow-xs opacity-75 hover:opacity-100'
                   }
                 `}
               >
                 {isVideo ? (
-                  <div className="w-full h-full bg-neutral-900 flex flex-col items-center justify-center text-white relative">
+                  <div className="w-full h-full rounded-[16px] sm:rounded-[18px] bg-neutral-900 flex flex-col items-center justify-center text-white relative">
                     <div className="h-6 w-6 rounded-full bg-brand flex items-center justify-center shadow-xs">
                       <Play className="h-3 w-3 fill-current ml-0.5" />
                     </div>
-                    <span className="text-[9px] font-medium mt-1 text-white">Video</span>
+                    <span className="text-[9px] font-semibold mt-1 text-white">Video</span>
                   </div>
                 ) : (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={item.url}
                     alt={item.alt || `Thumbnail ${idx + 1}`}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover rounded-[16px] sm:rounded-[18px]"
                   />
                 )}
 
                 {isVideo && (
-                  <span className="absolute top-1 right-1 h-3.5 w-3.5 rounded-full bg-brand flex items-center justify-center">
-                    <Film className="h-2 w-2 text-white" />
+                  <span className="absolute top-1.5 right-1.5 h-4 w-4 rounded-full bg-brand flex items-center justify-center shadow-xs">
+                    <Film className="h-2.5 w-2.5 text-white" />
                   </span>
                 )}
               </button>

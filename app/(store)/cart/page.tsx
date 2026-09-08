@@ -104,14 +104,14 @@ export default function CartPage() {
       {/* Grid Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left Column: Cart Items List */}
-        <div className="lg:col-span-8 space-y-3">
+        <div className="lg:col-span-8 space-y-3.5">
           {items.map((item) => (
             <div
               key={item.productId}
-              className="cart-page-item p-4 sm:p-5 rounded-2xl bg-card border border-border flex gap-4 sm:gap-6 items-center shadow-xs transition-all hover:border-neutral-300"
+              className="cart-page-item p-4 sm:p-5 rounded-[28px] sm:rounded-[32px] bg-white flex gap-4 sm:gap-6 items-center shadow-sm transition-all hover:shadow-md"
             >
               {/* Product Thumbnail */}
-              <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-xl bg-muted/40 border border-border flex items-center justify-center shrink-0 select-none overflow-hidden">
+              <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-[20px] sm:rounded-[22px] bg-neutral-100 flex items-center justify-center shrink-0 select-none overflow-hidden">
                 {item.image ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
@@ -126,12 +126,12 @@ export default function CartPage() {
                   <div>
                     <Link
                       href={`/product/${item.slug}`}
-                      className="font-semibold text-sm sm:text-base text-foreground hover:text-brand transition-colors line-clamp-1"
+                      className="font-bold text-sm sm:text-base text-foreground hover:text-brand transition-colors line-clamp-1"
                     >
                       {item.name}
                     </Link>
                     <div className="flex items-baseline gap-2 mt-0.5">
-                      <span className="font-semibold text-sm text-foreground">
+                      <span className="font-bold text-sm text-foreground">
                         {formatCurrency(item.sellingPrice)}
                       </span>
                       {item.mrp > item.sellingPrice && (
@@ -147,7 +147,7 @@ export default function CartPage() {
                       const card = e.currentTarget.closest('.cart-page-item') as HTMLElement | null;
                       handleRemoveWithAnim(item.productId, card);
                     }}
-                    className="text-muted-foreground hover:text-destructive p-1.5 rounded-lg hover:bg-destructive-light transition-colors cursor-pointer"
+                    className="text-muted-foreground hover:text-destructive p-2 rounded-full hover:bg-rose-50 transition-colors cursor-pointer"
                     aria-label={`Remove ${item.name}`}
                   >
                     <Trash2 className="h-4 w-4" />
@@ -169,7 +169,7 @@ export default function CartPage() {
 
                   <div className="text-right">
                     <span className="text-[11px] text-muted-foreground block font-medium">Item Total</span>
-                    <span className="font-semibold text-sm sm:text-base text-foreground font-mono">
+                    <span className="font-bold text-sm sm:text-base text-foreground font-mono">
                       {formatCurrency(item.sellingPrice * item.quantity)}
                     </span>
                   </div>
@@ -181,40 +181,40 @@ export default function CartPage() {
 
         {/* Right Column: Order Summary & Checkout Trigger */}
         <div className="lg:col-span-4">
-          <div className="p-6 rounded-2xl bg-card border border-border sticky top-24 space-y-6 shadow-sm">
-            <h2 className="font-bold text-base text-foreground tracking-tight pb-3 border-b border-border">
+          <div className="p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white sticky top-24 space-y-6 shadow-sm">
+            <h2 className="font-bold text-base text-foreground tracking-tight pb-3 border-b border-neutral-100">
               Order Summary
             </h2>
 
             {/* Minimum Order Value Progress Indicator */}
-            <div className="p-4 rounded-xl bg-background-secondary border border-border space-y-2">
+            <div className="p-4 rounded-[22px] sm:rounded-[24px] bg-neutral-50 space-y-2">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-medium text-foreground">Minimum Order</span>
-                <span className="font-semibold text-muted-foreground font-mono">
+                <span className="font-semibold text-foreground">Minimum Order</span>
+                <span className="font-bold text-muted-foreground font-mono">
                   {formatCurrency(subtotal)} / ₹{minOrderValue}
                 </span>
               </div>
 
               {/* Progress Bar */}
-              <div className="w-full h-1.5 bg-border rounded-full overflow-hidden">
+              <div className="w-full h-1.5 bg-neutral-200 rounded-full overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all duration-300 ${
                     meetsMinOrder
                       ? 'bg-emerald-600'
-                      : 'bg-foreground'
+                      : 'bg-neutral-900'
                   }`}
                   style={{ width: `${progressPercent}%` }}
                 />
               </div>
 
               {meetsMinOrder ? (
-                <p className="text-xs text-emerald-700 font-medium flex items-center gap-1.5">
+                <p className="text-xs text-emerald-700 font-semibold flex items-center gap-1.5">
                   <CheckCircle2 className="h-3.5 w-3.5" />
                   Minimum order met. Ready for checkout.
                 </p>
               ) : (
                 <p className="text-xs text-muted-foreground">
-                  Add <span className="font-semibold text-foreground font-mono">{formatCurrency(remaining)}</span> more to continue.
+                  Add <span className="font-bold text-foreground font-mono">{formatCurrency(remaining)}</span> more to continue.
                 </p>
               )}
             </div>
@@ -229,9 +229,9 @@ export default function CartPage() {
               </div>
 
               {totalSavings > 0 && (
-                <div className="flex justify-between text-emerald-700 font-medium">
+                <div className="flex justify-between text-emerald-700 font-semibold">
                   <span>Wholesale savings</span>
-                  <span className="font-semibold">
+                  <span>
                     -{formatCurrency(totalSavings)}
                   </span>
                 </div>
@@ -244,7 +244,7 @@ export default function CartPage() {
             </div>
 
             {/* Final Total */}
-            <div className="pt-3 border-t border-border space-y-1">
+            <div className="pt-3 border-t border-neutral-100 space-y-1">
               <div className="flex justify-between items-baseline font-bold text-lg text-foreground">
                 <span>Estimated Total</span>
                 <span className="text-xl">

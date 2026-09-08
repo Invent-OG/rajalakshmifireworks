@@ -76,7 +76,7 @@ export default async function HomePage() {
               </Link>
             </div>
 
-            <div className="product-stagger-grid grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4">
+            <div className="product-stagger-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6">
               {featuredProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
@@ -104,7 +104,7 @@ export default async function HomePage() {
               </Link>
             </div>
 
-            <div className="product-stagger-grid grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4">
+            <div className="product-stagger-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6">
               {bestsellerProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}

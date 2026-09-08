@@ -91,7 +91,7 @@ export default async function ProductPage({
           </div>
 
           {/* Pricing Hierarchy */}
-          <div className="p-5 rounded-2xl bg-card border border-border space-y-2">
+          <div className="p-6 rounded-[28px] sm:rounded-[32px] bg-white shadow-sm space-y-2">
             <PriceDisplay
               sellingPrice={price}
               mrp={mrp}
@@ -106,12 +106,12 @@ export default async function ProductPage({
           <div className="flex items-center gap-3">
             {product.stockQuantity > 0 ? (
               product.stockQuantity <= product.lowStockThreshold ? (
-                <StatusBadge status="LOW_STOCK" className="text-xs py-1 px-3" />
+                <StatusBadge status="LOW_STOCK" className="text-xs py-1 px-3.5" />
               ) : (
-                <StatusBadge status="IN_STOCK" className="text-xs py-1 px-3" />
+                <StatusBadge status="IN_STOCK" className="text-xs py-1 px-3.5" />
               )
             ) : (
-              <StatusBadge status="OUT_OF_STOCK" className="text-xs py-1 px-3" />
+              <StatusBadge status="OUT_OF_STOCK" className="text-xs py-1 px-3.5" />
             )}
             <span className="text-xs text-muted-foreground">
               {product.stockQuantity > 0
@@ -135,8 +135,8 @@ export default async function ProductPage({
 
           {/* Description Section */}
           {product.description && (
-            <div className="border-t border-border pt-6 space-y-2">
-              <h3 className="font-semibold text-xs uppercase tracking-wider text-foreground">
+            <div className="border-t border-neutral-100 pt-6 space-y-2">
+              <h3 className="font-bold text-xs uppercase tracking-wider text-foreground">
                 Description
               </h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
@@ -146,12 +146,12 @@ export default async function ProductPage({
           )}
 
           {/* Safety & Handling Notice */}
-          <div className="rounded-xl bg-muted/40 border border-border p-4 space-y-2 text-xs text-muted-foreground">
-            <div className="flex items-center gap-2 font-semibold text-foreground">
+          <div className="rounded-[28px] sm:rounded-[32px] bg-white p-6 space-y-3 shadow-sm text-xs text-muted-foreground">
+            <div className="flex items-center gap-2 font-bold text-foreground">
               <AlertCircle className="h-4 w-4 text-brand" />
               <span>Safety & Usage Instructions</span>
             </div>
-            <ul className="space-y-1 pl-4 list-disc">
+            <ul className="space-y-1.5 pl-4 list-disc">
               <li>Use outdoors in open areas clear of dry grass or flammable objects.</li>
               <li>Light using an agarbatti or sparkler at arm&apos;s length.</li>
               <li>Always ensure adult presence and keep a water bucket nearby.</li>

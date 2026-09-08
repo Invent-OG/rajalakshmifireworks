@@ -59,7 +59,7 @@ export function PriceDisplay({
           </span>
         )}
         {discount > 0 && (
-          <span className={`bg-amber-50 text-amber-900 border border-amber-200/80 rounded-md ${current.discount}`}>
+          <span className={`bg-amber-50 text-amber-900 border border-amber-200/80 rounded-full ${current.discount}`}>
             {discount}% off
           </span>
         )}

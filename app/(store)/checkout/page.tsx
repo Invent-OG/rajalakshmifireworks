@@ -150,12 +150,12 @@ export default function CheckoutPage() {
           {/* Left: Numbered Step Form */}
           <div className="lg:col-span-7 space-y-6">
             {/* Step 01: Customer Details */}
-            <div className="p-6 rounded-2xl bg-card border border-border space-y-5">
+            <div className="p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white shadow-sm space-y-5">
               <div className="flex items-center gap-3">
-                <span className="h-6 w-6 rounded-lg bg-foreground text-background text-xs font-semibold flex items-center justify-center">
+                <span className="h-7 w-7 rounded-full bg-neutral-900 text-white text-xs font-bold flex items-center justify-center shadow-xs">
                   01
                 </span>
-                <h2 className="font-semibold text-base text-foreground tracking-tight">
+                <h2 className="font-bold text-base text-foreground tracking-tight">
                   Customer Details
                 </h2>
               </div>
@@ -177,23 +177,23 @@ export default function CheckoutPage() {
             </div>
 
             {/* Step 02: Fulfillment Method */}
-            <div className="p-6 rounded-2xl bg-card border border-border space-y-5">
+            <div className="p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white shadow-sm space-y-5">
               <div className="flex items-center gap-3">
-                <span className="h-6 w-6 rounded-lg bg-foreground text-background text-xs font-semibold flex items-center justify-center">
+                <span className="h-7 w-7 rounded-full bg-neutral-900 text-white text-xs font-bold flex items-center justify-center shadow-xs">
                   02
                 </span>
-                <h2 className="font-semibold text-base text-foreground tracking-tight">
+                <h2 className="font-bold text-base text-foreground tracking-tight">
                   Fulfillment
                 </h2>
               </div>
 
               {/* Selectable Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <label
-                  className={`p-4 rounded-xl border flex items-start gap-3 cursor-pointer transition-all ${
+                  className={`p-4 rounded-[22px] sm:rounded-[24px] border-2 flex items-start gap-3 cursor-pointer transition-all ${
                     fulfillmentType === 'DELIVERY'
                       ? 'border-brand bg-brand-light/30 shadow-xs'
-                      : 'border-border hover:border-neutral-300 bg-card'
+                      : 'border-neutral-200/80 hover:border-neutral-400 bg-neutral-50/50'
                   }`}
                 >
                   <input
@@ -203,16 +203,16 @@ export default function CheckoutPage() {
                     {...form.register('fulfillmentType')}
                   />
                   <div
-                    className={`h-9 w-9 rounded-lg flex items-center justify-center shrink-0 ${
+                    className={`h-9 w-9 rounded-full flex items-center justify-center shrink-0 ${
                       fulfillmentType === 'DELIVERY'
                         ? 'bg-brand text-white'
-                        : 'bg-muted text-muted-foreground'
+                        : 'bg-neutral-200 text-neutral-600'
                     }`}
                   >
                     <Truck className="h-4.5 w-4.5" />
                   </div>
                   <div>
-                    <p className="font-medium text-sm text-foreground">Home Delivery</p>
+                    <p className="font-bold text-sm text-foreground">Home Delivery</p>
                     <p className="text-xs text-muted-foreground mt-0.5">
                       Direct transport to your address
                     </p>
@@ -220,10 +220,10 @@ export default function CheckoutPage() {
                 </label>
 
                 <label
-                  className={`p-4 rounded-xl border flex items-start gap-3 cursor-pointer transition-all ${
+                  className={`p-4 rounded-[22px] sm:rounded-[24px] border-2 flex items-start gap-3 cursor-pointer transition-all ${
                     fulfillmentType === 'PICKUP'
                       ? 'border-brand bg-brand-light/30 shadow-xs'
-                      : 'border-border hover:border-neutral-300 bg-card'
+                      : 'border-neutral-200/80 hover:border-neutral-400 bg-neutral-50/50'
                   }`}
                 >
                   <input
@@ -233,16 +233,16 @@ export default function CheckoutPage() {
                     {...form.register('fulfillmentType')}
                   />
                   <div
-                    className={`h-9 w-9 rounded-lg flex items-center justify-center shrink-0 ${
+                    className={`h-9 w-9 rounded-full flex items-center justify-center shrink-0 ${
                       fulfillmentType === 'PICKUP'
                         ? 'bg-brand text-white'
-                        : 'bg-muted text-muted-foreground'
+                        : 'bg-neutral-200 text-neutral-600'
                     }`}
                   >
                     <Store className="h-4.5 w-4.5" />
                   </div>
                   <div>
-                    <p className="font-medium text-sm text-foreground">Store Pickup</p>
+                    <p className="font-bold text-sm text-foreground">Store Pickup</p>
                     <p className="text-xs text-muted-foreground mt-0.5">
                       Collect at Sivakasi counter
                     </p>
@@ -278,12 +278,12 @@ export default function CheckoutPage() {
             </div>
 
             {/* Step 03: Delivery Instructions */}
-            <div className="p-6 rounded-2xl bg-card border border-border space-y-4">
+            <div className="p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white shadow-sm space-y-4">
               <div className="flex items-center gap-3">
-                <span className="h-6 w-6 rounded-lg bg-foreground text-background text-xs font-semibold flex items-center justify-center">
+                <span className="h-7 w-7 rounded-full bg-neutral-900 text-white text-xs font-bold flex items-center justify-center shadow-xs">
                   03
                 </span>
-                <h2 className="font-semibold text-base text-foreground tracking-tight">
+                <h2 className="font-bold text-base text-foreground tracking-tight">
                   Special Notes (Optional)
                 </h2>
               </div>
@@ -296,8 +296,8 @@ export default function CheckoutPage() {
 
           {/* Right: Order Summary Breakdown */}
           <div className="lg:col-span-5">
-            <div className="p-6 rounded-2xl bg-card border border-border sticky top-24 space-y-6">
-              <h2 className="font-bold text-base text-foreground tracking-tight pb-3 border-b border-border">
+            <div className="p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white sticky top-24 space-y-6 shadow-sm">
+              <h2 className="font-bold text-base text-foreground tracking-tight pb-3 border-b border-neutral-100">
                 Review Order ({itemCount} {itemCount === 1 ? 'item' : 'items'})
               </h2>
 
@@ -308,7 +308,7 @@ export default function CheckoutPage() {
                     <span className="text-foreground font-medium truncate max-w-[65%]">
                       {item.name} <span className="text-muted-foreground font-normal">× {item.quantity}</span>
                     </span>
-                    <span className="font-semibold text-foreground">
+                    <span className="font-bold text-foreground">
                       {formatCurrency(item.sellingPrice * item.quantity)}
                     </span>
                   </div>
@@ -316,13 +316,13 @@ export default function CheckoutPage() {
               </div>
 
               {/* Price Calculation */}
-              <div className="border-t border-border pt-4 space-y-2.5 text-xs sm:text-sm">
+              <div className="border-t border-neutral-100 pt-4 space-y-2.5 text-xs sm:text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Subtotal</span>
-                  <span className="font-medium">{formatCurrency(subtotal)}</span>
+                  <span className="font-semibold">{formatCurrency(subtotal)}</span>
                 </div>
                 {totalSavings > 0 && (
-                  <div className="flex justify-between text-emerald-700 font-medium">
+                  <div className="flex justify-between text-emerald-700 font-semibold">
                     <span>Wholesale discount</span>
                     <span>-{formatCurrency(totalSavings)}</span>
                   </div>
@@ -334,7 +334,7 @@ export default function CheckoutPage() {
               </div>
 
               {/* Total Box */}
-              <div className="border-t border-border pt-4 flex items-baseline justify-between">
+              <div className="border-t border-neutral-100 pt-4 flex items-baseline justify-between">
                 <span className="font-bold text-base text-foreground">Total Payable</span>
                 <span className="text-xl font-bold text-foreground">
                   {formatCurrency(subtotal)}
@@ -355,7 +355,7 @@ export default function CheckoutPage() {
               </StoreButton>
 
               {/* WhatsApp Notice Box */}
-              <div className="p-3 rounded-xl bg-background-secondary border border-border text-xs text-muted-foreground flex items-start gap-2.5">
+              <div className="p-4 rounded-[20px] sm:rounded-[22px] bg-neutral-50 text-xs text-muted-foreground flex items-start gap-3">
                 <MessageSquare className="h-4 w-4 shrink-0 text-foreground mt-0.5" />
                 <p className="leading-relaxed">
                   <strong>No online payment required.</strong> Once placed, you will receive an official invoice on WhatsApp to verify and confirm.

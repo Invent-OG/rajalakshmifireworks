@@ -45,16 +45,16 @@ export default async function CategoryPage({
   return (
     <div className="w-full px-4 sm:px-8 lg:px-12 py-8 animate-fade-in space-y-8">
       {/* Category Hero Banner */}
-      <div className="rounded-2xl bg-background-secondary border border-border p-6 sm:p-8">
+      <div className="rounded-[36px] sm:rounded-[40px] bg-white p-6 sm:p-8 shadow-sm">
         <Link
           href="/products"
-          className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground mb-6 transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-1.5 rounded-full bg-neutral-100 text-neutral-600 hover:text-neutral-950 mb-6 transition-colors shadow-xs"
         >
           <ArrowLeft className="h-3.5 w-3.5" /> Back to All Fireworks
         </Link>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           <div className="flex items-start sm:items-center gap-5">
-            <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-2xl overflow-hidden bg-muted border border-border shrink-0 relative shadow-sm">
+            <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-[24px] sm:rounded-[28px] overflow-hidden bg-neutral-100 shrink-0 relative shadow-sm">
               <img
                 src={getCategory3DImage(category.name)}
                 alt={category.name}
@@ -76,7 +76,7 @@ export default async function CategoryPage({
               )}
             </div>
           </div>
-          <div className="self-start sm:self-center px-4 py-2 rounded-full bg-card border border-border text-xs font-semibold text-foreground shadow-xs">
+          <div className="self-start sm:self-center px-4 py-2 rounded-full bg-neutral-100 text-xs font-semibold text-foreground shadow-xs">
             {productList.length} {productList.length === 1 ? 'item' : 'items'}
           </div>
         </div>

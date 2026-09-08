@@ -51,7 +51,7 @@ export default async function OrderConfirmationPage({
       <div className="mx-auto max-w-2xl px-4 sm:px-6 py-12 space-y-8 relative z-10">
         {/* Success Celebration Header */}
         <div className="text-center space-y-3">
-          <div className="success-icon inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-emerald-50 text-emerald-700 border border-emerald-200 mx-auto">
+          <div className="success-icon inline-flex items-center justify-center h-16 w-16 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 mx-auto shadow-sm">
             <CheckCircle2 className="h-8 w-8" />
           </div>
 
@@ -67,7 +67,7 @@ export default async function OrderConfirmationPage({
         </div>
 
         {/* WhatsApp Confirmation CTA Card */}
-        <div className="success-whatsapp p-6 rounded-2xl bg-background-secondary border border-border text-center space-y-4">
+        <div className="success-whatsapp p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white shadow-sm text-center space-y-4">
           <div className="space-y-1">
             <h2 className="font-bold text-base text-foreground">
               Confirm on WhatsApp
@@ -86,10 +86,10 @@ export default async function OrderConfirmationPage({
         </div>
 
         {/* Itemized Order Receipt Card */}
-        <div className="success-receipt p-6 rounded-2xl bg-card border border-border space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-border gap-2">
+        <div className="success-receipt p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white space-y-6 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-neutral-100 gap-2">
             <div>
-              <span className="text-xs uppercase font-medium text-muted-foreground tracking-wider">
+              <span className="text-xs uppercase font-bold text-neutral-400 tracking-wider">
                 Invoice Reference
               </span>
               <p className="font-mono font-bold text-lg text-foreground mt-0.5">
@@ -97,7 +97,7 @@ export default async function OrderConfirmationPage({
               </p>
             </div>
             <div className="text-left sm:text-right">
-              <span className="text-xs uppercase font-medium text-muted-foreground tracking-wider">
+              <span className="text-xs uppercase font-bold text-neutral-400 tracking-wider">
                 Date Placed
               </span>
               <p className="text-xs text-muted-foreground mt-0.5">
@@ -108,7 +108,7 @@ export default async function OrderConfirmationPage({
 
           {/* Items List */}
           <div>
-            <h3 className="text-xs uppercase font-semibold text-muted-foreground tracking-wider mb-3">
+            <h3 className="text-xs uppercase font-bold text-neutral-400 tracking-wider mb-3">
               Item Breakdown
             </h3>
             <div className="space-y-2.5">
@@ -117,7 +117,7 @@ export default async function OrderConfirmationPage({
                   <span className="text-foreground font-medium">
                     {item.productNameSnapshot} <span className="text-muted-foreground font-normal">× {item.quantity}</span>
                   </span>
-                  <span className="font-semibold text-foreground">
+                  <span className="font-bold text-foreground">
                     {formatCurrency(toNumber(item.lineTotal))}
                   </span>
                 </div>
@@ -126,14 +126,14 @@ export default async function OrderConfirmationPage({
           </div>
 
           {/* Calculation Table */}
-          <div className="border-t border-border pt-4 space-y-2 text-xs sm:text-sm">
+          <div className="border-t border-neutral-100 pt-4 space-y-2 text-xs sm:text-sm">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Subtotal</span>
-              <span className="font-medium">{formatCurrency(toNumber(order.subtotal))}</span>
+              <span className="font-semibold">{formatCurrency(toNumber(order.subtotal))}</span>
             </div>
 
             {toNumber(order.discountAmount) > 0 && (
-              <div className="flex justify-between text-emerald-700 font-medium">
+              <div className="flex justify-between text-emerald-700 font-semibold">
                 <span>Discount</span>
                 <span>-{formatCurrency(toNumber(order.discountAmount))}</span>
               </div>
@@ -146,14 +146,14 @@ export default async function OrderConfirmationPage({
               </div>
             )}
 
-            <div className="border-t border-border pt-2 flex justify-between font-bold text-base text-foreground">
+            <div className="border-t border-neutral-100 dark:border-neutral-800 pt-3 flex justify-between font-bold text-base text-foreground">
               <span>Payable Amount</span>
               <span>{formatCurrency(toNumber(order.totalAmount))}</span>
             </div>
           </div>
 
           {/* Fulfillment Note */}
-          <div className="p-3.5 rounded-xl bg-background-secondary border border-border text-xs text-muted-foreground flex items-center gap-3">
+          <div className="p-4 rounded-[20px] sm:rounded-[22px] bg-neutral-50 dark:bg-neutral-800/60 text-xs text-muted-foreground flex items-center gap-3">
             {order.fulfillmentType === 'DELIVERY' ? (
               <>
                 <Truck className="h-4.5 w-4.5 text-foreground shrink-0" />

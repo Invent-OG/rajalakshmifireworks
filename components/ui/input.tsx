@@ -27,12 +27,12 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             id={inputId}
             className={`
-              w-full h-11 px-3.5 rounded-xl border border-border bg-card text-foreground
+              w-full h-11 px-4 rounded-full border border-border bg-card text-foreground
               text-sm placeholder:text-muted-foreground/60 shadow-xs
               transition-all duration-150
               focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand
               disabled:opacity-50 disabled:bg-muted disabled:cursor-not-allowed
-              ${icon ? 'pl-10' : ''}
+              ${icon ? 'pl-11' : ''}
               ${error ? 'border-destructive focus:ring-destructive/15 focus:border-destructive' : ''}
               ${className}
             `}
@@ -77,7 +77,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           ref={ref}
           id={textareaId}
           className={`
-            w-full px-3.5 py-2.5 rounded-xl border border-border bg-card text-foreground
+            w-full px-4 py-3 rounded-[24px] border border-border bg-card text-foreground
             text-sm placeholder:text-muted-foreground/60 resize-y min-h-[90px] shadow-xs
             transition-all duration-150
             focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand
@@ -125,7 +125,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
           ref={ref}
           id={selectId}
           className={`
-            w-full h-11 px-3.5 rounded-xl border border-border bg-card text-foreground
+            w-full h-11 px-4 rounded-full border border-border bg-card text-foreground
             text-sm shadow-xs transition-all duration-150 cursor-pointer
             focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand
             disabled:opacity-50 disabled:bg-muted disabled:cursor-not-allowed

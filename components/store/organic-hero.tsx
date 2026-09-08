@@ -82,7 +82,7 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
           style={{
             backgroundColor: currentSlide.bgColor || '#a6d7e7',
           }}
-          className="relative rounded-[2rem] sm:rounded-[2.5rem] text-neutral-900 overflow-hidden shadow-sm border border-neutral-900/10 p-6 sm:p-10 lg:p-14 min-h-[460px] lg:min-h-[500px] flex flex-col justify-between transition-colors duration-700 ease-in-out"
+          className="relative rounded-[36px] sm:rounded-[40px] text-neutral-900 overflow-hidden shadow-sm p-6 sm:p-10 lg:p-14 min-h-[460px] lg:min-h-[500px] flex flex-col justify-between transition-colors duration-700 ease-in-out"
         >
           {/* Background Image Layer if configured */}
           {currentSlide.backgroundImage && (
@@ -134,9 +134,9 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
                 <Link
                   href={currentSlide.card1.link || '/products'}
                   style={{ backgroundColor: currentSlide.card1.bgColor || '#b5144f' }}
-                  className="group relative flex items-center gap-4 text-white p-4 sm:p-4.5 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.03] active:scale-98 overflow-hidden border border-white/10"
+                  className="group relative flex items-center gap-4 text-white p-4 sm:p-5 rounded-[24px] sm:rounded-[28px] shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.03] active:scale-98 overflow-hidden"
                 >
-                  <div className="relative h-16 w-16 sm:h-20 sm:w-20 rounded-xl overflow-hidden shrink-0 bg-black/20 shadow-inner">
+                  <div className="relative h-16 w-16 sm:h-20 sm:w-20 rounded-[18px] overflow-hidden shrink-0 bg-black/20 shadow-inner">
                     <img
                       src={currentSlide.card1.image || '/images/hero/card-dried-fruits.jpg'}
                       alt={currentSlide.card1.title}
@@ -162,9 +162,9 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
                 <Link
                   href={currentSlide.card2.link || '/products'}
                   style={{ backgroundColor: currentSlide.card2.bgColor || '#114b82' }}
-                  className="group relative flex items-center gap-4 text-white p-4 sm:p-4.5 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.03] active:scale-98 overflow-hidden border border-white/10"
+                  className="group relative flex items-center gap-4 text-white p-4 sm:p-5 rounded-[24px] sm:rounded-[28px] shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.03] active:scale-98 overflow-hidden"
                 >
-                  <div className="relative h-16 w-16 sm:h-20 sm:w-20 rounded-xl overflow-hidden shrink-0 bg-black/20 shadow-inner">
+                  <div className="relative h-16 w-16 sm:h-20 sm:w-20 rounded-[18px] overflow-hidden shrink-0 bg-black/20 shadow-inner">
                     <img
                       src={currentSlide.card2.image || '/images/hero/card-advent-calendar.jpg'}
                       alt={currentSlide.card2.title}
@@ -245,9 +245,9 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
 
         </div>
 
-        {/* ── USP Trust Ribbon Strip (Same Design As Reference Image) ── */}
-        <div className="mt-4 sm:mt-6 bg-white dark:bg-card border border-neutral-200/80 dark:border-border rounded-2xl sm:rounded-3xl py-4 sm:py-5 px-4 sm:px-8 shadow-xs overflow-x-auto scrollbar-none">
-          <div className="flex items-center justify-between min-w-[720px] lg:min-w-0 gap-6 sm:gap-8 text-xs sm:text-[13px] font-semibold text-neutral-800 dark:text-neutral-200">
+        {/* ── USP Trust Ribbon Strip ── */}
+        <div className="mt-4 sm:mt-6 bg-white rounded-[28px] sm:rounded-[36px] py-4 sm:py-5 px-4 sm:px-8 shadow-sm overflow-x-auto scrollbar-none">
+          <div className="flex items-center justify-between min-w-[720px] lg:min-w-0 gap-6 sm:gap-8 text-xs sm:text-[13px] font-semibold text-neutral-800">
             <div className="flex items-center gap-2.5 whitespace-nowrap select-none hover:text-brand transition-colors">
               <span className="text-lg sm:text-xl">🚚</span>
               <span>Short supply chain</span>

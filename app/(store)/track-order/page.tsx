@@ -100,7 +100,7 @@ export default function TrackOrderPage() {
       {/* Search Input Card */}
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="p-6 rounded-2xl bg-card border border-border space-y-4 shadow-xs"
+        className="p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white space-y-4 shadow-sm"
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
@@ -142,12 +142,12 @@ export default function TrackOrderPage() {
         {orders.map((order) => (
           <div
             key={order.invoiceNumber}
-            className="order-card-reveal p-6 sm:p-7 rounded-2xl bg-card border border-border space-y-6"
+            className="order-card-reveal p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white space-y-6 shadow-sm"
           >
             {/* Top Order Title Bar */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-border gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-neutral-100 gap-3">
               <div>
-                <span className="text-xs uppercase font-medium text-muted-foreground tracking-wider">
+                <span className="text-xs uppercase font-bold text-neutral-400 tracking-wider">
                   Invoice Number
                 </span>
                 <p className="font-mono font-bold text-lg text-foreground">
@@ -159,7 +159,7 @@ export default function TrackOrderPage() {
               </div>
 
               <div className="self-start sm:self-center">
-                <StatusBadge status={order.orderStatus} className="text-xs py-1 px-3" />
+                <StatusBadge status={order.orderStatus} className="text-xs py-1 px-3.5" />
               </div>
             </div>
 
