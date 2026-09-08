@@ -58,14 +58,14 @@ async function seed() {
   // 3. Seed Categories
   console.log('📦 Seeding fireworks categories...');
   const categoryData = [
-    { name: 'Sparklers', description: 'Safe and sparkling handheld crackers in gold, silver, and colors', sortOrder: 1 },
-    { name: 'Flower Pots', description: 'Colorful sparkling fountain cones of vibrant lights and glitter', sortOrder: 2 },
-    { name: 'Rockets', description: 'High-flying aerial whistles and multi-color bursts in the night sky', sortOrder: 3 },
-    { name: 'Chakras', description: 'Fast-spinning ground wheels with dazzling golden rings', sortOrder: 4 },
-    { name: 'Fountains', description: 'Long-duration multi-color fountain cones and fountain pots', sortOrder: 5 },
-    { name: 'Sound Crackers', description: 'Traditional Sivakasi single sound and garland wala crackers', sortOrder: 6 },
-    { name: 'Gift Boxes', description: 'Premium curated gift packages with crackers for the whole family', sortOrder: 7 },
-    { name: 'Family Packs', description: 'Mega value celebration packages with 25+ assorted cracker items', sortOrder: 8 },
+    { name: 'Sparklers', description: 'Safe and sparkling handheld crackers in gold, silver, and colors', sortOrder: 1, image: '/images/3d/cat-sparklers.jpg' },
+    { name: 'Flower Pots', description: 'Colorful sparkling fountain cones of vibrant lights and glitter', sortOrder: 2, image: '/images/3d/cat-flower-pots.jpg' },
+    { name: 'Rockets', description: 'High-flying aerial whistles and multi-color bursts in the night sky', sortOrder: 3, image: '/images/3d/cat-rockets.jpg' },
+    { name: 'Chakras', description: 'Fast-spinning ground wheels with dazzling golden rings', sortOrder: 4, image: '/images/3d/cat-chakras.jpg' },
+    { name: 'Fountains', description: 'Long-duration multi-color fountain cones and fountain pots', sortOrder: 5, image: '/images/3d/cat-fountains.jpg' },
+    { name: 'Sound Crackers', description: 'Traditional Sivakasi single sound and garland wala crackers', sortOrder: 6, image: '/images/3d/cat-sound-crackers.jpg' },
+    { name: 'Gift Boxes', description: 'Premium curated gift packages with crackers for the whole family', sortOrder: 7, image: '/images/3d/cat-gift-boxes.jpg' },
+    { name: 'Family Packs', description: 'Mega value celebration packages with 25+ assorted cracker items', sortOrder: 8, image: '/images/3d/cat-family-packs.jpg' },
   ];
 
   const insertedCategories: (typeof categories.$inferSelect)[] = [];
@@ -77,6 +77,7 @@ async function seed() {
         name: cat.name,
         slug,
         description: cat.description,
+        image: cat.image,
         sortOrder: cat.sortOrder,
         isActive: true,
       })

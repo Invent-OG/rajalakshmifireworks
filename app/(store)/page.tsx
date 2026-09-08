@@ -9,6 +9,7 @@ import { CategoryIcon, getCategory3DImage } from '@/components/ui/category-icon'
 import Featured_05 from '@/components/ui/globe-feature-section';
 import { HomeMotion } from '@/components/store/home-motion';
 import { OrganicHero } from '@/components/store/organic-hero';
+import { OrganicCategoriesGrid } from '@/components/store/organic-categories-grid';
 import { parseHeroConfig } from '@/lib/hero-config';
 
 export default async function HomePage() {
@@ -99,63 +100,10 @@ export default async function HomePage() {
           </div>
         </section> */}
 
-        {/* ── 3. 3D Category Discovery Grid ─── */}
-        {categoryList.length > 0 && (
-          <section className="reveal-section w-full px-4 sm:px-8 lg:px-12">
-            <div className="flex items-end justify-between mb-6 pb-3 border-b border-border">
-              <div>
-                <span className="text-[11px] uppercase font-semibold tracking-widest text-muted-foreground">
-                  Collections
-                </span>
-                <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground mt-1">
-                  Shop by Category
-                </h2>
-              </div>
-              <Link
-                href="/products"
-                className="text-xs font-semibold text-foreground hover:text-brand flex items-center gap-1 group"
-              >
-                View all <ChevronRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
-              </Link>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
-              {categoryList.map((cat) => (
-                <Link
-                  key={cat.id}
-                  href={`/category/${cat.slug}`}
-                  className="group rounded-2xl bg-card border border-border hover:border-amber-400/60 hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden"
-                >
-                  <div className="relative aspect-4/3 w-full overflow-hidden bg-muted">
-                    <img
-                      src={getCategory3DImage(cat.name)}
-                      alt={cat.name}
-                      className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500 ease-out"
-                      loading="lazy"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
-                  </div>
-
-                  <div className="p-4 flex items-center justify-between gap-2 flex-1">
-                    <div className="min-w-0">
-                      <h3 className="font-bold text-sm sm:text-base text-foreground group-hover:text-brand transition-colors truncate">
-                        {cat.name}
-                      </h3>
-                      {cat.description && (
-                        <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">
-                          {cat.description}
-                        </p>
-                      )}
-                    </div>
-                    <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground group-hover:bg-brand group-hover:text-white transition-colors shrink-0">
-                      <ChevronRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </section>
-        )}
+        {/* ── 3. Live Fireworks Categories Bento Discovery Grid ─── */}
+        <section className="reveal-section w-full">
+          <OrganicCategoriesGrid categories={categoryList} />
+        </section>
 
         {/* ── 4. Featured Products ─── */}
         {featuredProducts.length > 0 && (
