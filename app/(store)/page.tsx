@@ -11,6 +11,7 @@ import { HomeMotion } from '@/components/store/home-motion';
 import { OrganicHero } from '@/components/store/organic-hero';
 import { OrganicCategoriesGrid } from '@/components/store/organic-categories-grid';
 import { parseHeroConfig } from '@/lib/hero-config';
+import { Testimonial02Blaze } from '@/components/sections/testimonial-02-blaze';
 
 export default async function HomePage() {
   const [categoryList, featuredProducts, bestsellerProducts, heroConfigRow] = await Promise.all([
@@ -50,62 +51,12 @@ export default async function HomePage() {
         {/* ── 1. Hero Section (Design Matched from Reference) ─── */}
         <OrganicHero initialConfig={heroConfig} />
 
-        {/* ── 2. 3D USP Trust Strip ─── */}
-        {/* <section className="reveal-section w-full px-4 sm:px-8 lg:px-12">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-            {[
-              {
-                image: '/images/3d/usp-sivakasi-direct.jpg',
-                title: 'Sivakasi Direct',
-                desc: 'Authentic items direct from original manufacturers',
-              },
-              {
-                image: '/images/3d/usp-flexible-dispatch.jpg',
-                title: 'Flexible Dispatch',
-                desc: 'Doorstep transport delivery or counter pickup',
-              },
-              {
-                image: '/images/3d/usp-curated-combos.jpg',
-                title: 'Curated Combos',
-                desc: 'Budget-friendly family & community boxes',
-              },
-              {
-                image: '/images/3d/usp-wholesale-value.jpg',
-                title: 'Wholesale Value',
-                desc: 'Guaranteed 20% to 50% savings below retail',
-              },
-            ].map((item) => (
-              <div
-                key={item.title}
-                className="group p-4 sm:p-5 rounded-2xl bg-card border border-border hover:border-amber-400/50 hover:shadow-lg transition-all duration-300 flex items-center gap-4"
-              >
-                <div className="h-16 w-16 sm:h-18 sm:w-18 rounded-2xl overflow-hidden bg-muted shrink-0 border border-border shadow-xs group-hover:scale-108 transition-transform duration-300">
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-bold text-sm sm:text-base text-foreground group-hover:text-brand transition-colors">
-                    {item.title}
-                  </h4>
-                  <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 leading-snug">
-                    {item.desc}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section> */}
-
-        {/* ── 3. Live Fireworks Categories Bento Discovery Grid ─── */}
+        {/* ── 2. Live Fireworks Categories Bento Discovery Grid ─── */}
         <section className="reveal-section w-full">
           <OrganicCategoriesGrid categories={categoryList} />
         </section>
 
-        {/* ── 4. Featured Products ─── */}
+        {/* ── 3. Featured Products ─── */}
         {featuredProducts.length > 0 && (
           <section className="reveal-section w-full px-4 sm:px-8 lg:px-12">
             <div className="flex items-end justify-between mb-6 pb-3 border-b border-border">
@@ -133,7 +84,7 @@ export default async function HomePage() {
           </section>
         )}
 
-        {/* ── 5. Bestseller Showcase ─── */}
+        {/* ── 4. Bestseller Showcase ─── */}
         {bestsellerProducts.length > 0 && (
           <section className="reveal-section w-full px-4 sm:px-8 lg:px-12">
             <div className="flex items-end justify-between mb-6 pb-3 border-b border-border">
@@ -160,6 +111,11 @@ export default async function HomePage() {
             </div>
           </section>
         )}
+
+        {/* ── 5. Testimonial 02 Blaze ─── */}
+        <section className="reveal-section w-full">
+          <Testimonial02Blaze />
+        </section>
 
         {/* ── 6. Globe Feature Showcase ─── */}
         <section className="reveal-section w-full px-4 sm:px-8 lg:px-12">
