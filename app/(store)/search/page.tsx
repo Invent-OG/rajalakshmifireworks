@@ -56,13 +56,13 @@ export default async function SearchPage({
             name="q"
             defaultValue={query}
             placeholder="Search fireworks..."
-            className="w-full h-13 pl-12 pr-28 rounded-full border border-neutral-200/80 bg-white text-foreground text-sm placeholder:text-muted-foreground/60 shadow-sm focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/15 transition-all"
+            className="w-full h-14 pl-12 pr-32 rounded-full border border-neutral-200/80 bg-white text-foreground text-sm placeholder:text-muted-foreground/60 shadow-sm focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/15 transition-all"
             autoFocus
           />
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-4.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-muted-foreground" />
           <button
             type="submit"
-            className="absolute right-2 top-1/2 -translate-y-1/2 h-9 px-5 bg-neutral-900 text-white text-xs font-semibold rounded-full hover:opacity-90 active:scale-95 transition-all cursor-pointer shadow-xs"
+            className="absolute right-2 top-1/2 -translate-y-1/2 h-10 sm:h-11 px-6 bg-neutral-950 text-white text-xs sm:text-sm font-bold rounded-full hover:bg-neutral-800 active:scale-95 transition-all cursor-pointer shadow-md"
           >
             Search
           </button>
@@ -75,7 +75,7 @@ export default async function SearchPage({
             <Link
               key={cat.id}
               href={`/search?q=${encodeURIComponent(cat.name)}`}
-              className="px-3.5 py-1.5 rounded-full bg-white hover:bg-neutral-100 text-neutral-800 transition-colors font-semibold shadow-xs"
+              className="px-4 py-2 rounded-full bg-white hover:bg-neutral-100 text-neutral-800 transition-colors text-xs sm:text-sm font-semibold shadow-xs"
             >
               {cat.name}
             </Link>

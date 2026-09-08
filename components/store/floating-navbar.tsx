@@ -225,31 +225,33 @@ export function FloatingNavbar() {
       ref={navContainerRef}
       className="sticky top-0 z-50 w-full pt-3 px-3 sm:px-6 lg:px-10 xl:px-12 pointer-events-auto transition-all duration-300"
       onMouseLeave={handleMouseLeave}
+      style={{ fontFamily: "'DM Sans', sans-serif" }}
     >
       <div className="w-full relative">
         {/* Floating Frosted Pill Bar with White Glassmorphism */}
-        <header className="relative h-14 sm:h-16 px-3 sm:px-5 rounded-full bg-white/95 backdrop-blur-md border border-neutral-200/90 text-neutral-900 shadow-sm grid grid-cols-[1fr_auto_1fr] items-center gap-2 sm:gap-4 transition-all duration-300">
+        <header className="relative h-16 sm:h-[72px] px-3.5 sm:px-6 rounded-full bg-white/95 backdrop-blur-md border border-neutral-200/90 text-neutral-900 shadow-sm grid grid-cols-[1fr_auto_1fr] items-center gap-2 sm:gap-4 transition-all duration-300">
           {/* Left Column: Capsule Pill Navigation Links & Mobile Hamburger */}
           <div className="flex items-center justify-start min-w-0">
             {/* Mobile Menu Hamburger Button */}
             <div className="flex md:hidden items-center">
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="p-2 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-800 transition-colors border border-neutral-200"
+                className="h-11 w-11 sm:h-12 sm:w-12 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-900 transition-colors flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                 aria-label="Toggle menu"
               >
-                {mobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </button>
             </div>
 
             {/* Desktop Capsule Pill Navigation (Light Sub-Capsule) */}
-            <nav className="hidden md:inline-flex items-center gap-0.5 bg-neutral-100/90 p-1 rounded-full border border-neutral-200/60 shadow-inner shrink-0">
+            <nav className="hidden md:inline-flex items-center gap-1.5 bg-neutral-100/90 p-1.5 rounded-full border border-neutral-200/60 shadow-inner shrink-0">
               <Link
                 href="/products"
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 whitespace-nowrap ${pathname === '/products' && !activeMenu
-                  ? 'bg-white text-neutral-950 font-semibold shadow-xs'
-                  : 'text-neutral-600 hover:text-neutral-950 hover:bg-white/80'
-                  }`}
+                className={`px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 whitespace-nowrap ${
+                  pathname === '/products' && !activeMenu
+                    ? 'bg-white text-neutral-950 shadow-xs'
+                    : 'text-neutral-600 hover:text-neutral-950 hover:bg-white/80'
+                }`}
               >
                 Catalog
               </Link>
@@ -263,16 +265,18 @@ export function FloatingNavbar() {
                     type="button"
                     onMouseEnter={() => handleMouseEnter(key)}
                     onClick={() => setActiveMenu(activeMenu === key ? null : key)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 flex items-center gap-1 cursor-pointer select-none whitespace-nowrap ${isHovered
-                      ? 'bg-white text-neutral-950 font-semibold shadow-xs'
-                      : 'text-neutral-600 hover:text-neutral-950 hover:bg-white/80'
-                      }`}
+                    className={`px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center gap-1.5 cursor-pointer select-none whitespace-nowrap ${
+                      isHovered
+                        ? 'bg-white text-neutral-950 shadow-xs'
+                        : 'text-neutral-600 hover:text-neutral-950 hover:bg-white/80'
+                    }`}
                     aria-expanded={isHovered}
                   >
                     <span>{menu.label}</span>
                     <ChevronDown
-                      className={`h-3 w-3 transition-transform duration-200 ${isHovered ? 'rotate-180 text-neutral-950' : 'text-neutral-400'
-                        }`}
+                      className={`h-4 w-4 transition-transform duration-200 ${
+                        isHovered ? 'rotate-180 text-neutral-950' : 'text-neutral-400'
+                      }`}
                     />
                   </button>
                 );
@@ -280,10 +284,11 @@ export function FloatingNavbar() {
 
               <Link
                 href="/track-order"
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 whitespace-nowrap ${pathname === '/track-order' && !activeMenu
-                  ? 'bg-white text-neutral-950 font-semibold shadow-xs'
-                  : 'text-neutral-600 hover:text-neutral-950 hover:bg-white/80'
-                  }`}
+                className={`px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 whitespace-nowrap ${
+                  pathname === '/track-order' && !activeMenu
+                    ? 'bg-white text-neutral-950 shadow-xs'
+                    : 'text-neutral-600 hover:text-neutral-950 hover:bg-white/80'
+                }`}
               >
                 Track
               </Link>
@@ -293,48 +298,48 @@ export function FloatingNavbar() {
           {/* Center Column: Brand Logo (Guaranteed non-overlapping center) */}
           <div className="flex items-center justify-center px-1 shrink-0">
             <Link href="/" className="flex items-center gap-2 group py-1">
-              <BrandLogo className="h-10 sm:h-10 md:h-10 max-h-10 w-auto transition-transform duration-200 group-hover:scale-105 drop-shadow-sm shrink-0" />
+              <BrandLogo className="h-10 sm:h-11 md:h-12 max-h-12 w-auto transition-transform duration-200 group-hover:scale-105 drop-shadow-sm shrink-0" />
             </Link>
           </div>
 
           {/* Right Column: Action Buttons (Search + Download/Price List + Bag) */}
-          <div className="flex items-center justify-end gap-1.5 sm:gap-2 shrink-0">
+          <div className="flex items-center justify-end gap-2 sm:gap-3 shrink-0">
             {/* Quick Search Button */}
             <Link
               href="/search"
-              className="hidden lg:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-neutral-100/90 hover:bg-neutral-200/80 text-neutral-600 hover:text-neutral-950 text-xs font-medium border border-neutral-200/60 transition-all whitespace-nowrap"
+              className="hidden lg:inline-flex items-center gap-2 h-11 sm:h-12 px-5 rounded-full bg-neutral-100/90 hover:bg-neutral-200/90 text-neutral-700 hover:text-neutral-950 text-xs sm:text-sm font-semibold transition-all shadow-xs whitespace-nowrap active:scale-95"
             >
-              <Search className="h-3.5 w-3.5 text-neutral-400" />
+              <Search className="h-4 w-4 text-neutral-400" />
               <span>Search...</span>
             </Link>
 
             <Link
               href="/search"
-              className="lg:hidden h-8 w-8 flex items-center justify-center rounded-full bg-neutral-100 text-neutral-700 hover:bg-neutral-200 border border-neutral-200 transition-colors"
+              className="lg:hidden h-11 w-11 sm:h-12 sm:w-12 flex items-center justify-center rounded-full bg-neutral-100 text-neutral-900 hover:bg-neutral-200 transition-colors shadow-xs active:scale-95"
               aria-label="Search"
             >
-              <Search className="h-3.5 w-3.5" />
+              <Search className="h-4.5 w-4.5" />
             </Link>
 
             {/* Download Price List Pill Button */}
             <Link
               href="/products"
-              className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-neutral-100/90 hover:bg-neutral-200/80 border border-neutral-200/60 text-neutral-800 text-xs font-medium transition-all active:scale-95 shadow-xs whitespace-nowrap"
+              className="hidden sm:inline-flex items-center gap-2 h-11 sm:h-12 px-5 sm:px-6 rounded-full bg-neutral-100/90 hover:bg-neutral-200/90 text-neutral-900 text-xs sm:text-sm font-bold transition-all active:scale-95 shadow-xs whitespace-nowrap"
             >
-              <Download className="h-3.5 w-3.5 text-brand" />
+              <Download className="h-4 w-4 text-brand" />
               <span>Price List</span>
             </Link>
 
-            {/* Shopping Bag Pill */}
+            {/* Shopping Bag Pill Button */}
             <Link
               href="/cart"
-              className="relative h-8 sm:h-9 px-3.5 rounded-full bg-brand text-white text-xs font-semibold hover:bg-brand/90 active:scale-95 transition-all flex items-center gap-1.5 shadow-md whitespace-nowrap"
+              className="relative h-11 sm:h-12 px-5 sm:px-6 rounded-full bg-neutral-950 text-white text-xs sm:text-sm font-bold hover:bg-neutral-800 active:scale-95 transition-all flex items-center gap-2.5 shadow-md whitespace-nowrap cursor-pointer"
               aria-label={`Shopping bag with ${displayCount} items`}
             >
-              <ShoppingBag className="h-3.5 w-3.5" />
+              <ShoppingBag className="h-4.5 w-4.5" />
               <span className="hidden sm:inline">Bag</span>
               {displayCount > 0 && (
-                <span className="h-4 min-w-4 px-1 rounded-full bg-white text-brand text-[10px] font-bold flex items-center justify-center shadow-xs">
+                <span className="h-5 min-w-5 px-1.5 rounded-full bg-white text-neutral-950 text-[11px] font-bold flex items-center justify-center shadow-xs">
                   {displayCount > 99 ? '99+' : displayCount}
                 </span>
               )}
@@ -353,7 +358,7 @@ export function FloatingNavbar() {
             }}
             onMouseLeave={handleMouseLeave}
           >
-            <div className="rounded-3xl bg-white text-neutral-900 shadow-2xl border border-neutral-200/90 p-6 sm:p-8 overflow-hidden backdrop-blur-xl">
+            <div className="rounded-[32px] sm:rounded-[36px] bg-white text-neutral-900 shadow-2xl border border-neutral-200/90 p-6 sm:p-8 overflow-hidden backdrop-blur-xl">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                 {/* Left Column: List of Categories/Articles (5 cols) */}
                 <div className="lg:col-span-5 space-y-5">
@@ -362,14 +367,14 @@ export function FloatingNavbar() {
                       key={idx}
                       href={item.href}
                       onClick={() => setActiveMenu(null)}
-                      className="group block space-y-1 transition-all p-2.5 -mx-2.5 rounded-2xl hover:bg-neutral-50"
+                      className="group block space-y-1 transition-all p-3 -mx-3 rounded-[20px] hover:bg-neutral-50"
                     >
                       <div className="flex items-center gap-2">
-                        <h3 className="font-semibold text-sm sm:text-base text-neutral-900 group-hover:text-brand transition-colors">
+                        <h3 className="font-bold text-sm sm:text-base text-neutral-900 group-hover:text-brand transition-colors">
                           {item.title}
                         </h3>
                         {item.badge && (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-brand/10 text-brand uppercase tracking-wider">
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-neutral-100 text-neutral-800 uppercase tracking-wider">
                             {item.badge}
                           </span>
                         )}
@@ -383,7 +388,7 @@ export function FloatingNavbar() {
 
                 {/* Right Column: 2 Featured Cards (7 cols) */}
                 <div className="lg:col-span-7 space-y-4">
-                  <h4 className="text-xs font-semibold uppercase tracking-wider text-neutral-500">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-500">
                     {currentMegaMenu.featuredSectionTitle}
                   </h4>
 
@@ -393,10 +398,10 @@ export function FloatingNavbar() {
                         key={idx}
                         href={card.href}
                         onClick={() => setActiveMenu(null)}
-                        className="group flex flex-col space-y-3 cursor-pointer p-2.5 -m-2.5 rounded-2xl hover:bg-neutral-50 transition-all"
+                        className="group flex flex-col space-y-3 cursor-pointer p-3 -m-3 rounded-[24px] hover:bg-neutral-50 transition-all"
                       >
                         {/* Thumbnail Image Container */}
-                        <div className="relative aspect-[16/10] w-full rounded-2xl overflow-hidden bg-neutral-100 border border-neutral-200/80 shadow-xs">
+                        <div className="relative aspect-[16/10] w-full rounded-[20px] sm:rounded-[22px] overflow-hidden bg-neutral-100 border border-neutral-200/80 shadow-xs">
                           <img
                             src={card.image}
                             alt={card.title}
@@ -404,7 +409,7 @@ export function FloatingNavbar() {
                             loading="lazy"
                           />
                           <div className="absolute top-2.5 left-2.5">
-                            <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-neutral-900/80 text-white backdrop-blur-md border border-white/20 uppercase tracking-wider shadow-sm">
+                            <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-neutral-950/85 text-white backdrop-blur-md uppercase tracking-wider shadow-sm">
                               {card.badge}
                             </span>
                           </div>
@@ -412,7 +417,7 @@ export function FloatingNavbar() {
 
                         {/* Title & Description */}
                         <div>
-                          <h5 className="font-semibold text-xs sm:text-sm text-neutral-900 group-hover:text-brand transition-colors line-clamp-2 leading-snug">
+                          <h5 className="font-bold text-xs sm:text-sm text-neutral-900 group-hover:text-brand transition-colors line-clamp-2 leading-snug">
                             {card.title}
                           </h5>
                           <p className="text-[11px] sm:text-xs text-neutral-500 mt-1 line-clamp-2">
@@ -431,54 +436,54 @@ export function FloatingNavbar() {
         {/* Mobile Slide-down Menu (White Background) */}
         {mobileMenuOpen && (
           <div className="md:hidden absolute top-full left-0 right-0 pt-2 z-50 animate-in fade-in duration-200">
-            <div className="rounded-3xl bg-white text-neutral-900 border border-neutral-200/90 p-5 shadow-2xl space-y-5">
+            <div className="rounded-[28px] sm:rounded-[32px] bg-white text-neutral-900 border border-neutral-200/90 p-5 shadow-2xl space-y-5">
               <div className="space-y-1">
                 <Link
                   href="/products"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block px-3 py-2 rounded-xl text-sm font-semibold hover:bg-neutral-100 text-neutral-900"
+                  className="block px-4 py-2.5 rounded-full text-sm font-bold hover:bg-neutral-100 text-neutral-900 transition-colors"
                 >
                   All Fireworks & Catalog
                 </Link>
                 <Link
                   href="/products?featured=true"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block px-3 py-2 rounded-xl text-sm font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100"
+                  className="block px-4 py-2.5 rounded-full text-sm font-semibold text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 transition-colors"
                 >
                   Diwali Family Combos
                 </Link>
                 <Link
                   href="/products?certified=green"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block px-3 py-2 rounded-xl text-sm font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100"
+                  className="block px-4 py-2.5 rounded-full text-sm font-semibold text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 transition-colors"
                 >
                   Green Certified Fireworks
                 </Link>
                 <Link
                   href="/track-order"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block px-3 py-2 rounded-xl text-sm font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100"
+                  className="block px-4 py-2.5 rounded-full text-sm font-semibold text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 transition-colors"
                 >
                   Track Order Online
                 </Link>
               </div>
 
-              <div className="pt-3 border-t border-neutral-200 flex items-center justify-between gap-2">
+              <div className="pt-3 border-t border-neutral-100 flex items-center justify-between gap-3">
                 <Link
                   href="/products"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-neutral-100 hover:bg-neutral-200 border border-neutral-200 text-xs font-medium text-neutral-800 shadow-xs"
+                  className="inline-flex items-center justify-center gap-2 h-11 sm:h-12 px-6 rounded-full bg-neutral-100 hover:bg-neutral-200 text-xs sm:text-sm font-bold text-neutral-900 shadow-xs transition-all active:scale-95 flex-1"
                 >
-                  <Download className="h-3.5 w-3.5 text-brand" />
+                  <Download className="h-4 w-4 text-brand" />
                   <span>Price List</span>
                 </Link>
 
                 <Link
                   href="/cart"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-brand text-xs font-semibold text-white shadow-md"
+                  className="inline-flex items-center justify-center gap-2 h-11 sm:h-12 px-6 rounded-full bg-neutral-950 hover:bg-neutral-800 text-xs sm:text-sm font-bold text-white shadow-md transition-all active:scale-95 flex-1"
                 >
-                  <ShoppingBag className="h-3.5 w-3.5" />
+                  <ShoppingBag className="h-4.5 w-4.5" />
                   <span>Bag ({displayCount})</span>
                 </Link>
               </div>

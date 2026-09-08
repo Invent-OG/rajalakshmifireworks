@@ -47,8 +47,8 @@ export default async function HomePage() {
 
   return (
     <HomeMotion>
-      <div className="space-y-12 sm:space-y-16">
-        {/* ── 1. Hero Section (Design Matched from Reference) ─── */}
+      <div className="w-full space-y-16 sm:space-y-24 pb-12 overflow-hidden" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+        {/* ── 1. Hero Section ─── */}
         <OrganicHero initialConfig={heroConfig} />
 
         {/* ── 2. Live Fireworks Categories Bento Discovery Grid ─── */}
@@ -58,25 +58,30 @@ export default async function HomePage() {
 
         {/* ── 3. Featured Products ─── */}
         {featuredProducts.length > 0 && (
-          <section className="reveal-section w-full px-4 sm:px-8 lg:px-12">
-            <div className="flex items-end justify-between mb-6 pb-3 border-b border-border">
-              <div>
-                <span className="text-[11px] uppercase font-semibold tracking-widest text-muted-foreground">
-                  Specials
-                </span>
-                <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground mt-1">
+          <section className="reveal-section w-full max-w-[1440px] mx-auto px-3 sm:px-6 lg:px-10 xl:px-12">
+            <div className="section-header flex flex-col sm:flex-row sm:items-end justify-between mb-8 pb-4 border-b border-neutral-100 gap-4">
+              <div className="space-y-2">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-neutral-100 text-neutral-800 text-xs font-semibold shadow-xs">
+                  <Sparkles className="h-3.5 w-3.5 text-brand" />
+                  <span className="uppercase tracking-wider">Curated Collections</span>
+                </div>
+                <h2 className="text-2xl sm:text-4xl font-bold tracking-tight text-neutral-950">
                   Featured Fireworks
                 </h2>
+                <p className="text-xs sm:text-sm text-neutral-500 font-normal max-w-xl">
+                  Hand-selected aerial cakes, vibrant flower pots, and family combo boxes tested for maximum sparkle and tested safety.
+                </p>
               </div>
               <Link
                 href="/products?featured=true"
-                className="text-xs font-semibold text-foreground hover:text-brand flex items-center gap-1 group"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-900 text-xs sm:text-sm font-bold shadow-xs active:scale-95 transition-all self-start sm:self-auto shrink-0"
               >
-                View featured <ChevronRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
+                <span>View All Featured</span>
+                <ChevronRight className="h-4 w-4" />
               </Link>
             </div>
 
-            <div className="product-stagger-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6">
+            <div className="product-stagger-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
               {featuredProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
@@ -86,25 +91,30 @@ export default async function HomePage() {
 
         {/* ── 4. Bestseller Showcase ─── */}
         {bestsellerProducts.length > 0 && (
-          <section className="reveal-section w-full px-4 sm:px-8 lg:px-12">
-            <div className="flex items-end justify-between mb-6 pb-3 border-b border-border">
-              <div>
-                <span className="text-[11px] uppercase font-semibold tracking-widest text-muted-foreground">
-                  Favorites
-                </span>
-                <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground mt-1">
+          <section className="reveal-section w-full max-w-[1440px] mx-auto px-3 sm:px-6 lg:px-10 xl:px-12">
+            <div className="section-header flex flex-col sm:flex-row sm:items-end justify-between mb-8 pb-4 border-b border-neutral-100 gap-4">
+              <div className="space-y-2">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-neutral-100 text-neutral-800 text-xs font-semibold shadow-xs">
+                  <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+                  <span className="uppercase tracking-wider">Customer Favorites</span>
+                </div>
+                <h2 className="text-2xl sm:text-4xl font-bold tracking-tight text-neutral-950">
                   Festive Bestsellers
                 </h2>
+                <p className="text-xs sm:text-sm text-neutral-500 font-normal max-w-xl">
+                  The most demanded celebration fireworks across Tamil Nadu &amp; South India, packaged fresh from Sivakasi workshops.
+                </p>
               </div>
               <Link
                 href="/products?bestseller=true"
-                className="text-xs font-semibold text-foreground hover:text-brand flex items-center gap-1 group"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-900 text-xs sm:text-sm font-bold shadow-xs active:scale-95 transition-all self-start sm:self-auto shrink-0"
               >
-                View bestsellers <ChevronRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
+                <span>View All Bestsellers</span>
+                <ChevronRight className="h-4 w-4" />
               </Link>
             </div>
 
-            <div className="product-stagger-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6">
+            <div className="product-stagger-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
               {bestsellerProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
@@ -118,7 +128,7 @@ export default async function HomePage() {
         </section>
 
         {/* ── 6. Globe Feature Showcase ─── */}
-        <section className="reveal-section w-full px-4 sm:px-8 lg:px-12">
+        <section className="reveal-section w-full max-w-[1440px] mx-auto px-3 sm:px-6 lg:px-10 xl:px-12">
           <Featured_05 />
         </section>
       </div>

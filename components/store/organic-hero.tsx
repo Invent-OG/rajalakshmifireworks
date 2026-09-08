@@ -134,7 +134,7 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
                 <Link
                   href={currentSlide.card1.link || '/products'}
                   style={{ backgroundColor: currentSlide.card1.bgColor || '#b5144f' }}
-                  className="group relative flex items-center gap-4 text-white p-4 sm:p-5 rounded-[24px] sm:rounded-[28px] shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.03] active:scale-98 overflow-hidden"
+                  className="organic-hero-cards group relative flex items-center gap-4 text-white p-4 sm:p-5 rounded-[24px] sm:rounded-[28px] shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.03] active:scale-98 overflow-hidden"
                 >
                   <div className="relative h-16 w-16 sm:h-20 sm:w-20 rounded-[18px] overflow-hidden shrink-0 bg-black/20 shadow-inner">
                     <img
@@ -162,7 +162,7 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
                 <Link
                   href={currentSlide.card2.link || '/products'}
                   style={{ backgroundColor: currentSlide.card2.bgColor || '#114b82' }}
-                  className="group relative flex items-center gap-4 text-white p-4 sm:p-5 rounded-[24px] sm:rounded-[28px] shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.03] active:scale-98 overflow-hidden"
+                  className="organic-hero-cards group relative flex items-center gap-4 text-white p-4 sm:p-5 rounded-[24px] sm:rounded-[28px] shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.03] active:scale-98 overflow-hidden"
                 >
                   <div className="relative h-16 w-16 sm:h-20 sm:w-20 rounded-[18px] overflow-hidden shrink-0 bg-black/20 shadow-inner">
                     <img

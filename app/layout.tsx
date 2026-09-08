@@ -1,7 +1,14 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, Outfit, Rubik, JetBrains_Mono } from "next/font/google";
+import { DM_Sans, Plus_Jakarta_Sans, Outfit, Rubik, JetBrains_Mono } from "next/font/google";
 import { Providers } from "@/components/providers";
 import "./globals.css";
+
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["400", "500", "600", "700", "800", "900"],
+});
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-sans",
@@ -60,7 +67,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${plusJakartaSans.variable} ${outfit.variable} ${rubik.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${dmSans.variable} ${plusJakartaSans.variable} ${outfit.variable} ${rubik.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans">
         <Providers>{children}</Providers>

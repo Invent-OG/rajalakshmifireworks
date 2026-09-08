@@ -22,35 +22,6 @@ interface ProductCardProps {
   };
 }
 
-// Curated harmonious accent themes matching the reference design (terracotta, teal, coral, amber, emerald)
-const ACCENT_THEMES = [
-  {
-    pillBg: 'bg-[#c8533b]',
-    btnBg: 'bg-[#c8533b] hover:bg-[#b04530]',
-    tagBg: 'bg-[#c8533b]/10 text-[#c8533b]',
-  },
-  {
-    pillBg: 'bg-[#3b7b8f]',
-    btnBg: 'bg-[#3b7b8f] hover:bg-[#306778]',
-    tagBg: 'bg-[#3b7b8f]/10 text-[#3b7b8f]',
-  },
-  {
-    pillBg: 'bg-[#ff725c]',
-    btnBg: 'bg-[#ff725c] hover:bg-[#e85c47]',
-    tagBg: 'bg-[#ff725c]/10 text-[#e4553e]',
-  },
-  {
-    pillBg: 'bg-[#d97706]',
-    btnBg: 'bg-[#d97706] hover:bg-[#b45309]',
-    tagBg: 'bg-[#d97706]/10 text-[#d97706]',
-  },
-  {
-    pillBg: 'bg-[#059669]',
-    btnBg: 'bg-[#059669] hover:bg-[#047857]',
-    tagBg: 'bg-[#059669]/10 text-[#059669]',
-  },
-];
-
 export function ProductCard({ product }: ProductCardProps) {
   const { addItem, updateQuantity, removeItem } = useCart();
   const quantity = useCartItemQuantity(product.id);
@@ -62,7 +33,6 @@ export function ProductCard({ product }: ProductCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
 
   const discount = mrp > price ? Math.round(((mrp - price) / mrp) * 100) : 0;
-  const theme = ACCENT_THEMES[Math.abs(product.id) % ACCENT_THEMES.length];
 
   function handleAddToCart() {
     if (buttonRef.current && !isReducedMotion()) {
@@ -155,7 +125,7 @@ export function ProductCard({ product }: ProductCardProps) {
       {/* ── 2. Content Details ── */}
       <div className="pt-3 sm:pt-4 flex flex-col flex-1 justify-between space-y-3 sm:space-y-4">
         <div>
-          {/* Title & Accent Price Pill Row */}
+          {/* Title & Price Row */}
           <div className="flex items-center justify-between gap-2 sm:gap-3">
             <Link href={`/product/${product.slug}`} className="min-w-0 flex-1">
               <h3 className="font-bold text-sm sm:text-lg text-neutral-900 tracking-tight leading-snug truncate hover:text-amber-600 transition-colors">
@@ -163,10 +133,8 @@ export function ProductCard({ product }: ProductCardProps) {
               </h3>
             </Link>
 
-            {/* Accent Price Pill Badge */}
-            <div
-              className={`shrink-0 px-2.5 py-0.5 sm:px-3.5 sm:py-1 rounded-full text-xs sm:text-sm font-bold text-white shadow-2xs ${theme.pillBg}`}
-            >
+            {/* Price Pill Badge */}
+            <div className="shrink-0 px-2.5 py-0.5 sm:px-3.5 sm:py-1 rounded-full text-xs sm:text-sm font-bold bg-neutral-100 text-neutral-900 shadow-2xs">
               {formatCurrency(price)}
             </div>
           </div>
@@ -182,9 +150,9 @@ export function ProductCard({ product }: ProductCardProps) {
             {tags.slice(0, 3).map((tag, idx) => (
               <span
                 key={idx}
-                className={`inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-semibold tracking-tight ${
+                className={`inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-semibold tracking-tight bg-neutral-100 text-neutral-600 ${
                   idx === 2 ? 'hidden sm:inline-flex' : ''
-                } ${theme.tagBg}`}
+                }`}
               >
                 {tag}
               </span>
@@ -203,12 +171,12 @@ export function ProductCard({ product }: ProductCardProps) {
               Sold Out
             </button>
           ) : quantity > 0 ? (
-            <div className="h-10 sm:h-12 px-1.5 sm:px-2 rounded-full bg-neutral-100/90 flex items-center justify-between shadow-xs">
+            <div className="h-10 sm:h-12 px-1.5 sm:px-2 rounded-full bg-neutral-100 flex items-center justify-between shadow-xs">
               <button
                 type="button"
                 onClick={() => (quantity === 1 ? removeItem(product.id) : updateQuantity(product.id, quantity - 1))}
                 aria-label="Decrease quantity"
-                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white text-neutral-900 hover:bg-neutral-200 flex items-center justify-center transition-all active:scale-90 cursor-pointer shadow-2xs shrink-0"
+                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-neutral-950 text-white hover:bg-neutral-800 flex items-center justify-center transition-all active:scale-90 cursor-pointer shadow-2xs shrink-0"
               >
                 <Minus size={13} />
               </button>
@@ -222,7 +190,7 @@ export function ProductCard({ product }: ProductCardProps) {
                 onClick={() => updateQuantity(product.id, quantity + 1)}
                 disabled={quantity >= product.stockQuantity}
                 aria-label="Increase quantity"
-                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white text-neutral-900 hover:bg-neutral-200 flex items-center justify-center transition-all active:scale-90 disabled:opacity-30 disabled:pointer-events-none cursor-pointer shadow-2xs shrink-0"
+                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-neutral-950 text-white hover:bg-neutral-800 flex items-center justify-center transition-all active:scale-90 disabled:opacity-30 disabled:pointer-events-none cursor-pointer shadow-2xs shrink-0"
               >
                 <Plus size={13} />
               </button>
@@ -232,7 +200,7 @@ export function ProductCard({ product }: ProductCardProps) {
               ref={buttonRef}
               type="button"
               onClick={handleAddToCart}
-              className={`w-full py-2.5 sm:py-3.5 px-3 sm:px-6 rounded-full text-white font-bold text-xs sm:text-sm shadow-sm flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer active:scale-98 transition-all duration-300 ${theme.btnBg}`}
+              className="w-full py-2.5 sm:py-3.5 px-3 sm:px-6 rounded-full bg-neutral-950 hover:bg-neutral-800 text-white font-bold text-xs sm:text-sm shadow-md flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer active:scale-98 transition-all duration-300"
             >
               <ShoppingCart size={15} />
               <span>Add To Cart</span>
