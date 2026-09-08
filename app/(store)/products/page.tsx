@@ -99,10 +99,7 @@ export default async function ProductsPage({
         </div>
 
         {/* Sort selector */}
-        <div className="flex items-center gap-2 self-start sm:self-auto">
-          <label htmlFor="sort" className="text-xs font-medium text-muted-foreground shrink-0">
-            Sort:
-          </label>
+        <div className="self-start sm:self-auto">
           <SortSelector current={sort} />
         </div>
       </div>

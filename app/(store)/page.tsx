@@ -1,12 +1,7 @@
 import { db } from '@/db';
 import { categories, products, settings } from '@/db/schema';
 import { eq, desc, and } from 'drizzle-orm';
-import Link from 'next/link';
-import { ArrowRight, ShieldCheck, Truck, Gift, Sparkles, CheckCircle2, ChevronRight } from 'lucide-react';
-import { ProductCard } from '@/components/store/product-card';
-import { StoreButton } from '@/components/ui/store-button';
-import { CategoryIcon, getCategory3DImage } from '@/components/ui/category-icon';
-import { SectionTag } from '@/components/ui/section-tag';
+import { FeaturedProductsSlider } from '@/components/store/featured-products-slider';
 import Featured_05 from '@/components/ui/globe-feature-section';
 import { HomeMotion } from '@/components/store/home-motion';
 import { OrganicHero } from '@/components/store/organic-hero';
@@ -27,7 +22,7 @@ export default async function HomePage() {
         category: true,
         media: { orderBy: (m, { asc }) => [asc(m.sortOrder)], limit: 1 },
       },
-      limit: 8,
+      limit: 12,
       orderBy: [desc(products.createdAt)],
     }),
     db.query.products.findMany({
@@ -36,7 +31,7 @@ export default async function HomePage() {
         category: true,
         media: { orderBy: (m, { asc }) => [asc(m.sortOrder)], limit: 1 },
       },
-      limit: 8,
+      limit: 12,
       orderBy: [desc(products.createdAt)],
     }),
     db.query.settings.findFirst({
@@ -52,70 +47,29 @@ export default async function HomePage() {
         {/* ── 1. Hero Section ─── */}
         <OrganicHero initialConfig={heroConfig} />
 
+        {/* ── 4. Festive Bestsellers Slider ─── */}
+        {bestsellerProducts.length > 0 && (
+          <FeaturedProductsSlider
+            products={bestsellerProducts}
+            title="Festive Bestsellers"
+            subtitle="The most demanded celebration fireworks across Tamil Nadu & South India, packaged fresh from Sivakasi workshops."
+            tagLabel="Customer Favorites"
+            viewAllHref="/products?bestseller=true"
+            viewAllLabel="View All Bestsellers"
+          />
+        )}
+
         {/* ── 2. Live Fireworks Categories Bento Discovery Grid ─── */}
         <section className="reveal-section w-full">
           <OrganicCategoriesGrid categories={categoryList} />
         </section>
 
-        {/* ── 3. Featured Products ─── */}
+        {/* ── 3. Featured Products Slider ─── */}
         {featuredProducts.length > 0 && (
-          <section className="reveal-section w-full max-w-[1440px] mx-auto px-3 sm:px-6 lg:px-10 xl:px-12">
-            <div className="section-header flex flex-col sm:flex-row sm:items-end justify-between mb-8 pb-4 border-b border-neutral-100 gap-4">
-              <div className="space-y-3">
-                <SectionTag label="Curated Collections" />
-                <h2 className="text-2xl sm:text-4xl font-bold tracking-tight text-neutral-950">
-                  Featured Fireworks
-                </h2>
-                <p className="text-xs sm:text-sm text-neutral-500 font-normal max-w-xl">
-                  Hand-selected aerial cakes, vibrant flower pots, and family combo boxes tested for maximum sparkle and tested safety.
-                </p>
-              </div>
-              <Link
-                href="/products?featured=true"
-                className="inline-flex items-center gap-2 h-12 px-6 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-900 text-xs sm:text-sm font-bold shadow-xs active:scale-95 transition-all self-start sm:self-auto shrink-0 justify-center"
-              >
-                <span>View All Featured</span>
-                <ChevronRight className="h-4 w-4" />
-              </Link>
-            </div>
-
-            <div className="product-stagger-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-              {featuredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          </section>
+          <FeaturedProductsSlider products={featuredProducts} />
         )}
 
-        {/* ── 4. Bestseller Showcase ─── */}
-        {bestsellerProducts.length > 0 && (
-          <section className="reveal-section w-full max-w-[1440px] mx-auto px-3 sm:px-6 lg:px-10 xl:px-12">
-            <div className="section-header flex flex-col sm:flex-row sm:items-end justify-between mb-8 pb-4 border-b border-neutral-100 gap-4">
-              <div className="space-y-3">
-                <SectionTag label="Customer Favorites" />
-                <h2 className="text-2xl sm:text-4xl font-bold tracking-tight text-neutral-950">
-                  Festive Bestsellers
-                </h2>
-                <p className="text-xs sm:text-sm text-neutral-500 font-normal max-w-xl">
-                  The most demanded celebration fireworks across Tamil Nadu &amp; South India, packaged fresh from Sivakasi workshops.
-                </p>
-              </div>
-              <Link
-                href="/products?bestseller=true"
-                className="inline-flex items-center gap-2 h-12 px-6 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-900 text-xs sm:text-sm font-bold shadow-xs active:scale-95 transition-all self-start sm:self-auto shrink-0 justify-center"
-              >
-                <span>View All Bestsellers</span>
-                <ChevronRight className="h-4 w-4" />
-              </Link>
-            </div>
 
-            <div className="product-stagger-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-              {bestsellerProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          </section>
-        )}
 
         {/* ── 5. Testimonial 02 Blaze ─── */}
         <section className="reveal-section w-full">
