@@ -6,6 +6,7 @@ import { ArrowRight, ShieldCheck, Truck, Gift, Sparkles, CheckCircle2, ChevronRi
 import { ProductCard } from '@/components/store/product-card';
 import { StoreButton } from '@/components/ui/store-button';
 import { CategoryIcon, getCategory3DImage } from '@/components/ui/category-icon';
+import { SectionTag } from '@/components/ui/section-tag';
 import Featured_05 from '@/components/ui/globe-feature-section';
 import { HomeMotion } from '@/components/store/home-motion';
 import { OrganicHero } from '@/components/store/organic-hero';
@@ -60,11 +61,8 @@ export default async function HomePage() {
         {featuredProducts.length > 0 && (
           <section className="reveal-section w-full max-w-[1440px] mx-auto px-3 sm:px-6 lg:px-10 xl:px-12">
             <div className="section-header flex flex-col sm:flex-row sm:items-end justify-between mb-8 pb-4 border-b border-neutral-100 gap-4">
-              <div className="space-y-2">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-neutral-100 text-neutral-800 text-xs font-semibold shadow-xs">
-                  <Sparkles className="h-3.5 w-3.5 text-brand" />
-                  <span className="uppercase tracking-wider">Curated Collections</span>
-                </div>
+              <div className="space-y-3">
+                <SectionTag label="Curated Collections" />
                 <h2 className="text-2xl sm:text-4xl font-bold tracking-tight text-neutral-950">
                   Featured Fireworks
                 </h2>
@@ -93,11 +91,8 @@ export default async function HomePage() {
         {bestsellerProducts.length > 0 && (
           <section className="reveal-section w-full max-w-[1440px] mx-auto px-3 sm:px-6 lg:px-10 xl:px-12">
             <div className="section-header flex flex-col sm:flex-row sm:items-end justify-between mb-8 pb-4 border-b border-neutral-100 gap-4">
-              <div className="space-y-2">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-neutral-100 text-neutral-800 text-xs font-semibold shadow-xs">
-                  <Sparkles className="h-3.5 w-3.5 text-amber-500" />
-                  <span className="uppercase tracking-wider">Customer Favorites</span>
-                </div>
+              <div className="space-y-3">
+                <SectionTag label="Customer Favorites" />
                 <h2 className="text-2xl sm:text-4xl font-bold tracking-tight text-neutral-950">
                   Festive Bestsellers
                 </h2>

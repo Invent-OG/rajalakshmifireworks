@@ -18,14 +18,14 @@
 
   --border: #e7e7e7;
   --border-subtle: #f0f0ee;
-  --ring: #991b1b;
+  --ring: #171717;
 
-  /* ── Strategic Brand Accents (Deep Crimson & Warm Amber) ─── */
-  --brand: #991b1b;
-  --brand-hover: #7f1d1d;
+  /* ── Strategic Brand Accents (Pure Neutral Slate / Black & Light) ─── */
+  --brand: #171717;
+  --brand-hover: #262626;
   --brand-foreground: #ffffff;
-  --brand-light: #fef2f2;
-  --brand-border: #fecaca;
+  --brand-light: #f5f5f5;
+  --brand-border: #e5e5e5;
 
   --primary: #171717;
   --primary-hover: #262626;
@@ -386,9 +386,9 @@ p, span, input, select, textarea, button {
 }
 
 .festive-btn-brand {
-  --btn-bg: #991b1b;
+  --btn-bg: #0a0a0a;
   --btn-text: #ffffff;
-  --btn-border: rgba(254, 202, 202, 0.45);
+  --btn-border: rgba(255, 255, 255, 0.2);
 }
 .festive-btn-brand > div > span {
   filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35));

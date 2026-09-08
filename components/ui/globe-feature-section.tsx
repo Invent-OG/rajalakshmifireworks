@@ -3,23 +3,21 @@
 import Link from "next/link";
 import { StoreButton } from "@/components/ui/store-button";
 import { ArrowRight, Sparkles } from "lucide-react";
+import { SectionTag } from "@/components/ui/section-tag";
 import createGlobe, { COBEOptions } from "cobe";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 export default function Featured_05() {
   return (
-    <section className="relative w-full mx-auto overflow-hidden rounded-3xl bg-card border border-border shadow-xs px-6 py-12 md:px-14 md:py-18">
+    <section className="relative w-full mx-auto overflow-hidden rounded-[36px] sm:rounded-[40px] bg-white border-none shadow-sm px-6 py-12 md:px-14 md:py-18">
       <div className="flex flex-col-reverse items-center justify-between gap-10 md:flex-row">
         <div className="z-10 max-w-xl text-left space-y-4">
-          <div className="inline-flex items-center gap-2 bg-brand/10 border border-brand/20 px-3 py-1 rounded-full text-xs font-semibold text-brand tracking-tight">
-            <Sparkles className="h-3.5 w-3.5 text-brand" />
-            <span>Sivakasi Factory-Direct Supply Network</span>
-          </div>
+          <SectionTag label="Sivakasi Supply Network" />
 
           <h2 className="text-2xl sm:text-4xl font-bold tracking-tight text-foreground leading-tight">
             Lighting Up Celebrations Across{" "}
-            <span className="text-brand">Every Corner of India</span>
+            <span className="text-neutral-950 font-extrabold">Every Corner of India</span>
           </h2>
 
           <p className="text-sm sm:text-base text-muted-foreground font-normal leading-relaxed">
@@ -28,7 +26,7 @@ export default function Featured_05() {
 
           <div className="pt-2">
             <Link href="/products">
-              <StoreButton size="lg" variant="brand">
+              <StoreButton size="lg" variant="primary">
                 Explore Fireworks Collection <ArrowRight className="h-4 w-4" />
               </StoreButton>
             </Link>

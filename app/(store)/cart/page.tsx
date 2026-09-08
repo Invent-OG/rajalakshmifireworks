@@ -126,7 +126,7 @@ export default function CartPage() {
                   <div>
                     <Link
                       href={`/product/${item.slug}`}
-                      className="font-bold text-sm sm:text-base text-foreground hover:text-brand transition-colors line-clamp-1"
+                      className="font-bold text-sm sm:text-base text-foreground hover:text-neutral-900 transition-colors line-clamp-1"
                     >
                       {item.name}
                     </Link>
@@ -147,7 +147,7 @@ export default function CartPage() {
                       const card = e.currentTarget.closest('.cart-page-item') as HTMLElement | null;
                       handleRemoveWithAnim(item.productId, card);
                     }}
-                    className="text-muted-foreground hover:text-destructive p-2 rounded-full hover:bg-rose-50 transition-colors cursor-pointer"
+                    className="text-muted-foreground hover:text-neutral-950 p-2 rounded-full hover:bg-neutral-100 transition-colors cursor-pointer"
                     aria-label={`Remove ${item.name}`}
                   >
                     <Trash2 className="h-4 w-4" />

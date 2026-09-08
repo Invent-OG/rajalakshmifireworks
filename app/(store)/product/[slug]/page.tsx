@@ -148,7 +148,7 @@ export default async function ProductPage({
           {/* Safety & Handling Notice */}
           <div className="rounded-[28px] sm:rounded-[32px] bg-white p-6 space-y-3 shadow-sm text-xs text-muted-foreground">
             <div className="flex items-center gap-2 font-bold text-foreground">
-              <AlertCircle className="h-4 w-4 text-brand" />
+              <AlertCircle className="h-4 w-4 text-neutral-900" />
               <span>Safety & Usage Instructions</span>
             </div>
             <ul className="space-y-1.5 pl-4 list-disc">

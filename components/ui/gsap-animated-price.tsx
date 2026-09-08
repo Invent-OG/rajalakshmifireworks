@@ -59,7 +59,7 @@ export function GsapAnimatedPrice({
     if (animateFlash && startVal !== value && startVal !== 0) {
       gsap.fromTo(
         el,
-        { scale: 1.12, color: value > startVal ? '#15803d' : '#991b1b' },
+        { scale: 1.12, color: value > startVal ? '#15803d' : '#171717' },
         { scale: 1, color: 'inherit', duration: 0.35, ease: 'power2.out', delay: 0.05 }
       );
     }

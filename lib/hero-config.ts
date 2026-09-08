@@ -47,7 +47,7 @@ export const DEFAULT_HERO_CONFIG: HeroSettingsConfig = {
         subtitle: 'Explore',
         link: '/products',
         image: '/images/hero/card-dried-fruits.jpg',
-        bgColor: '#b5144f',
+        bgColor: '#1e293b',
       },
       card2: {
         id: 'card-1-2',
@@ -101,7 +101,7 @@ export const DEFAULT_HERO_CONFIG: HeroSettingsConfig = {
         subtitle: 'Explore',
         link: '/products',
         image: '/images/hero/thumb-red-berries.jpg',
-        bgColor: '#991b1b',
+        bgColor: '#0f172a',
       },
       card2: {
         id: 'card-3-2',

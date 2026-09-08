@@ -4,6 +4,7 @@ import { eq, and, desc } from 'drizzle-orm';
 import { ProductCard } from '@/components/store/product-card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { QuickCartSidebar } from '@/components/store/quick-cart-drawer';
+import { SectionTag } from '@/components/ui/section-tag';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Sparkles } from 'lucide-react';
@@ -61,11 +62,8 @@ export default async function CategoryPage({
                 className="w-full h-full object-cover"
               />
             </div>
-            <div>
-              <div className="inline-flex items-center gap-1.5 text-xs uppercase font-semibold tracking-wider text-brand mb-1">
-                <Sparkles className="h-3.5 w-3.5" />
-                <span>Original Sivakasi Collection</span>
-              </div>
+            <div className="space-y-2">
+              <SectionTag label="Original Sivakasi Collection" size="sm" />
               <h1 className="text-2xl sm:text-4xl font-extrabold text-foreground tracking-tight">
                 {category.name}
               </h1>

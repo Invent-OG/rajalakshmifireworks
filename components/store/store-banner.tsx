@@ -34,9 +34,9 @@ export function StoreBanner() {
 
   // Festive celebration fireworks colors for the moving rainbow gradient
   const festiveColors = [
-    'rgba(255, 75, 43, 0.85)',   // Sivakasi Festive Red/Orange
+    'rgba(245, 158, 11, 0.85)',   // Amber Spark
     'rgba(255, 185, 0, 0.85)',   // Golden Sparkler
-    'rgba(236, 72, 153, 0.8)',   // Festive Magenta
+    'rgba(234, 179, 8, 0.85)',   // Warm Gold
     'rgba(56, 189, 248, 0.8)',   // Sky Blue
     'rgba(52, 211, 153, 0.8)',   // Emerald Spark
   ];

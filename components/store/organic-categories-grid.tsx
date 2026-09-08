@@ -181,7 +181,7 @@ export function OrganicCategoriesGrid({
 
               {/* Pill Button (Bottom Left) */}
               <div className="relative z-10">
-                <span className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-neutral-950 text-white font-black text-xs sm:text-[13px] tracking-wider uppercase shadow-lg shadow-black/15 group-hover:scale-105 group-hover:bg-brand group-active:scale-95 transition-all duration-300">
+                <span className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-neutral-950 text-white font-black text-xs sm:text-[13px] tracking-wider uppercase shadow-lg shadow-black/15 group-hover:scale-105 group-hover:bg-neutral-800 group-active:scale-95 transition-all duration-300">
                   <Sparkles className="h-3.5 w-3.5 text-amber-400" />
                   {resolvedMainCard.badgeText || resolvedMainCard.title}
                 </span>

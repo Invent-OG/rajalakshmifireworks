@@ -326,7 +326,7 @@ export function FloatingNavbar() {
               href="/products"
               className="hidden sm:inline-flex items-center gap-2 h-11 sm:h-12 px-5 sm:px-6 rounded-full bg-neutral-100/90 hover:bg-neutral-200/90 text-neutral-900 text-xs sm:text-sm font-bold transition-all active:scale-95 shadow-xs whitespace-nowrap"
             >
-              <Download className="h-4 w-4 text-brand" />
+              <Download className="h-4 w-4 text-neutral-700" />
               <span>Price List</span>
             </Link>
 
@@ -370,7 +370,7 @@ export function FloatingNavbar() {
                       className="group block space-y-1 transition-all p-3 -mx-3 rounded-[20px] hover:bg-neutral-50"
                     >
                       <div className="flex items-center gap-2">
-                        <h3 className="font-bold text-sm sm:text-base text-neutral-900 group-hover:text-brand transition-colors">
+                        <h3 className="font-bold text-sm sm:text-base text-neutral-900 group-hover:text-neutral-950 transition-colors">
                           {item.title}
                         </h3>
                         {item.badge && (
@@ -417,7 +417,7 @@ export function FloatingNavbar() {
 
                         {/* Title & Description */}
                         <div>
-                          <h5 className="font-bold text-xs sm:text-sm text-neutral-900 group-hover:text-brand transition-colors line-clamp-2 leading-snug">
+                          <h5 className="font-bold text-xs sm:text-sm text-neutral-900 group-hover:text-neutral-950 transition-colors line-clamp-2 leading-snug">
                             {card.title}
                           </h5>
                           <p className="text-[11px] sm:text-xs text-neutral-500 mt-1 line-clamp-2">
@@ -474,7 +474,7 @@ export function FloatingNavbar() {
                   onClick={() => setMobileMenuOpen(false)}
                   className="inline-flex items-center justify-center gap-2 h-11 sm:h-12 px-6 rounded-full bg-neutral-100 hover:bg-neutral-200 text-xs sm:text-sm font-bold text-neutral-900 shadow-xs transition-all active:scale-95 flex-1"
                 >
-                  <Download className="h-4 w-4 text-brand" />
+                  <Download className="h-4 w-4 text-neutral-700" />
                   <span>Price List</span>
                 </Link>
 

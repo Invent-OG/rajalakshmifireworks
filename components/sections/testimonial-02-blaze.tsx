@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Shield, Clock, ArrowUpRight, Star, Sparkle, Sparkles, MapPin } from 'lucide-react';
+import { SectionTag } from '@/components/ui/section-tag';
 
 const REVIEWS = [
   {
@@ -62,24 +63,8 @@ export function Testimonial02Blaze() {
             {/* Left Block */}
             <div className="max-w-[600px]">
               {/* Section Tag Row */}
-              <div className="flex items-center gap-1.5 mb-5 sm:mb-8">
-                {/* Circular Rotating Sparkle Badge */}
-                <div className="w-[44px] h-[44px] rounded-full border border-[#e2e8f1] flex items-center justify-center bg-white overflow-hidden shadow-xs">
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 6, repeat: Infinity, ease: 'linear' }}
-                    className="flex items-center justify-center"
-                  >
-                    <Sparkle size={18} className="text-[#0f162b] fill-[#0f162b]" />
-                  </motion.div>
-                </div>
-
-                {/* Pill Tag */}
-                <div className="px-[12px] py-[12px] rounded-full border border-[#e2e8f1] flex items-center justify-center bg-white shadow-xs">
-                  <span className="text-[15px] sm:text-[16px] font-medium text-[#0f162b] px-3 whitespace-nowrap tracking-tight">
-                    Testimonials
-                  </span>
-                </div>
+              <div className="mb-5 sm:mb-8">
+                <SectionTag label="Testimonials" />
               </div>
 
               {/* Heading */}

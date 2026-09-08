@@ -192,7 +192,7 @@ export default function CheckoutPage() {
                 <label
                   className={`p-4 rounded-[22px] sm:rounded-[24px] border-2 flex items-start gap-3 cursor-pointer transition-all ${
                     fulfillmentType === 'DELIVERY'
-                      ? 'border-brand bg-brand-light/30 shadow-xs'
+                      ? 'border-neutral-950 bg-neutral-100/60 shadow-xs'
                       : 'border-neutral-200/80 hover:border-neutral-400 bg-neutral-50/50'
                   }`}
                 >
@@ -205,7 +205,7 @@ export default function CheckoutPage() {
                   <div
                     className={`h-9 w-9 rounded-full flex items-center justify-center shrink-0 ${
                       fulfillmentType === 'DELIVERY'
-                        ? 'bg-brand text-white'
+                        ? 'bg-neutral-950 text-white'
                         : 'bg-neutral-200 text-neutral-600'
                     }`}
                   >
@@ -222,7 +222,7 @@ export default function CheckoutPage() {
                 <label
                   className={`p-4 rounded-[22px] sm:rounded-[24px] border-2 flex items-start gap-3 cursor-pointer transition-all ${
                     fulfillmentType === 'PICKUP'
-                      ? 'border-brand bg-brand-light/30 shadow-xs'
+                      ? 'border-neutral-950 bg-neutral-100/60 shadow-xs'
                       : 'border-neutral-200/80 hover:border-neutral-400 bg-neutral-50/50'
                   }`}
                 >
@@ -235,7 +235,7 @@ export default function CheckoutPage() {
                   <div
                     className={`h-9 w-9 rounded-full flex items-center justify-center shrink-0 ${
                       fulfillmentType === 'PICKUP'
-                        ? 'bg-brand text-white'
+                        ? 'bg-neutral-950 text-white'
                         : 'bg-neutral-200 text-neutral-600'
                     }`}
                   >

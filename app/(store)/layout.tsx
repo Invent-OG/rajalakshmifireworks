@@ -18,7 +18,7 @@ function Footer() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             <div className="flex items-center gap-3.5">
               <div className="h-10 w-10 rounded-xl bg-card text-foreground flex items-center justify-center shrink-0 border border-border shadow-xs">
-                <ShieldCheck className="h-5 w-5 text-brand" />
+                <ShieldCheck className="h-5 w-5 text-neutral-900" />
               </div>
               <div>
                 <h4 className="font-semibold text-foreground">100% Authentic Fireworks</h4>
@@ -28,7 +28,7 @@ function Footer() {
 
             <div className="flex items-center gap-3.5">
               <div className="h-10 w-10 rounded-xl bg-card text-foreground flex items-center justify-center shrink-0 border border-border shadow-xs">
-                <Truck className="h-5 w-5 text-brand" />
+                <Truck className="h-5 w-5 text-neutral-900" />
               </div>
               <div>
                 <h4 className="font-semibold text-foreground">Flexible Fulfillment</h4>
@@ -38,7 +38,7 @@ function Footer() {
 
             <div className="flex items-center gap-3.5">
               <div className="h-10 w-10 rounded-xl bg-card text-foreground flex items-center justify-center shrink-0 border border-border shadow-xs">
-                <MessageSquare className="h-5 w-5 text-brand" />
+                <MessageSquare className="h-5 w-5 text-neutral-900" />
               </div>
               <div>
                 <h4 className="font-semibold text-foreground">Instant WhatsApp Confirmation</h4>

@@ -109,9 +109,9 @@ export function QuickCartMobileFloating() {
               onClick={openDrawer}
               className="flex items-center gap-2.5 px-3 py-1.5 rounded-full hover:bg-neutral-100 transition-colors text-left cursor-pointer flex-1 min-w-0"
             >
-              <div className="relative h-9 w-9 rounded-full bg-brand-light flex items-center justify-center shrink-0 text-brand">
+              <div className="relative h-9 w-9 rounded-full bg-neutral-100 flex items-center justify-center shrink-0 text-neutral-950">
                 <ShoppingBag className="h-4.5 w-4.5" />
-                <span className="absolute -top-1 -right-1 h-4 min-w-4 px-1 rounded-full bg-brand text-[10px] font-bold text-white flex items-center justify-center font-mono">
+                <span className="absolute -top-1 -right-1 h-4 min-w-4 px-1 rounded-full bg-neutral-950 text-[10px] font-bold text-white flex items-center justify-center font-mono">
                   {itemCount}
                 </span>
               </div>

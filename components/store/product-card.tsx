@@ -150,9 +150,8 @@ export function ProductCard({ product }: ProductCardProps) {
             {tags.slice(0, 3).map((tag, idx) => (
               <span
                 key={idx}
-                className={`inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-semibold tracking-tight bg-neutral-100 text-neutral-600 ${
-                  idx === 2 ? 'hidden sm:inline-flex' : ''
-                }`}
+                className={`inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-semibold tracking-tight bg-neutral-100 text-neutral-600 ${idx === 2 ? 'hidden sm:inline-flex' : ''
+                  }`}
               >
                 {tag}
               </span>
@@ -182,7 +181,7 @@ export function ProductCard({ product }: ProductCardProps) {
               </button>
 
               <span className="text-xs sm:text-sm font-bold text-neutral-900 select-none px-1.5 truncate">
-                {quantity} in Cart
+                {quantity}
               </span>
 
               <button

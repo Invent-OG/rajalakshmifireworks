@@ -116,7 +116,7 @@ export function QuickCartWidget({ className = '', onClose }: QuickCartWidgetProp
       {/* ── 1. Header ─── */}
       <div className="qcart-header flex items-center justify-between pb-3.5 sm:pb-4 border-b border-neutral-100">
         <div className="flex items-center gap-2.5">
-          <div className="h-9 w-9 rounded-full bg-brand-light flex items-center justify-center text-brand">
+          <div className="h-9 w-9 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-900">
             <ShoppingCart className="h-4.5 w-4.5" />
           </div>
           <div>
@@ -124,7 +124,7 @@ export function QuickCartWidget({ className = '', onClose }: QuickCartWidgetProp
               <span className="font-bold text-base tracking-tight text-neutral-900">
                 Shopping Bag
               </span>
-              <span className="qcart-badge h-5 px-2 rounded-full bg-brand text-white text-[11px] font-bold flex items-center justify-center font-mono">
+              <span className="qcart-badge h-5 px-2 rounded-full bg-neutral-950 text-white text-[11px] font-bold flex items-center justify-center font-mono">
                 {itemCount}
               </span>
             </div>
@@ -135,7 +135,7 @@ export function QuickCartWidget({ className = '', onClose }: QuickCartWidgetProp
           {itemCount > 0 && (
             <Link
               href="/cart"
-              className="text-xs font-semibold text-neutral-500 hover:text-brand transition-colors flex items-center gap-1 py-1 px-3 rounded-full hover:bg-neutral-100"
+              className="text-xs font-semibold text-neutral-500 hover:text-neutral-950 transition-colors flex items-center gap-1 py-1 px-3 rounded-full hover:bg-neutral-100"
             >
               Full Bag <ArrowRight className="h-3 w-3" />
             </Link>
@@ -205,7 +205,7 @@ export function QuickCartWidget({ className = '', onClose }: QuickCartWidgetProp
                     </div>
                   ) : (
                     <div className="h-12 w-12 rounded-[14px] bg-white flex items-center justify-center shrink-0 text-neutral-400">
-                      <Sparkles className="h-4 w-4 text-brand" />
+                      <Sparkles className="h-4 w-4 text-neutral-400" />
                     </div>
                   )}
 

@@ -75,7 +75,7 @@ export function ProductMediaGallery({
         {/* Top Badges */}
         <div className="absolute top-5 left-5 flex flex-wrap items-center gap-2 pointer-events-none">
           <div className="bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-full text-[11px] font-semibold text-neutral-900 flex items-center gap-1.5 shadow-sm">
-            <Sparkles className="h-3.5 w-3.5 text-brand" />
+            <Sparkles className="h-3.5 w-3.5 text-amber-500" />
             <span>Sivakasi Authentic</span>
           </div>
 
@@ -116,14 +116,14 @@ export function ProductMediaGallery({
                   relative h-18 w-18 sm:h-20 sm:w-20 rounded-[20px] sm:rounded-[22px] overflow-hidden shrink-0 transition-all cursor-pointer bg-white p-1
                   ${
                     isSelected
-                      ? 'ring-2 ring-brand shadow-md scale-105'
+                      ? 'ring-2 ring-neutral-950 shadow-md scale-105'
                       : 'shadow-xs opacity-75 hover:opacity-100'
                   }
                 `}
               >
                 {isVideo ? (
                   <div className="w-full h-full rounded-[16px] sm:rounded-[18px] bg-neutral-900 flex flex-col items-center justify-center text-white relative">
-                    <div className="h-6 w-6 rounded-full bg-brand flex items-center justify-center shadow-xs">
+                    <div className="h-6 w-6 rounded-full bg-neutral-950 flex items-center justify-center shadow-xs">
                       <Play className="h-3 w-3 fill-current ml-0.5" />
                     </div>
                     <span className="text-[9px] font-semibold mt-1 text-white">Video</span>
@@ -138,7 +138,7 @@ export function ProductMediaGallery({
                 )}
 
                 {isVideo && (
-                  <span className="absolute top-1.5 right-1.5 h-4 w-4 rounded-full bg-brand flex items-center justify-center shadow-xs">
+                  <span className="absolute top-1.5 right-1.5 h-4 w-4 rounded-full bg-neutral-950 flex items-center justify-center shadow-xs">
                     <Film className="h-2.5 w-2.5 text-white" />
                   </span>
                 )}

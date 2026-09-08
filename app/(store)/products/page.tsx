@@ -5,6 +5,7 @@ import { ProductCard } from '@/components/store/product-card';
 import { SortSelector } from '@/components/store/sort-selector';
 import { EmptyState } from '@/components/ui/empty-state';
 import { QuickCartSidebar } from '@/components/store/quick-cart-drawer';
+import { SectionTag } from '@/components/ui/section-tag';
 import Link from 'next/link';
 import { Sparkles, Filter } from 'lucide-react';
 import type { Metadata } from 'next';
@@ -87,11 +88,8 @@ export default async function ProductsPage({
     <div className="w-full px-4 sm:px-8 lg:px-12 py-8 animate-fade-in space-y-8">
       {/* Header bar */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-6 border-b border-border">
-        <div>
-          <div className="inline-flex items-center gap-1.5 text-xs uppercase font-medium tracking-wider text-muted-foreground mb-1">
-            <Sparkles className="h-3.5 w-3.5 text-brand" />
-            <span>Sivakasi Catalog</span>
-          </div>
+        <div className="space-y-3">
+          <SectionTag label="Sivakasi Catalog" size="sm" />
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
             {pageHeading}
           </h1>
