@@ -1,25 +1,47 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
 import {
   Search,
   ShoppingBag,
-  Sparkles,
   Download,
-  Flame,
-  ShieldCheck,
   ChevronDown,
   Menu,
   X,
-  ArrowRight,
-  Package,
+  Sparkles,
   Layers,
-  Award,
+  Package,
 } from 'lucide-react';
 import { BrandLogo } from '@/components/ui/brand-logo';
 import { useCart, useIsHydrated } from '@/hooks/use-cart';
+import { getCategory3DImage } from '@/components/ui/category-icon';
+import { formatCurrency, toNumber } from '@/lib/utils/format';
+
+interface CategoryItem {
+  id: number;
+  name: string;
+  slug: string;
+  description: string | null;
+  image: string | null;
+  sortOrder: number;
+  isActive: boolean;
+}
+
+interface ComboProductItem {
+  id: number;
+  name: string;
+  slug: string;
+  description: string | null;
+  mrp: string | number;
+  sellingPrice: string | number;
+  isCombo: boolean;
+  isActive: boolean;
+  media?: Array<{ url: string }>;
+  category?: { name: string; slug: string } | null;
+}
 
 interface MegaMenuContent {
   id: string;
@@ -40,127 +62,18 @@ interface MegaMenuContent {
   }>;
 }
 
-const MEGA_MENUS: Record<string, MegaMenuContent> = {
-  categories: {
-    id: 'categories',
-    label: 'Categories',
-    items: [
-      {
-        title: 'Ground Spinners & Chakkars',
-        description: 'Vibrant spinning wheels, flower pots, and long-lasting sparklers for all ages.',
-        href: '/products?category=ground-chakkars',
-      },
-      {
-        title: 'Aerial Repeaters & Sky Shots',
-        description: 'Spectacular multi-shot bursts, whistling rockets, and glittering night sky effects.',
-        href: '/products?category=aerial-shots',
-      },
-      {
-        title: 'Festive Sound Crackers',
-        description: 'Classic Sivakasi sound crackers, bijili strips, and traditional celebration rolls.',
-        href: '/products?category=sound-crackers',
-      },
-      {
-        title: 'Safe & Certified Green Crackers',
-        description: '100% CSIR-NEERI certified low-emission formulations with QR authentication.',
-        href: '/products?certified=green',
-      },
-    ],
-    featuredSectionTitle: 'Featured collections',
-    featuredCards: [
-      {
-        title: '2026 Mega Family Diwali Combo Box',
-        description: 'Curated 35+ items for a complete family celebration direct from Sivakasi factory.',
-        href: '/products?featured=true',
-        image: '/images/3d/cat-family-packs.jpg',
-        badge: 'Top Seller',
-      },
-      {
-        title: 'Wholesale Direct Factory Price List',
-        description: 'Enjoy 70%+ festive discount with 100% genuine factory-sealed packaging.',
-        href: '/products',
-        image: '/images/3d/usp-wholesale-value.jpg',
-        badge: 'Direct Sivakasi',
-      },
-    ],
-  },
-  combos: {
-    id: 'combos',
-    label: 'Combos',
-    items: [
-      {
-        title: 'Family Celebration Packs',
-        description: 'All-in-one assortment boxes designed for 4-8 family members.',
-        href: '/products?category=family-packs',
-      },
-      {
-        title: 'Kids Special Novelty Box',
-        description: 'Zero-sound, colorful sparklers, pencil torches, and magical fancy fountains.',
-        href: '/products?category=kids-special',
-      },
-      {
-        title: 'Royal VIP Night Sky Pack',
-        description: 'Premium multi-shot aerial cakes, giant parachutes, and high-altitude repeaters.',
-        href: '/products?category=vip-combos',
-      },
-    ],
-    featuredSectionTitle: 'Curated gift boxes',
-    featuredCards: [
-      {
-        title: 'Grand Diwali Sovereign Gift Box',
-        description: 'Luxurious gift presentation box packed with Sivakasi finest fireworks.',
-        href: '/products?featured=true',
-        image: '/images/3d/cat-gift-boxes.jpg',
-        badge: 'Festive Special',
-      },
-      {
-        title: 'Direct Wholesale Bulk Combos',
-        description: 'Ideal for community celebrations, societies, and corporate festive gifts.',
-        href: '/products',
-        image: '/images/3d/usp-curated-combos.jpg',
-        badge: 'Wholesale Tier',
-      },
-    ],
-  },
-  about: {
-    id: 'about',
-    label: 'Safety',
-    items: [
-      {
-        title: 'Green Crackers Certification',
-        description: 'Understand CSIR-NEERI standards, QR code verification, and eco safety.',
-        href: '/products?certified=green',
-      },
-      {
-        title: 'Family Bursting Safety Guide',
-        description: 'Essential safety precautions, water bucket prep, and child supervision tips.',
-        href: '/track-order',
-      },
-      {
-        title: 'Direct From Sivakasi Guarantee',
-        description: '100% fresh batch manufacturing, moisture-proof sealed packaging.',
-        href: '/products',
-      },
-    ],
-    featuredSectionTitle: 'Safety & Trust',
-    featuredCards: [
-      {
-        title: 'Certified Safe Green Fireworks',
-        description: 'Reduced particulate emissions without compromising on sparkle and sound.',
-        href: '/products?certified=green',
-        image: '/images/3d/usp-sivakasi-direct.jpg',
-        badge: '100% Certified',
-      },
-      {
-        title: 'Doorstep Courier & Transport Dispatch',
-        description: 'Compliant logistics with real-time SMS and WhatsApp dispatch notifications.',
-        href: '/track-order',
-        image: '/images/3d/usp-flexible-dispatch.jpg',
-        badge: 'Fast Dispatch',
-      },
-    ],
-  },
-};
+// Fallback seed categories if API is loading
+const DEFAULT_FALLBACK_CATEGORIES: CategoryItem[] = [
+  { id: 1, name: 'Sparklers', slug: 'sparklers', description: 'Safe handheld sparklers in gold, silver, and vibrant colors', image: '/images/3d/cat-sparklers.jpg', sortOrder: 1, isActive: true },
+  { id: 2, name: 'Flower Pots', slug: 'flower-pots', description: 'Vibrant fountain cones with dazzling colorful sparkles', image: '/images/3d/cat-flower-pots.jpg', sortOrder: 2, isActive: true },
+  { id: 3, name: 'Rockets', slug: 'rockets', description: 'High-flying aerial whistles with sky bursts', image: '/images/3d/cat-rockets.jpg', sortOrder: 3, isActive: true },
+  { id: 4, name: 'Chakras', slug: 'chakras', description: 'Fast-spinning ground wheels with dazzling golden rings', image: '/images/3d/cat-chakras.jpg', sortOrder: 4, isActive: true },
+  { id: 5, name: 'Fountains', slug: 'fountains', description: 'Long-duration multi-color fountain cones and fountain pots', image: '/images/3d/cat-fountains.jpg', sortOrder: 5, isActive: true },
+  { id: 6, name: 'Sound Crackers', slug: 'sound-crackers', description: 'Traditional Sivakasi single sound and garland wala crackers', image: '/images/3d/cat-sound-crackers.jpg', sortOrder: 6, isActive: true },
+  { id: 7, name: 'Gift Boxes', slug: 'gift-boxes', description: 'Premium curated gift packages with crackers for the whole family', image: '/images/3d/cat-gift-boxes.jpg', sortOrder: 7, isActive: true },
+  { id: 8, name: 'Family Packs', slug: 'family-packs', description: 'Mega value celebration packages with assorted cracker items', image: '/images/3d/cat-family-packs.jpg', sortOrder: 8, isActive: true },
+];
+
 
 export function FloatingNavbar() {
   const pathname = usePathname();
@@ -172,6 +85,147 @@ export function FloatingNavbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const navContainerRef = useRef<HTMLDivElement | null>(null);
+
+  // 1. Fetch categories from admin panel / database
+  const { data: categoriesData } = useQuery<{ categories: CategoryItem[] }>({
+    queryKey: ['categories', 'list'],
+    queryFn: async () => {
+      const res = await fetch('/api/categories');
+      if (!res.ok) return { categories: DEFAULT_FALLBACK_CATEGORIES };
+      return res.json();
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+
+  // 2. Fetch combo products from admin panel / database
+  const { data: combosData } = useQuery<{ products: ComboProductItem[] }>({
+    queryKey: ['products', 'combos', 'navbar'],
+    queryFn: async () => {
+      const res = await fetch('/api/products?combo=true&limit=30');
+      if (!res.ok) return { products: [] };
+      return res.json();
+    },
+    staleTime: 1000 * 60 * 3,
+  });
+
+  const activeCategories = useMemo(() => {
+    const fetched = categoriesData?.categories;
+    if (fetched && fetched.length > 0) {
+      return fetched.filter((c) => c.isActive);
+    }
+    return DEFAULT_FALLBACK_CATEGORIES;
+  }, [categoriesData]);
+
+  const adminComboProducts = useMemo(() => {
+    return combosData?.products?.filter((p) => p.isActive) || [];
+  }, [combosData]);
+
+  // Dynamic Mega Menu construction
+  const megaMenus: Record<string, MegaMenuContent> = useMemo(() => {
+    // 1. Build combos list strictly from admin panel combo products
+    let comboItems: Array<{ title: string; description: string; href: string; badge?: string }> = [];
+    let comboFeaturedCards: Array<{ title: string; description: string; href: string; image: string; badge: string }> = [];
+
+    if (adminComboProducts.length > 0) {
+      comboItems = adminComboProducts.map((p) => ({
+        title: p.name,
+        description: p.description || 'Curated celebration combo package from Sivakasi.',
+        href: `/product/${p.slug}`,
+        badge: formatCurrency(toNumber(p.sellingPrice)),
+      }));
+
+      comboFeaturedCards = adminComboProducts.slice(0, 2).map((p) => ({
+        title: p.name,
+        description: p.description || 'Festive celebration combo pack with assorted crackers.',
+        href: `/product/${p.slug}`,
+        image: p.media?.[0]?.url || getCategory3DImage(p.name),
+        badge: formatCurrency(toNumber(p.sellingPrice)),
+      }));
+    } else {
+      comboItems = [
+        {
+          title: 'Combos Coming Soon',
+          description: 'Custom combo packages created in the admin panel will appear here.',
+          href: '/products',
+          badge: 'Catalog',
+        },
+      ];
+      comboFeaturedCards = [
+        {
+          title: 'Explore All Crackers',
+          description: 'Browse our full catalog of premium Sivakasi fireworks.',
+          href: '/products',
+          image: '/images/3d/cat-family-packs.jpg',
+          badge: 'Direct Sivakasi',
+        },
+      ];
+    }
+
+    return {
+      categories: {
+        id: 'categories',
+        label: 'Categories',
+        items: activeCategories.map((cat) => ({
+          title: cat.name,
+          description: cat.description || 'Authentic factory-sealed crackers direct from Sivakasi.',
+          href: `/category/${cat.slug}`,
+        })),
+        featuredSectionTitle: 'Featured Collections',
+        featuredCards: activeCategories.slice(0, 2).map((cat) => ({
+          title: `${cat.name} Collection`,
+          description: cat.description || 'Tested for supreme sparkle, vibrant colors, and safety.',
+          href: `/category/${cat.slug}`,
+          image: cat.image || getCategory3DImage(cat.name),
+          badge: 'Direct Sivakasi',
+        })),
+      },
+      combos: {
+        id: 'combos',
+        label: 'Combos',
+        items: comboItems,
+        featuredSectionTitle: 'Admin Curated Combo Packs',
+        featuredCards: comboFeaturedCards,
+      },
+      about: {
+        id: 'about',
+        label: 'Safety',
+        items: [
+          {
+            title: 'Green Crackers Certification',
+            description: 'Understand CSIR-NEERI standards, QR code verification, and eco safety.',
+            href: '/products?certified=green',
+          },
+          {
+            title: 'Family Bursting Safety Guide',
+            description: 'Essential safety precautions, water bucket prep, and child supervision tips.',
+            href: '/track-order',
+          },
+          {
+            title: 'Direct From Sivakasi Guarantee',
+            description: '100% fresh batch manufacturing, moisture-proof sealed packaging.',
+            href: '/products',
+          },
+        ],
+        featuredSectionTitle: 'Safety & Trust',
+        featuredCards: [
+          {
+            title: 'Certified Safe Green Fireworks',
+            description: 'Reduced particulate emissions without compromising on sparkle and sound.',
+            href: '/products?certified=green',
+            image: '/images/3d/usp-sivakasi-direct.jpg',
+            badge: '100% Certified',
+          },
+          {
+            title: 'Doorstep Transport & Dispatch',
+            description: 'Compliant logistics with real-time SMS and WhatsApp dispatch notifications.',
+            href: '/track-order',
+            image: '/images/3d/usp-flexible-dispatch.jpg',
+            badge: 'Fast Dispatch',
+          },
+        ],
+      },
+    };
+  }, [activeCategories, adminComboProducts]);
 
   // Close mega menu on route change
   useEffect(() => {
@@ -215,10 +269,10 @@ export function FloatingNavbar() {
     }
     hoverTimeoutRef.current = setTimeout(() => {
       setActiveMenu(null);
-    }, 200); // 200ms grace period for smooth cursor movement
+    }, 200);
   };
 
-  const currentMegaMenu = activeMenu ? MEGA_MENUS[activeMenu] : null;
+  const currentMegaMenu = activeMenu ? megaMenus[activeMenu] : null;
 
   return (
     <div
@@ -256,8 +310,8 @@ export function FloatingNavbar() {
                 Catalog
               </Link>
 
-              {Object.keys(MEGA_MENUS).map((key) => {
-                const menu = MEGA_MENUS[key];
+              {Object.keys(megaMenus).map((key) => {
+                const menu = megaMenus[key];
                 const isHovered = activeMenu === key;
                 return (
                   <button
@@ -295,7 +349,7 @@ export function FloatingNavbar() {
             </nav>
           </div>
 
-          {/* Center Column: Brand Logo (Guaranteed non-overlapping center) */}
+          {/* Center Column: Brand Logo */}
           <div className="flex items-center justify-center px-1 shrink-0">
             <Link href="/" className="flex items-center gap-2 group py-1">
               <BrandLogo className="h-10 sm:h-11 md:h-12 max-h-12 w-auto transition-transform duration-200 group-hover:scale-105 drop-shadow-sm shrink-0" />
@@ -347,7 +401,7 @@ export function FloatingNavbar() {
           </div>
         </header>
 
-        {/* Mega Dropdown Panel (Clean White Card) */}
+        {/* Mega Dropdown Panel */}
         {currentMegaMenu && (
           <div
             className="absolute top-full left-0 right-0 pt-2 z-50 animate-in fade-in zoom-in-95 duration-200"
@@ -360,35 +414,69 @@ export function FloatingNavbar() {
           >
             <div className="rounded-[32px] sm:rounded-[36px] bg-white text-neutral-900 shadow-2xl border border-neutral-200/90 p-6 sm:p-8 overflow-hidden backdrop-blur-xl">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                {/* Left Column: List of Categories/Articles (5 cols) */}
-                <div className="lg:col-span-5 space-y-5">
-                  {currentMegaMenu.items.map((item, idx) => (
-                    <Link
-                      key={idx}
-                      href={item.href}
-                      onClick={() => setActiveMenu(null)}
-                      className="group block space-y-1 transition-all p-3 -mx-3 rounded-[20px] hover:bg-neutral-50"
-                    >
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-bold text-sm sm:text-base text-neutral-900 group-hover:text-neutral-950 transition-colors">
-                          {item.title}
-                        </h3>
-                        {item.badge && (
-                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-neutral-100 text-neutral-800 uppercase tracking-wider">
-                            {item.badge}
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-xs sm:text-sm text-neutral-600 group-hover:text-neutral-800 leading-relaxed transition-colors">
-                        {item.description}
-                      </p>
-                    </Link>
-                  ))}
+                {/* Left Column: List of Categories or Combos */}
+                <div className="lg:col-span-6 space-y-4">
+                  <div
+                    className={`grid ${
+                      currentMegaMenu.items.length > 3
+                        ? 'grid-cols-1 sm:grid-cols-2 gap-2.5'
+                        : 'grid-cols-1 space-y-2'
+                    } max-h-[380px] overflow-y-auto pr-1`}
+                  >
+                    {currentMegaMenu.items.map((item, idx) => (
+                      <Link
+                        key={idx}
+                        href={item.href}
+                        onClick={() => setActiveMenu(null)}
+                        className="group block space-y-1 transition-all p-3 rounded-[20px] hover:bg-neutral-50"
+                      >
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-bold text-sm text-neutral-900 group-hover:text-neutral-950 transition-colors line-clamp-1">
+                            {item.title}
+                          </h3>
+                          {item.badge && (
+                            <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-neutral-100 text-neutral-800 uppercase tracking-wider shrink-0 font-mono">
+                              {item.badge}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-neutral-500 group-hover:text-neutral-700 leading-relaxed transition-colors line-clamp-2">
+                          {item.description}
+                        </p>
+                      </Link>
+                    ))}
+                  </div>
+
+                  {currentMegaMenu.id === 'categories' && (
+                    <div className="pt-2 border-t border-neutral-100">
+                      <Link
+                        href="/products"
+                        onClick={() => setActiveMenu(null)}
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-neutral-950 hover:underline"
+                      >
+                        <span>Browse All Sivakasi Fireworks</span>
+                        <span>→</span>
+                      </Link>
+                    </div>
+                  )}
+
+                  {currentMegaMenu.id === 'combos' && (
+                    <div className="pt-2 border-t border-neutral-100">
+                      <Link
+                        href="/products?featured=true"
+                        onClick={() => setActiveMenu(null)}
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-neutral-950 hover:underline"
+                      >
+                        <span>View All Diwali Combos & Gift Packs</span>
+                        <span>→</span>
+                      </Link>
+                    </div>
+                  )}
                 </div>
 
-                {/* Right Column: 2 Featured Cards (7 cols) */}
-                <div className="lg:col-span-7 space-y-4">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+                {/* Right Column: Featured Cards */}
+                <div className="lg:col-span-6 space-y-4">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-400">
                     {currentMegaMenu.featuredSectionTitle}
                   </h4>
 
@@ -402,6 +490,7 @@ export function FloatingNavbar() {
                       >
                         {/* Thumbnail Image Container */}
                         <div className="relative aspect-[16/10] w-full rounded-[20px] sm:rounded-[22px] overflow-hidden bg-neutral-100 border border-neutral-200/80 shadow-xs">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={card.image}
                             alt={card.title}
@@ -409,7 +498,7 @@ export function FloatingNavbar() {
                             loading="lazy"
                           />
                           <div className="absolute top-2.5 left-2.5">
-                            <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-neutral-950/85 text-white backdrop-blur-md uppercase tracking-wider shadow-sm">
+                            <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-neutral-950/85 text-white backdrop-blur-md uppercase tracking-wider shadow-sm font-mono">
                               {card.badge}
                             </span>
                           </div>
@@ -433,39 +522,80 @@ export function FloatingNavbar() {
           </div>
         )}
 
-        {/* Mobile Slide-down Menu (White Background) */}
+        {/* Mobile Slide-down Menu */}
         {mobileMenuOpen && (
           <div className="md:hidden absolute top-full left-0 right-0 pt-2 z-50 animate-in fade-in duration-200">
-            <div className="rounded-[28px] sm:rounded-[32px] bg-white text-neutral-900 border border-neutral-200/90 p-5 shadow-2xl space-y-5">
+            <div className="rounded-[28px] sm:rounded-[32px] bg-white text-neutral-900 border border-neutral-200/90 p-5 shadow-2xl space-y-4 max-h-[80vh] overflow-y-auto">
               <div className="space-y-1">
                 <Link
                   href="/products"
                   onClick={() => setMobileMenuOpen(false)}
                   className="block px-4 py-2.5 rounded-full text-sm font-bold hover:bg-neutral-100 text-neutral-900 transition-colors"
                 >
-                  All Fireworks & Catalog
+                  All Fireworks Catalog
                 </Link>
-                <Link
-                  href="/products?featured=true"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block px-4 py-2.5 rounded-full text-sm font-semibold text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 transition-colors"
-                >
-                  Diwali Family Combos
-                </Link>
-                <Link
-                  href="/products?certified=green"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block px-4 py-2.5 rounded-full text-sm font-semibold text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 transition-colors"
-                >
-                  Green Certified Fireworks
-                </Link>
-                <Link
-                  href="/track-order"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block px-4 py-2.5 rounded-full text-sm font-semibold text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 transition-colors"
-                >
-                  Track Order Online
-                </Link>
+
+                {/* Combos from Admin Panel */}
+                {adminComboProducts.length > 0 && (
+                  <div className="pt-2 pb-1">
+                    <span className="px-4 text-[11px] font-bold uppercase tracking-wider text-amber-700 block mb-1">
+                      Combos & Gift Packs
+                    </span>
+                    <div className="space-y-1">
+                      {adminComboProducts.map((p) => (
+                        <Link
+                          key={p.id}
+                          href={`/product/${p.slug}`}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-neutral-800 hover:text-neutral-950 hover:bg-neutral-100 transition-colors"
+                        >
+                          <span className="truncate">{p.name}</span>
+                          <span className="text-[11px] font-mono font-bold text-neutral-950 shrink-0 ml-2">
+                            {formatCurrency(toNumber(p.sellingPrice))}
+                          </span>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Categories from Admin Panel */}
+                {activeCategories.length > 0 && (
+                  <div className="pt-2 pb-1 border-t border-neutral-100">
+                    <span className="px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-400 block mb-1">
+                      Categories
+                    </span>
+                    <div className="grid grid-cols-2 gap-1">
+                      {activeCategories.map((cat) => (
+                        <Link
+                          key={cat.id}
+                          href={`/category/${cat.slug}`}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="block px-3 py-2 rounded-xl text-xs font-semibold text-neutral-700 hover:text-neutral-950 hover:bg-neutral-100 transition-colors truncate"
+                        >
+                          {cat.name}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="pt-2 border-t border-neutral-100 space-y-1">
+                  <Link
+                    href="/products?certified=green"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block px-4 py-2 rounded-full text-xs font-semibold text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 transition-colors"
+                  >
+                    Green Certified Fireworks
+                  </Link>
+                  <Link
+                    href="/track-order"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block px-4 py-2 rounded-full text-xs font-semibold text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 transition-colors"
+                  >
+                    Track Order Online
+                  </Link>
+                </div>
               </div>
 
               <div className="pt-3 border-t border-neutral-100 flex items-center justify-between gap-3">

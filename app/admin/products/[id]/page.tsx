@@ -14,6 +14,7 @@ import Link from 'next/link';
 import { toast } from 'sonner';
 
 import { ProductMediaManager } from '@/components/admin/product-media-manager';
+import { ComboProductBuilder, type ComboItemEntry } from '@/components/admin/combo-product-builder';
 
 export default function EditProductPage({
   params,
@@ -25,6 +26,8 @@ export default function EditProductPage({
   const router = useRouter();
   const queryClient = useQueryClient();
   const [submitting, setSubmitting] = useState(false);
+  const [isCombo, setIsCombo] = useState(false);
+  const [comboItems, setComboItems] = useState<ComboItemEntry[]>([]);
 
   const { data: productData, isLoading } = useQuery({
     queryKey: ['admin', 'products', 'detail', productId],
@@ -45,6 +48,20 @@ export default function EditProductPage({
 
   useEffect(() => {
     if (product) {
+      setIsCombo(Boolean(product.isCombo));
+      if (product.comboItems && product.comboItems.length > 0) {
+        setComboItems(
+          product.comboItems.map((ci: any) => ({
+            productId: ci.productId,
+            quantity: ci.quantity,
+            sortOrder: ci.sortOrder,
+            product: ci.product,
+          }))
+        );
+      } else {
+        setComboItems([]);
+      }
+
       form.reset({
         name: product.name,
         categoryId: product.categoryId,
@@ -57,17 +74,44 @@ export default function EditProductPage({
         isActive: product.isActive,
         isFeatured: product.isFeatured,
         isBestseller: product.isBestseller,
+        isCombo: Boolean(product.isCombo),
       });
     }
   }, [product, form]);
 
+  const handleApplyCalculatedPricing = (calcMrp: number, calcPrice: number) => {
+    form.setValue('mrp', calcMrp);
+    form.setValue('sellingPrice', calcPrice);
+    toast.success(`Applied calculated prices: MRP ₹${calcMrp}, Price ₹${calcPrice}`);
+  };
+
   async function onSubmit(data: ProductUpdateInput) {
+    if (data.sellingPrice !== undefined && data.mrp !== undefined && data.sellingPrice > data.mrp) {
+      toast.error('Selling price cannot exceed MRP');
+      return;
+    }
+
+    if (isCombo && comboItems.length === 0) {
+      toast.error('Please add at least one product to this combo pack');
+      return;
+    }
+
     setSubmitting(true);
     try {
       const res = await fetch(`/api/admin/products/${productId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          ...data,
+          isCombo,
+          comboItems: isCombo
+            ? comboItems.map((ci, idx) => ({
+                productId: ci.productId,
+                quantity: ci.quantity,
+                sortOrder: idx,
+              }))
+            : [],
+        }),
       });
 
       const resData = await res.json();
@@ -77,7 +121,7 @@ export default function EditProductPage({
       }
 
       queryClient.invalidateQueries({ queryKey: ['admin', 'products'] });
-      toast.success('Product details updated successfully');
+      toast.success(isCombo ? 'Combo product details updated successfully' : 'Product details updated successfully');
       router.push('/admin/products');
       router.refresh();
     } catch {
@@ -121,6 +165,11 @@ export default function EditProductPage({
             <h1 className="text-2xl font-bold text-foreground tracking-tight">
               Edit {product.name}
             </h1>
+            {isCombo && (
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-200">
+                Combo Pack
+              </span>
+            )}
           </div>
           <p className="text-xs text-muted-foreground font-mono mt-0.5">
             Internal ID: #{product.id} • SKU: {product.sku || 'N/A'}
@@ -144,14 +193,18 @@ export default function EditProductPage({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Select
-              label="Category Collection *"
-              defaultValue={String(product.categoryId)}
-              options={categoriesList.map((c: { id: number; name: string }) => ({
-                value: String(c.id),
-                label: c.name,
-              }))}
+              label={isCombo ? 'Category Collection (Optional)' : 'Category Collection *'}
+              defaultValue={product.categoryId ? String(product.categoryId) : ''}
+              placeholder={isCombo ? 'None (Combo Pack)' : 'Select Category'}
+              options={[
+                ...(isCombo ? [{ value: '', label: 'None (Combo Pack)' }] : []),
+                ...categoriesList.map((c: { id: number; name: string }) => ({
+                  value: String(c.id),
+                  label: c.name,
+                })),
+              ]}
               error={form.formState.errors.categoryId?.message}
-              onChange={(e) => form.setValue('categoryId', parseInt(e.target.value) || 0)}
+              onChange={(e) => form.setValue('categoryId', e.target.value ? parseInt(e.target.value) : null)}
             />
 
             <Input
@@ -170,16 +223,23 @@ export default function EditProductPage({
           />
         </div>
 
-        {/* Section 2: Media & Demo Video */}
-        <ProductMediaManager
-          productId={productId}
-          media={product.media || []}
+        {/* Section 2: Combo Builder (Multiple Products Selector) */}
+        <ComboProductBuilder
+          isCombo={isCombo}
+          onToggleCombo={setIsCombo}
+          comboItems={comboItems}
+          onChangeComboItems={setComboItems}
+          onApplyCalculatedPricing={handleApplyCalculatedPricing}
+          excludeProductId={productId}
         />
 
-        {/* Section 3: Pricing & Inventory */}
+        {/* Section 3: Media & Demo Video */}
+        <ProductMediaManager productId={productId} media={product.media || []} />
+
+        {/* Section 4: Pricing & Inventory */}
         <div className="p-6 rounded-2xl bg-card border border-border space-y-5">
           <h2 className="font-semibold text-xs uppercase tracking-wider text-muted-foreground pb-2 border-b border-border">
-            02. Pricing & Warehouse Inventory
+            03. Pricing & Warehouse Inventory
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -217,10 +277,10 @@ export default function EditProductPage({
           </div>
         </div>
 
-        {/* Section 3: Flags */}
+        {/* Section 5: Flags */}
         <div className="p-6 rounded-2xl bg-card border border-border space-y-4">
           <h2 className="font-semibold text-xs uppercase tracking-wider text-muted-foreground pb-2 border-b border-border">
-            03. Storefront Status
+            04. Storefront Status
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
@@ -276,7 +336,7 @@ export default function EditProductPage({
             loading={submitting}
             className="font-medium"
           >
-            Update product
+            Update Product
           </Button>
         </div>
       </form>

@@ -33,6 +33,11 @@ export async function GET(request: NextRequest) {
       conditions.push(ilike(products.name, `%${search}%`));
     }
 
+    const combo = searchParams.get('combo') || searchParams.get('isCombo');
+    if (combo === 'true') {
+      conditions.push(eq(products.isCombo, true));
+    }
+
     if (featured === 'true') {
       conditions.push(eq(products.isFeatured, true));
     }

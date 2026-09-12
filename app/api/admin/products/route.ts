@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { db } from '@/db';
-import { products, productMedia, categories } from '@/db/schema';
-import { eq, and, ilike, sql, desc, asc } from 'drizzle-orm';
+import { products, productMedia, categories, comboItems } from '@/db/schema';
+import { eq, and, sql, desc, asc } from 'drizzle-orm';
 import { getSession } from '@/lib/auth/session';
 import { productCreateSchema } from '@/lib/validation/product';
 import { slugify } from '@/lib/utils/format';
@@ -18,6 +18,7 @@ export async function GET(request: NextRequest) {
   const categoryId = searchParams.get('categoryId');
   const stockFilter = searchParams.get('stockFilter');
   const statusFilter = searchParams.get('statusFilter'); // 'active' | 'inactive' | 'all'
+  const comboFilter = searchParams.get('comboFilter'); // 'combos' | 'single' | 'all'
   const sortBy = searchParams.get('sortBy') || 'newest';
 
   try {
@@ -37,6 +38,12 @@ export async function GET(request: NextRequest) {
       conditions.push(eq(products.isActive, true));
     } else if (statusFilter === 'inactive') {
       conditions.push(eq(products.isActive, false));
+    }
+
+    if (comboFilter === 'combos') {
+      conditions.push(eq(products.isCombo, true));
+    } else if (comboFilter === 'single') {
+      conditions.push(eq(products.isCombo, false));
     }
 
     if (stockFilter === 'low') {
@@ -89,6 +96,13 @@ export async function GET(request: NextRequest) {
             orderBy: [asc(productMedia.sortOrder)],
             limit: 1,
           },
+          comboItems: {
+            with: {
+              product: {
+                columns: { id: true, name: true, sellingPrice: true },
+              },
+            },
+          },
         },
         orderBy: orderClause,
         limit,
@@ -106,6 +120,7 @@ export async function GET(request: NextRequest) {
         outOfStock: sql<number>`count(*) filter (where ${products.stockQuantity} = 0)`,
         active: sql<number>`count(*) filter (where ${products.isActive} = true)`,
         inactive: sql<number>`count(*) filter (where ${products.isActive} = false)`,
+        combos: sql<number>`count(*) filter (where ${products.isCombo} = true)`,
       }).from(products),
     ]);
 
@@ -117,6 +132,7 @@ export async function GET(request: NextRequest) {
       outOfStock: 0,
       active: 0,
       inactive: 0,
+      combos: 0,
     };
 
     return Response.json({
@@ -135,6 +151,7 @@ export async function GET(request: NextRequest) {
         outOfStock: Number(stats.outOfStock),
         active: Number(stats.active),
         inactive: Number(stats.inactive),
+        combos: Number(stats.combos),
       },
     });
   } catch (error) {
@@ -158,7 +175,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { media, ...productData } = result.data;
+    const { media, comboItems: inputComboItems, ...productData } = result.data;
     const slug = slugify(productData.name);
 
     // Check slug uniqueness
@@ -169,9 +186,11 @@ export async function POST(request: NextRequest) {
       .insert(products)
       .values({
         ...productData,
+        categoryId: productData.categoryId ? Number(productData.categoryId) : null,
         slug: finalSlug,
         mrp: String(productData.mrp),
         sellingPrice: String(productData.sellingPrice),
+        isCombo: Boolean(productData.isCombo),
       })
       .returning();
 
@@ -184,6 +203,18 @@ export async function POST(request: NextRequest) {
           url: m.url,
           alt: m.alt || product.name,
           sortOrder: m.sortOrder ?? idx,
+        }))
+      );
+    }
+
+    // Insert combo items if this is a combo product
+    if (productData.isCombo && inputComboItems && inputComboItems.length > 0) {
+      await db.insert(comboItems).values(
+        inputComboItems.map((ci, idx) => ({
+          comboProductId: product.id,
+          productId: ci.productId,
+          quantity: ci.quantity,
+          sortOrder: ci.sortOrder ?? idx,
         }))
       );
     }

@@ -13,11 +13,14 @@ import Link from 'next/link';
 import { toast } from 'sonner';
 
 import { ProductMediaManager, type ProductMediaItem } from '@/components/admin/product-media-manager';
+import { ComboProductBuilder, type ComboItemEntry } from '@/components/admin/combo-product-builder';
 
 export default function NewProductPage() {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [mediaItems, setMediaItems] = useState<ProductMediaItem[]>([]);
+  const [isCombo, setIsCombo] = useState(false);
+  const [comboItems, setComboItems] = useState<ComboItemEntry[]>([]);
 
   const { data: catData } = useQuery({
     queryKey: ['admin', 'categories', 'list'],
@@ -40,14 +43,27 @@ export default function NewProductPage() {
       isActive: true,
       isFeatured: false,
       isBestseller: false,
+      isCombo: false,
     },
   });
+
+  const handleApplyCalculatedPricing = (calcMrp: number, calcPrice: number) => {
+    form.setValue('mrp', calcMrp);
+    form.setValue('sellingPrice', calcPrice);
+    toast.success(`Applied calculated prices: MRP ₹${calcMrp}, Price ₹${calcPrice}`);
+  };
 
   async function onSubmit(data: ProductBaseInput) {
     if (data.sellingPrice > data.mrp) {
       toast.error('Selling price cannot exceed MRP');
       return;
     }
+
+    if (isCombo && comboItems.length === 0) {
+      toast.error('Please add at least one product to this combo pack');
+      return;
+    }
+
     setSubmitting(true);
     try {
       const res = await fetch('/api/admin/products', {
@@ -55,7 +71,15 @@ export default function NewProductPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...data,
+          isCombo,
           media: mediaItems,
+          comboItems: isCombo
+            ? comboItems.map((ci, idx) => ({
+                productId: ci.productId,
+                quantity: ci.quantity,
+                sortOrder: idx,
+              }))
+            : [],
         }),
       });
 
@@ -65,7 +89,7 @@ export default function NewProductPage() {
         return;
       }
 
-      toast.success('Product created successfully');
+      toast.success(isCombo ? 'Combo product created successfully' : 'Product created successfully');
       router.push('/admin/products');
       router.refresh();
     } catch {
@@ -86,10 +110,12 @@ export default function NewProductPage() {
         </Link>
         <div>
           <h1 className="text-2xl font-bold text-foreground tracking-tight">
-            Add Product
+            {isCombo ? 'Create Combo / Gift Pack' : 'Add Product'}
           </h1>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Add a new firework item to your Sivakasi catalog.
+            {isCombo
+              ? 'Bundle multiple crackers into an attractive festive celebration combo.'
+              : 'Add a new firework item to your Sivakasi catalog.'}
           </p>
         </div>
       </div>
@@ -103,49 +129,62 @@ export default function NewProductPage() {
 
           <Input
             label="Product Title *"
-            placeholder="e.g. 10 cm Electric Sparklers (10 pcs)"
+            placeholder={isCombo ? 'e.g. 2026 Mega Family Diwali Combo Box (35 Items)' : 'e.g. 10 cm Electric Sparklers (10 pcs)'}
             error={form.formState.errors.name?.message}
             {...form.register('name')}
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Select
-              label="Category Collection *"
-              placeholder="Select Category"
-              options={categoriesList.map((c: { id: number; name: string }) => ({
-                value: String(c.id),
-                label: c.name,
-              }))}
+              label={isCombo ? 'Category Collection (Optional)' : 'Category Collection *'}
+              placeholder={isCombo ? 'None (Combo Pack)' : 'Select Category'}
+              options={[
+                ...(isCombo ? [{ value: '', label: 'None (Combo Pack)' }] : []),
+                ...categoriesList.map((c: { id: number; name: string }) => ({
+                  value: String(c.id),
+                  label: c.name,
+                })),
+              ]}
               error={form.formState.errors.categoryId?.message}
-              onChange={(e) => form.setValue('categoryId', parseInt(e.target.value) || 0)}
+              onChange={(e) => form.setValue('categoryId', e.target.value ? parseInt(e.target.value) : null)}
             />
 
             <Input
               label="SKU / Item Code (Optional)"
-              placeholder="e.g. SPK-10CM-ELEC"
+              placeholder={isCombo ? 'e.g. CMB-DIWALI-MEGA' : 'e.g. SPK-10CM-ELEC'}
               error={form.formState.errors.sku?.message}
               {...form.register('sku')}
             />
           </div>
 
           <Textarea
-            label="Description & Safety Instructions"
-            placeholder="Describe the effects, duration, spark patterns, and handling guidelines..."
+            label="Description & Highlights"
+            placeholder={
+              isCombo
+                ? 'Describe the assortment, celebration themes, ideal family size, and sparkler varieties included...'
+                : 'Describe the effects, duration, spark patterns, and handling guidelines...'
+            }
             error={form.formState.errors.description?.message}
             {...form.register('description')}
           />
         </div>
 
-        {/* Section 2: Media & Demo Video */}
-        <ProductMediaManager
-          media={mediaItems}
-          onChange={setMediaItems}
+        {/* Section 2: Combo Builder (Multiple Products Selector) */}
+        <ComboProductBuilder
+          isCombo={isCombo}
+          onToggleCombo={setIsCombo}
+          comboItems={comboItems}
+          onChangeComboItems={setComboItems}
+          onApplyCalculatedPricing={handleApplyCalculatedPricing}
         />
 
-        {/* Section 3: Pricing & Stock */}
+        {/* Section 3: Media & Demo Video */}
+        <ProductMediaManager media={mediaItems} onChange={setMediaItems} />
+
+        {/* Section 4: Pricing & Stock */}
         <div className="p-6 rounded-2xl bg-card border border-border space-y-5">
           <h2 className="font-semibold text-xs uppercase tracking-wider text-muted-foreground pb-2 border-b border-border">
-            02. Pricing & Inventory
+            03. Pricing & Inventory
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -187,10 +226,10 @@ export default function NewProductPage() {
           </div>
         </div>
 
-        {/* Section 4: Storefront Visibility */}
+        {/* Section 5: Storefront Visibility */}
         <div className="p-6 rounded-2xl bg-card border border-border space-y-4">
           <h2 className="font-semibold text-xs uppercase tracking-wider text-muted-foreground pb-2 border-b border-border">
-            03. Storefront Status
+            04. Storefront Status
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
@@ -214,7 +253,7 @@ export default function NewProductPage() {
               />
               <div>
                 <p className="text-xs font-medium text-foreground">Featured Highlight</p>
-                <p className="text-[11px] text-muted-foreground">Show in Combos grid</p>
+                <p className="text-[11px] text-muted-foreground">Show in Combos / Banners</p>
               </div>
             </label>
 
@@ -246,7 +285,7 @@ export default function NewProductPage() {
             loading={submitting}
             className="font-medium"
           >
-            Create product
+            {isCombo ? 'Create Combo Pack' : 'Create Product'}
           </Button>
         </div>
       </form>

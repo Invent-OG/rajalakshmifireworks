@@ -9,6 +9,7 @@ import { useCart } from '@/hooks/use-cart';
 import { StoreButton } from '@/components/ui/store-button';
 import { Input, Textarea } from '@/components/ui/input';
 import { EmptyState } from '@/components/ui/empty-state';
+import { EnquiryNoticeModal } from '@/components/store/enquiry-notice-modal';
 import { formatCurrency } from '@/lib/utils/format';
 import { Truck, Store, ShoppingBag, ShieldCheck, MessageSquare, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
@@ -50,6 +51,8 @@ export default function CheckoutPage() {
   const router = useRouter();
   const { items, subtotal, totalSavings, itemCount, clearCart } = useCart();
   const [submitting, setSubmitting] = useState(false);
+  const [showNoticeModal, setShowNoticeModal] = useState(false);
+  const [pendingFormData, setPendingFormData] = useState<CheckoutFormData | null>(null);
 
   const form = useForm<CheckoutFormData>({
     resolver: zodResolver(checkoutFormSchema),
@@ -84,7 +87,12 @@ export default function CheckoutPage() {
     );
   }
 
-  async function onSubmit(data: CheckoutFormData) {
+  function handleFormSubmit(data: CheckoutFormData) {
+    setPendingFormData(data);
+    setShowNoticeModal(true);
+  }
+
+  async function executeBooking(data: CheckoutFormData) {
     setSubmitting(true);
     try {
       const idempotencyKey = nanoid();
@@ -124,6 +132,7 @@ export default function CheckoutPage() {
         return;
       }
 
+      setShowNoticeModal(false);
       clearCart();
       router.push(`/order-confirmation/${result.order.invoiceNumber}`);
     } catch {
@@ -145,7 +154,7 @@ export default function CheckoutPage() {
         </p>
       </div>
 
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+      <form onSubmit={form.handleSubmit(handleFormSubmit)}>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Left: Numbered Step Form */}
           <div className="lg:col-span-7 space-y-6">
@@ -370,6 +379,20 @@ export default function CheckoutPage() {
           </div>
         </div>
       </form>
+
+      {/* High Court Legal Compliance Notice Confirmation Modal */}
+      <EnquiryNoticeModal
+        isOpen={showNoticeModal}
+        onClose={() => {
+          if (!submitting) setShowNoticeModal(false);
+        }}
+        onConfirm={() => {
+          if (pendingFormData) {
+            executeBooking(pendingFormData);
+          }
+        }}
+        isLoading={submitting}
+      />
     </div>
   );
 }

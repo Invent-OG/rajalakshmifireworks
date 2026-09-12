@@ -15,13 +15,13 @@ import { categories } from './categories';
 import { productMedia } from './product-media';
 import { orderItems } from './order-items';
 import { inventoryTransactions } from './inventory-transactions';
+import { comboItems } from './combo-items';
 
 export const products = pgTable(
   'products',
   {
     id: serial('id').primaryKey(),
     categoryId: integer('category_id')
-      .notNull()
       .references(() => categories.id),
     name: varchar('name', { length: 255 }).notNull(),
     slug: varchar('slug', { length: 255 }).notNull(),
@@ -34,6 +34,7 @@ export const products = pgTable(
     isActive: boolean('is_active').notNull().default(true),
     isFeatured: boolean('is_featured').notNull().default(false),
     isBestseller: boolean('is_bestseller').notNull().default(false),
+    isCombo: boolean('is_combo').notNull().default(false),
     archivedAt: timestamp('archived_at', { withTimezone: true }),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
@@ -44,6 +45,7 @@ export const products = pgTable(
     index('products_is_active_idx').on(table.isActive),
     index('products_is_featured_idx').on(table.isFeatured),
     index('products_is_bestseller_idx').on(table.isBestseller),
+    index('products_is_combo_idx').on(table.isCombo),
     index('products_selling_price_idx').on(table.sellingPrice),
     index('products_sku_idx').on(table.sku),
   ]
@@ -57,4 +59,6 @@ export const productsRelations = relations(products, ({ one, many }) => ({
   media: many(productMedia),
   orderItems: many(orderItems),
   inventoryTransactions: many(inventoryTransactions),
+  comboItems: many(comboItems, { relationName: 'comboProductRelation' }),
+  inCombos: many(comboItems, { relationName: 'itemProductRelation' }),
 }));

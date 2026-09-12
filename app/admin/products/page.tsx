@@ -36,6 +36,8 @@ interface ProductListItem {
   stockQuantity: number;
   lowStockThreshold: number;
   isActive: boolean;
+  isCombo?: boolean;
+  comboItems?: Array<{ product: { id: number; name: string } }>;
   category: { id: number; name: string; slug: string } | null;
   media: Array<{ url: string }>;
 }
@@ -50,6 +52,7 @@ export default function AdminProductsPage() {
   const [stockFilter, setStockFilter] = useState('all');
   const [categoryId, setCategoryId] = useState('ALL');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [comboFilter, setComboFilter] = useState('all'); // 'all' | 'combos' | 'single'
   const [sortBy, setSortBy] = useState('newest');
 
   // Multi-select & Bulk Operations State
@@ -66,6 +69,7 @@ export default function AdminProductsPage() {
     stockFilter: stockFilter !== 'all' ? stockFilter : undefined,
     categoryId: categoryId !== 'ALL' ? categoryId : undefined,
     statusFilter: statusFilter !== 'all' ? statusFilter : undefined,
+    comboFilter: comboFilter !== 'all' ? comboFilter : undefined,
     sortBy,
   };
 
@@ -79,6 +83,7 @@ export default function AdminProductsPage() {
       if (stockFilter && stockFilter !== 'all') params.set('stockFilter', stockFilter);
       if (categoryId && categoryId !== 'ALL') params.set('categoryId', categoryId);
       if (statusFilter && statusFilter !== 'all') params.set('statusFilter', statusFilter);
+      if (comboFilter && comboFilter !== 'all') params.set('comboFilter', comboFilter);
       if (sortBy) params.set('sortBy', sortBy);
 
       return fetch(`/api/admin/products?${params}`).then((r) => r.json());
@@ -88,7 +93,7 @@ export default function AdminProductsPage() {
   const products: ProductListItem[] = data?.products ?? [];
   const categories: Array<{ id: number; name: string; slug: string }> = data?.categories ?? [];
   const pagination = data?.pagination ?? { total: 0, totalPages: 1, page: 1, limit: 25 };
-  const stats = data?.stats ?? { total: 0, inStock: 0, lowStock: 0, outOfStock: 0, active: 0, inactive: 0 };
+  const stats = data?.stats ?? { total: 0, inStock: 0, lowStock: 0, outOfStock: 0, active: 0, inactive: 0, combos: 0 };
 
   // Single Archive Mutation
   const archiveMutation = useMutation({
@@ -236,6 +241,11 @@ export default function AdminProductsPage() {
             </Button>
           </Link>
           <Link href="/admin/products/new">
+            <Button variant="outline" size="md" className="font-semibold text-xs bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100">
+              <Layers className="h-4 w-4 mr-1 text-amber-700" /> Create Combo Pack
+            </Button>
+          </Link>
+          <Link href="/admin/products/new">
             <Button variant="primary" size="md" className="font-semibold text-xs">
               <Plus className="h-4 w-4" /> Add Product
             </Button>
@@ -278,7 +288,7 @@ export default function AdminProductsPage() {
       {/* Multi-Filter Toolbar */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 p-3.5 rounded-2xl bg-card border border-border">
         {/* Search */}
-        <div className="relative sm:col-span-2 lg:col-span-4">
+        <div className="relative sm:col-span-2 lg:col-span-3">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
             type="text"
@@ -311,8 +321,24 @@ export default function AdminProductsPage() {
           </select>
         </div>
 
+        {/* Product Type Filter (Single vs Combos) */}
+        <div className="lg:col-span-2">
+          <select
+            value={comboFilter}
+            onChange={(e) => {
+              setComboFilter(e.target.value);
+              setPage(1);
+            }}
+            className="w-full h-10 px-3 rounded-xl border border-border bg-card text-xs font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 cursor-pointer"
+          >
+            <option value="all">All Types</option>
+            <option value="combos">Combos Only ({stats.combos || 0})</option>
+            <option value="single">Single Products</option>
+          </select>
+        </div>
+
         {/* Active/Inactive Status */}
-        <div className="lg:col-span-2.5">
+        <div className="lg:col-span-2">
           <select
             value={statusFilter}
             onChange={(e) => {
@@ -328,7 +354,7 @@ export default function AdminProductsPage() {
         </div>
 
         {/* Sorting Dropdown */}
-        <div className="lg:col-span-2.5">
+        <div className="lg:col-span-2">
           <select
             value={sortBy}
             onChange={(e) => {
@@ -435,8 +461,13 @@ export default function AdminProductsPage() {
                             )}
                           </div>
                           <div>
-                            <div className="flex items-center gap-1.5">
+                            <div className="flex items-center gap-1.5 flex-wrap">
                               <p className="font-semibold text-foreground">{p.name}</p>
+                              {p.isCombo && (
+                                <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-100 text-amber-900 border border-amber-300 uppercase flex items-center gap-0.5">
+                                  <Layers className="h-2.5 w-2.5" /> Combo
+                                </span>
+                              )}
                               {!p.isActive && (
                                 <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-muted text-muted-foreground uppercase">
                                   Archived

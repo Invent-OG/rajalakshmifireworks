@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { db } from '@/db';
-import { products } from '@/db/schema';
+import { products, productMedia, comboItems } from '@/db/schema';
 import { eq, asc, AnyColumn, SQLWrapper } from 'drizzle-orm';
 import { getSession } from '@/lib/auth/session';
 import { productUpdateSchema } from '@/lib/validation/product';
@@ -20,7 +20,20 @@ export async function GET(
       where: eq(products.id, parseInt(id)),
       with: {
         category: true,
-        media: { orderBy: (m: { sortOrder: SQLWrapper | AnyColumn; }) => [asc(m.sortOrder)] },
+        media: { orderBy: (m: { sortOrder: SQLWrapper | AnyColumn }) => [asc(m.sortOrder)] },
+        comboItems: {
+          with: {
+            product: {
+              with: {
+                media: {
+                  orderBy: [asc(productMedia.sortOrder)],
+                  limit: 1,
+                },
+              },
+            },
+          },
+          orderBy: [asc(comboItems.sortOrder)],
+        },
       },
     });
 
@@ -40,13 +53,17 @@ export async function PUT(
   if (!session) return Response.json({ message: 'Unauthorized' }, { status: 401 });
 
   const { id } = await params;
+  const productId = parseInt(id);
 
   try {
     const body = await request.json();
     const result = productUpdateSchema.safeParse(body);
 
     if (!result.success) {
-      return Response.json({ message: 'Validation failed', errors: result.error.flatten().fieldErrors }, { status: 400 });
+      return Response.json(
+        { message: 'Validation failed', errors: result.error.flatten().fieldErrors },
+        { status: 400 }
+      );
     }
 
     const updateData: Record<string, unknown> = { updatedAt: new Date() };
@@ -55,7 +72,9 @@ export async function PUT(
       updateData.name = result.data.name;
       updateData.slug = slugify(result.data.name);
     }
-    if (result.data.categoryId !== undefined) updateData.categoryId = result.data.categoryId;
+    if (result.data.categoryId !== undefined) {
+      updateData.categoryId = result.data.categoryId ? Number(result.data.categoryId) : null;
+    }
     if (result.data.description !== undefined) updateData.description = result.data.description;
     if (result.data.sku !== undefined) updateData.sku = result.data.sku;
     if (result.data.mrp !== undefined) updateData.mrp = String(result.data.mrp);
@@ -65,8 +84,29 @@ export async function PUT(
     if (result.data.isActive !== undefined) updateData.isActive = result.data.isActive;
     if (result.data.isFeatured !== undefined) updateData.isFeatured = result.data.isFeatured;
     if (result.data.isBestseller !== undefined) updateData.isBestseller = result.data.isBestseller;
+    if (result.data.isCombo !== undefined) updateData.isCombo = result.data.isCombo;
 
-    const [updated] = await db.update(products).set(updateData).where(eq(products.id, parseInt(id))).returning();
+    const [updated] = await db.update(products).set(updateData).where(eq(products.id, productId)).returning();
+
+    // Update combo items if provided
+    if (result.data.comboItems !== undefined || result.data.isCombo !== undefined) {
+      // Remove previous combo items
+      await db.delete(comboItems).where(eq(comboItems.comboProductId, productId));
+
+      const isComboActive = result.data.isCombo ?? updated.isCombo;
+      const newComboItems = result.data.comboItems;
+
+      if (isComboActive && newComboItems && newComboItems.length > 0) {
+        await db.insert(comboItems).values(
+          newComboItems.map((ci, idx) => ({
+            comboProductId: productId,
+            productId: ci.productId,
+            quantity: ci.quantity,
+            sortOrder: ci.sortOrder ?? idx,
+          }))
+        );
+      }
+    }
 
     return Response.json({ product: updated });
   } catch (error) {
@@ -86,11 +126,14 @@ export async function DELETE(
 
   try {
     // Soft delete — set archived
-    await db.update(products).set({
-      isActive: false,
-      archivedAt: new Date(),
-      updatedAt: new Date(),
-    }).where(eq(products.id, parseInt(id)));
+    await db
+      .update(products)
+      .set({
+        isActive: false,
+        archivedAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(products.id, parseInt(id)));
 
     return Response.json({ success: true });
   } catch (error) {

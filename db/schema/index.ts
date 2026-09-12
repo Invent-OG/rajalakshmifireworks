@@ -1,6 +1,7 @@
 // Barrel export for all database schemas
 export { categories, categoriesRelations } from './categories';
 export { products, productsRelations } from './products';
+export { comboItems, comboItemsRelations } from './combo-items';
 export { productMedia, productMediaRelations } from './product-media';
 export { customers, customersRelations } from './customers';
 export { customerAddresses, customerAddressesRelations } from './customer-addresses';
