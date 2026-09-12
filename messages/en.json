@@ -39,12 +39,14 @@
     "greenCertified": "100% Green Fireworks Certified",
     "errorOccurred": "An unexpected error occurred. Please try again.",
     "noResultsFound": "No items found matching your criteria.",
-    "comingSoon": "Coming Soon"
+    "comingSoon": "Coming Soon",
+    "all": "All"
   },
   "navigation": {
     "home": "Home",
     "catalog": "Catalog",
     "products": "Products",
+    "allProducts": "All Fireworks",
     "categories": "Categories",
     "combos": "Combos",
     "about": "Safety",
@@ -82,6 +84,7 @@
     "bestsellersSubtitle": "The most demanded celebration fireworks across Tamil Nadu & South India, packaged fresh from Sivakasi workshops.",
     "featuredTitle": "Featured Firework Masterpieces",
     "featuredSubtitle": "Hand-picked collection of top-rated sparklers, aerial displays, and multi-shot crackers.",
+    "bestseller": "Bestsellers",
     "tagBestseller": "Bestseller",
     "tagFeatured": "Featured",
     "tagCombo": "Combo Pack",
@@ -97,6 +100,7 @@
     "totalComboValue": "Total Items Value",
     "comboSavings": "Combo Package Savings",
     "emptyProducts": "No fireworks found in this selection.",
+    "noProducts": "No Fireworks Found",
     "emptyProductsDesc": "Try clearing your filters or exploring a different category.",
     "perBox": "per box",
     "perPack": "per pack",

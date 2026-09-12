@@ -307,11 +307,10 @@ export function FloatingNavbar() {
             <nav className="hidden md:inline-flex items-center gap-1.5 bg-neutral-100/90 p-1.5 rounded-full border border-neutral-200/60 shadow-inner shrink-0">
               <Link
                 href="/products"
-                className={`px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 whitespace-nowrap ${
-                  pathname === '/products' && !activeMenu
+                className={`px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 whitespace-nowrap ${pathname === '/products' && !activeMenu
                     ? 'bg-white text-neutral-950 shadow-xs'
                     : 'text-neutral-600 hover:text-neutral-950 hover:bg-white/80'
-                }`}
+                  }`}
               >
                 {tNav('catalog')}
               </Link>
@@ -325,18 +324,16 @@ export function FloatingNavbar() {
                     type="button"
                     onMouseEnter={() => handleMouseEnter(key)}
                     onClick={() => setActiveMenu(activeMenu === key ? null : key)}
-                    className={`px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center gap-1.5 cursor-pointer select-none whitespace-nowrap ${
-                      isHovered
+                    className={`px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center gap-1.5 cursor-pointer select-none whitespace-nowrap ${isHovered
                         ? 'bg-white text-neutral-950 shadow-xs'
                         : 'text-neutral-600 hover:text-neutral-950 hover:bg-white/80'
-                    }`}
+                      }`}
                     aria-expanded={isHovered}
                   >
                     <span>{menu.label}</span>
                     <ChevronDown
-                      className={`h-4 w-4 transition-transform duration-200 ${
-                        isHovered ? 'rotate-180 text-neutral-950' : 'text-neutral-400'
-                      }`}
+                      className={`h-4 w-4 transition-transform duration-200 ${isHovered ? 'rotate-180 text-neutral-950' : 'text-neutral-400'
+                        }`}
                     />
                   </button>
                 );
@@ -344,11 +341,10 @@ export function FloatingNavbar() {
 
               <Link
                 href="/track-order"
-                className={`px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 whitespace-nowrap ${
-                  pathname === '/track-order' && !activeMenu
+                className={`px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 whitespace-nowrap ${pathname === '/track-order' && !activeMenu
                     ? 'bg-white text-neutral-950 shadow-xs'
                     : 'text-neutral-600 hover:text-neutral-950 hover:bg-white/80'
-                }`}
+                  }`}
               >
                 {tNav('trackOrder')}
               </Link>
@@ -426,11 +422,10 @@ export function FloatingNavbar() {
                 {/* Left Column: List of Categories or Combos */}
                 <div className="lg:col-span-6 space-y-4">
                   <div
-                    className={`grid ${
-                      currentMegaMenu.items.length > 3
+                    className={`grid ${currentMegaMenu.items.length > 3
                         ? 'grid-cols-1 sm:grid-cols-2 gap-2.5'
                         : 'grid-cols-1 space-y-2'
-                    } max-h-[380px] overflow-y-auto pr-1`}
+                      } max-h-[380px] overflow-y-auto pr-1`}
                   >
                     {currentMegaMenu.items.map((item, idx) => (
                       <Link

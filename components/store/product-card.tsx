@@ -6,7 +6,7 @@ import { useCart, useCartItemQuantity } from '@/hooks/use-cart';
 import { toNumber, formatCurrency } from '@/lib/utils/format';
 import { ProductVisualPlaceholder } from '@/components/ui/category-icon';
 import { gsap, isReducedMotion } from '@/lib/motion';
-import { ShoppingCart, Plus, Minus } from 'lucide-react';
+import { Plus, Minus, ShoppingBag } from 'lucide-react';
 import { useLocale, useTranslations } from '@/lib/i18n/context';
 import { getLocalizedName, getLocalizedDescription } from '@/lib/i18n/formatters';
 
@@ -35,9 +35,12 @@ export function ProductCard({ product }: ProductCardProps) {
   const mrp = toNumber(product.mrp);
   const price = toNumber(product.sellingPrice);
   const isOutOfStock = product.stockQuantity <= 0;
-  const imageUrl = product.media?.[0]?.url || null;
+
+  const img1 = product.media?.[0]?.url || null;
+  const img2 = product.media?.[1]?.url || img1;
+
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const cardRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLElement>(null);
 
   const displayName = getLocalizedName(product, locale);
   const displayDesc = getLocalizedDescription(product, locale) || (
@@ -49,7 +52,8 @@ export function ProductCard({ product }: ProductCardProps) {
 
   const discount = mrp > price ? Math.round(((mrp - price) / mrp) * 100) : 0;
 
-  function handleAddToCart() {
+  function handleAddToCart(e: React.MouseEvent) {
+    e.preventDefault();
     if (buttonRef.current && !isReducedMotion()) {
       gsap.fromTo(
         buttonRef.current,
@@ -62,7 +66,7 @@ export function ProductCard({ product }: ProductCardProps) {
       productId: product.id,
       name: displayName,
       slug: product.slug,
-      image: imageUrl,
+      image: img1,
       mrp,
       sellingPrice: price,
       maxStock: product.stockQuantity,
@@ -70,121 +74,110 @@ export function ProductCard({ product }: ProductCardProps) {
     });
   }
 
-  // Generate contextual tags for fireworks
+  // Generate contextual tags
   const tags: string[] = [];
   if (discount > 0) tags.push(tCommon('off', { percent: discount }));
   tags.push(locale === 'ta' ? 'பசுமை பட்டாசு' : 'Green Cracker');
   if (categoryName) tags.push(categoryName);
 
   return (
-    <div
-      ref={cardRef}
-      className="group relative flex flex-col justify-between bg-white rounded-[28px] sm:rounded-[40px] p-3.5 sm:p-5 shadow-sm hover:shadow-xl transition-all duration-300"
-      style={{ fontFamily: "'DM Sans', sans-serif" }}
-    >
-      {/* ── 1. Top Image Showcase with Inverted-Corner Category Tab ── */}
-      <div className="relative aspect-[4/3] w-full rounded-[22px] sm:rounded-[30px] overflow-hidden bg-neutral-100/80">
-        {/* Category Inset Tab with Smooth Concave Wings */}
-        <div className="absolute top-0 left-0 bg-white pl-3.5 pr-3 pt-1.5 pb-1 sm:pl-4.5 sm:pr-4 sm:pt-2.5 sm:pb-2 rounded-br-[18px] sm:rounded-br-[22px] z-10 select-none flex items-center shadow-2xs">
-          <span className="text-[11px] sm:text-[13px] font-semibold text-neutral-700 tracking-tight">
-            {categoryName}
-          </span>
+    <>
+      {/* SVG Inset Shadow Filter */}
+      <svg width="0" height="0" className="hidden fixed" aria-hidden="true">
+        <filter id="svg-inset-shadow">
+          <feOffset in="SourceAlpha" dx="6" dy="8" />
+          <feGaussianBlur in="SourceAlpha" stdDeviation="8" />
+          <feComposite in="SourceAlpha" operator="out" />
+          <feBlend in2="SourceGraphic" mode="multiply" />
+        </filter>
+      </svg>
 
-          {/* Right Concave Wing */}
-          <svg
-            className="absolute top-0 left-full w-4 h-4 sm:w-5 sm:h-5 text-white fill-current pointer-events-none"
-            viewBox="0 0 20 20"
-          >
-            <path d="M0 0 H20 A20 20 0 0 1 0 20 Z" />
-          </svg>
-
-          {/* Bottom Concave Wing */}
-          <svg
-            className="absolute top-full left-0 w-4 h-4 sm:w-5 sm:h-5 text-white fill-current pointer-events-none"
-            viewBox="0 0 20 20"
-          >
-            <path d="M0 0 V20 A20 20 0 0 1 20 0 Z" />
-          </svg>
-        </div>
-
-        {/* Product Image Link */}
-        <Link
-          href={`/product/${product.slug}`}
-          className="block w-full h-full"
-        >
-          <div className="w-full h-full flex items-center justify-center select-none">
-            {imageUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
+      <section
+        ref={cardRef}
+        className="_card group scope product-card select-none"
+      >
+        {/* ── 1. Thumbnail Stack & Curved Inverted Category Tab ── */}
+        <div className="_thumbnail-stack relative">
+          {img1 ? (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={imageUrl}
+                src={img1}
                 alt={displayName}
+                width={400}
+                height={400}
+                loading="lazy"
                 referrerPolicy="no-referrer"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
               />
-            ) : (
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={img2 || img1}
+                alt={displayName}
+                width={400}
+                height={400}
+                loading="lazy"
+                referrerPolicy="no-referrer"
+              />
+            </>
+          ) : (
+            <div className="w-full h-full flex items-center justify-center p-4">
               <ProductVisualPlaceholder name={product.name} />
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Out of Stock Overlay */}
           {isOutOfStock && (
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-2 z-20">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-2 z-20 rounded-[20px]">
               <span className="bg-white text-black text-[11px] sm:text-[12px] font-bold px-3 py-1 rounded-full shadow-sm">
                 {tCommon('outOfStock')}
               </span>
             </div>
           )}
-        </Link>
-      </div>
+        </div>
 
-      {/* ── 2. Content Details ── */}
-      <div className="pt-3 sm:pt-4 flex flex-col flex-1 justify-between space-y-3 sm:space-y-4">
-        <div>
-          {/* Title & Price Row */}
-          <div className="flex items-center justify-between gap-2 sm:gap-3">
-            <Link href={`/product/${product.slug}`} className="min-w-0 flex-1">
-              <h3 className="font-bold text-sm sm:text-lg text-neutral-900 tracking-tight leading-snug truncate hover:text-amber-600 transition-colors">
-                {displayName}
-              </h3>
-            </Link>
+        {/* Curved Inset Category Badge */}
+        <p className="_category">{categoryName}</p>
 
-            {/* Price Pill Badge */}
-            <div className="shrink-0 px-2.5 py-0.5 sm:px-3.5 sm:py-1 rounded-full text-xs sm:text-sm font-bold bg-neutral-100 text-neutral-900 shadow-2xs">
-              {formatCurrency(price)}
-            </div>
-          </div>
+        {/* ── 2. Header Grid (Heading + Price Pill) ── */}
+        <div className="_card-header-grid mt-2">
+          <Link href={`/product/${product.slug}`} className="block truncate">
+            <h2 className="_heading truncate group-hover:text-amber-600 transition-colors" title={displayName}>
+              {displayName}
+            </h2>
+          </Link>
 
-          {/* 2-Line Description */}
-          <p className="text-xs sm:text-[13px] text-neutral-500 font-normal leading-relaxed line-clamp-2 mt-1.5 sm:mt-2">
-            {displayDesc}
-          </p>
-
-          {/* Tags Row */}
-          <div className="flex items-center flex-wrap gap-1 sm:gap-1.5 mt-2.5 sm:mt-3.5">
-            {tags.slice(0, 3).map((tag, idx) => (
-              <span
-                key={idx}
-                className={`inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-semibold tracking-tight bg-neutral-100 text-neutral-600 ${idx === 2 ? 'hidden sm:inline-flex' : ''
-                  }`}
-              >
-                {tag}
-              </span>
-            ))}
+          {/* Neutral Price Badge with Tabular Numbers */}
+          <div className="_price">
+            {formatCurrency(price)}
           </div>
         </div>
 
-        {/* ── 3. Bottom Action Button (Add To Cart) ── */}
-        <div className="pt-1">
+        {/* ── 3. Description (Line-clamped) ── */}
+        <p className="_description">
+          {displayDesc}
+        </p>
+
+        {/* ── 4. Tag List ── */}
+        <ul className="_tag-list">
+          {tags.slice(0, 3).map((tag, idx) => (
+            <li key={idx} className="_tag">
+              {tag}
+            </li>
+          ))}
+        </ul>
+
+        {/* ── 5. Action Button (Pure Black Button / Quantity Stepper) ── */}
+        <div className="_button mt-2">
           {isOutOfStock ? (
             <button
               type="button"
               disabled
-              className="w-full h-12 px-4 sm:px-6 rounded-full bg-neutral-100 text-neutral-400 text-xs sm:text-sm font-bold text-center opacity-70 cursor-not-allowed flex items-center justify-center"
+              className="w-full h-12 px-4 rounded-full bg-neutral-100 text-neutral-400 text-xs sm:text-sm font-bold text-center opacity-70 cursor-not-allowed flex items-center justify-center"
             >
               {tCommon('outOfStock')}
             </button>
           ) : quantity > 0 ? (
-            <div className="h-12 px-2 rounded-full bg-neutral-100 flex items-center justify-between shadow-xs">
+            <div className="h-12 px-2.5 rounded-full bg-neutral-100 flex items-center justify-between shadow-xs border border-neutral-200/60">
               <button
                 type="button"
                 onClick={() => (quantity === 1 ? removeItem(product.id) : updateQuantity(product.id, quantity - 1))}
@@ -194,7 +187,7 @@ export function ProductCard({ product }: ProductCardProps) {
                 <Minus size={13} />
               </button>
 
-              <span className="text-xs sm:text-sm font-bold text-neutral-900 select-none px-2 truncate">
+              <span className="text-xs sm:text-sm font-bold text-neutral-900 select-none px-3 font-mono">
                 {quantity}
               </span>
 
@@ -213,16 +206,14 @@ export function ProductCard({ product }: ProductCardProps) {
               ref={buttonRef}
               type="button"
               onClick={handleAddToCart}
-              className="w-full h-12 px-4 sm:px-6 rounded-full bg-neutral-950 hover:bg-neutral-800 text-white font-bold text-xs sm:text-sm shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-98 transition-all duration-300"
+              className="product-card-purchase-btn scope purchase-button"
             >
-              <ShoppingCart size={15} />
+              <ShoppingBag size={15} />
               <span>{tProducts('addToBag')}</span>
             </button>
           )}
         </div>
-      </div>
-    </div>
+      </section>
+    </>
   );
 }
-
-
