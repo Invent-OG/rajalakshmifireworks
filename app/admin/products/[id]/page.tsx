@@ -64,8 +64,10 @@ export default function EditProductPage({
 
       form.reset({
         name: product.name,
+        nameTa: product.nameTa || '',
         categoryId: product.categoryId,
         description: product.description || '',
+        descriptionTa: product.descriptionTa || '',
         sku: product.sku || '',
         mrp: parseFloat(product.mrp),
         sellingPrice: parseFloat(product.sellingPrice),
@@ -184,12 +186,21 @@ export default function EditProductPage({
             01. Product Information
           </h2>
 
-          <Input
-            label="Product Title *"
-            placeholder="e.g. 10 cm Electric Sparklers"
-            error={form.formState.errors.name?.message}
-            {...form.register('name')}
-          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              label="Product Title (English) *"
+              placeholder="e.g. 10 cm Electric Sparklers"
+              error={form.formState.errors.name?.message}
+              {...form.register('name')}
+            />
+
+            <Input
+              label="Product Title (Tamil / தமிழ் பெயர்)"
+              placeholder="எ.கா: 10 செ.மீ எலக்ட்ரிக் கம்பி மத்தாப்பு"
+              error={form.formState.errors.nameTa?.message}
+              {...form.register('nameTa')}
+            />
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Select
@@ -198,9 +209,9 @@ export default function EditProductPage({
               placeholder={isCombo ? 'None (Combo Pack)' : 'Select Category'}
               options={[
                 ...(isCombo ? [{ value: '', label: 'None (Combo Pack)' }] : []),
-                ...categoriesList.map((c: { id: number; name: string }) => ({
+                ...categoriesList.map((c: { id: number; name: string; nameTa?: string | null }) => ({
                   value: String(c.id),
-                  label: c.name,
+                  label: c.nameTa ? `${c.name} (${c.nameTa})` : c.name,
                 })),
               ]}
               error={form.formState.errors.categoryId?.message}
@@ -215,12 +226,22 @@ export default function EditProductPage({
             />
           </div>
 
-          <Textarea
-            label="Product Description & Safety"
-            rows={4}
-            error={form.formState.errors.description?.message}
-            {...form.register('description')}
-          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Textarea
+              label="Product Description (English)"
+              rows={4}
+              error={form.formState.errors.description?.message}
+              {...form.register('description')}
+            />
+
+            <Textarea
+              label="Product Description (Tamil / தமிழ் விளக்கம்)"
+              rows={4}
+              placeholder="பட்டாசு விளக்கம், சிறப்பு அம்சங்கள் மற்றும் பயன்பாட்டு வழிகாட்டுதல்கள்..."
+              error={form.formState.errors.descriptionTa?.message}
+              {...form.register('descriptionTa')}
+            />
+          </div>
         </div>
 
         {/* Section 2: Combo Builder (Multiple Products Selector) */}

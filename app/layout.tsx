@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DM_Sans, Plus_Jakarta_Sans, Outfit, Rubik, JetBrains_Mono } from "next/font/google";
+import { DM_Sans, Plus_Jakarta_Sans, Outfit, Rubik, JetBrains_Mono, Noto_Sans_Tamil } from "next/font/google";
 import { Providers } from "@/components/providers";
 import "./globals.css";
 
@@ -29,6 +29,13 @@ const rubik = Rubik({
   subsets: ["latin"],
   display: "swap",
   weight: ["500", "600", "700", "800", "900"],
+});
+
+const notoSansTamil = Noto_Sans_Tamil({
+  variable: "--font-tamil",
+  subsets: ["tamil"],
+  display: "swap",
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 const jetbrainsMono = JetBrains_Mono({
@@ -67,7 +74,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${dmSans.variable} ${plusJakartaSans.variable} ${outfit.variable} ${rubik.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${dmSans.variable} ${plusJakartaSans.variable} ${outfit.variable} ${rubik.variable} ${notoSansTamil.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans">
         <Providers>{children}</Providers>

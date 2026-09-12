@@ -127,12 +127,21 @@ export default function NewProductPage() {
             01. Product Information
           </h2>
 
-          <Input
-            label="Product Title *"
-            placeholder={isCombo ? 'e.g. 2026 Mega Family Diwali Combo Box (35 Items)' : 'e.g. 10 cm Electric Sparklers (10 pcs)'}
-            error={form.formState.errors.name?.message}
-            {...form.register('name')}
-          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              label="Product Title (English) *"
+              placeholder={isCombo ? 'e.g. 2026 Mega Family Diwali Combo Box (35 Items)' : 'e.g. 10 cm Electric Sparklers (10 pcs)'}
+              error={form.formState.errors.name?.message}
+              {...form.register('name')}
+            />
+
+            <Input
+              label="Product Title (Tamil / தமிழ் பெயர்)"
+              placeholder={isCombo ? 'எ.கா: 2026 மெகா தீபாவளி குடும்ப காம்போ பாக்ஸ்' : 'எ.கா: 10 செ.மீ எலக்ட்ரிக் கம்பி மத்தாப்பு'}
+              error={form.formState.errors.nameTa?.message}
+              {...form.register('nameTa')}
+            />
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Select
@@ -140,9 +149,9 @@ export default function NewProductPage() {
               placeholder={isCombo ? 'None (Combo Pack)' : 'Select Category'}
               options={[
                 ...(isCombo ? [{ value: '', label: 'None (Combo Pack)' }] : []),
-                ...categoriesList.map((c: { id: number; name: string }) => ({
+                ...categoriesList.map((c: { id: number; name: string; nameTa?: string | null }) => ({
                   value: String(c.id),
-                  label: c.name,
+                  label: c.nameTa ? `${c.name} (${c.nameTa})` : c.name,
                 })),
               ]}
               error={form.formState.errors.categoryId?.message}
@@ -157,16 +166,29 @@ export default function NewProductPage() {
             />
           </div>
 
-          <Textarea
-            label="Description & Highlights"
-            placeholder={
-              isCombo
-                ? 'Describe the assortment, celebration themes, ideal family size, and sparkler varieties included...'
-                : 'Describe the effects, duration, spark patterns, and handling guidelines...'
-            }
-            error={form.formState.errors.description?.message}
-            {...form.register('description')}
-          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Textarea
+              label="Description & Highlights (English)"
+              placeholder={
+                isCombo
+                  ? 'Describe the assortment, celebration themes, ideal family size, and sparkler varieties included...'
+                  : 'Describe the effects, duration, spark patterns, and handling guidelines...'
+              }
+              error={form.formState.errors.description?.message}
+              {...form.register('description')}
+            />
+
+            <Textarea
+              label="Description & Highlights (Tamil / தமிழ் விளக்கம்)"
+              placeholder={
+                isCombo
+                  ? 'காம்போ பேக்கில் அடங்கியுள்ள பட்டாசுகள், பாதுகாப்பு வழிமுறைகள் பற்றிய தமிழ் விவரம்...'
+                  : 'பட்டாசு விளைவுகள், வெளிச்சம் மற்றும் பயன்பாட்டு வழிகாட்டுதல்கள்...'
+              }
+              error={form.formState.errors.descriptionTa?.message}
+              {...form.register('descriptionTa')}
+            />
+          </div>
         </div>
 
         {/* Section 2: Combo Builder (Multiple Products Selector) */}

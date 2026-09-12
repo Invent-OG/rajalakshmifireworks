@@ -126,10 +126,11 @@
   --color-fd-background: var(--background);
   --color-fd-muted-foreground: var(--muted-foreground);
 
-  --font-sans: var(--font-dm-sans), var(--font-sans), 'Plus Jakarta Sans', system-ui, sans-serif;
-  --font-heading: var(--font-dm-sans), var(--font-heading), 'Outfit', sans-serif;
-  --font-rubik: var(--font-rubik), 'Rubik', sans-serif;
+  --font-sans: var(--font-dm-sans), var(--font-sans), var(--font-tamil), 'Noto Sans Tamil', 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-heading: var(--font-dm-sans), var(--font-heading), var(--font-tamil), 'Noto Sans Tamil', 'Outfit', sans-serif;
+  --font-rubik: var(--font-rubik), var(--font-tamil), 'Rubik', sans-serif;
   --font-mono: var(--font-mono), 'JetBrains Mono', monospace;
+  --font-tamil: var(--font-tamil), 'Noto Sans Tamil', sans-serif;
 }
 
 /* ── Base Styles & Typography Hierarchy ─── */

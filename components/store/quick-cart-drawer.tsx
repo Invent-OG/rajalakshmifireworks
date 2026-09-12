@@ -7,10 +7,10 @@ import { useCart, useIsHydrated } from '@/hooks/use-cart';
 import { ShoppingBag, ChevronUp, CreditCard } from 'lucide-react';
 import { useGSAP } from '@gsap/react';
 import { gsap, isReducedMotion } from '@/lib/motion';
-import { StoreButton } from '@/components/ui/store-button';
 import { Portal } from '@/components/ui/portal';
 import NumberFlow from '@number-flow/react';
 import Link from 'next/link';
+import { useTranslations, useLocale } from '@/lib/i18n/context';
 
 export function QuickCartSidebar() {
   return (
@@ -24,6 +24,8 @@ export function QuickCartMobileFloating() {
   const pathname = usePathname();
   const { itemCount, subtotal } = useCart();
   const isHydrated = useIsHydrated();
+  const locale = useLocale();
+  const tCart = useTranslations('cart');
   const [isOpen, setIsOpen] = useState(false);
   const [isRendered, setIsRendered] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
@@ -92,7 +94,13 @@ export function QuickCartMobileFloating() {
   );
 
   // Don't show floating cart on Cart or Checkout pages, or when cart is empty
-  if (pathname === '/cart' || pathname === '/checkout') return null;
+  const isCartOrCheckout =
+    pathname === '/cart' ||
+    pathname === '/checkout' ||
+    pathname === `/${locale}/cart` ||
+    pathname === `/${locale}/checkout`;
+
+  if (isCartOrCheckout) return null;
   if (!isHydrated || itemCount === 0) return null;
 
   return (
@@ -102,7 +110,7 @@ export function QuickCartMobileFloating() {
         <div className="mx-auto max-w-md pointer-events-auto">
           <div
             ref={barRef}
-            className="bg-white/95 backdrop-blur-xl text-neutral-900 rounded-full p-2.5 shadow-2xl flex items-center justify-between gap-3 transform-gpu"
+            className="bg-white/95 backdrop-blur-xl text-neutral-900 rounded-full p-2.5 shadow-2xl flex items-center justify-between gap-3 transform-gpu font-sans"
           >
             <button
               type="button"
@@ -131,18 +139,18 @@ export function QuickCartMobileFloating() {
                   />
                 </div>
                 <p className="text-[10px] text-neutral-500 font-medium flex items-center gap-0.5">
-                  View Items <ChevronUp className="h-2.5 w-2.5" />
+                  {tCart('orderSummary')} <ChevronUp className="h-2.5 w-2.5" />
                 </p>
               </div>
             </button>
 
-            <Link href="/checkout" className="shrink-0">
+            <Link href={locale === 'en' ? '/checkout' : `/${locale}/checkout`} className="shrink-0">
               <button
                 type="button"
-                className="h-12 px-6 rounded-full bg-neutral-950 hover:bg-neutral-800 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer justify-center"
+                className="h-12 px-5 sm:px-6 rounded-full bg-neutral-950 hover:bg-neutral-800 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer justify-center"
               >
                 <CreditCard className="h-4 w-4" />
-                <span>Checkout</span>
+                <span>{tCart('proceedToCheckout')}</span>
               </button>
             </Link>
           </div>

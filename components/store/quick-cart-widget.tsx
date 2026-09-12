@@ -9,8 +9,9 @@ import { useCart, useIsHydrated } from '@/hooks/use-cart';
 import { formatCurrency } from '@/lib/utils/format';
 import { useGSAP } from '@gsap/react';
 import { gsap, isReducedMotion } from '@/lib/motion';
-import { StoreButton } from '@/components/ui/store-button';
 import { QuantityStepper } from '@/components/ui/quantity-stepper';
+import { useTranslations, useLocale } from '@/lib/i18n/context';
+import { getLocalizedName } from '@/lib/i18n/formatters';
 
 interface QuickCartWidgetProps {
   className?: string;
@@ -20,6 +21,9 @@ interface QuickCartWidgetProps {
 export function QuickCartWidget({ className = '', onClose }: QuickCartWidgetProps) {
   const { items, itemCount, subtotal, totalSavings, updateQuantity, removeItem } = useCart();
   const isHydrated = useIsHydrated();
+  const locale = useLocale();
+  const t = useTranslations('cart');
+  const tCommon = useTranslations('common');
   const containerRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const prevItemCount = useRef(itemCount);
@@ -94,10 +98,10 @@ export function QuickCartWidget({ className = '', onClose }: QuickCartWidgetProp
       >
         <div className="flex items-center gap-2.5 pb-4 border-b border-neutral-100">
           <ShoppingCart className="h-5 w-5 text-neutral-400" />
-          <span className="font-bold text-base tracking-tight">Shopping Bag</span>
+          <span className="font-bold text-base tracking-tight">{t('title')}</span>
         </div>
         <div className="py-10 text-center text-xs text-neutral-400 font-sans">
-          Loading bag items...
+          {tCommon('loading')}
         </div>
       </div>
     );
@@ -122,7 +126,7 @@ export function QuickCartWidget({ className = '', onClose }: QuickCartWidgetProp
           <div>
             <div className="flex items-center gap-1.5">
               <span className="font-bold text-base tracking-tight text-neutral-900">
-                Shopping Bag
+                {t('title')}
               </span>
               <span className="qcart-badge h-5 px-2 rounded-full bg-neutral-950 text-white text-[11px] font-bold flex items-center justify-center font-mono">
                 {itemCount}
@@ -134,10 +138,10 @@ export function QuickCartWidget({ className = '', onClose }: QuickCartWidgetProp
         <div className="flex items-center gap-2">
           {itemCount > 0 && (
             <Link
-              href="/cart"
+              href={locale === 'en' ? '/cart' : `/${locale}/cart`}
               className="text-xs font-semibold text-neutral-500 hover:text-neutral-950 transition-colors flex items-center gap-1 py-1 px-3 rounded-full hover:bg-neutral-100"
             >
-              Full Bag <ArrowRight className="h-3 w-3" />
+              {t('orderSummary')} <ArrowRight className="h-3 w-3" />
             </Link>
           )}
           {onClose && (
@@ -145,7 +149,7 @@ export function QuickCartWidget({ className = '', onClose }: QuickCartWidgetProp
               type="button"
               onClick={onClose}
               className="h-8 w-8 rounded-full bg-neutral-100 text-neutral-500 hover:text-neutral-900 hover:bg-neutral-200 flex items-center justify-center transition-colors cursor-pointer"
-              aria-label="Close cart"
+              aria-label={tCommon('close')}
             >
               <X className="h-4 w-4" />
             </button>
@@ -157,10 +161,10 @@ export function QuickCartWidget({ className = '', onClose }: QuickCartWidgetProp
       {totalSavings > 0 && (
         <div className="mt-3.5 bg-emerald-50 rounded-full px-4 py-2 flex items-center justify-between text-xs">
           <span className="text-emerald-800 font-semibold flex items-center gap-1.5">
-            <Sparkles className="h-3.5 w-3.5 text-emerald-600" /> Sivakasi Savings:
+            <Sparkles className="h-3.5 w-3.5 text-emerald-600" /> {t('totalSavings')}:
           </span>
           <span className="text-emerald-700 font-mono font-bold">
-            {formatCurrency(totalSavings)} off
+            {formatCurrency(totalSavings)} {locale === 'ta' ? 'சேமிப்பு' : 'off'}
           </span>
         </div>
       )}
@@ -172,9 +176,9 @@ export function QuickCartWidget({ className = '', onClose }: QuickCartWidgetProp
             <ShoppingBag className="h-6 w-6" />
           </div>
           <div className="space-y-1">
-            <p className="font-bold text-sm text-neutral-900">Your bag is empty</p>
+            <p className="font-bold text-sm text-neutral-900">{t('emptyTitle')}</p>
             <p className="text-xs text-neutral-500 leading-relaxed max-w-[220px] mx-auto">
-              Add fireworks or festive gift combos to build your celebration pack
+              {t('emptyDesc')}
             </p>
           </div>
         </div>
@@ -185,6 +189,7 @@ export function QuickCartWidget({ className = '', onClose }: QuickCartWidgetProp
         >
           {items.map((item) => {
             const lineTotal = item.sellingPrice * item.quantity;
+            const displayName = getLocalizedName(item, locale);
             return (
               <div
                 key={item.productId}
@@ -197,7 +202,7 @@ export function QuickCartWidget({ className = '', onClose }: QuickCartWidgetProp
                     <div className="relative h-12 w-12 rounded-[14px] overflow-hidden bg-white shrink-0">
                       <Image
                         src={item.image}
-                        alt={item.name}
+                        alt={displayName}
                         fill
                         className="object-cover"
                         sizes="48px"
@@ -211,10 +216,10 @@ export function QuickCartWidget({ className = '', onClose }: QuickCartWidgetProp
 
                   <div className="flex-1 min-w-0">
                     <span className="text-xs font-semibold text-neutral-900 line-clamp-1 leading-snug">
-                      {item.name}
+                      {displayName}
                     </span>
                     <span className="text-[11px] text-neutral-500 font-mono">
-                      {formatCurrency(item.sellingPrice)} each
+                      {formatCurrency(item.sellingPrice)} {locale === 'ta' ? 'ஒன்றுக்கு' : 'each'}
                     </span>
                   </div>
 
@@ -225,7 +230,7 @@ export function QuickCartWidget({ className = '', onClose }: QuickCartWidgetProp
                       handleRemoveWithAnim(item.productId, card);
                     }}
                     className="h-6 w-6 -mr-1 -mt-0.5 rounded-full text-neutral-400 hover:text-destructive hover:bg-destructive-light flex items-center justify-center transition-colors cursor-pointer shrink-0"
-                    aria-label={`Remove ${item.name}`}
+                    aria-label={`${tCommon('remove')} ${displayName}`}
                   >
                     <X className="h-3.5 w-3.5" />
                   </button>
@@ -264,8 +269,10 @@ export function QuickCartWidget({ className = '', onClose }: QuickCartWidgetProp
         <div className="qcart-footer pt-3.5 border-t border-neutral-100 space-y-3.5 mt-auto">
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-xs font-semibold text-neutral-500 block">Estimated Total</span>
-              <span className="text-[10px] text-neutral-400">Taxes included • Ex-Sivakasi</span>
+              <span className="text-xs font-semibold text-neutral-500 block">{t('estimatedTotal')}</span>
+              <span className="text-[10px] text-neutral-400">
+                {locale === 'ta' ? 'வரி உள்ளடக்கம் • சிவகாசி நேரடி' : 'Taxes included • Ex-Sivakasi'}
+              </span>
             </div>
             <div className="font-extrabold text-lg sm:text-xl text-neutral-900 tracking-tight">
               <NumberFlow
@@ -283,13 +290,13 @@ export function QuickCartWidget({ className = '', onClose }: QuickCartWidgetProp
             </div>
           </div>
 
-          <Link href="/checkout" className="block w-full">
+          <Link href={locale === 'en' ? '/checkout' : `/${locale}/checkout`} className="block w-full">
             <button
               type="button"
               className="w-full h-12 px-6 rounded-full bg-neutral-950 text-white font-bold text-xs sm:text-sm tracking-wide flex items-center justify-center gap-2 hover:bg-neutral-800 transition-all shadow-md active:scale-98 cursor-pointer"
             >
               <CreditCard className="h-4 w-4" />
-              <span>Proceed to Checkout</span>
+              <span>{t('proceedToCheckout')}</span>
             </button>
           </Link>
         </div>

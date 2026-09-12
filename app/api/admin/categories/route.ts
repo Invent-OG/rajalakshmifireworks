@@ -59,8 +59,10 @@ export async function POST(request: NextRequest) {
       .insert(categories)
       .values({
         name: result.data.name,
+        nameTa: result.data.nameTa || null,
         slug: finalSlug,
         description: result.data.description || null,
+        descriptionTa: result.data.descriptionTa || null,
         image: result.data.image || null,
         sortOrder: result.data.sortOrder,
         isActive: result.data.isActive,

@@ -5,6 +5,7 @@ import { Portal } from '@/components/ui/portal';
 import { StoreButton } from '@/components/ui/store-button';
 import { Scale, ShieldAlert, X, CheckCircle2 } from 'lucide-react';
 import { gsap, isReducedMotion } from '@/lib/motion';
+import { useTranslations } from '@/lib/i18n/context';
 
 interface EnquiryNoticeModalProps {
   isOpen: boolean;
@@ -19,6 +20,8 @@ export function EnquiryNoticeModal({
   onConfirm,
   isLoading = false,
 }: EnquiryNoticeModalProps) {
+  const t = useTranslations('enquiryNotice');
+  const tCommon = useTranslations('common');
   const overlayRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -80,7 +83,7 @@ export function EnquiryNoticeModal({
           role="dialog"
           aria-modal="true"
           aria-labelledby="notice-modal-title"
-          className="relative w-full max-w-2xl my-auto bg-white rounded-[28px] sm:rounded-[36px] shadow-2xl border border-neutral-200/80 p-6 sm:p-8 space-y-6 z-10 max-h-[90vh] flex flex-col"
+          className="relative w-full max-w-2xl my-auto bg-white rounded-[28px] sm:rounded-[36px] shadow-2xl border border-neutral-200/80 p-6 sm:p-8 space-y-6 z-10 max-h-[90vh] flex flex-col font-sans"
         >
           {/* Header */}
           <div className="flex items-start justify-between gap-4 pb-4 border-b border-neutral-100 shrink-0">
@@ -91,14 +94,14 @@ export function EnquiryNoticeModal({
               <div>
                 <div className="flex items-center gap-2">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-amber-800 bg-amber-100/70 px-2.5 py-0.5 rounded-full">
-                    Statutory Compliance
+                    {t('modalTitle')}
                   </span>
                 </div>
                 <h2
                   id="notice-modal-title"
-                  className="text-xl sm:text-2xl font-black text-neutral-950 tracking-tight mt-1"
+                  className="text-xl sm:text-2xl font-black text-neutral-950 tracking-tight mt-1 font-heading"
                 >
-                  Important Notice
+                  {t('modalTitle')}
                 </h2>
               </div>
             </div>
@@ -108,7 +111,7 @@ export function EnquiryNoticeModal({
               onClick={onClose}
               disabled={isLoading}
               className="p-2 rounded-full text-neutral-400 hover:text-neutral-950 hover:bg-neutral-100 transition-colors disabled:opacity-50 cursor-pointer"
-              aria-label="Close dialog"
+              aria-label={tCommon('close')}
             >
               <X className="h-5 w-5" />
             </button>
@@ -120,29 +123,18 @@ export function EnquiryNoticeModal({
             <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200/90 flex gap-3 text-amber-950">
               <ShieldAlert className="h-5 w-5 text-amber-700 shrink-0 mt-0.5" />
               <p className="font-semibold leading-relaxed">
-                As per the Hon’ble High Court order, direct online sale of crackers is strictly prohibited and punishable by law.
+                {t('courtOrderNotice')}
               </p>
             </div>
 
-            <p>
-              This website is provided primarily for enquiry purposes. Customers may browse our products and check product details, availability, and indicative price ranges.
-            </p>
-
-            <p>
-              Customers may submit an enquiry through this website. If the customer agrees, the enquiry may be converted into an order based on their requirements and interest, subject to all applicable laws, rules, and regulations.
-            </p>
-
-            <p>
-              Rajalakshmi Fireworks does not provide an instant online purchase or checkout facility. Any order confirmation and payment process will be handled only after customer confirmation and in accordance with applicable legal requirements.
-            </p>
-
-            <p>
-              Rajalakshmi Fireworks strictly follows all applicable protocols and statutory requirements under the relevant laws and regulations, including the Explosives Act. All parcels are dispatched only through registered and legally authorized transport service providers.
-            </p>
+            <p>{t('point1')}</p>
+            <p>{t('point2')}</p>
+            <p>{t('point3')}</p>
+            <p>{t('point4')}</p>
 
             {/* Acknowledgment Agreement Box */}
             <div className="p-3.5 rounded-2xl bg-neutral-100/90 border border-neutral-200 text-neutral-900 text-xs font-medium">
-              By clicking <span className="font-bold text-neutral-950">“I Understand”</span>, you acknowledge that you have read and agree to these terms before proceeding with an enquiry.
+              {t('point5')}
             </div>
           </div>
 
@@ -156,7 +148,7 @@ export function EnquiryNoticeModal({
               disabled={isLoading}
               className="w-full sm:w-auto"
             >
-              Cancel
+              {t('btnCancel')}
             </StoreButton>
 
             <StoreButton
@@ -169,7 +161,7 @@ export function EnquiryNoticeModal({
               className="w-full sm:w-auto bg-neutral-950 hover:bg-neutral-800 text-white min-w-[160px]"
             >
               <CheckCircle2 className="h-4 w-4" />
-              I Understand
+              {t('btnAccept')}
             </StoreButton>
           </div>
         </div>

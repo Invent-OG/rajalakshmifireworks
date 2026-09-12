@@ -9,8 +9,35 @@ import { OrganicCategoriesGrid } from '@/components/store/organic-categories-gri
 import { parseHeroConfig } from '@/lib/hero-config';
 import { Testimonial02Blaze } from '@/components/sections/testimonial-02-blaze';
 import { InfiniteRibbonPreview } from '@/components/ui/infinite-ribbon-demo';
+import { notFound } from 'next/navigation';
+import { isValidLocale, Locale } from '@/lib/i18n/config';
+import { getTranslations } from '@/lib/i18n/server';
+import type { Metadata } from 'next';
 
-export default async function HomePage() {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  if (!isValidLocale(locale)) return {};
+  const t = getTranslations(locale, 'seo');
+
+  return {
+    title: t('defaultTitle'),
+    description: t('defaultDescription'),
+    keywords: t('keywords'),
+  };
+}
+
+export default async function HomePage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  if (!isValidLocale(locale)) notFound();
+
   const [categoryList, featuredProducts, bestsellerProducts, heroConfigRow] = await Promise.all([
     db.query.categories.findMany({
       where: eq(categories.isActive, true),
@@ -41,10 +68,12 @@ export default async function HomePage() {
   ]);
 
   const heroConfig = parseHeroConfig(heroConfigRow?.value);
+  const tHome = getTranslations(locale, 'hero');
+  const tProd = getTranslations(locale, 'products');
 
   return (
     <HomeMotion>
-      <div className="w-full space-y-16 sm:space-y-24 md:space-y-[100px] pb-12 overflow-hidden" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+      <div className="w-full space-y-16 sm:space-y-24 md:space-y-[100px] pb-12 overflow-hidden font-sans">
         {/* ── 1. Hero Section ─── */}
         <OrganicHero initialConfig={heroConfig} />
 
@@ -55,11 +84,15 @@ export default async function HomePage() {
         {bestsellerProducts.length > 0 && (
           <FeaturedProductsSlider
             products={bestsellerProducts}
-            title="Festive Bestsellers"
-            subtitle="The most demanded celebration fireworks across Tamil Nadu & South India, packaged fresh from Sivakasi workshops."
-            tagLabel="Customer Favorites"
-            viewAllHref="/products?bestseller=true"
-            viewAllLabel="View All Bestsellers"
+            title={locale === 'ta' ? 'அதிகம் விற்பனையான பட்டாசுகள்' : 'Festive Bestsellers'}
+            subtitle={
+              locale === 'ta'
+                ? 'தமிழ்நாடு மற்றும் தென் இந்தியா முழுவதும் வாடிக்கையாளர்களால் அதிகம் விரும்பப்பட்ட சிறந்த பட்டாசுகள்.'
+                : 'The most demanded celebration fireworks across Tamil Nadu & South India, packaged fresh from Sivakasi workshops.'
+            }
+            tagLabel={locale === 'ta' ? 'வாடிக்கையாளர் விருப்பம்' : 'Customer Favorites'}
+            viewAllHref={locale === 'en' ? '/products?bestseller=true' : `/${locale}/products?bestseller=true`}
+            viewAllLabel={locale === 'ta' ? 'அனைத்தையும் பார்க்க' : 'View All Bestsellers'}
           />
         )}
 

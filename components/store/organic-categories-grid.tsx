@@ -3,12 +3,16 @@
 import Link from 'next/link';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import { getCategory3DImage } from '@/components/ui/category-icon';
+import { useLocale, useTranslations } from '@/lib/i18n/context';
+import { getLocalizedName, getLocalizedDescription } from '@/lib/i18n/formatters';
 
 export interface BackendCategoryItem {
   id: number;
   name: string;
+  nameTa?: string | null;
   slug: string;
   description?: string | null;
+  descriptionTa?: string | null;
   image?: string | null;
   sortOrder?: number;
   isActive?: boolean;
@@ -37,113 +41,114 @@ export interface OrganicCategoriesGridProps {
   allCategoriesText?: string;
 }
 
-const DEFAULT_MAIN_CARD: CategoryCardData = {
-  title: 'Gift Boxes & Combos',
-  badgeText: 'FESTIVE SPECIALS',
-  subtitle: 'Handpicked celebration boxes direct from Sivakasi!',
-  link: '/category/gift-boxes',
-  image: '/images/3d/cat-gift-boxes.jpg',
-  bgColor: '#fef3c7',
-};
-
-const DEFAULT_TOP_MIDDLE_1: CategoryCardData = {
-  title: 'Sparklers',
-  badgeText: 'SPARKLERS',
-  link: '/category/sparklers',
-  image: '/images/3d/cat-sparklers.jpg',
-};
-
-const DEFAULT_TOP_MIDDLE_2: CategoryCardData = {
-  title: 'Flower Pots',
-  badgeText: 'FLOWER POTS',
-  link: '/category/flower-pots',
-  image: '/images/3d/cat-flower-pots.jpg',
-};
-
-const DEFAULT_BOTTOM_MIDDLE: CategoryCardData = {
-  title: 'Sound Crackers',
-  badgeText: 'SOUND CRACKERS',
-  link: '/category/sound-crackers',
-  image: '/images/3d/cat-sound-crackers.jpg',
-};
-
-const DEFAULT_RIGHT_CARD: CategoryCardData = {
-  title: 'Rockets & Aerial',
-  badgeText: 'ROCKETS',
-  link: '/category/rockets',
-  image: '/images/3d/cat-rockets.jpg',
-};
-
 export function OrganicCategoriesGrid({
   categories = [],
-  headingLine1 = "EXPLORE OUR",
-  headingLine2 = 'FIREWORKS',
-  subheading = 'Discover authentic Sivakasi cracker categories & festive specials',
+  headingLine1,
+  headingLine2,
+  subheading,
   mainCard,
   topMiddleCard1,
   topMiddleCard2,
   bottomMiddleCard,
   rightCard,
   allCategoriesLink = '/products',
-  allCategoriesText = 'ALL CATEGORIES',
+  allCategoriesText,
 }: OrganicCategoriesGridProps) {
+  const locale = useLocale();
+  const tCat = useTranslations('categories');
+  const tNav = useTranslations('navigation');
+
+  const finalHeading1 = headingLine1 || (locale === 'ta' ? 'அனைத்து வகை' : 'EXPLORE OUR');
+  const finalHeading2 = headingLine2 || (locale === 'ta' ? 'சிவகாசி பட்டாசுகள்' : 'FIREWORKS');
+  const finalSubheading = subheading || (locale === 'ta'
+    ? 'குழந்தைகளுக்கான கம்பி மத்தாப்பு முதல் வான்வெளி வெடிகள் வரை அனைத்து ரகங்களும்'
+    : 'Discover authentic Sivakasi cracker categories & festive specials');
+  const finalAllCategoriesText = allCategoriesText || (locale === 'ta' ? 'அனைத்து வகைகள்' : 'ALL CATEGORIES');
+
   // If live backend categories are provided, resolve cards dynamically
   const resolvedMainCard: CategoryCardData =
     mainCard ||
     (categories.length > 0
       ? {
-          title: categories[0].name,
-          badgeText: categories[0].name.toUpperCase(),
-          subtitle: categories[0].description || 'Handcrafted celebration crackers from Sivakasi',
+          title: getLocalizedName(categories[0], locale),
+          badgeText: getLocalizedName(categories[0], locale).toUpperCase(),
+          subtitle: getLocalizedDescription(categories[0], locale) || (locale === 'ta' ? 'சிவகாசி நேரடி சிறப்பு பட்டாசு தயாரிப்புகள்' : 'Handcrafted celebration crackers from Sivakasi'),
           link: `/category/${categories[0].slug}`,
           image: categories[0].image || getCategory3DImage(categories[0].name),
           bgColor: '#fef3c7',
         }
-      : DEFAULT_MAIN_CARD);
+      : {
+          title: locale === 'ta' ? 'கிஃப்ட் பாக்ஸ் & காம்போ' : 'Gift Boxes & Combos',
+          badgeText: locale === 'ta' ? 'சிறப்பு காம்போ' : 'FESTIVE SPECIALS',
+          subtitle: locale === 'ta' ? 'சிவகாசியிலிருந்து நேரடியாகப் பெறப்படும் குடும்ப காம்போ பேக்!' : 'Handpicked celebration boxes direct from Sivakasi!',
+          link: '/category/gift-boxes',
+          image: '/images/3d/cat-gift-boxes.jpg',
+          bgColor: '#fef3c7',
+        });
 
   const resolvedTopMiddle1: CategoryCardData =
     topMiddleCard1 ||
     (categories.length > 1
       ? {
-          title: categories[1].name,
-          badgeText: categories[1].name.toUpperCase(),
+          title: getLocalizedName(categories[1], locale),
+          badgeText: getLocalizedName(categories[1], locale).toUpperCase(),
           link: `/category/${categories[1].slug}`,
           image: categories[1].image || getCategory3DImage(categories[1].name),
         }
-      : DEFAULT_TOP_MIDDLE_1);
+      : {
+          title: locale === 'ta' ? 'கம்பி மத்தாப்பு' : 'Sparklers',
+          badgeText: locale === 'ta' ? 'மத்தாப்பு' : 'SPARKLERS',
+          link: '/category/sparklers',
+          image: '/images/3d/cat-sparklers.jpg',
+        });
 
   const resolvedTopMiddle2: CategoryCardData =
     topMiddleCard2 ||
     (categories.length > 2
       ? {
-          title: categories[2].name,
-          badgeText: categories[2].name.toUpperCase(),
+          title: getLocalizedName(categories[2], locale),
+          badgeText: getLocalizedName(categories[2], locale).toUpperCase(),
           link: `/category/${categories[2].slug}`,
           image: categories[2].image || getCategory3DImage(categories[2].name),
         }
-      : DEFAULT_TOP_MIDDLE_2);
+      : {
+          title: locale === 'ta' ? 'பூந்தொட்டி' : 'Flower Pots',
+          badgeText: locale === 'ta' ? 'பூந்தொட்டி' : 'FLOWER POTS',
+          link: '/category/flower-pots',
+          image: '/images/3d/cat-flower-pots.jpg',
+        });
 
   const resolvedBottomMiddle: CategoryCardData =
     bottomMiddleCard ||
     (categories.length > 3
       ? {
-          title: categories[3].name,
-          badgeText: categories[3].name.toUpperCase(),
+          title: getLocalizedName(categories[3], locale),
+          badgeText: getLocalizedName(categories[3], locale).toUpperCase(),
           link: `/category/${categories[3].slug}`,
           image: categories[3].image || getCategory3DImage(categories[3].name),
         }
-      : DEFAULT_BOTTOM_MIDDLE);
+      : {
+          title: locale === 'ta' ? 'சரவெடி & வெடி' : 'Sound Crackers',
+          badgeText: locale === 'ta' ? 'சரவெடி' : 'SOUND CRACKERS',
+          link: '/category/sound-crackers',
+          image: '/images/3d/cat-sound-crackers.jpg',
+        });
 
   const resolvedRightCard: CategoryCardData =
     rightCard ||
     (categories.length > 4
       ? {
-          title: categories[4].name,
-          badgeText: categories[4].name.toUpperCase(),
+          title: getLocalizedName(categories[4], locale),
+          badgeText: getLocalizedName(categories[4], locale).toUpperCase(),
           link: `/category/${categories[4].slug}`,
           image: categories[4].image || getCategory3DImage(categories[4].name),
         }
-      : DEFAULT_RIGHT_CARD);
+      : {
+          title: locale === 'ta' ? 'ராக்கெட் & ஃபேன்ஸி' : 'Rockets & Aerial',
+          badgeText: locale === 'ta' ? 'ராக்கெட்' : 'ROCKETS',
+          link: '/category/rockets',
+          image: '/images/3d/cat-rockets.jpg',
+        });
 
   return (
     <section className="w-full py-4 sm:py-6 items-center justify-center lg:py-8">
@@ -170,12 +175,12 @@ export function OrganicCategoriesGrid({
               {/* Text Header (Top Left) */}
               <div className="relative z-10 max-w-[90%]">
                 <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-black text-neutral-950 tracking-tight leading-[1.05] uppercase">
-                  {headingLine1}
+                  {finalHeading1}
                   <br />
-                  {headingLine2}
+                  {finalHeading2}
                 </h2>
                 <p className="text-neutral-800/90 font-medium text-sm sm:text-base mt-2 sm:mt-3">
-                  {subheading}
+                  {finalSubheading}
                 </p>
               </div>
 
@@ -271,7 +276,7 @@ export function OrganicCategoriesGrid({
             className="inline-flex items-center gap-3 h-12 px-8 rounded-full bg-white shadow-sm hover:shadow-lg transition-all duration-300 group select-none cursor-pointer"
           >
             <span className="font-extrabold text-xs sm:text-[13px] tracking-widest uppercase text-neutral-950">
-              {allCategoriesText}
+              {finalAllCategoriesText}
             </span>
             <span className="h-7 w-7 rounded-full bg-neutral-950 text-white flex items-center justify-center group-hover:translate-x-1 transition-transform duration-300">
               <ArrowRight className="h-3.5 w-3.5" />

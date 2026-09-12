@@ -14,6 +14,8 @@ import { formatCurrency } from '@/lib/utils/format';
 import { Truck, Store, ShoppingBag, ShieldCheck, MessageSquare, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { nanoid } from 'nanoid';
+import { useTranslations, useLocale } from '@/lib/i18n/context';
+import { getLocalizedName } from '@/lib/i18n/formatters';
 
 const checkoutFormSchema = z
   .object({
@@ -54,6 +56,13 @@ export default function CheckoutPage() {
   const [showNoticeModal, setShowNoticeModal] = useState(false);
   const [pendingFormData, setPendingFormData] = useState<CheckoutFormData | null>(null);
 
+  const t = useTranslations('checkout');
+  const tCart = useTranslations('cart');
+  const tToasts = useTranslations('toasts');
+  const tCommon = useTranslations('common');
+  const tNav = useTranslations('navigation');
+  const locale = useLocale();
+
   const form = useForm<CheckoutFormData>({
     resolver: zodResolver(checkoutFormSchema),
     defaultValues: {
@@ -73,15 +82,17 @@ export default function CheckoutPage() {
     defaultValue: 'DELIVERY',
   });
 
+  const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`);
+
   if (items.length === 0) {
     return (
-      <div className="w-full px-4 sm:px-8 lg:px-12 py-16">
+      <div className="w-full px-4 sm:px-8 lg:px-12 py-16 font-sans">
         <EmptyState
           icon={ShoppingBag}
-          title="Your shopping bag is empty"
-          description="Please add items to your cart before proceeding to checkout."
-          actionLabel="Browse fireworks"
-          actionHref="/products"
+          title={tCart('emptyTitle')}
+          description={tCart('emptyDesc')}
+          actionLabel={tCart('browseProducts')}
+          actionHref={getHref('/products')}
         />
       </div>
     );
@@ -128,29 +139,29 @@ export default function CheckoutPage() {
       const result = await res.json();
 
       if (!res.ok) {
-        toast.error(result.message || 'Failed to place order. Please try again.');
+        toast.error(result.message || tToasts('orderFailed'));
         return;
       }
 
       setShowNoticeModal(false);
       clearCart();
-      router.push(`/order-confirmation/${result.order.invoiceNumber}`);
+      router.push(getHref(`/order-confirmation/${result.order.invoiceNumber}`));
     } catch {
-      toast.error('Something went wrong. Please try again.');
+      toast.error(tToasts('orderFailed'));
     } finally {
       setSubmitting(false);
     }
   }
 
   return (
-    <div className="w-full px-4 sm:px-8 lg:px-12 py-8 animate-fade-in space-y-8">
+    <div className="w-full px-4 sm:px-8 lg:px-12 py-8 animate-fade-in space-y-8 font-sans">
       {/* Header */}
       <div className="pb-6 border-b border-border">
-        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
-          Checkout
+        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground font-heading">
+          {t('title')}
         </h1>
         <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-          Review your items and complete your order information
+          {t('subtitle')}
         </p>
       </div>
 
@@ -161,24 +172,24 @@ export default function CheckoutPage() {
             {/* Step 01: Customer Details */}
             <div className="p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white shadow-sm space-y-5">
               <div className="flex items-center gap-3">
-                <span className="h-7 w-7 rounded-full bg-neutral-900 text-white text-xs font-bold flex items-center justify-center shadow-xs">
+                <span className="h-7 w-7 rounded-full bg-neutral-900 text-white text-xs font-bold flex items-center justify-center shadow-xs font-mono">
                   01
                 </span>
-                <h2 className="font-bold text-base text-foreground tracking-tight">
-                  Customer Details
+                <h2 className="font-bold text-base text-foreground tracking-tight font-heading">
+                  {t('customerInfo')}
                 </h2>
               </div>
 
               <div className="space-y-4">
                 <Input
-                  label="Full Name *"
-                  placeholder="e.g. Rajesh Kumar"
+                  label={`${t('fullName')} *`}
+                  placeholder={t('fullNamePlaceholder')}
                   error={form.formState.errors.name?.message}
                   {...form.register('name')}
                 />
                 <Input
-                  label="Mobile Number (WhatsApp) *"
-                  placeholder="10-digit mobile number"
+                  label={`${t('phoneNumber')} *`}
+                  placeholder={t('phoneNumberPlaceholder')}
                   error={form.formState.errors.mobile?.message}
                   {...form.register('mobile')}
                 />
@@ -188,11 +199,11 @@ export default function CheckoutPage() {
             {/* Step 02: Fulfillment Method */}
             <div className="p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white shadow-sm space-y-5">
               <div className="flex items-center gap-3">
-                <span className="h-7 w-7 rounded-full bg-neutral-900 text-white text-xs font-bold flex items-center justify-center shadow-xs">
+                <span className="h-7 w-7 rounded-full bg-neutral-900 text-white text-xs font-bold flex items-center justify-center shadow-xs font-mono">
                   02
                 </span>
-                <h2 className="font-bold text-base text-foreground tracking-tight">
-                  Fulfillment
+                <h2 className="font-bold text-base text-foreground tracking-tight font-heading">
+                  {t('deliveryAddress')}
                 </h2>
               </div>
 
@@ -221,9 +232,11 @@ export default function CheckoutPage() {
                     <Truck className="h-4.5 w-4.5" />
                   </div>
                   <div>
-                    <p className="font-bold text-sm text-foreground">Home Delivery</p>
+                    <p className="font-bold text-sm text-foreground">
+                      {locale === 'ta' ? 'வீட்டு முகவரி டெலிவரி' : 'Home Delivery'}
+                    </p>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      Direct transport to your address
+                      {locale === 'ta' ? 'லாரி பார்சல் மூலம் உங்கள் முகவரிக்கு' : 'Direct transport to your address'}
                     </p>
                   </div>
                 </label>
@@ -251,9 +264,11 @@ export default function CheckoutPage() {
                     <Store className="h-4.5 w-4.5" />
                   </div>
                   <div>
-                    <p className="font-bold text-sm text-foreground">Store Pickup</p>
+                    <p className="font-bold text-sm text-foreground">
+                      {locale === 'ta' ? 'சிவகாசி நேரடி கவுண்டர்' : 'Store Pickup'}
+                    </p>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      Collect at Sivakasi counter
+                      {locale === 'ta' ? 'சிவகாசி ஆபிஸில் நேரில் பெற' : 'Collect at Sivakasi counter'}
                     </p>
                   </div>
                 </label>
@@ -263,21 +278,21 @@ export default function CheckoutPage() {
               {fulfillmentType === 'DELIVERY' && (
                 <div className="space-y-4 pt-2 animate-fade-in">
                   <Input
-                    label="Street Address *"
-                    placeholder="e.g. 14/2B Gandhi Street, Near Main Market"
+                    label={`${t('addressLine1')} *`}
+                    placeholder={t('addressLine1Placeholder')}
                     error={form.formState.errors.address?.message}
                     {...form.register('address')}
                   />
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <Input
-                      label="City / Town *"
-                      placeholder="e.g. Madurai"
+                      label={`${t('city')} *`}
+                      placeholder={t('cityPlaceholder')}
                       error={form.formState.errors.city?.message}
                       {...form.register('city')}
                     />
                     <Input
-                      label="Pincode *"
-                      placeholder="6-digit pincode"
+                      label={`${t('pincode')} *`}
+                      placeholder={t('pincodePlaceholder')}
                       error={form.formState.errors.pincode?.message}
                       {...form.register('pincode')}
                     />
@@ -289,15 +304,15 @@ export default function CheckoutPage() {
             {/* Step 03: Delivery Instructions */}
             <div className="p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white shadow-sm space-y-4">
               <div className="flex items-center gap-3">
-                <span className="h-7 w-7 rounded-full bg-neutral-900 text-white text-xs font-bold flex items-center justify-center shadow-xs">
+                <span className="h-7 w-7 rounded-full bg-neutral-900 text-white text-xs font-bold flex items-center justify-center shadow-xs font-mono">
                   03
                 </span>
-                <h2 className="font-bold text-base text-foreground tracking-tight">
-                  Special Notes (Optional)
+                <h2 className="font-bold text-base text-foreground tracking-tight font-heading">
+                  {t('orderNotes')}
                 </h2>
               </div>
               <Textarea
-                placeholder="Any specific packing instructions or delivery timings?"
+                placeholder={t('orderNotesPlaceholder')}
                 {...form.register('notes')}
               />
             </div>
@@ -306,46 +321,53 @@ export default function CheckoutPage() {
           {/* Right: Order Summary Breakdown */}
           <div className="lg:col-span-5">
             <div className="p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white sticky top-24 space-y-6 shadow-sm">
-              <h2 className="font-bold text-base text-foreground tracking-tight pb-3 border-b border-neutral-100">
-                Review Order ({itemCount} {itemCount === 1 ? 'item' : 'items'})
+              <h2 className="font-bold text-base text-foreground tracking-tight pb-3 border-b border-neutral-100 font-heading">
+                {t('orderSummary')} ({itemCount} {itemCount === 1 ? tCart('item') : tCart('items')})
               </h2>
 
               {/* Items List */}
               <div className="space-y-3 max-h-56 overflow-y-auto pr-1">
-                {items.map((item) => (
-                  <div key={item.productId} className="flex justify-between items-center text-xs sm:text-sm">
-                    <span className="text-foreground font-medium truncate max-w-[65%]">
-                      {item.name} <span className="text-muted-foreground font-normal">× {item.quantity}</span>
-                    </span>
-                    <span className="font-bold text-foreground">
-                      {formatCurrency(item.sellingPrice * item.quantity)}
-                    </span>
-                  </div>
-                ))}
+                {items.map((item) => {
+                  const displayName = getLocalizedName(item, locale);
+                  return (
+                    <div key={item.productId} className="flex justify-between items-center text-xs sm:text-sm">
+                      <span className="text-foreground font-medium truncate max-w-[65%]">
+                        {displayName} <span className="text-muted-foreground font-normal">× {item.quantity}</span>
+                      </span>
+                      <span className="font-bold text-foreground font-mono">
+                        {formatCurrency(item.sellingPrice * item.quantity)}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
 
               {/* Price Calculation */}
               <div className="border-t border-neutral-100 pt-4 space-y-2.5 text-xs sm:text-sm">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Subtotal</span>
-                  <span className="font-semibold">{formatCurrency(subtotal)}</span>
+                  <span className="text-muted-foreground">{tCart('estimatedTotal')}</span>
+                  <span className="font-semibold font-mono">{formatCurrency(subtotal)}</span>
                 </div>
                 {totalSavings > 0 && (
                   <div className="flex justify-between text-emerald-700 font-semibold">
-                    <span>Wholesale discount</span>
-                    <span>-{formatCurrency(totalSavings)}</span>
+                    <span>{tCart('totalSavings')}</span>
+                    <span className="font-mono">-{formatCurrency(totalSavings)}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-muted-foreground">
-                  <span>Fulfillment</span>
-                  <span>{fulfillmentType === 'DELIVERY' ? 'Doorstep transport' : 'Store pickup (Free)'}</span>
+                  <span>{locale === 'ta' ? 'போக்குவரத்து முறை' : 'Fulfillment'}</span>
+                  <span>
+                    {fulfillmentType === 'DELIVERY'
+                      ? (locale === 'ta' ? 'வீட்டு முகவரி பார்சல்' : 'Doorstep transport')
+                      : (locale === 'ta' ? 'சிவகாசி கவுண்டர் (இலவசம்)' : 'Store pickup (Free)')}
+                  </span>
                 </div>
               </div>
 
               {/* Total Box */}
               <div className="border-t border-neutral-100 pt-4 flex items-baseline justify-between">
-                <span className="font-bold text-base text-foreground">Total Payable</span>
-                <span className="text-xl font-bold text-foreground">
+                <span className="font-bold text-base text-foreground">{tCart('estimatedTotal')}</span>
+                <span className="text-xl font-bold text-foreground font-mono">
                   {formatCurrency(subtotal)}
                 </span>
               </div>
@@ -359,7 +381,7 @@ export default function CheckoutPage() {
                 disabled={submitting}
                 className="w-full"
               >
-                Confirm & Place Order
+                {t('submitEnquiry')}
                 <ArrowRight className="h-4 w-4" />
               </StoreButton>
 
@@ -367,13 +389,16 @@ export default function CheckoutPage() {
               <div className="p-4 rounded-[20px] sm:rounded-[22px] bg-neutral-50 text-xs text-muted-foreground flex items-start gap-3">
                 <MessageSquare className="h-4 w-4 shrink-0 text-foreground mt-0.5" />
                 <p className="leading-relaxed">
-                  <strong>No online payment required.</strong> Once placed, you will receive an official invoice on WhatsApp to verify and confirm.
+                  <strong>{locale === 'ta' ? 'ஆன்லைன் கட்டணம் தேவையில்லை.' : 'No online payment required.'}</strong>{' '}
+                  {locale === 'ta'
+                    ? 'விசாரணை சமர்ப்பித்ததும், அதிகாரப்பூர்வ ரசீது மற்றும் இருப்பு உறுதிப்படுத்தல் உங்கள் வாட்ஸ்அப்பிற்கு அனுப்பப்படும்.'
+                    : 'Once placed, you will receive an official invoice on WhatsApp to verify and confirm.'}
                 </p>
               </div>
 
               <div className="flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
                 <ShieldCheck className="h-3.5 w-3.5 text-emerald-700" />
-                <span>100% Secure Sivakasi Factory Direct</span>
+                <span>{locale === 'ta' ? '100% பாதுகாப்பான சிவகாசி நேரடி விநியோகம்' : '100% Secure Sivakasi Factory Direct'}</span>
               </div>
             </div>
           </div>

@@ -16,8 +16,10 @@ export const categories = pgTable(
   {
     id: serial('id').primaryKey(),
     name: varchar('name', { length: 255 }).notNull(),
+    nameTa: varchar('name_ta', { length: 255 }),
     slug: varchar('slug', { length: 255 }).notNull(),
     description: text('description'),
+    descriptionTa: text('description_ta'),
     image: text('image'),
     sortOrder: integer('sort_order').notNull().default(0),
     isActive: boolean('is_active').notNull().default(true),

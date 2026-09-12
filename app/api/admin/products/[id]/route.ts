@@ -72,10 +72,12 @@ export async function PUT(
       updateData.name = result.data.name;
       updateData.slug = slugify(result.data.name);
     }
+    if (result.data.nameTa !== undefined) updateData.nameTa = result.data.nameTa;
     if (result.data.categoryId !== undefined) {
       updateData.categoryId = result.data.categoryId ? Number(result.data.categoryId) : null;
     }
     if (result.data.description !== undefined) updateData.description = result.data.description;
+    if (result.data.descriptionTa !== undefined) updateData.descriptionTa = result.data.descriptionTa;
     if (result.data.sku !== undefined) updateData.sku = result.data.sku;
     if (result.data.mrp !== undefined) updateData.mrp = String(result.data.mrp);
     if (result.data.sellingPrice !== undefined) updateData.sellingPrice = String(result.data.sellingPrice);

@@ -7,22 +7,29 @@ import { toNumber, formatCurrency } from '@/lib/utils/format';
 import { ProductVisualPlaceholder } from '@/components/ui/category-icon';
 import { gsap, isReducedMotion } from '@/lib/motion';
 import { ShoppingCart, Plus, Minus } from 'lucide-react';
+import { useLocale, useTranslations } from '@/lib/i18n/context';
+import { getLocalizedName, getLocalizedDescription } from '@/lib/i18n/formatters';
 
 interface ProductCardProps {
   product: {
     id: number;
     name: string;
+    nameTa?: string | null;
     slug: string;
     description?: string | null;
+    descriptionTa?: string | null;
     mrp: string;
     sellingPrice: string;
     stockQuantity: number;
-    category?: { name: string; slug: string } | null;
+    category?: { name: string; nameTa?: string | null; slug: string } | null;
     media?: Array<{ url: string; alt?: string | null }>;
   };
 }
 
 export function ProductCard({ product }: ProductCardProps) {
+  const locale = useLocale();
+  const tProducts = useTranslations('products');
+  const tCommon = useTranslations('common');
   const { addItem, updateQuantity, removeItem } = useCart();
   const quantity = useCartItemQuantity(product.id);
   const mrp = toNumber(product.mrp);
@@ -31,6 +38,14 @@ export function ProductCard({ product }: ProductCardProps) {
   const imageUrl = product.media?.[0]?.url || null;
   const buttonRef = useRef<HTMLButtonElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
+
+  const displayName = getLocalizedName(product, locale);
+  const displayDesc = getLocalizedDescription(product, locale) || (
+    locale === 'ta'
+      ? 'உயர்தர ஒளி மற்றும் வண்ணங்களுடன் பிரகாசிக்கும் பாதுகாப்பான சிவகாசி நேரடி பட்டாசு.'
+      : 'Authentic Sivakasi festive fireworks with vibrant sky bursts, tested safety, and direct wholesale pricing.'
+  );
+  const categoryName = getLocalizedName(product.category, locale) || (locale === 'ta' ? 'பட்டாசு' : 'Fireworks');
 
   const discount = mrp > price ? Math.round(((mrp - price) / mrp) * 100) : 0;
 
@@ -45,7 +60,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
     addItem({
       productId: product.id,
-      name: product.name,
+      name: displayName,
       slug: product.slug,
       image: imageUrl,
       mrp,
@@ -57,9 +72,9 @@ export function ProductCard({ product }: ProductCardProps) {
 
   // Generate contextual tags for fireworks
   const tags: string[] = [];
-  if (discount > 0) tags.push(`${discount}% Off`);
-  tags.push('Green Cracker');
-  if (product.category?.name) tags.push(product.category.name);
+  if (discount > 0) tags.push(tCommon('off', { percent: discount }));
+  tags.push(locale === 'ta' ? 'பசுமை பட்டாசு' : 'Green Cracker');
+  if (categoryName) tags.push(categoryName);
 
   return (
     <div
@@ -72,7 +87,7 @@ export function ProductCard({ product }: ProductCardProps) {
         {/* Category Inset Tab with Smooth Concave Wings */}
         <div className="absolute top-0 left-0 bg-white pl-3.5 pr-3 pt-1.5 pb-1 sm:pl-4.5 sm:pr-4 sm:pt-2.5 sm:pb-2 rounded-br-[18px] sm:rounded-br-[22px] z-10 select-none flex items-center shadow-2xs">
           <span className="text-[11px] sm:text-[13px] font-semibold text-neutral-700 tracking-tight">
-            {product.category?.name || 'Fireworks'}
+            {categoryName}
           </span>
 
           {/* Right Concave Wing */}
@@ -102,12 +117,12 @@ export function ProductCard({ product }: ProductCardProps) {
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={imageUrl}
-                alt={product.name}
+                alt={displayName}
                 referrerPolicy="no-referrer"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
               />
             ) : (
-              <ProductVisualPlaceholder name={product.category?.name || product.name} />
+              <ProductVisualPlaceholder name={product.name} />
             )}
           </div>
 
@@ -115,7 +130,7 @@ export function ProductCard({ product }: ProductCardProps) {
           {isOutOfStock && (
             <div className="absolute inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-2 z-20">
               <span className="bg-white text-black text-[11px] sm:text-[12px] font-bold px-3 py-1 rounded-full shadow-sm">
-                Sold Out
+                {tCommon('outOfStock')}
               </span>
             </div>
           )}
@@ -129,7 +144,7 @@ export function ProductCard({ product }: ProductCardProps) {
           <div className="flex items-center justify-between gap-2 sm:gap-3">
             <Link href={`/product/${product.slug}`} className="min-w-0 flex-1">
               <h3 className="font-bold text-sm sm:text-lg text-neutral-900 tracking-tight leading-snug truncate hover:text-amber-600 transition-colors">
-                {product.name}
+                {displayName}
               </h3>
             </Link>
 
@@ -141,8 +156,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
           {/* 2-Line Description */}
           <p className="text-xs sm:text-[13px] text-neutral-500 font-normal leading-relaxed line-clamp-2 mt-1.5 sm:mt-2">
-            {product.description ||
-              'Authentic Sivakasi festive fireworks with vibrant sky bursts, tested safety, and direct wholesale pricing.'}
+            {displayDesc}
           </p>
 
           {/* Tags Row */}
@@ -167,7 +181,7 @@ export function ProductCard({ product }: ProductCardProps) {
               disabled
               className="w-full h-12 px-4 sm:px-6 rounded-full bg-neutral-100 text-neutral-400 text-xs sm:text-sm font-bold text-center opacity-70 cursor-not-allowed flex items-center justify-center"
             >
-              Sold Out
+              {tCommon('outOfStock')}
             </button>
           ) : quantity > 0 ? (
             <div className="h-12 px-2 rounded-full bg-neutral-100 flex items-center justify-between shadow-xs">
@@ -202,7 +216,7 @@ export function ProductCard({ product }: ProductCardProps) {
               className="w-full h-12 px-4 sm:px-6 rounded-full bg-neutral-950 hover:bg-neutral-800 text-white font-bold text-xs sm:text-sm shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-98 transition-all duration-300"
             >
               <ShoppingCart size={15} />
-              <span>Add To Cart</span>
+              <span>{tProducts('addToBag')}</span>
             </button>
           )}
         </div>

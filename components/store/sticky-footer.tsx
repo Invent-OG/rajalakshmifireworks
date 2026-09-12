@@ -15,8 +15,12 @@ import { BrandLogo } from '@/components/ui/brand-logo';
 import { useGSAP } from '@gsap/react';
 import { gsap, ScrollTrigger, isReducedMotion } from '@/lib/motion';
 import { toast } from 'sonner';
+import { useLocale, useTranslations } from '@/lib/i18n/context';
 
 export function StickyFooter() {
+  const locale = useLocale();
+  const tFooter = useTranslations('footer');
+  const tNav = useTranslations('navigation');
   const footerRef = useRef<HTMLDivElement>(null);
   const footerCardRef = useRef<HTMLDivElement>(null);
   const [emailOrPhone, setEmailOrPhone] = useState('');
@@ -49,10 +53,10 @@ export function StickyFooter() {
   const handleNewsletterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!emailOrPhone.trim()) {
-      toast.error('Please enter your email or WhatsApp number');
+      toast.error(locale === 'ta' ? 'தயவுசெய்து உங்கள் மின்னஞ்சல் அல்லது வாட்ஸ்அப் எண்ணை உள்ளிடவும்' : 'Please enter your email or WhatsApp number');
       return;
     }
-    toast.success('Thank you for subscribing to Diwali festive updates!');
+    toast.success(locale === 'ta' ? 'தீபாவளி சிறப்பு அறிவிப்புகளுக்கு பதிவுசெய்தமைக்கு நன்றி!' : 'Thank you for subscribing to Diwali festive updates!');
     setEmailOrPhone('');
   };
 
@@ -77,8 +81,12 @@ export function StickyFooter() {
               <ShieldCheck className="h-5 w-5" />
             </div>
             <div>
-              <h4 className="font-bold text-xs sm:text-sm text-white">100% Authentic Fireworks</h4>
-              <p className="text-[11px] text-white/80 mt-0.5">Direct tested Sivakasi quality</p>
+              <h4 className="font-bold text-xs sm:text-sm text-white">
+                {locale === 'ta' ? '100% அசல் சிவகாசி பட்டாசுகள்' : '100% Authentic Fireworks'}
+              </h4>
+              <p className="text-[11px] text-white/80 mt-0.5">
+                {locale === 'ta' ? 'நேரடி பரிசோதிக்கப்பட்ட தரம்' : 'Direct tested Sivakasi quality'}
+              </p>
             </div>
           </div>
 
@@ -87,8 +95,12 @@ export function StickyFooter() {
               <Truck className="h-5 w-5" />
             </div>
             <div>
-              <h4 className="font-bold text-xs sm:text-sm text-white">Flexible Fulfillment</h4>
-              <p className="text-[11px] text-white/80 mt-0.5">Doorstep delivery or counter pickup</p>
+              <h4 className="font-bold text-xs sm:text-sm text-white">
+                {locale === 'ta' ? 'பாதுகாப்பான போக்குவரத்து' : 'Flexible Fulfillment'}
+              </h4>
+              <p className="text-[11px] text-white/80 mt-0.5">
+                {locale === 'ta' ? 'லாரி பார்சல் அல்லது சிவகாசி கவுண்டர்' : 'Doorstep delivery or counter pickup'}
+              </p>
             </div>
           </div>
 
@@ -97,8 +109,12 @@ export function StickyFooter() {
               <MessageSquare className="h-5 w-5" />
             </div>
             <div>
-              <h4 className="font-bold text-xs sm:text-sm text-white">Instant WhatsApp Invoice</h4>
-              <p className="text-[11px] text-white/80 mt-0.5">Direct dispatch verification updates</p>
+              <h4 className="font-bold text-xs sm:text-sm text-white">
+                {locale === 'ta' ? 'உடனடி வாட்ஸ்அப் ரசீது' : 'Instant WhatsApp Invoice'}
+              </h4>
+              <p className="text-[11px] text-white/80 mt-0.5">
+                {locale === 'ta' ? 'நேரடி பார்சல் கண்காணிப்பு' : 'Direct dispatch verification updates'}
+              </p>
             </div>
           </div>
         </div>
@@ -108,21 +124,33 @@ export function StickyFooter() {
           {/* Left Column: Big Bold Typography & Newsletter Pill */}
           <div className="lg:col-span-5 space-y-6">
             <h2 className="text-2xl sm:text-3xl lg:text-[34px] font-black uppercase tracking-tight leading-[1.08] text-white">
-              STAY UP TO DATE
-              <br />
-              WITH NEWS, EVENTS
-              <br />
-              AND MORE!
+              {locale === 'ta' ? (
+                <>
+                  தீபாவளி செய்திகள் &amp;
+                  <br />
+                  சலுகைகளை உடனுக்குடன்
+                  <br />
+                  தெரிந்துகொள்ளுங்கள்!
+                </>
+              ) : (
+                <>
+                  STAY UP TO DATE
+                  <br />
+                  WITH NEWS, EVENTS
+                  <br />
+                  AND MORE!
+                </>
+              )}
             </h2>
 
-            {/* Newsletter Pill Input Component (Matching Screenshot Design) */}
+            {/* Newsletter Pill Input Component */}
             <form onSubmit={handleNewsletterSubmit} className="max-w-md">
               <div className="relative flex items-center justify-between bg-white text-neutral-900 rounded-full p-1.5 pl-5 shadow-lg">
                 <input
                   type="text"
                   value={emailOrPhone}
                   onChange={(e) => setEmailOrPhone(e.target.value)}
-                  placeholder="NEWSLETTER / WHATSAPP"
+                  placeholder={locale === 'ta' ? 'மின்னஞ்சல் / வாட்ஸ்அப் எண்' : 'NEWSLETTER / WHATSAPP'}
                   className="bg-transparent text-xs sm:text-sm font-bold tracking-wider uppercase text-neutral-900 placeholder:text-neutral-500 outline-none w-full pr-2"
                 />
                 <button
@@ -141,27 +169,27 @@ export function StickyFooter() {
             {/* Column 1: Customer Service / Collections */}
             <div className="space-y-3.5">
               <h3 className="font-extrabold uppercase tracking-wider text-white text-[11px] sm:text-xs">
-                COLLECTIONS
+                {locale === 'ta' ? 'பட்டாசு வகைகள்' : 'COLLECTIONS'}
               </h3>
               <ul className="space-y-2.5 text-white/80">
                 <li>
                   <Link href="/products" className="hover:text-white transition-colors">
-                    All Fireworks
+                    {tFooter('catalog')}
                   </Link>
                 </li>
                 <li>
                   <Link href="/products?featured=true" className="hover:text-white transition-colors">
-                    Gift Boxes &amp; Combos
+                    {tFooter('combos')}
                   </Link>
                 </li>
                 <li>
                   <Link href="/products?bestseller=true" className="hover:text-white transition-colors">
-                    Festive Bestsellers
+                    {locale === 'ta' ? 'அதிக விற்பனை' : 'Festive Bestsellers'}
                   </Link>
                 </li>
                 <li>
                   <Link href="/track-order" className="hover:text-white transition-colors">
-                    Track Consignment
+                    {tFooter('trackOrder')}
                   </Link>
                 </li>
               </ul>
@@ -170,27 +198,27 @@ export function StickyFooter() {
             {/* Column 2: Safety & Business */}
             <div className="space-y-3.5">
               <h3 className="font-extrabold uppercase tracking-wider text-white text-[11px] sm:text-xs">
-                SAFETY &amp; TRUST
+                {locale === 'ta' ? 'பாதுகாப்பு' : 'SAFETY & TRUST'}
               </h3>
               <ul className="space-y-2.5 text-white/80">
                 <li>
                   <Link href="/products?certified=green" className="hover:text-white transition-colors">
-                    Green Crackers Certified
+                    {locale === 'ta' ? 'பசுமை பட்டாசு சான்றிதழ்' : 'Green Crackers Certified'}
                   </Link>
                 </li>
                 <li>
                   <span className="block text-white/80">
-                    Open Outdoor Spaces
+                    {locale === 'ta' ? 'திறந்தவெளி பாதுகாப்பு' : 'Open Outdoor Spaces'}
                   </span>
                 </li>
                 <li>
                   <span className="block text-white/80">
-                    Child Supervision Tips
+                    {locale === 'ta' ? 'குழந்தை பாதுகாப்பு' : 'Child Supervision Tips'}
                   </span>
                 </li>
                 <li>
                   <span className="block text-white/80">
-                    Bucket Water Prep
+                    {locale === 'ta' ? 'நீர் வாளி பாதுகாப்பு' : 'Bucket Water Prep'}
                   </span>
                 </li>
               </ul>
@@ -199,27 +227,27 @@ export function StickyFooter() {
             {/* Column 3: Fulfillment */}
             <div className="space-y-3.5">
               <h3 className="font-extrabold uppercase tracking-wider text-white text-[11px] sm:text-xs">
-                FULFILLMENT
+                {locale === 'ta' ? 'டெலிவரி' : 'FULFILLMENT'}
               </h3>
               <ul className="space-y-2.5 text-white/80">
                 <li>
                   <span className="block text-white/80">
-                    Doorstep Transport
+                    {locale === 'ta' ? 'லாரி பார்சல் சர்வீஸ்' : 'Doorstep Transport'}
                   </span>
                 </li>
                 <li>
                   <span className="block text-white/80">
-                    Sivakasi Counter Pickup
+                    {locale === 'ta' ? 'சிவகாசி கவுண்டர் எடுப்பு' : 'Sivakasi Counter Pickup'}
                   </span>
                 </li>
                 <li>
                   <span className="block text-white/80">
-                    WhatsApp Confirmation
+                    {locale === 'ta' ? 'வாட்ஸ்அப் உறுதிப்படுத்தல்' : 'WhatsApp Confirmation'}
                   </span>
                 </li>
                 <li>
                   <Link href="/cart" className="hover:text-white transition-colors">
-                    Shopping Bag
+                    {tNav('bag')}
                   </Link>
                 </li>
               </ul>
@@ -228,7 +256,7 @@ export function StickyFooter() {
             {/* Column 4: Contact & Store */}
             <div className="space-y-3.5">
               <h3 className="font-extrabold uppercase tracking-wider text-white text-[11px] sm:text-xs">
-                STORE CONTACT
+                {locale === 'ta' ? 'தொடர்புக்கு' : 'STORE CONTACT'}
               </h3>
               <ul className="space-y-2.5 text-white/80">
                 <li className="flex items-center gap-1.5">
@@ -245,7 +273,7 @@ export function StickyFooter() {
                 </li>
                 <li className="pt-1">
                   <Link href="/admin/login" className="hover:text-white underline underline-offset-2 transition-colors">
-                    Staff Portal
+                    {locale === 'ta' ? 'நிர்வாக உள்நுழைவு' : 'Staff Portal'}
                   </Link>
                 </li>
               </ul>
@@ -258,7 +286,7 @@ export function StickyFooter() {
           <div className="flex items-center gap-2">
             <BrandLogo className="h-9 w-auto brightness-0 invert" />
             <span className="text-white/80 text-[11px] sm:text-xs">
-              is handcrafted with 🔥 in Sivakasi
+              {locale === 'ta' ? 'சிவகாசியில் அன்போடும் 🔥 ஆர்வத்தோடும் உருவாக்கப்பட்டது' : 'is handcrafted with 🔥 in Sivakasi'}
             </span>
           </div>
 
@@ -308,35 +336,13 @@ export function StickyFooter() {
                 <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
               </svg>
             </a>
-            <a
-              href="https://youtube.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="YouTube"
-              className="h-8 w-8 rounded-full bg-white/10 hover:bg-white hover:text-[#800000] flex items-center justify-center transition-colors cursor-pointer"
-            >
-              <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
-                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-              </svg>
-            </a>
-            <a
-              href="https://linkedin.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="LinkedIn"
-              className="h-8 w-8 rounded-full bg-white/10 hover:bg-white hover:text-[#800000] flex items-center justify-center transition-colors cursor-pointer"
-            >
-              <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
-                <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z" />
-              </svg>
-            </a>
           </div>
         </div>
 
         {/* ── Bottom Sub-Bar: Legal & Copyright ── */}
         <div className="bg-white/10 backdrop-blur-md rounded-[20px] sm:rounded-full py-3 px-5 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-[10px] sm:text-[11px] text-white/80 relative z-10">
-          <span>All prices incl. GST &amp; factory packaging. Sivakasi direct wholesale dispatch.</span>
-          <span>© {new Date().getFullYear()} {APP_CONFIG.STORE_NAME}. All rights reserved.</span>
+          <span>{locale === 'ta' ? 'அனைத்து விலைகளிலும் ஜிஎஸ்டி மற்றும் தொழிற்சாலை பேக்கிங் அடங்கும். நேரடி சிவகாசி மொத்த விற்பனை.' : 'All prices incl. GST & factory packaging. Sivakasi direct wholesale dispatch.'}</span>
+          <span>© {new Date().getFullYear()} {locale === 'ta' ? 'ராஜலக்ஷ்மி பட்டாசு' : APP_CONFIG.STORE_NAME}. {locale === 'ta' ? 'அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை.' : 'All rights reserved.'}</span>
         </div>
       </div>
     </footer>

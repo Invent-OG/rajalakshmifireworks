@@ -4,12 +4,15 @@ import { useQuery } from '@tanstack/react-query';
 import { Banner } from '@/components/ui/banner';
 import { Sparkles, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { useLocale, useTranslations } from '@/lib/i18n/context';
 
 interface StoreSettingsResponse {
   settings?: Record<string, string>;
 }
 
 export function StoreBanner() {
+  const locale = useLocale();
+  const tCommon = useTranslations('common');
   const { data } = useQuery<StoreSettingsResponse>({
     queryKey: ['settings'],
     queryFn: async () => {
@@ -22,9 +25,10 @@ export function StoreBanner() {
 
   const settings = data?.settings || {};
   const isEnabled = settings.ANNOUNCEMENT_BANNER_ENABLED !== 'false';
-  const text =
-    settings.ANNOUNCEMENT_BANNER_TEXT ||
-    'Direct from Sivakasi • 100% Genuine Factory Sealed Fireworks • Wholesale Pricing';
+  const defaultText = locale === 'ta'
+    ? 'நேரடி சிவகாசி பட்டாசுகள் • 100% அசல் தரமான பசுமை பட்டாசுகள் • மலிவான மொத்த விலை'
+    : 'Direct from Sivakasi • 100% Genuine Factory Sealed Fireworks • Wholesale Pricing';
+  const text = settings.ANNOUNCEMENT_BANNER_TEXT || defaultText;
   const link = settings.ANNOUNCEMENT_BANNER_LINK || '/products';
   const variant = (settings.ANNOUNCEMENT_BANNER_VARIANT as 'rainbow' | 'normal') || 'rainbow';
 
@@ -58,7 +62,7 @@ export function StoreBanner() {
             href={link}
             className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-300 hover:text-amber-200 underline underline-offset-2 ml-1 shrink-0 transition-colors"
           >
-            <span>Explore</span>
+            <span>{tCommon('explore')}</span>
             <ArrowRight className="h-3 w-3" />
           </Link>
         )}

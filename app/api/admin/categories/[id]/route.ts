@@ -32,7 +32,9 @@ export async function PUT(
       updateData.name = result.data.name;
       updateData.slug = slugify(result.data.name);
     }
+    if (result.data.nameTa !== undefined) updateData.nameTa = result.data.nameTa;
     if (result.data.description !== undefined) updateData.description = result.data.description;
+    if (result.data.descriptionTa !== undefined) updateData.descriptionTa = result.data.descriptionTa;
     if (result.data.image !== undefined) updateData.image = result.data.image;
     if (result.data.sortOrder !== undefined) updateData.sortOrder = result.data.sortOrder;
     if (result.data.isActive !== undefined) updateData.isActive = result.data.isActive;

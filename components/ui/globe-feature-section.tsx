@@ -2,34 +2,50 @@
 
 import Link from "next/link";
 import { StoreButton } from "@/components/ui/store-button";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { SectionTag } from "@/components/ui/section-tag";
 import createGlobe, { COBEOptions } from "cobe";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
+import { useTranslations, useLocale } from "@/lib/i18n/context";
 
 export default function Featured_05() {
+  const tFeatures = useTranslations('features');
+  const tNav = useTranslations('navigation');
+  const locale = useLocale();
+
   return (
-    <section className="relative w-full max-w-[1280px] mx-auto overflow-hidden rounded-[36px] sm:rounded-[40px] bg-white border-none shadow-sm p-8 sm:p-10 md:p-14">
+    <section className="relative w-full max-w-[1280px] mx-auto overflow-hidden rounded-[36px] sm:rounded-[40px] bg-white border-none shadow-sm p-8 sm:p-10 md:p-14 font-sans">
       <div className="flex flex-col-reverse items-center justify-between gap-10 md:flex-row">
         <div className="z-10 max-w-xl text-left space-y-4">
           <div className="mb-5 sm:mb-8">
-            <SectionTag label="Sivakasi Supply Network" />
+            <SectionTag label={locale === 'ta' ? 'சிவகாசி நேரடி விநியோக நெட்வொர்க்' : 'Sivakasi Supply Network'} />
           </div>
 
-          <h2 className="text-3xl sm:text-4xl md:text-[52px] font-medium text-[#111010] leading-[1.15] md:leading-[1.1] tracking-tight">
-            Lighting up celebrations across{' '}
-            <span className="text-black font-semibold">every corner of India</span>
+          <h2 className="text-3xl sm:text-4xl md:text-[52px] font-medium text-[#111010] leading-[1.15] md:leading-[1.1] tracking-tight font-heading">
+            {locale === 'ta' ? (
+              <>
+                இந்தியா முழுவதும் உங்கள் கொண்டாட்டங்களை{' '}
+                <span className="text-black font-semibold">ஒளிரச் செய்கிறோம்</span>
+              </>
+            ) : (
+              <>
+                Lighting up celebrations across{' '}
+                <span className="text-black font-semibold">every corner of India</span>
+              </>
+            )}
           </h2>
 
           <p className="text-[14px] sm:text-[15px] text-[#555455] font-normal leading-relaxed pt-1">
-            Direct from Sivakasi&apos;s certified manufacturing facilities to your home. Premium handcrafted sparklers, vibrant sound crackers, and grand sky shots with secure nationwide transit.
+            {locale === 'ta'
+              ? 'சிவகாசியின் அரசு சான்றளிக்கப்பட்ட உற்பத்தி ஆலைகளிலிருந்து நேரடியாக உங்கள் இல்லத்திற்கு. கைவினை மத்தாப்புகள், வர்ண வானவேடிக்கைகள் மற்றும் பாதுகாப்பான நாடு தழுவிய பார்சல் சேவை.'
+              : "Direct from Sivakasi's certified manufacturing facilities to your home. Premium handcrafted sparklers, vibrant sound crackers, and grand sky shots with secure nationwide transit."}
           </p>
 
           <div className="pt-4">
-            <Link href="/products">
+            <Link href={locale === 'en' ? '/products' : `/${locale}/products`}>
               <StoreButton size="lg" variant="primary">
-                Explore Fireworks Collection <ArrowRight className="h-4 w-4" />
+                {tNav('allProducts')} <ArrowRight className="h-4 w-4" />
               </StoreButton>
             </Link>
           </div>

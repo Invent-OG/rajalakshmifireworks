@@ -1,6 +1,6 @@
 import { db } from '@/db';
 import { products, categories } from '@/db/schema';
-import { eq, and, ilike, sql, desc, asc, lte, gte, AnyColumn, SQLWrapper } from 'drizzle-orm';
+import { eq, and, or, ilike, sql, desc, asc, lte, gte, AnyColumn, SQLWrapper } from 'drizzle-orm';
 import { NextRequest } from 'next/server';
 
 export async function GET(request: NextRequest) {
@@ -30,7 +30,14 @@ export async function GET(request: NextRequest) {
     }
 
     if (search) {
-      conditions.push(ilike(products.name, `%${search}%`));
+      conditions.push(
+        or(
+          ilike(products.name, `%${search}%`),
+          ilike(products.nameTa, `%${search}%`),
+          ilike(products.description, `%${search}%`),
+          ilike(products.descriptionTa, `%${search}%`)
+        )!
+      );
     }
 
     const combo = searchParams.get('combo') || searchParams.get('isCombo');
@@ -81,7 +88,7 @@ export async function GET(request: NextRequest) {
       db.query.products.findMany({
         where: whereClause,
         with: {
-          category: { columns: { id: true, name: true, slug: true } },
+          category: { columns: { id: true, name: true, nameTa: true, slug: true } },
           media: {
             orderBy: (m: { sortOrder: SQLWrapper | AnyColumn; }) => [asc(m.sortOrder)],
             limit: 1,

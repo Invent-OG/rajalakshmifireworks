@@ -10,28 +10,38 @@ import { PriceDisplay } from '@/components/ui/price-display';
 import { StatusBadge } from '@/components/ui/badge';
 import { ProductVisualPlaceholder } from '@/components/ui/category-icon';
 import Link from 'next/link';
-import { ArrowLeft, AlertCircle, Package, Sparkles, Layers, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, AlertCircle, Package, Sparkles, Layers } from 'lucide-react';
+import { isValidLocale, Locale } from '@/lib/i18n/config';
+import { getTranslations } from '@/lib/i18n/server';
+import { getLocalizedName, getLocalizedDescription } from '@/lib/i18n/formatters';
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
+  const { locale, slug } = await params;
+  if (!isValidLocale(locale)) return { title: 'Not Found' };
+
   const product = await db.query.products.findFirst({ where: eq(products.slug, slug) });
   if (!product) return { title: 'Product Not Found' };
+
+  const name = getLocalizedName(product, locale);
+  const description = getLocalizedDescription(product, locale);
+
   return {
-    title: `${product.name} | Rajalakshmi Fireworks`,
-    description: product.description || `Buy ${product.name} wholesale direct from Sivakasi.`,
+    title: `${name} | Rajalakshmi Fireworks`,
+    description: description || `Buy ${name} wholesale direct from Sivakasi.`,
   };
 }
 
 export default async function ProductPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }) {
-  const { slug } = await params;
+  const { locale, slug } = await params;
+  if (!isValidLocale(locale)) notFound();
 
   const product = await db.query.products.findFirst({
     where: eq(products.slug, slug),
@@ -54,6 +64,9 @@ export default async function ProductPage({
 
   if (!product || !product.isActive) notFound();
 
+  const tProd = getTranslations(locale, 'products');
+  const tNav = getTranslations(locale, 'navigation');
+
   const mrp = toNumber(product.mrp);
   const price = toNumber(product.sellingPrice);
   const imageUrl =
@@ -61,26 +74,32 @@ export default async function ProductPage({
     product.media?.[0]?.url ||
     null;
 
+  const displayName = getLocalizedName(product, locale);
+  const displayDescription = getLocalizedDescription(product, locale);
+  const categoryDisplayName = product.category ? getLocalizedName(product.category, locale) : null;
+
   const isComboProduct = Boolean(product.isCombo) || (product.comboItems && product.comboItems.length > 0);
   const totalComboPieces = product.comboItems?.reduce((sum, item) => sum + item.quantity, 0) || 0;
 
+  const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`);
+
   return (
-    <div className="w-full px-4 sm:px-8 lg:px-12 py-8 animate-fade-in space-y-8">
+    <div className="w-full px-4 sm:px-8 lg:px-12 py-8 animate-fade-in space-y-8 font-sans">
       {/* Breadcrumb Navigation */}
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
-        <Link href="/products" className="hover:text-foreground transition-colors flex items-center gap-1">
-          <ArrowLeft className="h-3 w-3" /> Catalog
+        <Link href={getHref('/products')} className="hover:text-foreground transition-colors flex items-center gap-1">
+          <ArrowLeft className="h-3 w-3" /> {tNav('allProducts')}
         </Link>
         {product.category && (
           <>
             <span>/</span>
-            <Link href={`/category/${product.category.slug}`} className="hover:text-foreground transition-colors">
-              {product.category.name}
+            <Link href={getHref(`/category/${product.category.slug}`)} className="hover:text-foreground transition-colors">
+              {categoryDisplayName}
             </Link>
           </>
         )}
         <span>/</span>
-        <span className="text-foreground font-medium truncate max-w-xs">{product.name}</span>
+        <span className="text-foreground font-medium truncate max-w-xs">{displayName}</span>
       </div>
 
       {/* Main Product Showcase Grid */}
@@ -88,8 +107,8 @@ export default async function ProductPage({
         {/* Left: Product Visual & Video Gallery Showcase */}
         <div className="lg:col-span-6 space-y-4">
           <ProductMediaGallery
-            productName={product.name}
-            categoryName={product.category?.name}
+            productName={displayName}
+            categoryName={categoryDisplayName || undefined}
             media={product.media || []}
           />
 
@@ -98,10 +117,18 @@ export default async function ProductPage({
             <div className="p-5 rounded-[28px] bg-amber-50/80 border border-amber-200/90 text-amber-950 space-y-2">
               <div className="flex items-center gap-2 font-bold text-xs sm:text-sm">
                 <Sparkles className="h-4 w-4 text-amber-600" />
-                <span>Festival Celebration Combo Pack</span>
+                <span>{locale === 'ta' ? 'தீபாவளி திருநாள் சிறப்பு காம்போ பேக்' : 'Festival Celebration Combo Pack'}</span>
               </div>
               <p className="text-xs text-amber-900/90 leading-relaxed">
-                Contains <strong>{totalComboPieces} curated items</strong> from our Sivakasi factory. Fully verified for maximum festive sparkle, sound, and child-safe fun.
+                {locale === 'ta' ? (
+                  <>
+                    சிவகாசி தொழிற்சாலையிலிருந்து <strong>{totalComboPieces} தேர்ந்தெடுக்கப்பட்ட பட்டாசுகள்</strong> அடங்கியது. முழு பாதுகாப்புடன் கூடிய உற்சாகக் கொண்டாட்டம்.
+                  </>
+                ) : (
+                  <>
+                    Contains <strong>{totalComboPieces} curated items</strong> from our Sivakasi factory. Fully verified for maximum festive sparkle, sound, and child-safe fun.
+                  </>
+                )}
               </p>
             </div>
           )}
@@ -111,19 +138,19 @@ export default async function ProductPage({
         <div className="lg:col-span-6 space-y-6">
           <div className="space-y-1.5">
             <div className="flex items-center gap-2">
-              {product.category && (
+              {categoryDisplayName && (
                 <span className="text-xs uppercase font-semibold tracking-wider text-muted-foreground">
-                  {product.category.name}
+                  {categoryDisplayName}
                 </span>
               )}
               {isComboProduct && (
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300 uppercase tracking-wider flex items-center gap-1">
-                  <Layers className="h-3 w-3" /> Combo Pack
+                  <Layers className="h-3 w-3" /> {locale === 'ta' ? 'காம்போ பேக்' : 'Combo Pack'}
                 </span>
               )}
             </div>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-foreground tracking-tight leading-tight">
-              {product.name}
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-foreground tracking-tight leading-tight font-heading">
+              {displayName}
             </h1>
             <p className="text-xs font-mono text-muted-foreground">SKU: {product.sku || 'N/A'}</p>
           </div>
@@ -132,7 +159,7 @@ export default async function ProductPage({
           <div className="p-6 rounded-[28px] sm:rounded-[32px] bg-white shadow-sm space-y-2">
             <PriceDisplay sellingPrice={price} mrp={mrp} size="xl" />
             <p className="text-[11px] text-muted-foreground">
-              Inclusive of GST & Factory Packaging. No hidden charges.
+              {locale === 'ta' ? 'GST மற்றும் தொழிற்சாலை பேக்கிங் உள்ளடங்கியது. மறைமுக கட்டணங்கள் இல்லை.' : 'Inclusive of GST & Factory Packaging. No hidden charges.'}
             </p>
           </div>
 
@@ -149,8 +176,8 @@ export default async function ProductPage({
             )}
             <span className="text-xs text-muted-foreground">
               {product.stockQuantity > 0
-                ? `${product.stockQuantity} units in stock`
-                : 'Restocking soon'}
+                ? (locale === 'ta' ? `${product.stockQuantity} எண்ணிக்கையில் உள்ளது` : `${product.stockQuantity} units in stock`)
+                : (locale === 'ta' ? 'விரைவில் இருப்பு வரும்' : 'Restocking soon')}
             </span>
           </div>
 
@@ -158,7 +185,7 @@ export default async function ProductPage({
           <ProductDetailClient
             product={{
               id: product.id,
-              name: product.name,
+              name: displayName,
               slug: product.slug,
               mrp,
               sellingPrice: price,
@@ -174,11 +201,13 @@ export default async function ProductPage({
                 <div className="flex items-center gap-2">
                   <Package className="h-4.5 w-4.5 text-neutral-900" />
                   <h3 className="font-bold text-sm text-foreground">
-                    Included Items ({product.comboItems.length} Varieties • {totalComboPieces} Total Pcs)
+                    {locale === 'ta'
+                      ? `இணைக்கப்பட்டுள்ள பட்டாசுகள் (${product.comboItems.length} வகைகள் • ${totalComboPieces} மொத்த எண்ணிக்கை)`
+                      : `Included Items (${product.comboItems.length} Varieties • ${totalComboPieces} Total Pcs)`}
                   </h3>
                 </div>
                 <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full">
-                  100% Genuine Sivakasi
+                  {locale === 'ta' ? '100% அசல் சிவகாசி' : '100% Genuine Sivakasi'}
                 </span>
               </div>
 
@@ -186,6 +215,8 @@ export default async function ProductPage({
                 {product.comboItems.map((ci, idx) => {
                   const itemProd = ci.product;
                   const itemImg = itemProd?.media?.[0]?.url;
+                  const itemDisplayName = itemProd ? getLocalizedName(itemProd, locale) : `Firework #${ci.productId}`;
+                  const itemCategoryName = itemProd?.category ? getLocalizedName(itemProd.category, locale) : null;
 
                   return (
                     <div
@@ -198,12 +229,12 @@ export default async function ProductPage({
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
                               src={itemImg}
-                              alt={itemProd?.name || 'Included cracker'}
+                              alt={itemDisplayName}
                               className="w-full h-full object-cover"
                             />
                           ) : (
                             <ProductVisualPlaceholder
-                              name={itemProd?.name || 'Cracker'}
+                              name={itemDisplayName}
                               className="w-full h-full"
                             />
                           )}
@@ -211,10 +242,10 @@ export default async function ProductPage({
 
                         <div className="min-w-0 flex-1">
                           <p className="font-semibold text-xs text-foreground truncate">
-                            {itemProd?.name || `Firework #${ci.productId}`}
+                            {itemDisplayName}
                           </p>
                           <div className="flex items-center gap-2 text-[11px] text-muted-foreground mt-0.5">
-                            {itemProd?.category && <span>{itemProd.category.name}</span>}
+                            {itemCategoryName && <span>{itemCategoryName}</span>}
                             <span>•</span>
                             <span className="font-mono">
                               MRP: {formatCurrency(toNumber(itemProd?.mrp || 0))}
@@ -236,13 +267,13 @@ export default async function ProductPage({
           )}
 
           {/* Description Section */}
-          {product.description && (
+          {displayDescription && (
             <div className="border-t border-neutral-100 pt-6 space-y-2">
               <h3 className="font-bold text-xs uppercase tracking-wider text-foreground">
-                Description
+                {locale === 'ta' ? 'விளக்கம்' : 'Description'}
               </h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                {product.description}
+                {displayDescription}
               </p>
             </div>
           )}
@@ -251,12 +282,12 @@ export default async function ProductPage({
           <div className="rounded-[28px] sm:rounded-[32px] bg-white p-6 space-y-3 shadow-sm text-xs text-muted-foreground">
             <div className="flex items-center gap-2 font-bold text-foreground">
               <AlertCircle className="h-4 w-4 text-neutral-900" />
-              <span>Safety & Usage Instructions</span>
+              <span>{locale === 'ta' ? 'பாதுகாப்பு & பயன்பாட்டு விதிமுறைகள்' : 'Safety & Usage Instructions'}</span>
             </div>
             <ul className="space-y-1.5 pl-4 list-disc">
-              <li>Use outdoors in open areas clear of dry grass or flammable objects.</li>
-              <li>Light using an agarbatti or sparkler at arm&apos;s length.</li>
-              <li>Always ensure adult presence and keep a water bucket nearby.</li>
+              <li>{locale === 'ta' ? 'திறந்தவெளியில் மட்டுமே பட்டாசுகளை வெடிக்க வேண்டும்.' : 'Use outdoors in open areas clear of dry grass or flammable objects.'}</li>
+              <li>{locale === 'ta' ? 'அகர்பத்தி அல்லது நீளமான மத்தாப்பைப் பயன்படுத்தி பாதுகாப்பான இடைவெளியில் பற்றவைக்கவும்.' : "Light using an agarbatti or sparkler at arm's length."}</li>
+              <li>{locale === 'ta' ? 'பெரியவர்கள் முன்னிலையில் மட்டுமே குழந்தைகளை பட்டாசு வெடிக்க அனுமதிக்கவும். அருகில் தண்ணீர் வாளி வைக்கவும்.' : 'Always ensure adult presence and keep a water bucket nearby.'}</li>
             </ul>
           </div>
         </div>

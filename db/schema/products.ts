@@ -24,8 +24,10 @@ export const products = pgTable(
     categoryId: integer('category_id')
       .references(() => categories.id),
     name: varchar('name', { length: 255 }).notNull(),
+    nameTa: varchar('name_ta', { length: 255 }),
     slug: varchar('slug', { length: 255 }).notNull(),
     description: text('description'),
+    descriptionTa: text('description_ta'),
     sku: varchar('sku', { length: 100 }),
     mrp: numeric('mrp', { precision: 10, scale: 2 }).notNull(),
     sellingPrice: numeric('selling_price', { precision: 10, scale: 2 }).notNull(),

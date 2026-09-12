@@ -7,6 +7,7 @@ import { AddToBagButton } from '@/components/ui/add-to-bag-button';
 import { QuantityStepper } from '@/components/ui/quantity-stepper';
 import { Check } from 'lucide-react';
 import { gsap, isReducedMotion } from '@/lib/motion';
+import { useTranslations, useLocale } from '@/lib/i18n/context';
 
 interface ProductDetailClientProps {
   product: {
@@ -26,6 +27,9 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
   const [selectedQuantity, setSelectedQuantity] = useState(1);
   const isOutOfStock = product.stockQuantity <= 0;
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const t = useTranslations('products');
+  const tCart = useTranslations('cart');
+  const locale = useLocale();
 
   function handleAddToCart() {
     if (buttonRef.current && !isReducedMotion()) {
@@ -52,22 +56,24 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
     return (
       <div className="pt-2">
         <StoreButton size="lg" variant="outline" disabled className="w-full opacity-50 cursor-not-allowed">
-          Currently Out of Stock
+          {t('outOfStock')}
         </StoreButton>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4 pt-2">
+    <div className="space-y-4 pt-2 font-sans">
       {cartQuantity > 0 ? (
         <div className="p-5 rounded-[24px] sm:rounded-[28px] bg-white shadow-sm space-y-3">
           <div className="flex items-center justify-between text-xs font-semibold text-foreground">
             <span className="flex items-center gap-1.5">
               <Check className="h-4 w-4 text-emerald-700" />
-              {cartQuantity} in your shopping bag
+              {locale === 'ta' ? `${cartQuantity} உங்கள் பையில் உள்ளது` : `${cartQuantity} in your shopping bag`}
             </span>
-            <span className="text-muted-foreground font-normal">Update quantity below</span>
+            <span className="text-muted-foreground font-normal">
+              {locale === 'ta' ? 'அளவை மாற்றவும்' : 'Update quantity below'}
+            </span>
           </div>
 
           <div className="flex items-center gap-3">
@@ -89,7 +95,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <div className="flex items-center gap-2">
             <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Qty:
+              {locale === 'ta' ? 'எண்ணிக்கை:' : 'Qty:'}
             </span>
             <QuantityStepper
               quantity={selectedQuantity}
@@ -106,7 +112,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
             className="flex-1"
             onClick={handleAddToCart}
           >
-            Add to bag
+            {t('addToCart')}
           </AddToBagButton>
         </div>
       )}

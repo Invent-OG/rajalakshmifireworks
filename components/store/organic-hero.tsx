@@ -4,12 +4,16 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight, Pause, Play, ArrowRight } from 'lucide-react';
 import { HeroSettingsConfig, DEFAULT_HERO_CONFIG } from '@/lib/hero-config';
+import { useLocale, useTranslations } from '@/lib/i18n/context';
 
 interface OrganicHeroCarouselProps {
   initialConfig?: HeroSettingsConfig;
 }
 
 export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHeroCarouselProps) {
+  const locale = useLocale();
+  const tHero = useTranslations('hero');
+  const tCommon = useTranslations('common');
   const config = initialConfig || DEFAULT_HERO_CONFIG;
   const slides = config.slides?.length > 0 ? config.slides : DEFAULT_HERO_CONFIG.slides;
 
@@ -66,6 +70,14 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
 
   const currentSlide = slides[currentIdx] || slides[0];
 
+  const headline1 = locale === 'ta' ? 'உங்கள் தீபாவளி' : currentSlide.headlineLine1;
+  const headline2 = locale === 'ta' ? 'திருநாளை வண்ணமயமாக்கும்' : currentSlide.headlineLine2;
+  const headline3 = locale === 'ta' ? 'சிவகாசி பட்டாசுகள்' : currentSlide.headlineLine3;
+  const subtitle = locale === 'ta'
+    ? 'சிவகாசியிலிருந்து நேரடியாகப் பெறப்படும் பாதுகாப்பான, வண்ணமயமான 100% அசல் பசுமை பட்டாசுகள். மலிவான மொத்த விலையில்.'
+    : currentSlide.subtitle;
+  const ctaText = locale === 'ta' ? 'பட்டாசுகளைப் பார்க்க' : (currentSlide.ctaText || 'SEE PRODUCTS');
+
   return (
     <section
       className="w-full pt-4 sm:pt-6 pb-6 sm:pb-10"
@@ -103,15 +115,15 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
             {/* Left Column: Typography & Action */}
             <div className="lg:col-span-8 flex flex-col justify-center text-left space-y-5 sm:space-y-6 z-20">
               <h1 className="hero-heading text-4xl sm:text-6xl lg:text-[4.5rem] font-black tracking-tight uppercase leading-[0.92] text-neutral-950 select-none animate-in fade-in slide-in-from-left-4 duration-500">
-                <span>{currentSlide.headlineLine1}</span>
+                <span>{headline1}</span>
                 <br />
-                <span>{currentSlide.headlineLine2}</span>
+                <span>{headline2}</span>
                 <br />
-                <span>{currentSlide.headlineLine3}</span>
+                <span>{headline3}</span>
               </h1>
 
               <p className="hero-text text-neutral-800 text-sm sm:text-base lg:text-[1.1rem] font-medium leading-relaxed max-w-lg">
-                {currentSlide.subtitle}
+                {subtitle}
               </p>
 
               <div className="hero-ctas pt-2">
@@ -120,7 +132,7 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
                   id="hero-see-products-btn"
                   className="inline-flex items-center justify-center h-12 sm:h-14 px-8 sm:px-9 rounded-full bg-neutral-950 text-white text-xs sm:text-sm font-bold tracking-widest uppercase hover:bg-neutral-800 active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg gap-2"
                 >
-                  <span>{currentSlide.ctaText || 'SEE PRODUCTS'}</span>
+                  <span>{ctaText}</span>
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
@@ -147,10 +159,10 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
                   </div>
                   <div className="flex flex-col min-w-0 flex-1">
                     <span className="font-bold text-sm sm:text-base leading-snug tracking-tight truncate">
-                      {currentSlide.card1.title}
+                      {locale === 'ta' ? 'சிறப்பு கம்பி மத்தாப்புகள்' : currentSlide.card1.title}
                     </span>
                     <span className="text-xs text-white/80 font-medium underline underline-offset-2 decoration-white/40 group-hover:decoration-white transition-colors mt-1 flex items-center gap-1">
-                      <span>{currentSlide.card1.subtitle || 'Explore'}</span>
+                      <span>{tCommon('explore')}</span>
                       <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
                     </span>
                   </div>
@@ -175,10 +187,10 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
                   </div>
                   <div className="flex flex-col min-w-0 flex-1">
                     <span className="font-bold text-sm sm:text-base leading-snug tracking-tight truncate">
-                      {currentSlide.card2.title}
+                      {locale === 'ta' ? 'தீபாவளி காம்போ கிஃப்ட் பாக்ஸ்' : currentSlide.card2.title}
                     </span>
                     <span className="text-xs text-white/80 font-medium underline underline-offset-2 decoration-white/40 group-hover:decoration-white transition-colors mt-1 flex items-center gap-1">
-                      <span>{currentSlide.card2.subtitle || 'Explore'}</span>
+                      <span>{tCommon('explore')}</span>
                       <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
                     </span>
                   </div>
@@ -199,7 +211,7 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
                   type="button"
                   onClick={prevSlide}
                   aria-label="Previous Slide"
-                  className="h-9 w-9 rounded-full bg-black/15 hover:bg-black/25 text-neutral-900 flex items-center justify-center backdrop-blur-xs transition-all active:scale-95"
+                  className="h-9 w-9 rounded-full bg-black/15 hover:bg-black/25 text-neutral-900 flex items-center justify-center backdrop-blur-xs transition-all active:scale-95 cursor-pointer"
                 >
                   <ChevronLeft className="h-5 w-5" />
                 </button>
@@ -207,7 +219,7 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
                   type="button"
                   onClick={nextSlide}
                   aria-label="Next Slide"
-                  className="h-9 w-9 rounded-full bg-black/15 hover:bg-black/25 text-neutral-900 flex items-center justify-center backdrop-blur-xs transition-all active:scale-95"
+                  className="h-9 w-9 rounded-full bg-black/15 hover:bg-black/25 text-neutral-900 flex items-center justify-center backdrop-blur-xs transition-all active:scale-95 cursor-pointer"
                 >
                   <ChevronRight className="h-5 w-5" />
                 </button>
@@ -221,7 +233,7 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
                     type="button"
                     onClick={() => goToSlide(idx)}
                     aria-label={`Go to slide ${idx + 1}`}
-                    className={`h-2.5 rounded-full transition-all duration-300 ${currentIdx === idx
+                    className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${currentIdx === idx
                       ? 'w-8 bg-neutral-950'
                       : 'w-2.5 bg-neutral-950/25 hover:bg-neutral-950/40'
                       }`}
@@ -234,10 +246,10 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
                 type="button"
                 onClick={() => setIsPaused(!isPaused)}
                 aria-label={isPaused ? 'Resume autoplay' : 'Pause autoplay'}
-                className="text-xs font-semibold text-neutral-800/80 hover:text-neutral-950 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/10 hover:bg-black/15 transition-colors"
+                className="text-xs font-semibold text-neutral-800/80 hover:text-neutral-950 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/10 hover:bg-black/15 transition-colors cursor-pointer"
               >
                 {isPaused ? <Play className="h-3 w-3" /> : <Pause className="h-3 w-3" />}
-                <span className="hidden sm:inline">{isPaused ? 'Paused' : 'Auto'}</span>
+                <span className="hidden sm:inline">{isPaused ? (locale === 'ta' ? 'நிறுத்தப்பட்டது' : 'Paused') : (locale === 'ta' ? 'சுழற்சி' : 'Auto')}</span>
               </button>
 
             </div>
@@ -246,35 +258,27 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
         </div>
 
         {/* ── USP Trust Ribbon Strip ── */}
-        <div className="mt-4 sm:mt-6 bg-white rounded-[28px] sm:rounded-[36px] py-4 sm:py-5 px-4 sm:px-8 shadow-sm overflow-x-auto scrollbar-none">
-          <div className="flex items-center justify-between min-w-[720px] lg:min-w-0 gap-6 sm:gap-8 text-xs sm:text-[13px] font-semibold text-neutral-800">
-            <div className="flex items-center gap-2.5 whitespace-nowrap select-none hover:text-brand transition-colors">
-              <span className="text-lg sm:text-xl">🚚</span>
-              <span>Short supply chain</span>
+        <div className="mt-4 sm:mt-6 bg-orange-500 rounded-[28px] sm:rounded-[36px] py-4 sm:py-5 px-4 sm:px-8 shadow-sm overflow-x-auto scrollbar-none">
+          <div className="flex items-center justify-between min-w-[720px] lg:min-w-0 gap-6 sm:gap-8 text-xs sm:text-[13px] font-semibold text-neutral-950">
+            <div className="flex items-center gap-2.5 whitespace-nowrap select-none hover:text-white transition-colors">
+              <span className="text-lg sm:text-xl">🏭</span>
+              <span>{locale === 'ta' ? '100% நேரடி சிவகாசி' : '100% Direct from Sivakasi'}</span>
             </div>
-            <div className="flex items-center gap-2.5 whitespace-nowrap select-none hover:text-brand transition-colors">
-              <span className="text-lg sm:text-xl">⚖️</span>
-              <span>Fair prices</span>
+            <div className="flex items-center gap-2.5 whitespace-nowrap select-none hover:text-white transition-colors">
+              <span className="text-lg sm:text-xl">🏷️</span>
+              <span>{locale === 'ta' ? 'மலிவான மொத்த விலை' : 'Wholesale Factory Prices'}</span>
             </div>
-            <div className="flex items-center gap-2.5 whitespace-nowrap select-none hover:text-brand transition-colors">
-              <span className="text-lg sm:text-xl">🥜</span>
-              <span>High quality</span>
-            </div>
-            <div className="flex items-center gap-2.5 whitespace-nowrap select-none hover:text-brand transition-colors">
+            <div className="flex items-center gap-2.5 whitespace-nowrap select-none hover:text-white transition-colors">
               <span className="text-lg sm:text-xl">🌿</span>
-              <span>Transparency</span>
+              <span>{locale === 'ta' ? 'அங்கீகரிக்கப்பட்ட பசுமை பட்டாசு' : 'Certified Green Fireworks'}</span>
             </div>
-            <div className="flex items-center gap-2.5 whitespace-nowrap select-none hover:text-brand transition-colors">
+            <div className="flex items-center gap-2.5 whitespace-nowrap select-none hover:text-white transition-colors">
               <span className="text-lg sm:text-xl">📦</span>
-              <span>Bulk packaging</span>
+              <span>{locale === 'ta' ? 'ஈரப்பதம் புகா பேக்கிங்' : 'Moisture-proof Packaging'}</span>
             </div>
-            <div className="flex items-center gap-2.5 whitespace-nowrap select-none hover:text-brand transition-colors">
-              <span className="text-lg sm:text-xl">🤟</span>
-              <span>Community</span>
-            </div>
-            <div className="flex items-center gap-2.5 whitespace-nowrap select-none hover:text-brand transition-colors">
-              <span className="text-lg sm:text-xl">🚀</span>
-              <span>Fast delivery</span>
+            <div className="flex items-center gap-2.5 whitespace-nowrap select-none hover:text-white transition-colors">
+              <span className="text-lg sm:text-xl">🚚</span>
+              <span>{locale === 'ta' ? 'பாதுகாப்பான லாரி பார்சல்' : 'Safe Transport Dispatch'}</span>
             </div>
           </div>
         </div>

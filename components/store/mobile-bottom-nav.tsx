@@ -4,19 +4,21 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, LayoutGrid, Search, Truck, ShoppingBag } from 'lucide-react';
 import { useCart, useIsHydrated } from '@/hooks/use-cart';
+import { useTranslations } from '@/lib/i18n/context';
 
 export function MobileBottomNav() {
   const pathname = usePathname();
+  const tNav = useTranslations('navigation');
   const { itemCount } = useCart();
   const isHydrated = useIsHydrated();
   const displayCount = isHydrated ? itemCount : 0;
 
   const navItems = [
-    { href: '/', icon: Home, label: 'Home' },
-    { href: '/products', icon: LayoutGrid, label: 'Catalog' },
-    { href: '/search', icon: Search, label: 'Search' },
-    { href: '/track-order', icon: Truck, label: 'Track' },
-    { href: '/cart', icon: ShoppingBag, label: 'Bag', badge: displayCount },
+    { href: '/', icon: Home, label: tNav('home') },
+    { href: '/products', icon: LayoutGrid, label: tNav('catalog') },
+    { href: '/search', icon: Search, label: tNav('search') },
+    { href: '/track-order', icon: Truck, label: tNav('trackOrder') },
+    { href: '/cart', icon: ShoppingBag, label: tNav('bag'), badge: displayCount },
   ];
 
   // Don't show bottom nav on checkout to prevent distractions

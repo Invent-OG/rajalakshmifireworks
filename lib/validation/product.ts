@@ -17,8 +17,10 @@ export const comboItemInputSchema = z.object({
 
 export const productBaseSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').max(255).trim(),
+  nameTa: z.string().max(255).optional().nullable(),
   categoryId: z.number().int().optional().nullable(),
-  description: z.string().max(2000).optional(),
+  description: z.string().max(2000).optional().nullable(),
+  descriptionTa: z.string().max(2000).optional().nullable(),
   sku: z.string().max(100).optional(),
   mrp: z.number().positive('MRP must be greater than 0'),
   sellingPrice: z.number().positive('Selling price must be greater than 0'),
@@ -84,8 +86,10 @@ export const bulkPriceUpdateSchema = z
 
 export const categoryCreateSchema = z.object({
   name: z.string().min(2, 'Category name must be at least 2 characters').max(255).trim(),
-  description: z.string().max(1000).optional(),
-  image: z.string().optional(),
+  nameTa: z.string().max(255).optional().nullable(),
+  description: z.string().max(1000).optional().nullable(),
+  descriptionTa: z.string().max(1000).optional().nullable(),
+  image: z.string().optional().nullable(),
   sortOrder: z.number().int().min(0),
   isActive: z.boolean(),
 });

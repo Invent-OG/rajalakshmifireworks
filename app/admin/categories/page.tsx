@@ -13,8 +13,10 @@ import { getCategory3DImage } from '@/components/ui/category-icon';
 interface CategoryItem {
   id: number;
   name: string;
+  nameTa?: string | null;
   slug: string;
   description: string | null;
+  descriptionTa?: string | null;
   image: string | null;
   sortOrder: number;
   isActive: boolean;
@@ -36,7 +38,9 @@ export default function AdminCategoriesPage() {
   const queryClient = useQueryClient();
   const [editingCategory, setEditingCategory] = useState<CategoryItem | null>(null);
   const [name, setName] = useState('');
+  const [nameTa, setNameTa] = useState('');
   const [description, setDescription] = useState('');
+  const [descriptionTa, setDescriptionTa] = useState('');
   const [image, setImage] = useState('');
   const [sortOrder, setSortOrder] = useState<number>(0);
   const [isActive, setIsActive] = useState<boolean>(true);
@@ -53,7 +57,9 @@ export default function AdminCategoriesPage() {
   const handleOpenAdd = () => {
     setEditingCategory(null);
     setName('');
+    setNameTa('');
     setDescription('');
+    setDescriptionTa('');
     setImage('');
     setSortOrder(categories.length + 1);
     setIsActive(true);
@@ -63,7 +69,9 @@ export default function AdminCategoriesPage() {
   const handleOpenEdit = (cat: CategoryItem) => {
     setEditingCategory(cat);
     setName(cat.name);
+    setNameTa(cat.nameTa || '');
     setDescription(cat.description || '');
+    setDescriptionTa(cat.descriptionTa || '');
     setImage(cat.image || '');
     setSortOrder(cat.sortOrder);
     setIsActive(cat.isActive);
@@ -101,7 +109,9 @@ export default function AdminCategoriesPage() {
     mutationFn: async () => {
       const payload = {
         name,
+        nameTa: nameTa || null,
         description: description || null,
+        descriptionTa: descriptionTa || null,
         image: image || null,
         sortOrder,
         isActive,
@@ -294,21 +304,40 @@ export default function AdminCategoriesPage() {
               </div>
 
               <div className="space-y-4">
-                <Input
-                  label="Category Name *"
-                  placeholder="e.g. Sparklers"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <Input
+                    label="Category Name (English) *"
+                    placeholder="e.g. Sparklers"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                  />
 
-                <Textarea
-                  label="Description"
-                  placeholder="Brief summary of items in this category..."
-                  rows={2}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                />
+                  <Input
+                    label="Category Name (Tamil / தமிழ் பெயர்)"
+                    placeholder="எ.கா: கம்பி மத்தாப்பு"
+                    value={nameTa}
+                    onChange={(e) => setNameTa(e.target.value)}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <Textarea
+                    label="Description (English)"
+                    placeholder="Brief summary of items in this category..."
+                    rows={2}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                  />
+
+                  <Textarea
+                    label="Description (Tamil / தமிழ் விளக்கம்)"
+                    placeholder="இப்பிரிவில் உள்ள பட்டாசுகள் பற்றிய சிறு விளக்கம்..."
+                    rows={2}
+                    value={descriptionTa}
+                    onChange={(e) => setDescriptionTa(e.target.value)}
+                  />
+                </div>
 
                 {/* Category Image Selector & Upload */}
                 <div className="space-y-2">
