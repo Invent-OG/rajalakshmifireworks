@@ -36,7 +36,7 @@ export function InfiniteRibbonPreview() {
       <div className="absolute w-[120%] -left-[10%] flex items-center justify-center pointer-events-none z-10">
         <InfiniteRibbon
           className="bg-amber-400 text-neutral-950 py-2.5 sm:py-3  font-bold border-y border-amber-500/40"
-          duration={38}
+          duration={120}
           rotation={4.5}
           repeat={4}
         >
@@ -48,7 +48,7 @@ export function InfiniteRibbonPreview() {
       <div className="w-[120%] -left-[10%] relative flex items-center justify-center pointer-events-none z-20">
         <InfiniteRibbon
           className="bg-neutral-950 text-amber-300 py-2.5 sm:py-3  font-black border-y border-neutral-800"
-          duration={42}
+          duration={120}
           reverse={true}
           rotation={-4.5}
           repeat={4}
