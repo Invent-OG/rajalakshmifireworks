@@ -93,6 +93,7 @@ export default async function HomePage({
             tagLabel={locale === 'ta' ? 'வாடிக்கையாளர் விருப்பம்' : 'Customer Favorites'}
             viewAllHref={locale === 'en' ? '/products?bestseller=true' : `/${locale}/products?bestseller=true`}
             viewAllLabel={locale === 'ta' ? 'அனைத்தையும் பார்க்க' : 'View All Bestsellers'}
+            scrollDrift="left"
           />
         )}
 
@@ -103,7 +104,19 @@ export default async function HomePage({
 
         {/* ── 3. Featured Products Slider ─── */}
         {featuredProducts.length > 0 && (
-          <FeaturedProductsSlider products={featuredProducts} />
+          <FeaturedProductsSlider
+            products={featuredProducts}
+            title={locale === 'ta' ? 'சிறப்பு பட்டாசு ரகங்கள்' : 'Featured Fireworks'}
+            subtitle={
+              locale === 'ta'
+                ? 'கம்பி மத்தாப்புகள், வான்வெளி வெடிகள் மற்றும் வண்ணமயமான பவுண்டன்களின் தேர்ந்தெடுக்கப்பட்ட சிறப்பு தொகுப்பு.'
+                : 'Hand-selected aerial cakes, vibrant flower pots, and family combo boxes tested for maximum sparkle.'
+            }
+            tagLabel={locale === 'ta' ? 'சிறப்பு தொகுப்பு' : 'Curated Masterpieces'}
+            viewAllHref={locale === 'en' ? '/products?featured=true' : `/${locale}/products?featured=true`}
+            viewAllLabel={locale === 'ta' ? 'அனைத்தையும் பார்க்க' : 'View All Featured'}
+            scrollDrift="right"
+          />
         )}
 
         {/* ── 5. Testimonial 02 Blaze ─── */}

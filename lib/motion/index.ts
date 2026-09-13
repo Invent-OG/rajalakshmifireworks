@@ -2,11 +2,16 @@
 
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { MorphSVGPlugin } from 'gsap/MorphSVGPlugin';
 import { useGSAP } from '@gsap/react';
 
-// Register ScrollTrigger plugin safely
+// Register ScrollTrigger & MorphSVGPlugin safely
 if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger, useGSAP);
+  gsap.registerPlugin(ScrollTrigger, MorphSVGPlugin, useGSAP);
+  ScrollTrigger.config({
+    ignoreMobileResize: true,
+    autoRefreshEvents: 'visibilitychange,DOMContentLoaded,load',
+  });
 }
 
 export function isReducedMotion(): boolean {
@@ -14,4 +19,5 @@ export function isReducedMotion(): boolean {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-export { gsap, ScrollTrigger, useGSAP };
+export { gsap, ScrollTrigger, MorphSVGPlugin, useGSAP };
+

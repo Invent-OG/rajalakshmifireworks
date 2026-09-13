@@ -3,6 +3,7 @@ import { QuickCartMobileFloating } from '@/components/store/quick-cart-drawer';
 import { StoreBanner } from '@/components/store/store-banner';
 import { FloatingNavbar } from '@/components/store/floating-navbar';
 import { StickyFooter } from '@/components/store/sticky-footer';
+import { SmoothScrollProvider } from '@/components/providers/smooth-scroll-provider';
 import { notFound } from 'next/navigation';
 import { isValidLocale, Locale } from '@/lib/i18n/config';
 
@@ -20,13 +21,13 @@ export default async function StoreLocaleLayout({
   }
 
   return (
-    <>
+    <SmoothScrollProvider>
       <StoreBanner />
       <FloatingNavbar />
       <main className="flex-1 pb-12 md:pb-6">{children}</main>
       <StickyFooter />
       <QuickCartMobileFloating />
       <MobileBottomNav />
-    </>
+    </SmoothScrollProvider>
   );
 }
