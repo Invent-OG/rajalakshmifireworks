@@ -22,6 +22,7 @@ import {
   Package,
   Layers,
   Percent,
+  FileSpreadsheet,
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
@@ -235,6 +236,11 @@ export default function AdminProductsPage() {
           >
             <Download className="h-4 w-4 mr-1 text-muted-foreground" /> Export CSV
           </Button>
+          <Link href="/admin/products/bulk-upload">
+            <Button variant="outline" size="md" className="font-semibold text-xs border-primary/30 text-primary hover:bg-primary/5">
+              <FileSpreadsheet className="h-4 w-4 mr-1.5" /> Bulk Upload (Excel)
+            </Button>
+          </Link>
           <Link href="/admin/products/bulk-price">
             <Button variant="outline" size="md" className="font-semibold text-xs">
               <DollarSign className="h-4 w-4 text-muted-foreground" /> Bulk Price Tool

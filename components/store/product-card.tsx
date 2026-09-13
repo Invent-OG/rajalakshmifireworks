@@ -99,26 +99,15 @@ export function ProductCard({ product }: ProductCardProps) {
         {/* ── 1. Thumbnail Stack & Curved Inverted Category Tab ── */}
         <div className="_thumbnail-stack relative">
           {img1 ? (
-            <>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={img1}
-                alt={displayName}
-                width={400}
-                height={400}
-                loading="lazy"
-                referrerPolicy="no-referrer"
-              />
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={img2 || img1}
-                alt={displayName}
-                width={400}
-                height={400}
-                loading="lazy"
-                referrerPolicy="no-referrer"
-              />
-            </>
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              src={img1}
+              alt={displayName}
+              width={400}
+              height={400}
+              loading="lazy"
+              referrerPolicy="no-referrer"
+            />
           ) : (
             <div className="w-full h-full flex items-center justify-center p-4">
               <ProductVisualPlaceholder name={product.name} />
