@@ -112,7 +112,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
             className="flex-1"
             onClick={handleAddToCart}
           >
-            {t('addToCart')}
+            {t('addToBag')}
           </AddToBagButton>
         </div>
       )}
