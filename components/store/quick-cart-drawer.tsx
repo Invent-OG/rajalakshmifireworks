@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { QuickCartWidget } from '@/components/store/quick-cart-widget';
 import { useCart, useIsHydrated } from '@/hooks/use-cart';
@@ -31,6 +31,20 @@ export function QuickCartMobileFloating() {
   const modalRef = useRef<HTMLDivElement>(null);
   const drawerRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
+
+  // Prevent background body scroll when mobile drawer modal is open
+  useEffect(() => {
+    if (isRendered) {
+      const originalOverflow = document.body.style.overflow;
+      const originalTouchAction = document.body.style.touchAction;
+      document.body.style.overflow = 'hidden';
+      document.body.style.touchAction = 'none';
+      return () => {
+        document.body.style.overflow = originalOverflow;
+        document.body.style.touchAction = originalTouchAction;
+      };
+    }
+  }, [isRendered]);
 
   const openDrawer = () => {
     setIsRendered(true);
@@ -162,14 +176,20 @@ export function QuickCartMobileFloating() {
         <Portal>
           <div
             ref={modalRef}
-            className="xl:hidden fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-xs p-4"
+            data-lenis-prevent
+            className="xl:hidden fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-xs p-4 overscroll-contain"
           >
             <div
               className="fixed inset-0"
               onClick={closeDrawer}
+              onTouchMove={(e) => e.preventDefault()}
               aria-hidden="true"
             />
-            <div ref={drawerRef} className="relative w-full max-w-md z-10">
+            <div
+              ref={drawerRef}
+              data-lenis-prevent
+              className="relative w-full max-w-md z-10 overscroll-contain"
+            >
               <QuickCartWidget onClose={closeDrawer} />
             </div>
           </div>

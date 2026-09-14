@@ -360,8 +360,10 @@ export function FloatingNavbar() {
 
           {/* Right Column: Action Buttons (Language Selector + Search + Download/Price List + Bag) */}
           <div className="flex items-center justify-end gap-2 sm:gap-2.5 shrink-0">
-            {/* Language Selector */}
-            <LanguageSelector />
+            {/* Language Selector - Hidden on mobile, shown on desktop */}
+            <div className="hidden md:inline-flex items-center">
+              <LanguageSelector />
+            </div>
 
             {/* Quick Search Button */}
             <Link
@@ -382,7 +384,7 @@ export function FloatingNavbar() {
 
             {/* Download Price List Pill Button */}
             <Link
-              href="/products"
+              href="/price-list"
               className="hidden sm:inline-flex items-center gap-2 h-12 px-4 sm:px-5 rounded-full bg-neutral-100/90 hover:bg-neutral-200/90 text-neutral-900 text-xs sm:text-sm font-bold transition-all active:scale-95 shadow-xs whitespace-nowrap"
             >
               <Download className="h-4 w-4 text-neutral-700" />
@@ -612,7 +614,7 @@ export function FloatingNavbar() {
 
               <div className="pt-3 border-t border-neutral-100 flex items-center justify-between gap-3">
                 <Link
-                  href="/products"
+                  href="/price-list"
                   onClick={() => setMobileMenuOpen(false)}
                   className="inline-flex items-center justify-center gap-2 h-12 px-6 rounded-full bg-neutral-100 hover:bg-neutral-200 text-xs sm:text-sm font-bold text-neutral-900 shadow-xs transition-all active:scale-95 flex-1"
                 >

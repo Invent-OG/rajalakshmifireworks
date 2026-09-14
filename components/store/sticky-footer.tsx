@@ -173,6 +173,12 @@ export function StickyFooter() {
               </h3>
               <ul className="space-y-2.5 text-white/80">
                 <li>
+                  <Link href="/price-list" className="hover:text-white transition-colors flex items-center gap-1.5">
+                    <span className="text-amber-400 font-bold">★</span>
+                    <span>{locale === 'ta' ? 'விலைப் பட்டியல் பிரசுரம்' : 'Price List Brochure'}</span>
+                  </Link>
+                </li>
+                <li>
                   <Link href="/products" className="hover:text-white transition-colors">
                     {tFooter('catalog')}
                   </Link>
@@ -180,11 +186,6 @@ export function StickyFooter() {
                 <li>
                   <Link href="/products?featured=true" className="hover:text-white transition-colors">
                     {tFooter('combos')}
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/products?bestseller=true" className="hover:text-white transition-colors">
-                    {locale === 'ta' ? 'அதிக விற்பனை' : 'Festive Bestsellers'}
                   </Link>
                 </li>
                 <li>

@@ -185,7 +185,8 @@ export function QuickCartWidget({ className = '', onClose }: QuickCartWidgetProp
       ) : (
         <div
           ref={listRef}
-          className="my-3.5 space-y-2.5 max-h-[48vh] sm:max-h-[360px] overflow-y-auto pr-1 no-scrollbar"
+          data-lenis-prevent
+          className="my-3.5 space-y-2.5 max-h-[48vh] sm:max-h-[360px] overflow-y-auto pr-1 no-scrollbar overscroll-contain touch-pan-y"
         >
           {items.map((item) => {
             const lineTotal = item.sellingPrice * item.quantity;

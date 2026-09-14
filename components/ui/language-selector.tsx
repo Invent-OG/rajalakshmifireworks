@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useLocale, useChangeLocale } from '@/lib/i18n/context';
 import { LOCALES, LOCALE_LABELS, Locale } from '@/lib/i18n/config';
 import { Globe, ChevronDown, Check } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface LanguageSelectorProps {
   variant?: 'pill' | 'dropdown' | 'inline';
@@ -70,7 +71,7 @@ export function LanguageSelector({ variant = 'pill', className = '' }: LanguageS
   }
 
   return (
-    <div ref={containerRef} className={`relative inline-block text-left shrink-0 ${className}`}>
+    <div ref={containerRef} className={cn('relative inline-block text-left shrink-0', className)}>
       {/* Trigger Button */}
       <button
         type="button"
