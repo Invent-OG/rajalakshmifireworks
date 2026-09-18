@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight, Pause, Play, ArrowRight } from 'lucide-react';
 import { HeroSettingsConfig, DEFAULT_HERO_CONFIG } from '@/lib/hero-config';
@@ -18,9 +18,11 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
   const slides = config.slides?.length > 0 ? config.slides : DEFAULT_HERO_CONFIG.slides;
 
   const [currentIdx, setCurrentIdx] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-  const [touchStart, setTouchStart] = useState<number | null>(null);
-  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [isUserInteracting, setIsUserInteracting] = useState(false);
+  const autoPlayTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // High-performance touch gesture tracking via ref to avoid render stutter
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
   const nextSlide = useCallback(() => {
     setCurrentIdx((prev) => (prev + 1) % slides.length);
@@ -32,69 +34,84 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
 
   const goToSlide = (idx: number) => {
     setCurrentIdx(idx);
+    handleUserAction();
+  };
+
+  // Temporarily pause autoplay when user manually interacts, then auto-resume after 8s
+  const handleUserAction = () => {
+    setIsUserInteracting(true);
+    if (autoPlayTimeoutRef.current) clearTimeout(autoPlayTimeoutRef.current);
+    autoPlayTimeoutRef.current = setTimeout(() => {
+      setIsUserInteracting(false);
+    }, 8000);
   };
 
   // Autoplay timer
   useEffect(() => {
-    if (slides.length <= 1 || isPaused) return;
-    const intervalTime = config.autoplayIntervalMs || 6000;
+    if (slides.length <= 1 || isUserInteracting) return;
+    const intervalTime = config.autoplayIntervalMs || 5000;
     const timer = setInterval(() => {
       nextSlide();
     }, intervalTime);
 
     return () => clearInterval(timer);
-  }, [slides.length, isPaused, config.autoplayIntervalMs, nextSlide]);
+  }, [slides.length, isUserInteracting, config.autoplayIntervalMs, nextSlide]);
 
-  // Touch Swipe Handlers for mobile
-  const minSwipeDistance = 50;
-  const onTouchStart = (e: React.TouchEvent) => {
-    setTouchEnd(null);
-    setTouchStart(e.targetTouches[0].clientX);
-  };
-
-  const onTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
-  };
-
-  const onTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > minSwipeDistance;
-    const isRightSwipe = distance < -minSwipeDistance;
-    if (isLeftSwipe) {
-      nextSlide();
-    } else if (isRightSwipe) {
-      prevSlide();
+  // Touch Swipe Handlers for mobile & touchscreens
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length > 0) {
+      touchStartRef.current = {
+        x: e.touches[0].clientX,
+        y: e.touches[0].clientY,
+      };
     }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!touchStartRef.current) return;
+    const touch = e.changedTouches[0];
+    if (!touch) return;
+
+    const diffX = touchStartRef.current.x - touch.clientX;
+    const diffY = touchStartRef.current.y - touch.clientY;
+
+    // Trigger slide change only if horizontal swipe dominates vertical scroll
+    if (Math.abs(diffX) > 30 && Math.abs(diffX) > Math.abs(diffY)) {
+      handleUserAction();
+      if (diffX > 0) {
+        nextSlide();
+      } else {
+        prevSlide();
+      }
+    }
+
+    touchStartRef.current = null;
   };
 
   const currentSlide = slides[currentIdx] || slides[0];
 
-  const headline1 = locale === 'ta' ? 'உங்கள் தீபாவளி' : currentSlide.headlineLine1;
-  const headline2 = locale === 'ta' ? 'திருநாளை வண்ணமயமாக்கும்' : currentSlide.headlineLine2;
-  const headline3 = locale === 'ta' ? 'சிவகாசி பட்டாசுகள்' : currentSlide.headlineLine3;
-  const subtitle = locale === 'ta'
-    ? 'சிவகாசியிலிருந்து நேரடியாகப் பெறப்படும் பாதுகாப்பான, வண்ணமயமான 100% அசல் பசுமை பட்டாசுகள். மலிவான மொத்த விலையில்.'
-    : currentSlide.subtitle;
-  const ctaText = locale === 'ta' ? 'பட்டாசுகளைப் பார்க்க' : (currentSlide.ctaText || 'SEE PRODUCTS');
+  // Dynamic localized text per active slide
+  const headline1 = locale === 'ta' ? (currentSlide.headlineLine1Ta || currentSlide.headlineLine1) : currentSlide.headlineLine1;
+  const headline2 = locale === 'ta' ? (currentSlide.headlineLine2Ta || currentSlide.headlineLine2) : currentSlide.headlineLine2;
+  const headline3 = locale === 'ta' ? (currentSlide.headlineLine3Ta || currentSlide.headlineLine3) : currentSlide.headlineLine3;
+  const subtitle = locale === 'ta' ? (currentSlide.subtitleTa || currentSlide.subtitle) : currentSlide.subtitle;
+  const ctaText = locale === 'ta' ? (currentSlide.ctaTextTa || currentSlide.ctaText || 'பட்டாசுகளைப் பார்க்க') : (currentSlide.ctaText || 'SEE PRODUCTS');
 
   return (
     <section
+      data-lenis-prevent="true"
       className="w-full pt-4 sm:pt-6 pb-6 sm:pb-10"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
     >
       <div className="w-full max-w-[100%] px-3 sm:px-6 lg:px-10 xl:px-12">
 
         {/* ── Main Hero Frame with Background Image & Color ── */}
         <div
-          onTouchStart={onTouchStart}
-          onTouchMove={onTouchMove}
-          onTouchEnd={onTouchEnd}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
           style={{
             backgroundColor: currentSlide.bgColor || '#a6d7e7',
           }}
-          className="relative rounded-[36px] sm:rounded-[40px] text-neutral-900 overflow-hidden shadow-sm p-6 sm:p-10 lg:p-14 min-h-[460px] lg:min-h-[500px] flex flex-col justify-between transition-colors duration-700 ease-in-out"
+          className="relative rounded-[36px] sm:rounded-[40px] text-neutral-900 overflow-hidden shadow-sm p-6 sm:p-10 lg:p-14 min-h-[460px] lg:min-h-[500px] flex flex-col justify-between transition-colors duration-700 ease-in-out touch-auto select-none"
         >
           {/* Background Image Layer if configured */}
           {currentSlide.backgroundImage && (
@@ -113,8 +130,8 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-8 items-center flex-1 relative z-10">
 
             {/* Left Column: Typography & Action */}
-            <div className="lg:col-span-8 flex flex-col justify-center text-left space-y-5 sm:space-y-6 z-20">
-              <h1 className="hero-heading text-4xl sm:text-6xl lg:text-[4.5rem] font-black tracking-tight uppercase leading-[0.92] text-neutral-950 select-none animate-in fade-in slide-in-from-left-4 duration-500">
+            <div key={`hero-left-${currentIdx}`} className="lg:col-span-8 flex flex-col justify-center text-left space-y-5 sm:space-y-6 z-20 transition-all duration-500">
+              <h1 className="hero-heading text-4xl sm:text-6xl lg:text-[4.5rem] font-black tracking-tight uppercase leading-[0.92] text-neutral-950 select-none">
                 <span>{headline1}</span>
                 <br />
                 <span>{headline2}</span>
@@ -139,7 +156,7 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
             </div>
 
             {/* Right Column: Stacked Showcase Cards Linked to Products */}
-            <div className="lg:col-span-4 flex flex-col gap-4 sm:gap-5 justify-center z-20">
+            <div key={`hero-right-${currentIdx}`} className="lg:col-span-4 flex flex-col gap-4 sm:gap-5 justify-center z-20 transition-all duration-500">
 
               {/* Card 1: Top Product Card */}
               {currentSlide.card1 && (
@@ -154,15 +171,15 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
                       alt={currentSlide.card1.title}
                       loading="lazy"
                       decoding="async"
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 pointer-events-none"
                     />
                   </div>
                   <div className="flex flex-col min-w-0 flex-1">
                     <span className="font-bold text-sm sm:text-base leading-snug tracking-tight truncate">
-                      {locale === 'ta' ? 'சிறப்பு கம்பி மத்தாப்புகள்' : currentSlide.card1.title}
+                      {locale === 'ta' ? (currentSlide.card1.titleTa || currentSlide.card1.title) : currentSlide.card1.title}
                     </span>
                     <span className="text-xs text-white/80 font-medium underline underline-offset-2 decoration-white/40 group-hover:decoration-white transition-colors mt-1 flex items-center gap-1">
-                      <span>{tCommon('explore')}</span>
+                      <span>{locale === 'ta' ? (currentSlide.card1.subtitleTa || tCommon('explore')) : currentSlide.card1.subtitle}</span>
                       <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
                     </span>
                   </div>
@@ -182,15 +199,15 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
                       alt={currentSlide.card2.title}
                       loading="lazy"
                       decoding="async"
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 pointer-events-none"
                     />
                   </div>
                   <div className="flex flex-col min-w-0 flex-1">
                     <span className="font-bold text-sm sm:text-base leading-snug tracking-tight truncate">
-                      {locale === 'ta' ? 'தீபாவளி காம்போ கிஃப்ட் பாக்ஸ்' : currentSlide.card2.title}
+                      {locale === 'ta' ? (currentSlide.card2.titleTa || currentSlide.card2.title) : currentSlide.card2.title}
                     </span>
                     <span className="text-xs text-white/80 font-medium underline underline-offset-2 decoration-white/40 group-hover:decoration-white transition-colors mt-1 flex items-center gap-1">
-                      <span>{tCommon('explore')}</span>
+                      <span>{locale === 'ta' ? (currentSlide.card2.subtitleTa || tCommon('explore')) : currentSlide.card2.subtitle}</span>
                       <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
                     </span>
                   </div>
@@ -206,34 +223,45 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
             <div className="relative z-30 pt-6 flex items-center justify-between border-t border-black/10 mt-6">
 
               {/* Left / Right Arrow Buttons */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2.5">
                 <button
                   type="button"
-                  onClick={prevSlide}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleUserAction();
+                    prevSlide();
+                  }}
                   aria-label="Previous Slide"
-                  className="h-9 w-9 rounded-full bg-black/15 hover:bg-black/25 text-neutral-900 flex items-center justify-center backdrop-blur-xs transition-all active:scale-95 cursor-pointer"
+                  className="h-10 w-10 sm:h-9 sm:w-9 rounded-full bg-black/15 hover:bg-black/25 text-neutral-900 flex items-center justify-center backdrop-blur-xs transition-all active:scale-95 cursor-pointer touch-manipulation shadow-2xs"
                 >
                   <ChevronLeft className="h-5 w-5" />
                 </button>
                 <button
                   type="button"
-                  onClick={nextSlide}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleUserAction();
+                    nextSlide();
+                  }}
                   aria-label="Next Slide"
-                  className="h-9 w-9 rounded-full bg-black/15 hover:bg-black/25 text-neutral-900 flex items-center justify-center backdrop-blur-xs transition-all active:scale-95 cursor-pointer"
+                  className="h-10 w-10 sm:h-9 sm:w-9 rounded-full bg-black/15 hover:bg-black/25 text-neutral-900 flex items-center justify-center backdrop-blur-xs transition-all active:scale-95 cursor-pointer touch-manipulation shadow-2xs"
                 >
                   <ChevronRight className="h-5 w-5" />
                 </button>
               </div>
 
               {/* Dot Indicators */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 py-2">
                 {slides.map((_, idx) => (
                   <button
                     key={idx}
                     type="button"
-                    onClick={() => goToSlide(idx)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      goToSlide(idx);
+                    }}
                     aria-label={`Go to slide ${idx + 1}`}
-                    className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${currentIdx === idx
+                    className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer touch-manipulation ${currentIdx === idx
                       ? 'w-8 bg-neutral-950'
                       : 'w-2.5 bg-neutral-950/25 hover:bg-neutral-950/40'
                       }`}
@@ -244,12 +272,15 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
               {/* Pause / Play status toggle */}
               <button
                 type="button"
-                onClick={() => setIsPaused(!isPaused)}
-                aria-label={isPaused ? 'Resume autoplay' : 'Pause autoplay'}
-                className="text-xs font-semibold text-neutral-800/80 hover:text-neutral-950 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/10 hover:bg-black/15 transition-colors cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsUserInteracting((prev) => !prev);
+                }}
+                aria-label={isUserInteracting ? 'Resume autoplay' : 'Pause autoplay'}
+                className="text-xs font-semibold text-neutral-800/80 hover:text-neutral-950 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/10 hover:bg-black/15 transition-colors cursor-pointer touch-manipulation"
               >
-                {isPaused ? <Play className="h-3 w-3" /> : <Pause className="h-3 w-3" />}
-                <span className="hidden sm:inline">{isPaused ? (locale === 'ta' ? 'நிறுத்தப்பட்டது' : 'Paused') : (locale === 'ta' ? 'சுழற்சி' : 'Auto')}</span>
+                {isUserInteracting ? <Play className="h-3 w-3" /> : <Pause className="h-3 w-3" />}
+                <span className="hidden sm:inline">{isUserInteracting ? (locale === 'ta' ? 'நிறுத்தப்பட்டது' : 'Paused') : (locale === 'ta' ? 'சுழற்சி' : 'Auto')}</span>
               </button>
 
             </div>
@@ -258,7 +289,10 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
         </div>
 
         {/* ── USP Trust Ribbon Strip ── */}
-        <div className="mt-4 sm:mt-6 bg-orange-500 rounded-[28px] sm:rounded-[36px] py-4 sm:py-5 px-4 sm:px-8 shadow-sm overflow-x-auto scrollbar-none">
+        <div
+          data-lenis-prevent="true"
+          className="mt-4 sm:mt-6 bg-orange-500 rounded-[28px] sm:rounded-[36px] py-4 sm:py-5 px-4 sm:px-8 shadow-sm overflow-x-auto no-scrollbar overscroll-x-contain touch-auto"
+        >
           <div className="flex items-center justify-between min-w-[720px] lg:min-w-0 gap-6 sm:gap-8 text-xs sm:text-[13px] font-semibold text-neutral-950">
             <div className="flex items-center gap-2.5 whitespace-nowrap select-none hover:text-white transition-colors">
               <span className="text-lg sm:text-xl">🏭</span>

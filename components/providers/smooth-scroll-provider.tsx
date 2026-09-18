@@ -10,14 +10,24 @@ export function SmoothScrollProvider({ children }: { children: React.ReactNode }
   useEffect(() => {
     if (isReducedMotion() || typeof window === 'undefined') return;
 
-    // Initialize Lenis for luxurious buttery smooth scrolling physics
+    // Detect touch-first / mobile devices to prevent touch interception
+    const isTouchDevice =
+      'ontouchstart' in window ||
+      navigator.maxTouchPoints > 0 ||
+      window.matchMedia('(pointer: coarse)').matches;
+
+    if (isTouchDevice) {
+      // On mobile/touch devices, use 100% native smooth momentum scrolling
+      return;
+    }
+
+    // Initialize Lenis on desktop for buttery smooth wheel physics
     const lenis = new Lenis({
       duration: 1.15,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: 'vertical',
       gestureOrientation: 'vertical',
       smoothWheel: true,
-      touchMultiplier: 1.25,
       wheelMultiplier: 1.0,
       autoRaf: false,
     });

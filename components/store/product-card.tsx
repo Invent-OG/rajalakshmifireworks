@@ -94,69 +94,74 @@ export function ProductCard({ product }: ProductCardProps) {
 
       <section
         ref={cardRef}
-        className="_card group scope product-card select-none"
+        className="_card group scope product-card select-none h-full flex flex-col justify-between"
       >
-        {/* ── 1. Thumbnail Stack & Curved Inverted Category Tab ── */}
-        <div className="_thumbnail-stack relative">
-          {img1 ? (
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <img
-              src={img1}
-              alt={displayName}
-              width={400}
-              height={400}
-              loading="lazy"
-              referrerPolicy="no-referrer"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center p-4">
-              <ProductVisualPlaceholder name={product.name} />
-            </div>
-          )}
+        {/* Top & Middle Content Container */}
+        <div className="w-full flex-1 flex flex-col">
+          {/* ── 1. Thumbnail Stack & Curved Inverted Category Tab ── */}
+          <div className="_thumbnail-stack relative">
+            {img1 ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={img1}
+                alt={displayName}
+                width={400}
+                height={400}
+                loading="lazy"
+                draggable={false}
+                referrerPolicy="no-referrer"
+                className="pointer-events-none select-none"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center p-4">
+                <ProductVisualPlaceholder name={product.name} />
+              </div>
+            )}
 
-          {/* Out of Stock Overlay */}
-          {isOutOfStock && (
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-2 z-20 rounded-[20px]">
-              <span className="bg-white text-black text-[11px] sm:text-[12px] font-bold px-3 py-1 rounded-full shadow-sm">
-                {tCommon('outOfStock')}
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* Curved Inset Category Badge */}
-        <p className="_category">{categoryName}</p>
-
-        {/* ── 2. Header Grid (Heading + Price Pill) ── */}
-        <div className="_card-header-grid mt-2">
-          <Link href={`/product/${product.slug}`} className="block truncate">
-            <h2 className="_heading truncate group-hover:text-amber-600 transition-colors" title={displayName}>
-              {displayName}
-            </h2>
-          </Link>
-
-          {/* Neutral Price Badge with Tabular Numbers */}
-          <div className="_price">
-            {formatCurrency(price)}
+            {/* Out of Stock Overlay */}
+            {isOutOfStock && (
+              <div className="absolute inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-2 z-20 rounded-[20px]">
+                <span className="bg-white text-black text-[11px] sm:text-[12px] font-bold px-3 py-1 rounded-full shadow-sm">
+                  {tCommon('outOfStock')}
+                </span>
+              </div>
+            )}
           </div>
+
+          {/* Curved Inset Category Badge */}
+          <p className="_category">{categoryName}</p>
+
+          {/* ── 2. Header Grid (Heading + Price Pill) ── */}
+          <div className="_card-header-grid mt-3">
+            <Link href={`/product/${product.slug}`} className="block min-w-0">
+              <h2 className="_heading line-clamp-2 min-h-[2.6em] group-hover:text-amber-600 transition-colors" title={displayName}>
+                {displayName}
+              </h2>
+            </Link>
+
+            {/* Neutral Price Badge with Tabular Numbers */}
+            <div className="_price shrink-0 self-start">
+              {formatCurrency(price)}
+            </div>
+          </div>
+
+          {/* ── 3. Description (Line-clamped with uniform minimum height) ── */}
+          <p className="_description line-clamp-2 min-h-[2.4em]">
+            {displayDesc}
+          </p>
+
+          {/* ── 4. Tag List (Single row uniform height) ── */}
+          <ul className="_tag-list h-7 overflow-hidden flex flex-nowrap gap-1.5 mt-2">
+            {tags.slice(0, 3).map((tag, idx) => (
+              <li key={idx} className="_tag whitespace-nowrap shrink-0">
+                {tag}
+              </li>
+            ))}
+          </ul>
         </div>
-
-        {/* ── 3. Description (Line-clamped) ── */}
-        <p className="_description">
-          {displayDesc}
-        </p>
-
-        {/* ── 4. Tag List ── */}
-        <ul className="_tag-list">
-          {tags.slice(0, 3).map((tag, idx) => (
-            <li key={idx} className="_tag">
-              {tag}
-            </li>
-          ))}
-        </ul>
 
         {/* ── 5. Action Button (Pure Black Button / Quantity Stepper) ── */}
-        <div className="_button mt-2">
+        <div className="_button mt-3 pt-1">
           {isOutOfStock ? (
             <button
               type="button"

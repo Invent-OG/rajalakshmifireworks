@@ -198,24 +198,15 @@ export function FeaturedProductsSlider({
 
     // Dynamically calculate one card step + gap
     const firstCard = el.querySelector<HTMLElement>('.slider-card-item');
-    const cardStep = firstCard ? firstCard.offsetWidth + 24 : 340;
-    const scrollAmount = direction === 'left' ? -cardStep * 1.5 : cardStep * 1.5;
+    const cardStep = firstCard ? firstCard.offsetWidth + 16 : 300;
+    const scrollAmount = direction === 'left' ? -cardStep : cardStep;
     const targetScroll = Math.max(0, Math.min(el.scrollLeft + scrollAmount, el.scrollWidth - el.clientWidth));
 
-    if (isReducedMotion()) {
-      el.scrollTo({ left: targetScroll, behavior: 'smooth' });
-    } else {
-      gsap.to(el, {
-        scrollLeft: targetScroll,
-        duration: 0.65,
-        ease: 'power3.out',
-        onUpdate: checkScrollability,
-        onComplete: checkScrollability,
-      });
-    }
+    el.scrollTo({ left: targetScroll, behavior: 'smooth' });
+    setTimeout(checkScrollability, 350);
   };
 
-  // Mouse Drag to Scroll handlers (Desktop Mouse)
+  // Mouse / Pointer Drag to Scroll handlers
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.button !== 0) return;
     const el = scrollContainerRef.current;
@@ -237,8 +228,9 @@ export function FeaturedProductsSlider({
     if (!isDragging) return;
     const el = scrollContainerRef.current;
     if (!el) return;
+    e.preventDefault();
     const x = e.pageX - el.offsetLeft;
-    const walk = (x - startX) * 1.35;
+    const walk = (x - startX) * 1.5;
     el.scrollLeft = scrollLeftState - walk;
   };
 
@@ -300,30 +292,35 @@ export function FeaturedProductsSlider({
       <div ref={trackInnerRef} className="w-full">
         <div
           ref={scrollContainerRef}
+          data-lenis-prevent="true"
           onMouseDown={handleMouseDown}
           onMouseLeave={handleMouseLeave}
           onMouseUp={handleMouseUp}
           onMouseMove={handleMouseMove}
-          className={`flex gap-4 sm:gap-6 overflow-x-auto no-scrollbar snap-x snap-proximity sm:snap-mandatory py-4 -my-4 px-4 sm:px-8 md:px-12 xl:px-[max(2rem,calc((100vw-1280px)/2+80px))] overscroll-x-contain select-none touch-pan-x ${
+          className={`flex items-stretch gap-4 sm:gap-6 overflow-x-auto no-scrollbar snap-x snap-mandatory py-4 -my-4 px-4 sm:px-8 md:px-12 xl:px-[max(2rem,calc((100vw-1280px)/2+80px))] scroll-pl-4 sm:scroll-pl-8 overscroll-x-contain select-none touch-auto ${
             isDragging ? 'cursor-grabbing' : 'cursor-grab'
           }`}
-          style={{ WebkitOverflowScrolling: 'touch' }}
+          style={{
+            WebkitOverflowScrolling: 'touch',
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+          }}
         >
           {/* Product Cards */}
           {products.map((product) => (
             <div
               key={product.id}
-              className="slider-card-item snap-start shrink-0 w-[270px] sm:w-[310px] md:w-[340px] flex flex-col transition-transform duration-300 hover:scale-[1.02]"
+              className="slider-card-item snap-start shrink-0 w-[270px] sm:w-[310px] md:w-[340px] flex flex-col h-auto self-stretch transition-transform duration-300 hover:scale-[1.02]"
             >
               <ProductCard product={product} />
             </div>
           ))}
 
         {/* ── End Card: "Show More" / "View All" Redirect Card ── */}
-        <div className="slider-card-item snap-start shrink-0 w-[240px] sm:w-[280px] md:w-[300px] flex flex-col">
+        <div className="slider-card-item snap-start shrink-0 w-[240px] sm:w-[280px] md:w-[300px] flex flex-col h-auto self-stretch">
           <Link
             href={viewAllHref}
-            className="group h-full min-h-[380px] sm:min-h-[420px] rounded-[32px] p-6 sm:p-8 bg-neutral-900 hover:bg-neutral-950 text-white flex flex-col justify-between items-start transition-all duration-300 shadow-md hover:shadow-xl hover:scale-[1.02] border-2 border-neutral-800"
+            className="group h-full rounded-[32px] p-6 sm:p-8 bg-neutral-900 hover:bg-neutral-950 text-white flex flex-col justify-between items-start transition-all duration-300 shadow-md hover:shadow-xl hover:scale-[1.02] border-2 border-neutral-800"
           >
             {/* Top Icon Badge */}
             <div className="space-y-3">

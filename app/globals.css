@@ -511,6 +511,7 @@ p, span, input, select, textarea, button {
   color: #171717;
   transition: box-shadow 0.3s ease, transform 0.3s ease;
   position: relative;
+  height: 100%;
 }
 
 ._card:hover {
@@ -522,7 +523,7 @@ p, span, input, select, textarea, button {
   display: grid;
   grid-template-columns: minmax(0, 1fr) max-content;
   gap: 0.5rem 0.75rem;
-  align-items: center;
+  align-items: start;
 }
 
 ._thumbnail-stack {
@@ -599,13 +600,16 @@ p, span, input, select, textarea, button {
 }
 
 ._card ._heading {
-  font-size: clamp(0.95rem, 2.5vw, 1.15rem);
+  font-size: clamp(0.95rem, 2.5vw, 1.125rem);
   font-weight: 800;
-  line-height: 1.25;
+  line-height: 1.3;
   color: #171717;
   letter-spacing: -0.02em;
-  text-wrap: balance;
   transition: color 0.2s ease;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
 
 ._card ._heading:hover,
@@ -634,15 +638,18 @@ p, span, input, select, textarea, button {
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   overflow: hidden;
-  margin-top: 0.25rem;
+  margin-top: 0.35rem;
+  min-height: 2.35rem;
 }
 
 ._card ._tag-list {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 0.4rem;
   margin-top: 0.5rem;
   margin-bottom: 0.25rem;
+  height: 1.75rem;
+  overflow: hidden;
 }
 
 ._card ._tag {
@@ -653,6 +660,8 @@ p, span, input, select, textarea, button {
   font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: -0.01em;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* Purchase Button - Pure Black with Premium Shine Animation */

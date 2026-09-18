@@ -254,12 +254,16 @@ export function FloatingNavbar() {
   // Handle click outside to close dropdown
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (navContainerRef.current && !navContainerRef.current.contains(e.target as Node)) {
+      const target = e.target as Node | null;
+      if (!target || !document.contains(target)) return;
+      if (navContainerRef.current && !navContainerRef.current.contains(target)) {
         setActiveMenu(null);
       }
     }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
   }, []);
 
   const handleMouseEnter = (menuKey: string) => {
@@ -283,6 +287,7 @@ export function FloatingNavbar() {
   return (
     <div
       ref={navContainerRef}
+      data-lenis-prevent="true"
       className="sticky top-0 z-50 w-full pt-3 px-3 sm:px-6 lg:px-10 xl:px-12 pointer-events-auto transition-all duration-300"
       onMouseLeave={handleMouseLeave}
       style={{ fontFamily: "'DM Sans', sans-serif" }}
@@ -295,9 +300,14 @@ export function FloatingNavbar() {
             {/* Mobile Menu Hamburger Button */}
             <div className="flex md:hidden items-center">
               <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="h-12 w-12 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-900 transition-colors flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setMobileMenuOpen((prev) => !prev);
+                }}
+                className="h-12 w-12 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-900 transition-colors flex items-center justify-center cursor-pointer shadow-xs active:scale-95 touch-manipulation"
                 aria-label="Toggle menu"
+                aria-expanded={mobileMenuOpen}
               >
                 {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </button>
@@ -526,6 +536,15 @@ export function FloatingNavbar() {
               </div>
             </div>
           </div>
+        )}
+
+        {/* Mobile Backdrop Overlay */}
+        {mobileMenuOpen && (
+          <div
+            className="md:hidden fixed inset-0 bg-black/50 backdrop-blur-xs z-40 animate-in fade-in duration-200"
+            onClick={() => setMobileMenuOpen(false)}
+            aria-hidden="true"
+          />
         )}
 
         {/* Mobile Slide-down Menu */}
