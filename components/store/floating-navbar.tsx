@@ -366,7 +366,6 @@ export function FloatingNavbar() {
   return (
     <div
       ref={navContainerRef}
-      data-lenis-prevent="true"
       className="sticky top-0 z-50 w-full pt-3 px-3 sm:px-6 lg:px-10 xl:px-12 pointer-events-auto transition-all duration-300"
       onMouseLeave={handleMouseLeave}
       style={{ fontFamily: "'DM Sans', sans-serif" }}

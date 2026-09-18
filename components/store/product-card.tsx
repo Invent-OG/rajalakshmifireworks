@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { useCart, useCartItemQuantity } from '@/hooks/use-cart';
 import { toNumber, formatCurrency } from '@/lib/utils/format';
 import { ProductVisualPlaceholder } from '@/components/ui/category-icon';
-import { gsap, isReducedMotion } from '@/lib/motion';
 import { Plus, Minus, ShoppingBag } from 'lucide-react';
 import { useLocale, useTranslations } from '@/lib/i18n/context';
 import { getLocalizedName, getLocalizedDescription } from '@/lib/i18n/formatters';
@@ -54,13 +53,6 @@ export function ProductCard({ product }: ProductCardProps) {
 
   function handleAddToCart(e: React.MouseEvent) {
     e.preventDefault();
-    if (buttonRef.current && !isReducedMotion()) {
-      gsap.fromTo(
-        buttonRef.current,
-        { scale: 0.94 },
-        { scale: 1, duration: 0.3, ease: 'back.out(2)' }
-      );
-    }
 
     addItem({
       productId: product.id,

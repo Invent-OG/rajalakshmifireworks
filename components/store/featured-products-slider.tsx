@@ -2,12 +2,10 @@
 
 import { useRef, useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight, ArrowRight, Sparkles, Package } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ArrowRight, Sparkles } from 'lucide-react';
 import { ProductCard } from '@/components/store/product-card';
 import { SectionTag } from '@/components/ui/section-tag';
 import { useLocale, useTranslations } from '@/lib/i18n/context';
-import { useGSAP } from '@gsap/react';
-import { gsap, ScrollTrigger, isReducedMotion } from '@/lib/motion';
 
 interface ProductItem {
   id: number;
@@ -41,7 +39,6 @@ export function FeaturedProductsSlider({
   tagLabel,
   viewAllHref = '/products?featured=true',
   viewAllLabel,
-  scrollDrift,
 }: FeaturedProductsSliderProps) {
   const locale = useLocale();
   const tProducts = useTranslations('products');
@@ -56,9 +53,7 @@ export function FeaturedProductsSlider({
   const finalTagLabel = tagLabel || (locale === 'ta' ? 'சிறப்பு தொகுப்பு' : 'Curated Collections');
   const finalViewAllLabel = viewAllLabel || (locale === 'ta' ? 'அனைத்தையும் பார்க்க' : 'View All');
 
-  const sectionRef = useRef<HTMLElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const trackInnerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -67,103 +62,6 @@ export function FeaturedProductsSlider({
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeftState, setScrollLeftState] = useState(0);
-
-  // ── GSAP Scroll Entrance & Smooth Parallax Drift ──
-  useGSAP(
-    () => {
-      if (isReducedMotion() || !sectionRef.current) return;
-
-      const mm = gsap.matchMedia();
-
-      // Desktop animation: Staggered reveal & subtle scroll drift
-      mm.add('(min-width: 768px)', () => {
-        const header = sectionRef.current?.querySelector('.slider-header');
-        const cards = sectionRef.current?.querySelectorAll('.slider-card-item');
-
-        if (header) {
-          gsap.fromTo(
-            header,
-            { opacity: 0, y: 30 },
-            {
-              opacity: 1,
-              y: 0,
-              duration: 0.7,
-              ease: 'power3.out',
-              clearProps: 'transform,opacity',
-              scrollTrigger: {
-                trigger: sectionRef.current,
-                start: 'top 85%',
-                toggleActions: 'play none none none',
-              },
-            }
-          );
-        }
-
-        if (cards && cards.length > 0) {
-          gsap.fromTo(
-            cards,
-            { opacity: 0, y: 35, scale: 0.96 },
-            {
-              opacity: 1,
-              y: 0,
-              scale: 1,
-              duration: 0.65,
-              stagger: 0.05,
-              ease: 'power3.out',
-              clearProps: 'transform,opacity',
-              scrollTrigger: {
-                trigger: scrollContainerRef.current,
-                start: 'top 88%',
-                toggleActions: 'play none none none',
-              },
-            }
-          );
-        }
-
-        // Smooth subtle parallax slide drift while scrolling past the section
-        if (trackInnerRef.current) {
-          const driftAmount = scrollDrift === 'right' ? 35 : -35;
-          gsap.fromTo(
-            trackInnerRef.current,
-            { x: -driftAmount },
-            {
-              x: driftAmount,
-              ease: 'none',
-              scrollTrigger: {
-                trigger: sectionRef.current,
-                start: 'top bottom',
-                end: 'bottom top',
-                scrub: 1.2,
-              },
-            }
-          );
-        }
-      });
-
-      // Mobile animation: Lightweight single container reveal
-      mm.add('(max-width: 767px)', () => {
-        gsap.fromTo(
-          sectionRef.current,
-          { opacity: 0, y: 15 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.5,
-            ease: 'power2.out',
-            clearProps: 'all',
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: 'top 90%',
-              toggleActions: 'play none none none',
-            },
-          }
-        );
-      });
-
-      return () => mm.revert();
-    },
-    { scope: sectionRef, dependencies: [products.length, scrollDrift] }
-  );
 
   const checkScrollability = useCallback(() => {
     const el = scrollContainerRef.current;
@@ -237,7 +135,7 @@ export function FeaturedProductsSlider({
   if (products.length === 0) return null;
 
   return (
-    <section ref={sectionRef} className="reveal-section w-full overflow-hidden">
+    <section className="w-full overflow-hidden">
       {/* ── Section Header with Rounded Outline Pill Button (Constrained container) ── */}
       <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-8 md:px-[80px]">
         <div className="slider-header flex flex-col md:flex-row justify-between items-start md:items-end mb-6 sm:mb-8 md:mb-10 gap-4 md:gap-6">
@@ -289,15 +187,14 @@ export function FeaturedProductsSlider({
       </div>
 
       {/* ── Full-Width Horizontal Scrollable Track ── */}
-      <div ref={trackInnerRef} className="w-full">
+      <div className="w-full">
         <div
           ref={scrollContainerRef}
-          data-lenis-prevent="true"
           onMouseDown={handleMouseDown}
           onMouseLeave={handleMouseLeave}
           onMouseUp={handleMouseUp}
           onMouseMove={handleMouseMove}
-          className={`flex items-stretch gap-4 sm:gap-6 overflow-x-auto no-scrollbar snap-x snap-mandatory py-4 -my-4 px-4 sm:px-8 md:px-12 xl:px-[max(2rem,calc((100vw-1280px)/2+80px))] scroll-pl-4 sm:scroll-pl-8 overscroll-x-contain select-none touch-auto ${
+          className={`flex items-stretch gap-4 sm:gap-6 overflow-x-auto no-scrollbar snap-x py-4 -my-4 px-4 sm:px-8 md:px-12 xl:px-[max(2rem,calc((100vw-1280px)/2+80px))] scroll-pl-4 sm:scroll-pl-8 touch-pan-y ${
             isDragging ? 'cursor-grabbing' : 'cursor-grab'
           }`}
           style={{
@@ -316,67 +213,67 @@ export function FeaturedProductsSlider({
             </div>
           ))}
 
-        {/* ── End Card: "Show More" / "View All" Redirect Card ── */}
-        <div className="slider-card-item snap-start shrink-0 w-[240px] sm:w-[280px] md:w-[300px] flex flex-col h-auto self-stretch">
-          <Link
-            href={viewAllHref}
-            className="group h-full rounded-[32px] p-6 sm:p-8 bg-neutral-900 hover:bg-neutral-950 text-white flex flex-col justify-between items-start transition-all duration-300 shadow-md hover:shadow-xl hover:scale-[1.02] border-2 border-neutral-800"
-          >
-            {/* Top Icon Badge */}
-            <div className="space-y-3">
-              <div className="h-14 w-14 rounded-2xl bg-white/10 group-hover:bg-white/20 text-white flex items-center justify-center transition-all duration-300 group-hover:scale-110">
-                <Sparkles className="h-7 w-7 text-amber-400" />
+          {/* ── End Card: "Show More" / "View All" Redirect Card ── */}
+          <div className="slider-card-item snap-start shrink-0 w-[240px] sm:w-[280px] md:w-[300px] flex flex-col h-auto self-stretch">
+            <Link
+              href={viewAllHref}
+              className="group h-full rounded-[32px] p-6 sm:p-8 bg-neutral-900 hover:bg-neutral-950 text-white flex flex-col justify-between items-start transition-all duration-300 shadow-md hover:shadow-xl hover:scale-[1.02] border-2 border-neutral-800"
+            >
+              {/* Top Icon Badge */}
+              <div className="space-y-3">
+                <div className="h-14 w-14 rounded-2xl bg-white/10 group-hover:bg-white/20 text-white flex items-center justify-center transition-all duration-300 group-hover:scale-110">
+                  <Sparkles className="h-7 w-7 text-amber-400" />
+                </div>
+                <span className="text-[11px] font-bold uppercase tracking-widest text-neutral-400 block">
+                  {locale === 'ta' ? 'முழு பட்டியல்' : 'Full Catalog'}
+                </span>
               </div>
-              <span className="text-[11px] font-bold uppercase tracking-widest text-neutral-400 block">
-                {locale === 'ta' ? 'முழு பட்டியல்' : 'Full Catalog'}
-              </span>
-            </div>
 
-            {/* Middle Message */}
-            <div className="space-y-2">
-              <h3 className="text-xl sm:text-2xl font-black tracking-tight leading-snug text-white">
-                {locale === 'ta'
-                  ? 'மேலும் பட்டாசுகளை காண்க'
-                  : `Explore More ${finalTitle}`}
-              </h3>
-              <p className="text-xs text-neutral-400 leading-relaxed">
-                {locale === 'ta'
-                  ? 'எங்கள் முழு பட்டாசு பட்டியலை பார்வையிட்டு மொத்த விலையில் தேர்வு செய்யவும்.'
-                  : 'Browse our complete Sivakasi collection with transparent wholesale factory pricing.'}
-              </p>
-            </div>
+              {/* Middle Message */}
+              <div className="space-y-2">
+                <h3 className="text-xl sm:text-2xl font-black tracking-tight leading-snug text-white">
+                  {locale === 'ta'
+                    ? 'மேலும் பட்டாசுகளை காண்க'
+                    : `Explore More ${finalTitle}`}
+                </h3>
+                <p className="text-xs text-neutral-400 leading-relaxed">
+                  {locale === 'ta'
+                    ? 'எங்கள் முழு பட்டாசு பட்டியலை பார்வையிட்டு மொத்த விலையில் தேர்வு செய்யவும்.'
+                    : 'Browse our complete Sivakasi collection with transparent wholesale factory pricing.'}
+                </p>
+              </div>
 
-            {/* Bottom Button */}
-            <div className="w-full pt-4 border-t border-white/10">
-              <span className="w-full h-11 px-4 rounded-full bg-white text-neutral-950 group-hover:bg-neutral-100 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-xs">
-                <span>{locale === 'ta' ? 'அனைத்தையும் பார்க்க' : 'View All'}</span>
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </span>
-            </div>
-          </Link>
-        </div>
-      </div>
-
-      {/* ── Subdued Minimalist Capsule Scroll Progress Track ── */}
-      <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-8 md:px-[80px] mt-6 flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <div className="w-24 sm:w-36 h-1 rounded-full bg-neutral-200/80 overflow-hidden">
-            <div
-              className="h-full bg-neutral-950 rounded-full transition-all duration-300 ease-out"
-              style={{
-                width: `${Math.max(15, Math.min(100, scrollProgress * 100))}%`,
-              }}
-            />
+              {/* Bottom Button */}
+              <div className="w-full pt-4 border-t border-white/10">
+                <span className="w-full h-11 px-4 rounded-full bg-white text-neutral-950 group-hover:bg-neutral-100 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-xs">
+                  <span>{locale === 'ta' ? 'அனைத்தையும் பார்க்க' : 'View All'}</span>
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </span>
+              </div>
+            </Link>
           </div>
-          <span className="text-[10px] font-semibold text-neutral-400 uppercase tracking-widest">
-            {products.length}+ Items
+        </div>
+
+        {/* ── Subdued Minimalist Capsule Scroll Progress Track ── */}
+        <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-8 md:px-[80px] mt-6 flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <div className="w-24 sm:w-36 h-1 rounded-full bg-neutral-200/80 overflow-hidden">
+              <div
+                className="h-full bg-neutral-950 rounded-full transition-all duration-300 ease-out"
+                style={{
+                  width: `${Math.max(15, Math.min(100, scrollProgress * 100))}%`,
+                }}
+              />
+            </div>
+            <span className="text-[10px] font-semibold text-neutral-400 uppercase tracking-widest">
+              {products.length}+ Items
+            </span>
+          </div>
+          <span className="text-[11px] font-medium text-neutral-400 hidden sm:inline-block">
+            {locale === 'ta' ? 'நகர்த்த இடது / வலதுபுறம் உருட்டவும்' : 'Swipe or drag to explore'}
           </span>
         </div>
-        <span className="text-[11px] font-medium text-neutral-400 hidden sm:inline-block">
-          {locale === 'ta' ? 'நகர்த்த இடது / வலதுபுறம் உருட்டவும்' : 'Swipe or drag to explore'}
-        </span>
       </div>
-    </div>
-  </section>
+    </section>
   );
 }

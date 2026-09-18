@@ -99,7 +99,6 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
 
   return (
     <section
-      data-lenis-prevent="true"
       className="w-full pt-4 sm:pt-6 pb-6 sm:pb-10"
     >
       <div className="w-full max-w-[100%] px-3 sm:px-6 lg:px-10 xl:px-12">
@@ -111,7 +110,7 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
           style={{
             backgroundColor: currentSlide.bgColor || '#a6d7e7',
           }}
-          className="relative rounded-[36px] sm:rounded-[40px] text-neutral-900 overflow-hidden shadow-sm p-6 sm:p-10 lg:p-14 min-h-[460px] lg:min-h-[500px] flex flex-col justify-between transition-colors duration-700 ease-in-out touch-auto select-none"
+          className="relative rounded-[36px] sm:rounded-[40px] text-neutral-900 overflow-hidden shadow-sm p-6 sm:p-10 lg:p-14 min-h-[460px] lg:min-h-[500px] flex flex-col justify-between transition-colors duration-700 ease-in-out touch-pan-y select-none"
         >
           {/* Background Image Layer if configured */}
           {currentSlide.backgroundImage && (
@@ -290,8 +289,7 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
 
         {/* ── USP Trust Ribbon Strip ── */}
         <div
-          data-lenis-prevent="true"
-          className="mt-4 sm:mt-6 bg-orange-500 rounded-[28px] sm:rounded-[36px] py-4 sm:py-5 px-4 sm:px-8 shadow-sm overflow-x-auto no-scrollbar overscroll-x-contain touch-auto"
+          className="bg-[#e24100] pt-[3rem] pb-[1rem] -mt-8 rounded-b-[36px] sm:rounded-b-[40px]  px-4 sm:px-8 shadow-sm overflow-x-auto no-scrollbar touch-pan-y"
         >
           <div className="flex items-center justify-between min-w-[720px] lg:min-w-0 gap-6 sm:gap-8 text-xs sm:text-[13px] font-semibold text-neutral-950">
             <div className="flex items-center gap-2.5 whitespace-nowrap select-none hover:text-white transition-colors">
