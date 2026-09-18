@@ -9,6 +9,7 @@ import { OrganicCategoriesGrid } from '@/components/store/organic-categories-gri
 import { parseHeroConfig } from '@/lib/hero-config';
 import { Testimonial02Blaze } from '@/components/sections/testimonial-02-blaze';
 import { InfiniteRibbonPreview } from '@/components/ui/infinite-ribbon-demo';
+import { DiwaliCountdownBanner } from '@/components/store/diwali-countdown-banner';
 import { notFound } from 'next/navigation';
 import { isValidLocale, Locale } from '@/lib/i18n/config';
 import { getTranslations } from '@/lib/i18n/server';
@@ -79,6 +80,9 @@ export default async function HomePage({
 
         {/* ── Infinite Ribbon Ticker ─── */}
         <InfiniteRibbonPreview />
+
+        {/* ── Diwali Live Countdown Banner ─── */}
+        <DiwaliCountdownBanner />
 
         {/* ── 4. Festive Bestsellers Slider ─── */}
         {bestsellerProducts.length > 0 && (
