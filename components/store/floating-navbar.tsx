@@ -11,6 +11,8 @@ import {
   ChevronDown,
   Menu,
   X,
+  LayoutGrid,
+  Truck,
 } from 'lucide-react';
 import { BrandLogo } from '@/components/ui/brand-logo';
 import { LanguageSelector } from '@/components/ui/language-selector';
@@ -19,6 +21,7 @@ import { getCategory3DImage } from '@/components/ui/category-icon';
 import { formatCurrency, toNumber } from '@/lib/utils/format';
 import { useLocale, useTranslations } from '@/lib/i18n/context';
 import { getLocalizedName, getLocalizedDescription } from '@/lib/i18n/formatters';
+import { gsap, isReducedMotion } from '@/lib/motion';
 
 interface CategoryItem {
   id: number;
@@ -89,8 +92,11 @@ export function FloatingNavbar() {
 
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isMobileMenuMounted, setIsMobileMenuMounted] = useState(false);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const navContainerRef = useRef<HTMLDivElement | null>(null);
+  const mobileDropdownRef = useRef<HTMLDivElement | null>(null);
+  const hamburgerIconRef = useRef<HTMLDivElement | null>(null);
 
   // 1. Fetch categories from admin panel / database
   const { data: categoriesData } = useQuery<{ categories: CategoryItem[] }>({
@@ -251,6 +257,78 @@ export function FloatingNavbar() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  // GSAP animation for mobile menu open and close
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      setIsMobileMenuMounted(true);
+    } else {
+      if (mobileDropdownRef.current && isMobileMenuMounted && !isReducedMotion()) {
+        gsap.killTweensOf(mobileDropdownRef.current);
+        gsap.to(mobileDropdownRef.current, {
+          opacity: 0,
+          y: -14,
+          scale: 0.97,
+          duration: 0.22,
+          ease: 'power2.inOut',
+          onComplete: () => {
+            setIsMobileMenuMounted(false);
+          },
+        });
+      } else {
+        setIsMobileMenuMounted(false);
+      }
+    }
+
+    // Hamburger icon animation
+    if (hamburgerIconRef.current && !isReducedMotion()) {
+      gsap.to(hamburgerIconRef.current, {
+        rotation: mobileMenuOpen ? 90 : 0,
+        scale: mobileMenuOpen ? 1.08 : 1,
+        duration: 0.28,
+        ease: 'back.out(1.5)',
+      });
+    }
+  }, [mobileMenuOpen]);
+
+  // Entrance animation when mounted
+  useEffect(() => {
+    if (isMobileMenuMounted && mobileMenuOpen && mobileDropdownRef.current && !isReducedMotion()) {
+      gsap.killTweensOf(mobileDropdownRef.current);
+      gsap.fromTo(
+        mobileDropdownRef.current,
+        {
+          opacity: 0,
+          y: -18,
+          scale: 0.96,
+          transformOrigin: 'top center',
+        },
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.32,
+          ease: 'power3.out',
+        }
+      );
+
+      const navItems = mobileDropdownRef.current.querySelectorAll('.mobile-nav-item');
+      if (navItems.length > 0) {
+        gsap.fromTo(
+          navItems,
+          { opacity: 0, y: -8 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.24,
+            stagger: 0.03,
+            ease: 'power2.out',
+            delay: 0.05,
+          }
+        );
+      }
+    }
+  }, [isMobileMenuMounted, mobileMenuOpen]);
+
   // Handle click outside to close dropdown
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -258,6 +336,7 @@ export function FloatingNavbar() {
       if (!target || !document.contains(target)) return;
       if (navContainerRef.current && !navContainerRef.current.contains(target)) {
         setActiveMenu(null);
+        setMobileMenuOpen(false);
       }
     }
     document.addEventListener('click', handleClickOutside);
@@ -297,7 +376,7 @@ export function FloatingNavbar() {
         <header className="relative h-16 sm:h-[72px] px-3.5 sm:px-6 rounded-full bg-white/95 backdrop-blur-md border border-neutral-200/90 text-neutral-900 shadow-sm grid grid-cols-[1fr_auto_1fr] items-center gap-2 sm:gap-4 transition-all duration-300">
           {/* Left Column: Capsule Pill Navigation Links & Mobile Hamburger */}
           <div className="flex items-center justify-start min-w-0">
-            {/* Mobile Menu Hamburger Button */}
+            {/* Mobile Menu Hamburger Button with GSAP Icon */}
             <div className="flex md:hidden items-center">
               <button
                 type="button"
@@ -309,7 +388,9 @@ export function FloatingNavbar() {
                 aria-label="Toggle menu"
                 aria-expanded={mobileMenuOpen}
               >
-                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                <div ref={hamburgerIconRef} className="flex items-center justify-center transition-transform">
+                  {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                </div>
               </button>
             </div>
 
@@ -538,104 +619,101 @@ export function FloatingNavbar() {
           </div>
         )}
 
-        {/* Mobile Backdrop Overlay */}
-        {mobileMenuOpen && (
+        {/* Mobile Dropdown Menu with GSAP animation attached directly beneath pill bar */}
+        {isMobileMenuMounted && (
           <div
-            className="md:hidden fixed inset-0 bg-black/50 backdrop-blur-xs z-40 animate-in fade-in duration-200"
-            onClick={() => setMobileMenuOpen(false)}
-            aria-hidden="true"
-          />
-        )}
+            ref={mobileDropdownRef}
+            className="md:hidden absolute top-full left-0 right-0 pt-2 z-50 origin-top pointer-events-auto"
+          >
+            <div className="rounded-[28px] bg-white text-neutral-900 border border-neutral-200/90 shadow-2xl p-5 sm:p-6 space-y-4 max-h-[80vh] overflow-y-auto overscroll-contain no-scrollbar">
+              {/* Header: LANGUAGE / மொழி */}
+              <div className="mobile-nav-item flex items-center justify-between pb-3 border-b border-neutral-100">
+                <span className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
+                  {locale === 'ta' ? 'மொழி / LANGUAGE' : 'LANGUAGE / மொழி'}
+                </span>
+                <LanguageSelector variant="inline" />
+              </div>
 
-        {/* Mobile Slide-down Menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden absolute top-full left-0 right-0 pt-2 z-50 animate-in fade-in duration-200">
-            <div className="rounded-[28px] sm:rounded-[32px] bg-white text-neutral-900 border border-neutral-200/90 p-5 shadow-2xl space-y-4 max-h-[80vh] overflow-y-auto">
-              <div className="space-y-1">
-                {/* Mobile Language Switcher Header */}
-                <div className="pb-3 border-b border-neutral-100 flex items-center justify-between">
-                  <span className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
-                    {locale === 'ta' ? 'மொழி / Language' : 'Language / மொழி'}
-                  </span>
-                  <LanguageSelector variant="inline" />
-                </div>
-
+              {/* Catalog Link */}
+              <div className="mobile-nav-item pb-3 border-b border-neutral-100">
                 <Link
                   href="/products"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block px-4 py-2.5 rounded-full text-sm font-bold hover:bg-neutral-100 text-neutral-900 transition-colors"
+                  className="block text-sm font-bold text-neutral-900 hover:text-neutral-950 transition-colors py-1"
                 >
                   {tNav('catalog')}
                 </Link>
-
-                {/* Combos from Admin Panel */}
-                {adminComboProducts.length > 0 && (
-                  <div className="pt-2 pb-1">
-                    <span className="px-4 text-[11px] font-bold uppercase tracking-wider text-amber-700 block mb-1">
-                      {tNav('curatedCombos')}
-                    </span>
-                    <div className="space-y-1">
-                      {adminComboProducts.map((p) => (
-                        <Link
-                          key={p.id}
-                          href={`/product/${p.slug}`}
-                          onClick={() => setMobileMenuOpen(false)}
-                          className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-neutral-800 hover:text-neutral-950 hover:bg-neutral-100 transition-colors"
-                        >
-                          <span className="truncate">{getLocalizedName(p, locale)}</span>
-                          <span className="text-[11px] font-mono font-bold text-neutral-950 shrink-0 ml-2">
-                            {formatCurrency(toNumber(p.sellingPrice))}
-                          </span>
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Categories from Admin Panel */}
-                {activeCategories.length > 0 && (
-                  <div className="pt-2 pb-1 border-t border-neutral-100">
-                    <span className="px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-400 block mb-1">
-                      {tNav('categories')}
-                    </span>
-                    <div className="grid grid-cols-2 gap-1">
-                      {activeCategories.map((cat) => (
-                        <Link
-                          key={cat.id}
-                          href={`/category/${cat.slug}`}
-                          onClick={() => setMobileMenuOpen(false)}
-                          className="block px-3 py-2 rounded-xl text-xs font-semibold text-neutral-700 hover:text-neutral-950 hover:bg-neutral-100 transition-colors truncate"
-                        >
-                          {getLocalizedName(cat, locale)}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                <div className="pt-2 border-t border-neutral-100 space-y-1">
-                  <Link
-                    href="/products?certified=green"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="block px-4 py-2 rounded-full text-xs font-semibold text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 transition-colors"
-                  >
-                    {locale === 'ta' ? 'பசுமை பட்டாசு சான்றிதழ்' : 'Green Certified Fireworks'}
-                  </Link>
-                  <Link
-                    href="/track-order"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="block px-4 py-2 rounded-full text-xs font-semibold text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 transition-colors"
-                  >
-                    {tNav('trackOrder')}
-                  </Link>
-                </div>
               </div>
 
-              <div className="pt-3 border-t border-neutral-100 flex items-center justify-between gap-3">
+              {/* CURATED COMBOS & GIFT PACKS */}
+              {adminComboProducts.length > 0 && (
+                <div className="mobile-nav-item pb-3 border-b border-neutral-100 space-y-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 block">
+                    {tNav('curatedCombos')}
+                  </span>
+                  <div className="space-y-1.5">
+                    {adminComboProducts.slice(0, 4).map((p) => (
+                      <Link
+                        key={p.id}
+                        href={`/product/${p.slug}`}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center justify-between py-1 text-xs font-semibold text-neutral-800 hover:text-neutral-950 transition-colors"
+                      >
+                        <span className="truncate">{getLocalizedName(p, locale)}</span>
+                        <span className="text-xs font-bold font-mono text-neutral-950 shrink-0 ml-2">
+                          {formatCurrency(toNumber(p.sellingPrice))}
+                        </span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* CATEGORIES */}
+              {activeCategories.length > 0 && (
+                <div className="mobile-nav-item pb-3 border-b border-neutral-100 space-y-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 block">
+                    {tNav('categories')}
+                  </span>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-2.5">
+                    {activeCategories.map((cat) => (
+                      <Link
+                        key={cat.id}
+                        href={`/category/${cat.slug}`}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="text-xs font-medium text-neutral-800 hover:text-neutral-950 transition-colors truncate py-0.5"
+                      >
+                        {getLocalizedName(cat, locale)}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Direct Links: Green Crackers & Track */}
+              <div className="mobile-nav-item pb-3 border-b border-neutral-100 space-y-2">
+                <Link
+                  href="/products?certified=green"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block text-xs font-medium text-neutral-800 hover:text-neutral-950 transition-colors py-0.5"
+                >
+                  {locale === 'ta' ? 'பசுமை பட்டாசு சான்றிதழ்' : 'Green Certified Fireworks'}
+                </Link>
+                <Link
+                  href="/track-order"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block text-xs font-medium text-neutral-800 hover:text-neutral-950 transition-colors py-0.5"
+                >
+                  {locale === 'ta' ? 'ஆர்டர் கண்காணிப்பு' : 'Track'}
+                </Link>
+              </div>
+
+              {/* Bottom Quick Action Buttons */}
+              <div className="mobile-nav-item pt-1 flex items-center justify-between gap-3">
                 <Link
                   href="/price-list"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="inline-flex items-center justify-center gap-2 h-12 px-6 rounded-full bg-neutral-100 hover:bg-neutral-200 text-xs sm:text-sm font-bold text-neutral-900 shadow-xs transition-all active:scale-95 flex-1"
+                  className="inline-flex items-center justify-center gap-2 h-12 px-4 rounded-full bg-neutral-100 hover:bg-neutral-200 text-xs sm:text-sm font-bold text-neutral-900 shadow-2xs transition-all active:scale-95 flex-1"
                 >
                   <Download className="h-4 w-4 text-neutral-700" />
                   <span>{tNav('priceList')}</span>
@@ -644,9 +722,9 @@ export function FloatingNavbar() {
                 <Link
                   href="/cart"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="inline-flex items-center justify-center gap-2 h-12 px-6 rounded-full bg-neutral-950 hover:bg-neutral-800 text-xs sm:text-sm font-bold text-white shadow-md transition-all active:scale-95 flex-1"
+                  className="inline-flex items-center justify-center gap-2 h-12 px-4 rounded-full bg-neutral-950 hover:bg-neutral-800 text-xs sm:text-sm font-bold text-white shadow-md transition-all active:scale-95 flex-1"
                 >
-                  <ShoppingBag className="h-4.5 w-4.5" />
+                  <ShoppingBag className="h-4 w-4" />
                   <span>{tNav('bag')} ({displayCount})</span>
                 </Link>
               </div>
