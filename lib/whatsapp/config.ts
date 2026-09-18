@@ -2,6 +2,10 @@ import { z } from 'zod';
 import { logger } from '@/lib/utils/logger';
 
 const whatsappEnvSchema = z.object({
+  WHATSAPP_ENABLED: z
+    .enum(['true', 'false', '1', '0'])
+    .optional()
+    .transform((val) => val === 'true' || val === '1'),
   WHATSAPP_ACCESS_TOKEN: z.string().min(1).optional(),
   WHATSAPP_PHONE_NUMBER_ID: z.string().min(1).optional(),
   WHATSAPP_BUSINESS_ACCOUNT_ID: z.string().min(1).optional(),
@@ -15,6 +19,7 @@ const whatsappEnvSchema = z.object({
 });
 
 type WhatsAppConfig = {
+  isEnabled: boolean;
   accessToken: string;
   phoneNumberId: string;
   businessAccountId: string;
@@ -34,6 +39,7 @@ export function getWhatsAppConfig(): WhatsAppConfig {
   }
 
   const parsed = whatsappEnvSchema.safeParse({
+    WHATSAPP_ENABLED: process.env.WHATSAPP_ENABLED ?? 'false',
     WHATSAPP_ACCESS_TOKEN: process.env.WHATSAPP_ACCESS_TOKEN,
     WHATSAPP_PHONE_NUMBER_ID: process.env.WHATSAPP_PHONE_NUMBER_ID,
     WHATSAPP_BUSINESS_ACCOUNT_ID: process.env.WHATSAPP_BUSINESS_ACCOUNT_ID,
@@ -43,16 +49,20 @@ export function getWhatsAppConfig(): WhatsAppConfig {
     WHATSAPP_MOCK_MODE: process.env.WHATSAPP_MOCK_MODE,
   });
 
-  const raw = parsed.success ? parsed.data : {
-    WHATSAPP_ACCESS_TOKEN: undefined,
-    WHATSAPP_PHONE_NUMBER_ID: undefined,
-    WHATSAPP_BUSINESS_ACCOUNT_ID: undefined,
-    WHATSAPP_VERIFY_TOKEN: undefined,
-    WHATSAPP_API_VERSION: 'v22.0',
-    WHATSAPP_APP_SECRET: undefined,
-    WHATSAPP_MOCK_MODE: false,
-  };
+  const raw = parsed.success
+    ? parsed.data
+    : {
+        WHATSAPP_ENABLED: false,
+        WHATSAPP_ACCESS_TOKEN: undefined,
+        WHATSAPP_PHONE_NUMBER_ID: undefined,
+        WHATSAPP_BUSINESS_ACCOUNT_ID: undefined,
+        WHATSAPP_VERIFY_TOKEN: undefined,
+        WHATSAPP_API_VERSION: 'v22.0',
+        WHATSAPP_APP_SECRET: undefined,
+        WHATSAPP_MOCK_MODE: false,
+      };
 
+  const isEnabled = Boolean(raw.WHATSAPP_ENABLED);
   const accessToken = raw.WHATSAPP_ACCESS_TOKEN || '';
   const phoneNumberId = raw.WHATSAPP_PHONE_NUMBER_ID || '';
   const businessAccountId = raw.WHATSAPP_BUSINESS_ACCOUNT_ID || '';
@@ -61,15 +71,10 @@ export function getWhatsAppConfig(): WhatsAppConfig {
   const appSecret = raw.WHATSAPP_APP_SECRET;
 
   const isConfigured = Boolean(accessToken && phoneNumberId);
-  const isMockMode = Boolean(raw.WHATSAPP_MOCK_MODE || (!isConfigured && process.env.NODE_ENV !== 'production'));
-
-  if (!isConfigured && process.env.NODE_ENV === 'production') {
-    logger.error('whatsapp.config', 'Meta WhatsApp Cloud API credentials missing in production environment');
-  } else if (!isConfigured) {
-    logger.info('whatsapp.config', 'WhatsApp running in mock/development mode (credentials not configured)');
-  }
+  const isMockMode = Boolean(raw.WHATSAPP_MOCK_MODE);
 
   cachedConfig = {
+    isEnabled,
     accessToken,
     phoneNumberId,
     businessAccountId,

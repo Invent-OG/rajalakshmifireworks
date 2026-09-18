@@ -2,6 +2,7 @@ import { db } from '@/db';
 import { orders, whatsappMessages, customers } from '@/db/schema';
 import { eq, and, inArray, desc } from 'drizzle-orm';
 import { whatsAppClient } from './client';
+import { getWhatsAppConfig } from './config';
 import { buildMetaTemplatePayload } from './templates';
 import { normalizePhoneNumber, maskPhoneNumber } from './validation';
 import { WhatsAppError, WhatsAppApiError } from './errors';
@@ -23,6 +24,20 @@ export class WhatsAppService {
     messageType: WhatsAppMessageType,
     forceRetry: boolean = false
   ): Promise<SendWhatsAppResult> {
+    const config = getWhatsAppConfig();
+    if (!config.isEnabled) {
+      logger.info('whatsapp.service', 'WhatsApp message sending is temporarily disabled', {
+        orderId,
+        messageType,
+      });
+      return {
+        success: true,
+        messageId: 0,
+        status: 'SENT',
+        attemptCount: 0,
+      };
+    }
+
     // 1. Fetch order and customer details
     const order = await db.query.orders.findFirst({
       where: eq(orders.id, orderId),

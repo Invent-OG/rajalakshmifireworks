@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useQuery } from '@tanstack/react-query';
 import { useCart } from '@/hooks/use-cart';
 import { StoreButton } from '@/components/ui/store-button';
 import { Input, Textarea } from '@/components/ui/input';
@@ -16,12 +17,27 @@ import { toast } from 'sonner';
 import { nanoid } from 'nanoid';
 import { useTranslations, useLocale } from '@/lib/i18n/context';
 import { getLocalizedName } from '@/lib/i18n/formatters';
+import { queryKeys } from '@/lib/query/keys';
+
+interface StateOption {
+  id: number;
+  name: string;
+  code?: string | null;
+}
+
+interface CityOption {
+  id: number;
+  name: string;
+  stateId: number;
+}
 
 const checkoutFormSchema = z
   .object({
     name: z.string().min(2, 'Full name must be at least 2 characters').max(255),
     mobile: z.string().regex(/^[6-9]\d{9}$/, 'Enter a valid 10-digit mobile number'),
     fulfillmentType: z.enum(['DELIVERY', 'PICKUP']),
+    stateId: z.string().optional(),
+    cityId: z.string().optional(),
     address: z.string().optional(),
     city: z.string().optional(),
     pincode: z.string().optional(),
@@ -32,17 +48,19 @@ const checkoutFormSchema = z
       if (data.fulfillmentType === 'DELIVERY') {
         return (
           data.address &&
-          data.address.length >= 5 &&
-          data.city &&
-          data.city.length >= 2 &&
+          data.address.trim().length >= 5 &&
+          data.stateId &&
+          Number(data.stateId) > 0 &&
+          data.cityId &&
+          Number(data.cityId) > 0 &&
           data.pincode &&
-          /^\d{6}$/.test(data.pincode)
+          /^\d{6}$/.test(data.pincode.trim())
         );
       }
       return true;
     },
     {
-      message: 'Address, city, and 6-digit pincode are required for delivery',
+      message: 'Complete delivery address, state, city, and 6-digit pincode are required',
       path: ['address'],
     }
   );
@@ -69,6 +87,8 @@ export default function CheckoutPage() {
       name: '',
       mobile: '',
       fulfillmentType: 'DELIVERY',
+      stateId: '',
+      cityId: '',
       address: '',
       city: '',
       pincode: '',
@@ -81,6 +101,41 @@ export default function CheckoutPage() {
     name: 'fulfillmentType',
     defaultValue: 'DELIVERY',
   });
+
+  const selectedStateId = useWatch({
+    control: form.control,
+    name: 'stateId',
+  });
+
+  // Fetch Public Active States
+  const { data: states = [], isLoading: isStatesLoading } = useQuery<StateOption[]>({
+    queryKey: queryKeys.locations?.states?.() || ['locations', 'states'],
+    queryFn: async () => {
+      const res = await fetch('/api/states');
+      if (!res.ok) throw new Error('Failed to load states');
+      return res.json();
+    },
+  });
+
+  // Fetch Cities dependent on selected state
+  const { data: cities = [], isLoading: isCitiesLoading } = useQuery<CityOption[]>({
+    queryKey: queryKeys.locations?.cities?.(selectedStateId || '') || ['locations', 'cities', selectedStateId],
+    queryFn: async () => {
+      if (!selectedStateId) return [];
+      const res = await fetch(`/api/states/${selectedStateId}/cities`);
+      if (!res.ok) throw new Error('Failed to load cities');
+      return res.json();
+    },
+    enabled: !!selectedStateId,
+  });
+
+  // When state changes, reset cityId and city name in form
+  useEffect(() => {
+    if (selectedStateId) {
+      form.setValue('cityId', '');
+      form.setValue('city', '');
+    }
+  }, [selectedStateId, form]);
 
   const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`);
 
@@ -107,22 +162,27 @@ export default function CheckoutPage() {
     setSubmitting(true);
     try {
       const idempotencyKey = nanoid();
+      const selectedState = states.find((s) => s.id === Number(data.stateId));
+      const selectedCity = cities.find((c) => c.id === Number(data.cityId));
 
       const payload = {
         customer: {
-          name: data.name,
-          mobile: data.mobile,
+          name: data.name.trim(),
+          mobile: data.mobile.trim(),
         },
         fulfillmentType: data.fulfillmentType,
         address:
           data.fulfillmentType === 'DELIVERY'
             ? {
-                address: data.address!,
-                city: data.city!,
-                pincode: data.pincode!,
+                address: data.address!.trim(),
+                stateId: Number(data.stateId),
+                cityId: Number(data.cityId),
+                state: selectedState?.name || '',
+                city: selectedCity?.name || data.city || '',
+                pincode: data.pincode!.trim(),
               }
             : undefined,
-        notes: data.notes || undefined,
+        notes: data.notes?.trim() || undefined,
         items: items.map((item) => ({
           productId: item.productId,
           quantity: item.quantity,
@@ -139,48 +199,57 @@ export default function CheckoutPage() {
       const result = await res.json();
 
       if (!res.ok) {
-        toast.error(result.message || tToasts('orderFailed'));
-        return;
+        throw new Error(result.message || 'Failed to place order');
       }
 
-      setShowNoticeModal(false);
+      // Clear local cart
       clearCart();
-      router.push(getHref(`/order-confirmation/${result.order.invoiceNumber}`));
-    } catch {
-      toast.error(tToasts('orderFailed'));
+
+      // Show success
+      toast.success(
+        locale === 'ta'
+          ? 'உங்கள் தீபாவளி பட்டாசு விசாரணை வெற்றிகரமாக பதிவானது!'
+          : 'Your Diwali fireworks enquiry has been placed successfully!'
+      );
+
+      // Redirect to Confirmation Page
+      router.push(getHref(`/order-confirmation/${result.orderId}`));
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to place order. Please try again.');
     } finally {
       setSubmitting(false);
+      setShowNoticeModal(false);
     }
   }
 
   return (
-    <div className="w-full px-4 sm:px-8 lg:px-12 py-8 animate-fade-in space-y-8 font-sans">
-      {/* Header */}
-      <div className="pb-6 border-b border-border">
-        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground font-heading">
+    <div className="w-full px-4 sm:px-8 lg:px-12 py-8 sm:py-12 font-sans max-w-7xl mx-auto animate-fade-in">
+      {/* Checkout Form Head */}
+      <div className="mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground font-heading">
           {t('title')}
         </h1>
-        <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+        <p className="text-sm text-muted-foreground mt-1">
           {t('subtitle')}
         </p>
       </div>
 
       <form onSubmit={form.handleSubmit(handleFormSubmit)}>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Left: Numbered Step Form */}
+          {/* Left: Input Details Form */}
           <div className="lg:col-span-7 space-y-6">
             {/* Step 01: Customer Details */}
-            <div className="p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white shadow-sm space-y-5">
-              <div className="flex items-center gap-3">
+            <div className="p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white shadow-sm space-y-4">
+              <div className="flex items-center gap-3 pb-1 border-b border-neutral-100">
                 <span className="h-7 w-7 rounded-full bg-neutral-900 text-white text-xs font-bold flex items-center justify-center shadow-xs font-mono">
                   01
                 </span>
                 <h2 className="font-bold text-base text-foreground tracking-tight font-heading">
-                  {t('customerInfo')}
+                  {t('personalDetails')}
                 </h2>
               </div>
 
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Input
                   label={`${t('fullName')} *`}
                   placeholder={t('fullNamePlaceholder')}
@@ -188,32 +257,32 @@ export default function CheckoutPage() {
                   {...form.register('name')}
                 />
                 <Input
-                  label={`${t('phoneNumber')} *`}
-                  placeholder={t('phoneNumberPlaceholder')}
+                  label={`${t('mobileNumber')} *`}
+                  placeholder={t('mobilePlaceholder')}
                   error={form.formState.errors.mobile?.message}
                   {...form.register('mobile')}
                 />
               </div>
             </div>
 
-            {/* Step 02: Fulfillment Method */}
-            <div className="p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white shadow-sm space-y-5">
-              <div className="flex items-center gap-3">
+            {/* Step 02: Fulfillment Mode & Address Selection */}
+            <div className="p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white shadow-sm space-y-4">
+              <div className="flex items-center gap-3 pb-1 border-b border-neutral-100">
                 <span className="h-7 w-7 rounded-full bg-neutral-900 text-white text-xs font-bold flex items-center justify-center shadow-xs font-mono">
                   02
                 </span>
                 <h2 className="font-bold text-base text-foreground tracking-tight font-heading">
-                  {t('deliveryAddress')}
+                  {t('deliveryOption')}
                 </h2>
               </div>
 
-              {/* Selectable Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              {/* Radio Selector for Transport vs Pickup */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <label
-                  className={`p-4 rounded-[22px] sm:rounded-[24px] border-2 flex items-start gap-3 cursor-pointer transition-all ${
+                  className={`flex items-start gap-3.5 p-4 rounded-2xl border-2 transition-all cursor-pointer ${
                     fulfillmentType === 'DELIVERY'
-                      ? 'border-neutral-950 bg-neutral-100/60 shadow-xs'
-                      : 'border-neutral-200/80 hover:border-neutral-400 bg-neutral-50/50'
+                      ? 'border-neutral-900 bg-neutral-50/70 shadow-xs'
+                      : 'border-neutral-200 bg-white hover:border-neutral-300'
                   }`}
                 >
                   <input
@@ -223,9 +292,9 @@ export default function CheckoutPage() {
                     {...form.register('fulfillmentType')}
                   />
                   <div
-                    className={`h-9 w-9 rounded-full flex items-center justify-center shrink-0 ${
+                    className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
                       fulfillmentType === 'DELIVERY'
-                        ? 'bg-neutral-950 text-white'
+                        ? 'bg-neutral-900 text-white'
                         : 'bg-neutral-200 text-neutral-600'
                     }`}
                   >
@@ -233,19 +302,19 @@ export default function CheckoutPage() {
                   </div>
                   <div>
                     <p className="font-bold text-sm text-foreground">
-                      {locale === 'ta' ? 'வீட்டு முகவரி டெலிவரி' : 'Home Delivery'}
+                      {locale === 'ta' ? 'வீட்டு முகவரி பார்சல்' : 'Doorstep Transport'}
                     </p>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      {locale === 'ta' ? 'லாரி பார்சல் மூலம் உங்கள் முகவரிக்கு' : 'Direct transport to your address'}
+                      {locale === 'ta' ? 'லாரி சர்வீஸ் மூலம் பாதுகாப்பான டெலிவரி' : 'Safe dispatch via registered logistics'}
                     </p>
                   </div>
                 </label>
 
                 <label
-                  className={`p-4 rounded-[22px] sm:rounded-[24px] border-2 flex items-start gap-3 cursor-pointer transition-all ${
+                  className={`flex items-start gap-3.5 p-4 rounded-2xl border-2 transition-all cursor-pointer ${
                     fulfillmentType === 'PICKUP'
-                      ? 'border-neutral-950 bg-neutral-100/60 shadow-xs'
-                      : 'border-neutral-200/80 hover:border-neutral-400 bg-neutral-50/50'
+                      ? 'border-neutral-900 bg-neutral-50/70 shadow-xs'
+                      : 'border-neutral-200 bg-white hover:border-neutral-300'
                   }`}
                 >
                   <input
@@ -255,9 +324,9 @@ export default function CheckoutPage() {
                     {...form.register('fulfillmentType')}
                   />
                   <div
-                    className={`h-9 w-9 rounded-full flex items-center justify-center shrink-0 ${
+                    className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
                       fulfillmentType === 'PICKUP'
-                        ? 'bg-neutral-950 text-white'
+                        ? 'bg-neutral-900 text-white'
                         : 'bg-neutral-200 text-neutral-600'
                     }`}
                   >
@@ -274,22 +343,74 @@ export default function CheckoutPage() {
                 </label>
               </div>
 
-              {/* Delivery Address Fields */}
+              {/* Delivery Address Fields with Dependent State & City Selection */}
               {fulfillmentType === 'DELIVERY' && (
                 <div className="space-y-4 pt-2 animate-fade-in">
+                  {/* State & Dependent City Dropdowns */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-foreground mb-1.5">
+                        {locale === 'ta' ? 'மாநிலம் (State)' : 'State'} *
+                      </label>
+                      <select
+                        value={form.watch('stateId') || ''}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          form.setValue('stateId', val, { shouldValidate: true });
+                          form.setValue('cityId', '', { shouldValidate: true });
+                          form.setValue('city', '');
+                        }}
+                        className="w-full h-11 px-3.5 rounded-xl border border-neutral-200 bg-white text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-neutral-900 cursor-pointer shadow-xs"
+                      >
+                        <option value="">{isStatesLoading ? 'Loading states...' : 'Select State'}</option>
+                        {states.map((st) => (
+                          <option key={st.id} value={st.id}>
+                            {st.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-foreground mb-1.5">
+                        {locale === 'ta' ? 'மாவட்டம் / நகரம் (City)' : 'City / District'} *
+                      </label>
+                      <select
+                        value={form.watch('cityId') || ''}
+                        disabled={!selectedStateId || isCitiesLoading}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          form.setValue('cityId', val, { shouldValidate: true });
+                          const found = cities.find((c) => c.id === Number(val));
+                          if (found) form.setValue('city', found.name);
+                        }}
+                        className="w-full h-11 px-3.5 rounded-xl border border-neutral-200 bg-white text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-neutral-900 cursor-pointer shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <option value="">
+                          {!selectedStateId
+                            ? 'Select State First'
+                            : isCitiesLoading
+                            ? 'Loading cities...'
+                            : 'Select City'}
+                        </option>
+                        {cities.map((ct) => (
+                          <option key={ct.id} value={ct.id}>
+                            {ct.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Street Address & Pincode */}
                   <Input
                     label={`${t('addressLine1')} *`}
                     placeholder={t('addressLine1Placeholder')}
                     error={form.formState.errors.address?.message}
                     {...form.register('address')}
                   />
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <Input
-                      label={`${t('city')} *`}
-                      placeholder={t('cityPlaceholder')}
-                      error={form.formState.errors.city?.message}
-                      {...form.register('city')}
-                    />
                     <Input
                       label={`${t('pincode')} *`}
                       placeholder={t('pincodePlaceholder')}

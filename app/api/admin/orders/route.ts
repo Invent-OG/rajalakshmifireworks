@@ -119,14 +119,14 @@ export async function GET(request: NextRequest) {
 
     const statusCounts: Record<string, number> = {
       ALL: 0,
-      PENDING: 0,
+      NEW: 0,
       CONFIRMED: 0,
-      PROCESSING: 0,
-      READY: 0,
-      READY_FOR_PICKUP: 0,
+      ASSIGNED: 0,
       OUT_FOR_DELIVERY: 0,
-      COMPLETED: 0,
+      DELIVERED: 0,
       CANCELLED: 0,
+      PENDING: 0,
+      COMPLETED: 0,
     };
 
     let grandTotalOrders = 0;

@@ -3,8 +3,6 @@ import { VALID_TRANSITIONS, CANCELLABLE_STATUSES } from '@/lib/constants/order-s
 
 /**
  * Centralized order status state machine.
- * All status transition logic lives here — UI components and API routes
- * call these functions instead of implementing their own transition logic.
  */
 
 export function isValidTransition(currentStatus: OrderStatus, newStatus: OrderStatus): boolean {
@@ -18,12 +16,11 @@ export function getNextStatuses(
 ): OrderStatus[] {
   const allowed = VALID_TRANSITIONS[currentStatus] || [];
 
-  // Filter based on fulfillment type
   return allowed.filter((status) => {
-    // Delivery orders don't go to READY_FOR_PICKUP
-    if (fulfillmentType === 'DELIVERY' && status === 'READY_FOR_PICKUP') return false;
-    // Pickup orders don't go to READY or OUT_FOR_DELIVERY
-    if (fulfillmentType === 'PICKUP' && (status === 'READY' || status === 'OUT_FOR_DELIVERY')) return false;
+    // Pickup orders bypass ASSIGNED and OUT_FOR_DELIVERY directly to DELIVERED
+    if (fulfillmentType === 'PICKUP' && (status === 'ASSIGNED' || status === 'OUT_FOR_DELIVERY')) {
+      return false;
+    }
     return true;
   });
 }
@@ -33,15 +30,17 @@ export function canCancel(status: OrderStatus): boolean {
 }
 
 export function isTerminalStatus(status: OrderStatus): boolean {
-  return status === 'COMPLETED' || status === 'CANCELLED';
+  return status === 'DELIVERED' || status === 'CANCELLED';
 }
 
 export function getStatusTimestampField(status: OrderStatus): string | null {
   switch (status) {
     case 'CONFIRMED':
       return 'confirmedAt';
-    case 'COMPLETED':
-      return 'completedAt';
+    case 'ASSIGNED':
+      return 'assignedAt';
+    case 'DELIVERED':
+      return 'deliveredAt';
     case 'CANCELLED':
       return 'cancelledAt';
     default:
@@ -61,17 +60,13 @@ export function validateTransition(
     return `Cannot change status of a ${currentStatus.toLowerCase()} order.`;
   }
 
+  // Reassignment check in ASSIGNED state
+  if (currentStatus === 'ASSIGNED' && newStatus === 'ASSIGNED') {
+    return null;
+  }
+
   if (!isValidTransition(currentStatus, newStatus)) {
     return `Cannot transition from ${currentStatus} to ${newStatus}.`;
-  }
-
-  // Validate fulfillment-specific transitions
-  if (fulfillmentType === 'DELIVERY' && newStatus === 'READY_FOR_PICKUP') {
-    return 'Delivery orders cannot be marked as ready for pickup.';
-  }
-
-  if (fulfillmentType === 'PICKUP' && (newStatus === 'READY' || newStatus === 'OUT_FOR_DELIVERY')) {
-    return 'Pickup orders cannot be marked as ready for delivery or out for delivery.';
   }
 
   return null;

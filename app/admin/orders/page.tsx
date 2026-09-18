@@ -191,12 +191,11 @@ export default function AdminOrdersPage() {
 
   const statusTabList: Array<{ key: string; label: string }> = [
     { key: 'ALL', label: 'All Orders' },
-    { key: 'PENDING', label: 'Pending' },
+    { key: 'NEW', label: 'New' },
     { key: 'CONFIRMED', label: 'Confirmed' },
-    { key: 'PROCESSING', label: 'Processing' },
-    { key: 'READY', label: 'Ready' },
+    { key: 'ASSIGNED', label: 'Assigned' },
     { key: 'OUT_FOR_DELIVERY', label: 'Out for Delivery' },
-    { key: 'COMPLETED', label: 'Completed' },
+    { key: 'DELIVERED', label: 'Delivered' },
     { key: 'CANCELLED', label: 'Cancelled' },
   ];
 
@@ -524,13 +523,11 @@ export default function AdminOrdersPage() {
                   value={bulkTargetStatus}
                   onChange={(e) => setBulkTargetStatus(e.target.value as OrderStatus)}
                   options={[
-                    { value: 'CONFIRMED', label: 'Confirmed (order_confirmed)' },
-                    { value: 'PROCESSING', label: 'Processing (order_packed)' },
-                    { value: 'READY', label: 'Ready (order_packed)' },
-                    { value: 'READY_FOR_PICKUP', label: 'Ready for Pickup (Shop)' },
-                    { value: 'OUT_FOR_DELIVERY', label: 'Out for Delivery (Transit)' },
-                    { value: 'COMPLETED', label: 'Completed (Delivered)' },
-                    { value: 'CANCELLED', label: 'Cancelled (Restore Stock)' },
+                    { value: 'CONFIRMED', label: 'Confirmed' },
+                    { value: 'ASSIGNED', label: 'Delivery Assigned' },
+                    { value: 'OUT_FOR_DELIVERY', label: 'Out for Delivery' },
+                    { value: 'DELIVERED', label: 'Delivered' },
+                    { value: 'CANCELLED', label: 'Cancelled' },
                   ]}
                 />
 

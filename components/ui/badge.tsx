@@ -70,7 +70,10 @@ export function StatusBadge({
   className?: string;
 }) {
   const variantMap: Record<string, BadgeVariant> = {
+    NEW: 'warning',
     PENDING: 'warning',
+    ASSIGNED: 'brand',
+    DELIVERED: 'success',
     CONFIRMED: 'info',
     PROCESSING: 'brand',
     READY: 'info',
@@ -84,7 +87,10 @@ export function StatusBadge({
   };
 
   const labels: Record<string, string> = {
+    NEW: 'New',
     PENDING: 'Pending',
+    ASSIGNED: 'Assigned',
+    DELIVERED: 'Delivered',
     CONFIRMED: 'Confirmed',
     PROCESSING: 'Processing',
     READY: 'Ready',

@@ -15,6 +15,7 @@ import {
 } from './schema';
 import { hashPassword } from '../lib/auth/password';
 import { slugify } from '../lib/utils/format';
+import { seedLocations } from './seed-locations';
 
 async function seed() {
   console.log('🌱 Starting Rajalakshmi Fireworks database seed...');
@@ -369,7 +370,7 @@ async function seed() {
         .values({
           invoiceNumber: 'FW-20260830-0001',
           customerId: customer1.id,
-          orderStatus: 'COMPLETED',
+          orderStatus: 'DELIVERED',
           fulfillmentType: 'DELIVERY',
           subtotal: sampleProduct.sellingPrice,
           discountAmount: String(parseFloat(sampleProduct.mrp) - parseFloat(sampleProduct.sellingPrice)),
@@ -385,7 +386,7 @@ async function seed() {
           notes: 'Please ring bell upon arrival',
           placedAt: new Date(),
           confirmedAt: new Date(),
-          completedAt: new Date(),
+          deliveredAt: new Date(),
         })
         .returning();
 
@@ -428,6 +429,9 @@ async function seed() {
       }
     }
   }
+
+  // 6. Seed All India States and Cities
+  await seedLocations();
 
   console.log('✅ Seed completed successfully!');
   process.exit(0);

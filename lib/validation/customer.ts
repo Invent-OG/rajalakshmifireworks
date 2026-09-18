@@ -22,6 +22,9 @@ export const addressSchema = z.object({
     .min(5, 'Address must be at least 5 characters')
     .max(500, 'Address is too long')
     .trim(),
+  stateId: z.coerce.number().int().positive('Please select a state').optional(),
+  cityId: z.coerce.number().int().positive('Please select a city').optional(),
+  state: z.string().max(100).optional().or(z.literal('')),
   city: z
     .string()
     .min(2, 'City must be at least 2 characters')

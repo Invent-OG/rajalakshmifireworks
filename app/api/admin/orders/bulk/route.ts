@@ -14,13 +14,11 @@ import type { WhatsAppMessageType } from '@/lib/whatsapp/types';
 const bulkOrderStatusSchema = z.object({
   orderIds: z.array(z.number().int().positive()).min(1, 'Please select at least one order'),
   newStatus: z.enum([
-    'PENDING',
+    'NEW',
     'CONFIRMED',
-    'PROCESSING',
-    'READY',
-    'READY_FOR_PICKUP',
+    'ASSIGNED',
     'OUT_FOR_DELIVERY',
-    'COMPLETED',
+    'DELIVERED',
     'CANCELLED',
   ]),
   note: z.string().max(500).optional(),
@@ -63,15 +61,10 @@ export async function POST(request: NextRequest) {
       case 'CONFIRMED':
         notificationType = 'ORDER_CONFIRMED';
         break;
-      case 'PROCESSING':
-      case 'READY':
-      case 'READY_FOR_PICKUP':
-        notificationType = 'ORDER_PACKED';
-        break;
       case 'OUT_FOR_DELIVERY':
         notificationType = 'ORDER_OUT_FOR_DELIVERY';
         break;
-      case 'COMPLETED':
+      case 'DELIVERED':
         notificationType = 'ORDER_DELIVERED';
         break;
       case 'CANCELLED':
@@ -88,7 +81,7 @@ export async function POST(request: NextRequest) {
         continue;
       }
 
-      const transitionError = validateTransition(currentStatus, newStatus, fulfillmentType);
+      const transitionError = validateTransition(currentStatus, newStatus as OrderStatus, fulfillmentType);
       if (transitionError) {
         skippedIds.push({ id: order.id, reason: transitionError });
         continue;
@@ -99,7 +92,7 @@ export async function POST(request: NextRequest) {
         updatedAt: new Date(),
       };
 
-      const tsField = getStatusTimestampField(newStatus);
+      const tsField = getStatusTimestampField(newStatus as OrderStatus);
       if (tsField) {
         updateData[tsField] = new Date();
       }

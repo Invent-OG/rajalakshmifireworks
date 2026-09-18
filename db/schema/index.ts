@@ -1,17 +1,20 @@
-// Barrel export for all database schemas
-export { categories, categoriesRelations } from './categories';
-export { products, productsRelations } from './products';
-export { comboItems, comboItemsRelations } from './combo-items';
-export { productMedia, productMediaRelations } from './product-media';
-export { customers, customersRelations } from './customers';
-export { customerAddresses, customerAddressesRelations } from './customer-addresses';
-export { orders, ordersRelations } from './orders';
-export type { OrderStatus, FulfillmentType } from './orders';
-export { orderItems, orderItemsRelations } from './order-items';
-export { orderStatusHistory, orderStatusHistoryRelations } from './order-status-history';
-export { inventoryTransactions, inventoryTransactionsRelations } from './inventory-transactions';
-export type { InventoryTransactionType } from './inventory-transactions';
-export { adminUsers } from './admin-users';
-export { settings } from './settings';
-export { whatsappMessages, whatsappMessagesRelations } from './whatsapp-messages';
-export type { WhatsAppMessageStatus } from './whatsapp-messages';
+// Export all database schemas, relations, and TypeScript types
+// Centralized barrel export simplifies imports across the codebase
+
+export * from './admin-users';
+export * from './categories';
+export * from './products';
+export * from './combo-items';
+export * from './product-media';
+export * from './customers';
+export * from './customer-addresses';
+export * from './states';
+export * from './cities';
+export * from './delivery-partners';
+export * from './orders';
+export * from './order-items';
+export * from './order-status-history';
+export * from './order-delivery-assignments';
+export * from './inventory-transactions';
+export * from './settings';
+export * from './whatsapp-messages';

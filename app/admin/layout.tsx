@@ -17,6 +17,7 @@ import {
   X,
   Warehouse,
   ExternalLink,
+  Truck,
 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -34,6 +35,12 @@ const navGroups = [
       { href: '/admin/products', icon: Package, label: 'Products' },
       { href: '/admin/categories', icon: Tags, label: 'Categories' },
       { href: '/admin/inventory', icon: Warehouse, label: 'Inventory' },
+    ],
+  },
+  {
+    group: 'FULFILLMENT',
+    items: [
+      { href: '/admin/delivery-partners', icon: Truck, label: 'Delivery Partners' },
     ],
   },
   {

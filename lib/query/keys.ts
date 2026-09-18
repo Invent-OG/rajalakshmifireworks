@@ -16,6 +16,10 @@ export const queryKeys = {
     list: () => ['categories', 'list'] as const,
     detail: (slug: string) => ['categories', 'detail', slug] as const,
   },
+  locations: {
+    states: () => ['locations', 'states'] as const,
+    cities: (stateId: number | string) => ['locations', 'cities', stateId] as const,
+  },
   orders: {
     track: (mobile: string, invoice?: string) => ['orders', 'track', mobile, invoice] as const,
   },
@@ -40,6 +44,11 @@ export const queryKeys = {
       all: ['admin', 'categories'] as const,
       list: () => ['admin', 'categories', 'list'] as const,
     },
+    deliveryPartners: {
+      all: ['admin', 'deliveryPartners'] as const,
+      list: (filters?: Record<string, unknown>) => ['admin', 'deliveryPartners', 'list', filters] as const,
+      detail: (id: number) => ['admin', 'deliveryPartners', 'detail', id] as const,
+    },
     customers: {
       all: ['admin', 'customers'] as const,
       list: (filters?: Record<string, unknown>) => ['admin', 'customers', 'list', filters] as const,
@@ -62,3 +71,5 @@ export const queryKeys = {
     },
   },
 };
+
+export default queryKeys;

@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
       address: order.addressSnapshot,
       placedAt: order.placedAt,
       confirmedAt: order.confirmedAt,
-      completedAt: order.completedAt,
+      deliveredAt: order.deliveredAt,
       items: order.items.map((item) => ({
         productName: item.productNameSnapshot,
         quantity: item.quantity,

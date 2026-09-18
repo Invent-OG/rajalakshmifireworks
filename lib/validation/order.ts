@@ -25,15 +25,18 @@ export const orderTrackingSchema = z.object({
 
 export const orderStatusUpdateSchema = z.object({
   newStatus: z.enum([
-    'PENDING',
+    'NEW',
     'CONFIRMED',
-    'PROCESSING',
-    'READY',
-    'READY_FOR_PICKUP',
+    'ASSIGNED',
     'OUT_FOR_DELIVERY',
-    'COMPLETED',
+    'DELIVERED',
     'CANCELLED',
   ]),
+  note: z.string().max(500).optional(),
+});
+
+export const assignDeliverySchema = z.object({
+  deliveryPartnerId: z.coerce.number().int().positive('Please select a valid delivery partner'),
   note: z.string().max(500).optional(),
 });
 
@@ -41,3 +44,4 @@ export type CartItemInput = z.infer<typeof cartItemSchema>;
 export type CheckoutInput = z.infer<typeof checkoutSchema>;
 export type OrderTrackingInput = z.infer<typeof orderTrackingSchema>;
 export type OrderStatusUpdateInput = z.infer<typeof orderStatusUpdateSchema>;
+export type AssignDeliveryInput = z.infer<typeof assignDeliverySchema>;

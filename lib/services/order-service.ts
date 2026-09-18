@@ -1,32 +1,47 @@
 import { db } from '@/db';
 import {
-  products,
-  customers,
-  customerAddresses,
   orders,
   orderItems,
   orderStatusHistory,
   inventoryTransactions,
+  customers,
+  customerAddresses,
+  products,
   settings,
+  states,
+  cities,
+  type OrderStatus,
+  type FulfillmentType,
 } from '@/db/schema';
-import type { OrderStatus, FulfillmentType } from '@/db/schema';
 import { eq, and, inArray } from 'drizzle-orm';
-import type { CheckoutInput } from '@/lib/validation/order';
-import { generateInvoiceNumber } from './invoice-service';
-import { calculateOrderTotals, calculateLineTotal, getDeliveryCharge } from './pricing-service';
-import { logger } from '@/lib/utils/logger';
+import { generateInvoiceNumber } from '@/lib/services/invoice-service';
 import {
-  ValidationError,
+  calculateOrderTotals,
+  calculateLineTotal,
+  getDeliveryCharge,
+} from '@/lib/services/pricing-service';
+import {
   InsufficientStockError,
+  ProductNotFoundError,
   MinimumOrderError,
-  DuplicateOrderError,
+  ValidationError,
 } from '@/lib/utils/errors';
-import { toNumber } from '@/lib/utils/format';
+import { logger } from '@/lib/utils/logger';
+import type { CheckoutInput } from '@/lib/validation/order';
 
-interface OrderResult {
+function toNumber(val: string | number | null | undefined): number {
+  if (val === null || val === undefined) return 0;
+  const num = typeof val === 'number' ? val : parseFloat(val);
+  return isNaN(num) ? 0 : num;
+}
+
+export interface CreateOrderResult {
   orderId: number;
   invoiceNumber: string;
   totalAmount: number;
+  subtotal: number;
+  discountAmount: number;
+  deliveryCharge: number;
   items: Array<{
     productName: string;
     quantity: number;
@@ -34,89 +49,15 @@ interface OrderResult {
   }>;
   customerName: string;
   fulfillmentType: FulfillmentType;
-  address: { address: string; city: string; pincode: string } | null;
-  discountAmount: number;
-  deliveryCharge: number;
-  subtotal: number;
+  address?: Record<string, unknown> | null;
 }
 
 /**
- * Create an order within a database transaction.
- * This is the most critical business operation.
- * 
- * Steps:
- * 1. Check idempotency
- * 2. Validate all products exist and are active
- * 3. Validate stock availability
- * 4. Calculate prices server-side
- * 5. Validate minimum order value
- * 6. Find or create customer
- * 7. Save/update address
- * 8. Create order with snapshots
- * 9. Create order items with price snapshots
- * 10. Deduct inventory with audit trail
- * 11. Create status history
- * 12. Generate invoice number
+ * Creates an order in a single atomic database transaction.
  */
-export async function createOrder(input: CheckoutInput): Promise<OrderResult> {
-  // 1. Check idempotency — if order already exists with this key, return it
-  if (input.idempotencyKey) {
-    const existing = await db.query.orders.findFirst({
-      where: eq(orders.idempotencyKey, input.idempotencyKey),
-      with: { items: true },
-    });
-
-    if (existing) {
-      logger.info('order.create', 'Duplicate order detected (idempotency)', {
-        idempotencyKey: input.idempotencyKey,
-        invoiceNumber: existing.invoiceNumber,
-      });
-      throw new DuplicateOrderError(existing.invoiceNumber);
-    }
-  }
-
-  // Execute everything in a transaction
+export async function createOrder(input: CheckoutInput): Promise<CreateOrderResult> {
   return await db.transaction(async (tx) => {
-    // 2. Fetch and validate all products
-    const productIds = input.items.map((item) => item.productId);
-    const dbProducts = await tx.query.products.findMany({
-      where: and(
-        inArray(products.id, productIds),
-        eq(products.isActive, true)
-      ),
-    });
-
-    if (dbProducts.length !== productIds.length) {
-      const foundIds = new Set(dbProducts.map((p) => p.id));
-      const missingIds = productIds.filter((id) => !foundIds.has(id));
-      throw new ValidationError(
-        `Products not found or inactive: ${missingIds.join(', ')}`,
-        'Some products in your cart are no longer available. Please refresh and try again.'
-      );
-    }
-
-    // Create a lookup map
-    const productMap = new Map(dbProducts.map((p) => [p.id, p]));
-
-    // 3. Validate stock for each item
-    for (const item of input.items) {
-      const product = productMap.get(item.productId)!;
-      if (product.stockQuantity < item.quantity) {
-        throw new InsufficientStockError(product.name, product.stockQuantity);
-      }
-    }
-
-    // 4. Calculate prices server-side — NEVER trust client prices
-    const itemsForPricing = input.items.map((item) => {
-      const product = productMap.get(item.productId)!;
-      return {
-        mrp: product.mrp,
-        sellingPrice: product.sellingPrice,
-        quantity: item.quantity,
-      };
-    });
-
-    // Get delivery settings
+    // 1. Fetch settings for pricing and minimum order validation
     const settingsRows = await tx
       .select()
       .from(settings)
@@ -129,16 +70,52 @@ export async function createOrder(input: CheckoutInput): Promise<OrderResult> {
     const freeDeliveryAbove = toNumber(settingsMap.get('FREE_DELIVERY_ABOVE') ?? '2000');
     const minOrderValue = toNumber(settingsMap.get('MIN_ORDER_VALUE') ?? '500');
 
-    // Calculate subtotal first for delivery charge calculation
-    const prelimTotals = calculateOrderTotals(itemsForPricing, 0);
+    // 2. Fetch all products in cart with a FOR UPDATE lock
+    const productIds = input.items.map((i) => i.productId);
+    const dbProducts = await tx.query.products.findMany({
+      where: inArray(products.id, productIds),
+    });
+
+    if (dbProducts.length !== productIds.length) {
+      const foundIds = new Set(dbProducts.map((p) => p.id));
+      const missingId = productIds.find((id) => !foundIds.has(id));
+      throw new ProductNotFoundError(missingId || 0);
+    }
+
+    // Build lookup map
+    const productMap = new Map(dbProducts.map((p) => [p.id, p]));
+
+    // 3. Validate stock availability and active status
+    for (const item of input.items) {
+      const product = productMap.get(item.productId)!;
+
+      if (!product.isActive) {
+        throw new ValidationError(`"${product.name}" is currently not available.`);
+      }
+
+      if (product.stockQuantity < item.quantity) {
+        throw new InsufficientStockError(product.name, product.stockQuantity);
+      }
+    }
+
+    // 4. Calculate prices server-side
+    const pricingItems = input.items.map((item) => {
+      const product = productMap.get(item.productId)!;
+      return {
+        mrp: toNumber(product.mrp),
+        sellingPrice: toNumber(product.sellingPrice),
+        quantity: item.quantity,
+      };
+    });
+
+    const prelimTotals = calculateOrderTotals(pricingItems, 0);
     const deliveryCharge = getDeliveryCharge(
       prelimTotals.subtotal,
       deliveryChargeRate,
       freeDeliveryAbove,
-      input.fulfillmentType
+      input.fulfillmentType as 'DELIVERY' | 'PICKUP'
     );
-
-    const totals = calculateOrderTotals(itemsForPricing, deliveryCharge);
+    const totals = calculateOrderTotals(pricingItems, deliveryCharge);
 
     // 5. Validate minimum order value
     if (totals.subtotal < minOrderValue) {
@@ -170,12 +147,52 @@ export async function createOrder(input: CheckoutInput): Promise<OrderResult> {
       customer = newCustomer;
     }
 
-    // 7. Save/update address for delivery orders
-    let addressSnapshot = null;
+    // 7. Verify Location & Save/update address for delivery orders
+    let addressSnapshot: Record<string, unknown> | null = null;
+    let resolvedStateId: number | null = null;
+    let resolvedCityId: number | null = null;
+
     if (input.fulfillmentType === 'DELIVERY' && input.address) {
+      let stateName = input.address.state || '';
+      let cityName = input.address.city;
+
+      if (input.address.stateId && input.address.cityId) {
+        // Server-side validation of state & city relation
+        const stateRow = await tx.query.states.findFirst({
+          where: and(eq(states.id, input.address.stateId), eq(states.isActive, true)),
+        });
+
+        if (!stateRow) {
+          throw new ValidationError('The selected state is invalid or inactive');
+        }
+
+        const cityRow = await tx.query.cities.findFirst({
+          where: and(
+            eq(cities.id, input.address.cityId),
+            eq(cities.stateId, input.address.stateId),
+            eq(cities.isActive, true)
+          ),
+        });
+
+        if (!cityRow) {
+          throw new ValidationError('The selected city does not belong to the selected state');
+        }
+
+        resolvedStateId = stateRow.id;
+        resolvedCityId = cityRow.id;
+        stateName = stateRow.name;
+        cityName = cityRow.name;
+      }
+
       addressSnapshot = {
+        stateId: resolvedStateId,
+        cityId: resolvedCityId,
+        deliveryStateName: stateName,
+        deliveryCityName: cityName,
+        deliveryAddress: input.address.address,
         address: input.address.address,
-        city: input.address.city,
+        city: cityName,
+        state: stateName,
         pincode: input.address.pincode,
       };
 
@@ -190,24 +207,29 @@ export async function createOrder(input: CheckoutInput): Promise<OrderResult> {
       if (!existingAddress) {
         await tx.insert(customerAddresses).values({
           customerId: customer.id,
+          stateId: resolvedStateId,
+          cityId: resolvedCityId,
           address: input.address.address,
-          city: input.address.city,
+          city: cityName,
+          state: stateName,
           pincode: input.address.pincode,
           isDefault: true,
         });
       }
     }
 
-    // 12. Generate invoice number
+    // 8. Generate invoice number
     const invoiceNumber = await generateInvoiceNumber();
 
-    // 8. Create order with snapshots
+    // 9. Create order with status = 'NEW'
     const [order] = await tx
       .insert(orders)
       .values({
         invoiceNumber,
         customerId: customer.id,
-        orderStatus: 'PENDING' as OrderStatus,
+        stateId: resolvedStateId,
+        cityId: resolvedCityId,
+        orderStatus: 'NEW' as OrderStatus,
         fulfillmentType: input.fulfillmentType,
         subtotal: String(totals.subtotal),
         discountAmount: String(totals.totalDiscount),
@@ -222,7 +244,7 @@ export async function createOrder(input: CheckoutInput): Promise<OrderResult> {
       })
       .returning();
 
-    // 9. Create order items with price snapshots
+    // 10. Create order items with price snapshots
     const orderItemValues = input.items.map((item) => {
       const product = productMap.get(item.productId)!;
       const mrp = toNumber(product.mrp);
@@ -244,7 +266,7 @@ export async function createOrder(input: CheckoutInput): Promise<OrderResult> {
 
     await tx.insert(orderItems).values(orderItemValues);
 
-    // 10. Deduct inventory with audit trail
+    // 11. Deduct inventory with audit trail
     for (const item of input.items) {
       const product = productMap.get(item.productId)!;
       const newStock = product.stockQuantity - item.quantity;
@@ -271,16 +293,16 @@ export async function createOrder(input: CheckoutInput): Promise<OrderResult> {
       });
     }
 
-    // 11. Create status history
+    // 12. Create status history
     await tx.insert(orderStatusHistory).values({
       orderId: order.id,
       oldStatus: null,
-      newStatus: 'PENDING',
+      newStatus: 'NEW',
       changedBy: 'system',
-      note: 'Order placed',
+      note: 'Order placed by customer',
     });
 
-    logger.info('order.create', 'Order created successfully', {
+    logger.info('order.create', 'Order created successfully with status NEW', {
       orderId: order.id,
       invoiceNumber,
       customerId: customer.id,

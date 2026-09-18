@@ -1,6 +1,6 @@
 import { db } from '@/db';
-import { orders, products, customers } from '@/db/schema';
-import { eq, sql, gte, and } from 'drizzle-orm';
+import { orders, products, customers, deliveryPartners } from '@/db/schema';
+import { eq, sql, gte, and, inArray } from 'drizzle-orm';
 import { getSession } from '@/lib/auth/session';
 
 export async function GET() {
@@ -16,12 +16,13 @@ export async function GET() {
     const [
       todayOrdersResult,
       todaySalesResult,
-      pendingResult,
+      newOrdersResult,
       confirmedResult,
-      readyResult,
+      assignedResult,
       outForDeliveryResult,
-      completedTodayResult,
+      deliveredTodayResult,
       totalCustomersResult,
+      activePartnersResult,
       lowStockResult,
       recentOrders,
     ] = await Promise.all([
@@ -30,38 +31,43 @@ export async function GET() {
         .from(orders)
         .where(gte(orders.placedAt, today)),
 
-      // Today's sales total (completed orders)
+      // Today's sales total (delivered/completed orders)
       db.select({ total: sql<string>`COALESCE(SUM(total_amount::numeric), 0)` })
         .from(orders)
-        .where(and(gte(orders.placedAt, today), eq(orders.orderStatus, 'COMPLETED'))),
+        .where(and(gte(orders.placedAt, today), inArray(orders.orderStatus, ['DELIVERED', 'COMPLETED']))),
 
-      // Pending orders
+      // New / Pending orders
       db.select({ count: sql<number>`count(*)` })
         .from(orders)
-        .where(eq(orders.orderStatus, 'PENDING')),
+        .where(inArray(orders.orderStatus, ['NEW', 'PENDING'])),
 
       // Confirmed orders
       db.select({ count: sql<number>`count(*)` })
         .from(orders)
         .where(eq(orders.orderStatus, 'CONFIRMED')),
 
-      // Ready orders
+      // Assigned orders
       db.select({ count: sql<number>`count(*)` })
         .from(orders)
-        .where(sql`${orders.orderStatus} IN ('READY', 'READY_FOR_PICKUP')`),
+        .where(eq(orders.orderStatus, 'ASSIGNED')),
 
       // Out for delivery
       db.select({ count: sql<number>`count(*)` })
         .from(orders)
         .where(eq(orders.orderStatus, 'OUT_FOR_DELIVERY')),
 
-      // Completed today
+      // Delivered / Completed today
       db.select({ count: sql<number>`count(*)` })
         .from(orders)
-        .where(and(gte(orders.completedAt, today), eq(orders.orderStatus, 'COMPLETED'))),
+        .where(and(gte(orders.deliveredAt, today), inArray(orders.orderStatus, ['DELIVERED', 'COMPLETED']))),
 
       // Total customers
       db.select({ count: sql<number>`count(*)` }).from(customers),
+
+      // Active delivery partners
+      db.select({ count: sql<number>`count(*)` })
+        .from(deliveryPartners)
+        .where(eq(deliveryPartners.status, 'ACTIVE')),
 
       // Low stock products
       db.select({ count: sql<number>`count(*)` })
@@ -83,12 +89,15 @@ export async function GET() {
       dashboard: {
         todayOrders: Number(todayOrdersResult[0]?.count ?? 0),
         todaySales: Number(todaySalesResult[0]?.total ?? 0),
-        pendingOrders: Number(pendingResult[0]?.count ?? 0),
+        newOrders: Number(newOrdersResult[0]?.count ?? 0),
+        pendingOrders: Number(newOrdersResult[0]?.count ?? 0),
         confirmedOrders: Number(confirmedResult[0]?.count ?? 0),
-        readyOrders: Number(readyResult[0]?.count ?? 0),
+        assignedOrders: Number(assignedResult[0]?.count ?? 0),
         outForDelivery: Number(outForDeliveryResult[0]?.count ?? 0),
-        completedToday: Number(completedTodayResult[0]?.count ?? 0),
+        completedToday: Number(deliveredTodayResult[0]?.count ?? 0),
+        deliveredToday: Number(deliveredTodayResult[0]?.count ?? 0),
         totalCustomers: Number(totalCustomersResult[0]?.count ?? 0),
+        activeDeliveryPartners: Number(activePartnersResult[0]?.count ?? 0),
         lowStockProducts: Number(lowStockResult[0]?.count ?? 0),
         recentOrders,
       },

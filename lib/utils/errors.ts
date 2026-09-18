@@ -34,6 +34,12 @@ export class NotFoundError extends AppError {
   }
 }
 
+export class ProductNotFoundError extends AppError {
+  constructor(productId: number) {
+    super(`Product #${productId} not found`, 404, `Product #${productId} could not be found.`);
+  }
+}
+
 export class UnauthorizedError extends AppError {
   constructor(message: string = 'Unauthorized') {
     super(message, 401, 'Please log in to continue.');

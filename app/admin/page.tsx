@@ -20,12 +20,16 @@ import { gsap, isReducedMotion } from '@/lib/motion';
 interface DashboardData {
   todayOrders: number;
   todaySales: number;
+  newOrders: number;
   pendingOrders: number;
   confirmedOrders: number;
+  assignedOrders: number;
   readyOrders: number;
   outForDelivery: number;
   completedToday: number;
+  deliveredToday: number;
   totalCustomers: number;
+  activeDeliveryPartners: number;
   lowStockProducts: number;
   recentOrders: Array<{
     id: number;
@@ -158,19 +162,29 @@ export default function AdminDashboardPage() {
 
   const fulfillmentCounters = [
     {
+      label: 'New Orders',
+      value: d?.newOrders ?? 0,
+      href: '/admin/orders?status=NEW',
+    },
+    {
       label: 'Confirmed Orders',
       value: d?.confirmedOrders ?? 0,
       href: '/admin/orders?status=CONFIRMED',
     },
     {
-      label: 'Ready for Dispatch',
-      value: d?.readyOrders ?? 0,
-      href: '/admin/orders?status=READY',
+      label: 'Assigned Orders',
+      value: d?.assignedOrders ?? 0,
+      href: '/admin/orders?status=ASSIGNED',
     },
     {
       label: 'Out for Delivery',
       value: d?.outForDelivery ?? 0,
       href: '/admin/orders?status=OUT_FOR_DELIVERY',
+    },
+    {
+      label: 'Active Delivery Partners',
+      value: d?.activeDeliveryPartners ?? 0,
+      href: '/admin/delivery-partners',
     },
     {
       label: 'Low Stock Alerts',
@@ -230,7 +244,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Fulfillment Status Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         {fulfillmentCounters.map((card) => (
           <Link
             key={card.label}
