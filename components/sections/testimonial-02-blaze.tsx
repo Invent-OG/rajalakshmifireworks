@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
+import Link from '@/components/ui/link';
 import { Shield, Clock, ArrowUpRight, Star, MapPin } from 'lucide-react';
 import { SectionTag } from '@/components/ui/section-tag';
 import { useTranslations, useLocale } from '@/lib/i18n/context';

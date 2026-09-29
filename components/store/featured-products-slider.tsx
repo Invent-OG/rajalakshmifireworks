@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState, useEffect, useCallback } from 'react';
-import Link from 'next/link';
+import Link from '@/components/ui/link';
 import { ChevronLeft, ChevronRight, ArrowRight, Sparkles } from 'lucide-react';
 import { ProductCard } from '@/components/store/product-card';
 import { SectionTag } from '@/components/ui/section-tag';

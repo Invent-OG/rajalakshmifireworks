@@ -294,7 +294,6 @@ export function ProductMediaManager({
                       </span>
                     </div>
                   ) : (
-                    // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={item.url}
                       alt={item.alt || 'Product media'}
@@ -450,7 +449,6 @@ export function ProductMediaManager({
                     <video src={previewMedia.url} controls autoPlay className="w-full h-full object-contain" />
                   )
                 ) : (
-                  // eslint-disable-next-line @next/next/no-img-element
                   <img src={previewMedia.url} alt="Preview" className="w-full h-full object-contain" />
                 )}
               </div>

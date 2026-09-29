@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useMemo, useRef } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
+import Link from '@/components/ui/link';
+import Image from '@/components/ui/image';
 import {
   Download,
   Printer,

@@ -1,7 +1,7 @@
 import { defineMiddleware } from 'astro:middleware';
 import { getSessionFromToken } from '@/lib/auth/session';
 import { DEFAULT_LOCALE, isValidLocale } from '@/lib/i18n/config';
-import { cookieStorage, type CookieStoreLike } from '@/src/shims/next-headers';
+import { cookieStorage, type CookieStoreLike } from '@/lib/cookies';
 
 export const onRequest = defineMiddleware(async (context, next) => {
   const url = context.url;

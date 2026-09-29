@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import Link from '@/components/ui/link';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import { getCategory3DImage } from '@/components/ui/category-icon';
 import { useLocale, useTranslations } from '@/lib/i18n/context';

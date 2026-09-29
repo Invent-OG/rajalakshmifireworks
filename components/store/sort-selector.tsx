@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from '@/lib/navigation';
 import { ArrowUpDown, Check, ChevronDown } from 'lucide-react';
 import { useTranslations } from '@/lib/i18n/context';
 

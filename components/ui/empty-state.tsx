@@ -1,6 +1,6 @@
 import { Sparkles } from 'lucide-react';
 import { StoreButton } from '@/components/ui/store-button';
-import Link from 'next/link';
+import Link from '@/components/ui/link';
 
 interface EmptyStateProps {
   icon?: React.ComponentType<{ className?: string }>;

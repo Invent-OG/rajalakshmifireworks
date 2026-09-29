@@ -6,23 +6,21 @@ import { CartProvider } from '@/hooks/use-cart';
 import { I18nProvider } from '@/lib/i18n/context';
 import { Toaster } from 'sonner';
 
+export const sharedQueryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60 * 1000, // 1 minute
+      gcTime: 5 * 60 * 1000, // 5 minutes
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
+
 export function Providers({ children }: { children: React.ReactNode }) {
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            staleTime: 60 * 1000, // 1 minute
-            gcTime: 5 * 60 * 1000, // 5 minutes
-            retry: 1,
-            refetchOnWindowFocus: false,
-          },
-        },
-      })
-  );
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={sharedQueryClient}>
       <I18nProvider>
         <CartProvider>
           {children}

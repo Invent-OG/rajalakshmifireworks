@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname } from '@/lib/navigation';
 import { QuickCartWidget } from '@/components/store/quick-cart-widget';
 import { useCart, useIsHydrated } from '@/hooks/use-cart';
 import { ShoppingBag, ChevronUp, CreditCard } from 'lucide-react';
@@ -9,7 +9,7 @@ import { useGSAP } from '@gsap/react';
 import { gsap, isReducedMotion } from '@/lib/motion';
 import { Portal } from '@/components/ui/portal';
 import NumberFlow from '@number-flow/react';
-import Link from 'next/link';
+import Link from '@/components/ui/link';
 import { useTranslations, useLocale } from '@/lib/i18n/context';
 
 export function QuickCartSidebar() {

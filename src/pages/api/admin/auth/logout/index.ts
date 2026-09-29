@@ -1,4 +1,11 @@
-import * as route from '@/app/api/admin/auth/logout/route';
-import { createAstroEndpoint } from '@/src/lib/astro-api-adapter';
+import { wrapHandler } from '@/src/lib/astro-api';
+import { clearSessionCookie } from '@/lib/auth/session';
 
-export const ALL = createAstroEndpoint(route);
+async function _POST() {
+  await clearSessionCookie();
+  return Response.json({ success: true });
+}
+
+
+// Native Astro APIRoute exports
+export const POST = wrapHandler(_POST);

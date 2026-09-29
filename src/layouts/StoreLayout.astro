@@ -1,6 +1,7 @@
 ---
 import RootLayout from './RootLayout.astro';
-import { StoreShell } from '@/components/store/store-shell';
+import { StoreHeader } from '@/components/store/store-header';
+import { StoreFooter } from '@/components/store/store-footer';
 
 interface Props {
   title?: string;
@@ -13,7 +14,12 @@ const { title, description, keywords, locale = 'en' } = Astro.props;
 ---
 
 <RootLayout title={title} description={description} keywords={keywords} locale={locale}>
-  <StoreShell client:load>
-    <slot />
-  </StoreShell>
+  <div class="min-h-screen flex flex-col bg-background text-foreground">
+    <StoreHeader client:load />
+    <main class="flex-1 pb-12 md:pb-6">
+      <slot />
+    </main>
+    <StoreFooter client:load />
+  </div>
 </RootLayout>
+

@@ -1,7 +1,7 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import Link from '@/components/ui/link';
+import { usePathname } from '@/lib/navigation';
 import { Home, LayoutGrid, Search, Truck, ShoppingBag } from 'lucide-react';
 import { useCart, useIsHydrated } from '@/hooks/use-cart';
 import { useTranslations } from '@/lib/i18n/context';

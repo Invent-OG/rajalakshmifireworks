@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Providers } from '@/components/providers';
-import AdminLayoutComponent from '@/app/admin/layout';
+import AdminLayoutComponent from './admin-layout';
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   return (
@@ -13,3 +13,14 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     </Providers>
   );
 }
+
+export function withAdminShell<P extends object>(Component: React.ComponentType<P>) {
+  return function WrappedAdminPage(props: P) {
+    return (
+      <AdminShell>
+        <Component {...props} />
+      </AdminShell>
+    );
+  };
+}
+

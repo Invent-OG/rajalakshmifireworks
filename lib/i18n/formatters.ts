@@ -1,4 +1,4 @@
-import { Locale } from './config';
+import type { Locale } from './config';
 
 export interface LocalizedEntity {
   name: string;

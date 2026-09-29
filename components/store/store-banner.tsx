@@ -3,7 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Banner } from '@/components/ui/banner';
 import { Sparkles, ArrowRight } from 'lucide-react';
-import Link from 'next/link';
+import Link from '@/components/ui/link';
 import { useLocale, useTranslations } from '@/lib/i18n/context';
 
 interface StoreSettingsResponse {

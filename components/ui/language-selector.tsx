@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useLocale, useChangeLocale } from '@/lib/i18n/context';
-import { LOCALES, LOCALE_LABELS, Locale } from '@/lib/i18n/config';
+import { LOCALES, LOCALE_LABELS, type Locale } from '@/lib/i18n/config';
 import { Globe, ChevronDown, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 

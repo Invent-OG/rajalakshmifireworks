@@ -1,6 +1,6 @@
 ---
 import AdminLayout from '@/src/layouts/AdminLayout.astro';
-import CustomerDetailPage from '@/app/admin/customers/[id]/page';
+import CustomerDetailPage from '@/components/admin/admin-customer-detail';
 
 const { id } = Astro.params;
 const paramsPromise = Promise.resolve({ id: id as string });

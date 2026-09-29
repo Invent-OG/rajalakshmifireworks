@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { NextRequest } from 'next/server';
-import { GET, POST } from '@/app/api/whatsapp/webhook/route';
+import { GET, POST } from '@/src/pages/api/whatsapp/webhook/index';
 import { _resetWhatsAppConfigCache } from '@/lib/whatsapp/config';
 
 describe('WhatsApp Webhook Route Handler', () => {
@@ -22,7 +21,7 @@ describe('WhatsApp Webhook Route Handler', () => {
       const url = new URL(
         'http://localhost:3000/api/whatsapp/webhook?hub.mode=subscribe&hub.verify_token=secret_webhook_verify_token_xyz&hub.challenge=11582012'
       );
-      const req = new NextRequest(url);
+      const req = new Request(url);
 
       const res = await GET(req);
       expect(res.status).toBe(200);
@@ -34,7 +33,7 @@ describe('WhatsApp Webhook Route Handler', () => {
       const url = new URL(
         'http://localhost:3000/api/whatsapp/webhook?hub.mode=subscribe&hub.verify_token=wrong_token&hub.challenge=11582012'
       );
-      const req = new NextRequest(url);
+      const req = new Request(url);
 
       const res = await GET(req);
       expect(res.status).toBe(403);
@@ -44,7 +43,7 @@ describe('WhatsApp Webhook Route Handler', () => {
       const url = new URL(
         'http://localhost:3000/api/whatsapp/webhook?hub.mode=other&hub.verify_token=secret_webhook_verify_token_xyz&hub.challenge=11582012'
       );
-      const req = new NextRequest(url);
+      const req = new Request(url);
 
       const res = await GET(req);
       expect(res.status).toBe(403);
@@ -53,7 +52,7 @@ describe('WhatsApp Webhook Route Handler', () => {
 
   describe('POST Event Ingestion', () => {
     it('handles malformed JSON gracefully with 400', async () => {
-      const req = new NextRequest('http://localhost:3000/api/whatsapp/webhook', {
+      const req = new Request('http://localhost:3000/api/whatsapp/webhook', {
         method: 'POST',
         body: 'invalid-json',
       });
@@ -63,7 +62,7 @@ describe('WhatsApp Webhook Route Handler', () => {
     });
 
     it('handles unrecognized payload safely with 200 status', async () => {
-      const req = new NextRequest('http://localhost:3000/api/whatsapp/webhook', {
+      const req = new Request('http://localhost:3000/api/whatsapp/webhook', {
         method: 'POST',
         body: JSON.stringify({ object: 'unknown_type' }),
       });

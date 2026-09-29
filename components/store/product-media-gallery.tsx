@@ -61,7 +61,6 @@ export function ProductMediaGallery({
               )}
             </div>
           ) : (
-            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={activeMedia.url}
               alt={activeMedia.alt || productName}
@@ -129,7 +128,6 @@ export function ProductMediaGallery({
                     <span className="text-[9px] font-semibold mt-1 text-white">Video</span>
                   </div>
                 ) : (
-                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={item.url}
                     alt={item.alt || `Thumbnail ${idx + 1}`}

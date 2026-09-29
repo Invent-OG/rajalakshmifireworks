@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Sparkle, LucideIcon } from 'lucide-react';
+import { Sparkle, type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface SectionTagProps {

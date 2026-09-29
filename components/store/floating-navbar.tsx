@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useRef, useEffect, useMemo } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import Link from '@/components/ui/link';
+import { usePathname } from '@/lib/navigation';
 import { useQuery } from '@tanstack/react-query';
 import {
   Search,
@@ -586,7 +586,6 @@ export function FloatingNavbar() {
                       >
                         {/* Thumbnail Image Container */}
                         <div className="relative aspect-[16/10] w-full rounded-[20px] sm:rounded-[22px] overflow-hidden bg-neutral-100 border border-neutral-200/80 shadow-xs">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={card.image}
                             alt={card.title}

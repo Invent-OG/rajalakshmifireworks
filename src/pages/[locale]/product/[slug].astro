@@ -4,7 +4,7 @@ import { db } from '@/db';
 import { products } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { formatCurrency, toNumber } from '@/lib/utils/format';
-import { ProductDetailClient } from '@/app/[locale]/(store)/product/[slug]/product-detail-client';
+import { ProductDetailClient } from '@/components/store/product-detail-client';
 import { ProductMediaGallery } from '@/components/store/product-media-gallery';
 import { PriceDisplay } from '@/components/ui/price-display';
 import { StatusBadge } from '@/components/ui/badge';

@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import Link from 'next/link';
+import Link from '@/components/ui/link';
 import { ChevronLeft, ChevronRight, Pause, Play, ArrowRight } from 'lucide-react';
-import { HeroSettingsConfig, DEFAULT_HERO_CONFIG } from '@/lib/hero-config';
+import { type HeroSettingsConfig, DEFAULT_HERO_CONFIG } from '@/lib/hero-config';
 import { useLocale, useTranslations } from '@/lib/i18n/context';
 
 interface OrganicHeroCarouselProps {

@@ -1,4 +1,22 @@
-import * as route from '@/app/api/categories/route';
-import { createAstroEndpoint } from '@/src/lib/astro-api-adapter';
+import { wrapHandler } from '@/src/lib/astro-api';
+import { db } from '@/db';
+import { categories } from '@/db/schema';
+import { eq, asc } from 'drizzle-orm';
 
-export const ALL = createAstroEndpoint(route);
+async function _GET() {
+  try {
+    const categoryList = await db.query.categories.findMany({
+      where: eq(categories.isActive, true),
+      orderBy: [asc(categories.sortOrder), asc(categories.name)],
+    });
+
+    return Response.json({ categories: categoryList });
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    return Response.json({ message: 'Failed to load categories' }, { status: 500 });
+  }
+}
+
+
+// Native Astro APIRoute exports
+export const GET = wrapHandler(_GET);

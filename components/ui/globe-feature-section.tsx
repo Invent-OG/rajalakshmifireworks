@@ -1,10 +1,10 @@
 "use client";
 
-import Link from "next/link";
+import Link from '@/components/ui/link';
 import { StoreButton } from "@/components/ui/store-button";
 import { ArrowRight } from "lucide-react";
 import { SectionTag } from "@/components/ui/section-tag";
-import createGlobe, { COBEOptions } from "cobe";
+import createGlobe, { type COBEOptions } from "cobe";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useTranslations, useLocale } from "@/lib/i18n/context";

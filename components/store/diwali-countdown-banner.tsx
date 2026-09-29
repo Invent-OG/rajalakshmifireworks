@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import Link from '@/components/ui/link';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import { useLocale } from '@/lib/i18n/context';
 
@@ -76,7 +76,6 @@ export function DiwaliCountdownBanner({
     <section className="w-full max-w-[1280px] mx-auto px-3 sm:px-6 md:px-8 select-none">
       <div className="relative rounded-[28px] sm:rounded-[36px] md:rounded-[44px] overflow-hidden shadow-2xl border border-amber-500/30 bg-neutral-950 text-white min-h-[440px] sm:min-h-[480px] md:min-h-[520px] flex flex-col justify-end">
         {/* ── Background Poster Image ── */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/images/banners/diwali-countdown-bg.jpg"
           alt="Diwali Countdown Celebration"

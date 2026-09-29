@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
-import Link from 'next/link';
+import Link from '@/components/ui/link';
 import { useCart, useCartItemQuantity } from '@/hooks/use-cart';
 import { toNumber, formatCurrency } from '@/lib/utils/format';
 import { ProductVisualPlaceholder } from '@/components/ui/category-icon';
@@ -93,7 +93,6 @@ export function ProductCard({ product }: ProductCardProps) {
           {/* ── 1. Thumbnail Stack & Curved Inverted Category Tab ── */}
           <div className="_thumbnail-stack relative">
             {img1 ? (
-              /* eslint-disable-next-line @next/next/no-img-element */
               <img
                 src={img1}
                 alt={displayName}

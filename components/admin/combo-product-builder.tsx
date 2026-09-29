@@ -266,7 +266,6 @@ export function ComboProductBuilder({
 
                       <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center shrink-0 overflow-hidden relative">
                         {imageUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
                           <img src={imageUrl} alt={prod?.name || ''} className="w-full h-full object-cover" />
                         ) : (
                           <ProductVisualPlaceholder name={prod?.name || 'Item'} className="w-full h-full" />
@@ -445,7 +444,6 @@ export function ComboProductBuilder({
                         <div className="flex items-center gap-3 min-w-0 flex-1">
                           <div className="h-11 w-11 rounded-xl bg-neutral-100 flex items-center justify-center shrink-0 overflow-hidden">
                             {imageUrl ? (
-                              // eslint-disable-next-line @next/next/no-img-element
                               <img src={imageUrl} alt={product.name} className="w-full h-full object-cover" />
                             ) : (
                               <ProductVisualPlaceholder name={product.name} className="w-full h-full" />

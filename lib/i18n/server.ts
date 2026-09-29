@@ -1,4 +1,4 @@
-import { Locale, DEFAULT_LOCALE, isValidLocale } from './config';
+import { type Locale, DEFAULT_LOCALE, isValidLocale } from './config';
 import enMessages from '@/messages/en.json';
 import taMessages from '@/messages/ta.json';
 

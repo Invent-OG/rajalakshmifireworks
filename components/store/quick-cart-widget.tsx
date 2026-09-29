@@ -1,8 +1,8 @@
 'use client';
 
 import { useRef } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
+import Link from '@/components/ui/link';
+import Image from '@/components/ui/image';
 import NumberFlow from '@number-flow/react';
 import { ShoppingCart, X, CreditCard, ShoppingBag, ArrowRight, Sparkles } from 'lucide-react';
 import { useCart, useIsHydrated } from '@/hooks/use-cart';

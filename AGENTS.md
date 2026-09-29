@@ -1,9 +1,8 @@
-<!-- BEGIN:nextjs-agent-rules -->
+# Astro Project Guidelines
 
-# This is NOT the Next.js you know
-
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
-
-This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
-
-<!-- END:nextjs-agent-rules -->
+- Framework: Astro SSR with Node standalone adapter (`@astrojs/node`).
+- UI Components: React islands using `@astrojs/react`.
+- Routing: File-based routing under `src/pages/`.
+- API Endpoints: File-based endpoints under `src/pages/api/` exporting HTTP method handlers (`GET`, `POST`, `PUT`, `DELETE`).
+- Styling: Tailwind CSS v4 with modern CSS variables.
+- Database: Drizzle ORM with PostgreSQL.

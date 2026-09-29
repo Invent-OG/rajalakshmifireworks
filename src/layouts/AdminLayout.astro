@@ -1,6 +1,5 @@
 ---
 import RootLayout from './RootLayout.astro';
-import { AdminShell } from '@/components/admin/admin-shell';
 
 interface Props {
   title?: string;
@@ -10,7 +9,6 @@ const { title = 'Admin Dashboard | Rajalakshmi Fireworks' } = Astro.props;
 ---
 
 <RootLayout title={title}>
-  <AdminShell client:load>
-    <slot />
-  </AdminShell>
+  <slot />
 </RootLayout>
+

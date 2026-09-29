@@ -1,8 +1,8 @@
 'use client';
 
 import React, { createContext, useContext, useMemo, useCallback } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
-import { Locale, DEFAULT_LOCALE, isValidLocale } from './config';
+import { usePathname, useRouter } from '@/lib/navigation';
+import { type Locale, DEFAULT_LOCALE, isValidLocale } from './config';
 import enMessages from '@/messages/en.json';
 import taMessages from '@/messages/ta.json';
 

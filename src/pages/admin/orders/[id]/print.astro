@@ -5,7 +5,7 @@ import { orders } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { formatCurrency, formatDateTime, toNumber } from '@/lib/utils/format';
 import { APP_CONFIG } from '@/lib/constants/config';
-import { PrintButton } from '@/app/admin/orders/[id]/print/print-button';
+import { PrintButton } from '@/components/admin/print-button';
 
 const { id } = Astro.params;
 const orderId = parseInt(id as string, 10);
