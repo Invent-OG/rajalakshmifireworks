@@ -1,0 +1,8 @@
+---
+import AdminLayout from '@/src/layouts/AdminLayout.astro';
+import NewProductPage from '@/app/admin/products/new/page';
+---
+
+<AdminLayout title="Add Product | Rajalakshmi Fireworks">
+  <NewProductPage client:only="react" />
+</AdminLayout>

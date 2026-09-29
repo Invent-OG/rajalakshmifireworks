@@ -1,0 +1,19 @@
+---
+import RootLayout from './RootLayout.astro';
+import { StoreShell } from '@/components/store/store-shell';
+
+interface Props {
+  title?: string;
+  description?: string;
+  keywords?: string[];
+  locale?: string;
+}
+
+const { title, description, keywords, locale = 'en' } = Astro.props;
+---
+
+<RootLayout title={title} description={description} keywords={keywords} locale={locale}>
+  <StoreShell client:load>
+    <slot />
+  </StoreShell>
+</RootLayout>

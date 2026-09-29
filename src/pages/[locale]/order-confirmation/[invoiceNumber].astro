@@ -1,0 +1,213 @@
+---
+import StoreLayout from '@/src/layouts/StoreLayout.astro';
+import { db } from '@/db';
+import { orders } from '@/db/schema';
+import { eq } from 'drizzle-orm';
+import { formatCurrency, formatDateTime, toNumber } from '@/lib/utils/format';
+import { generateWhatsAppUrl } from '@/lib/services/whatsapp-service';
+import { CheckCircle2, MessageSquare, ArrowRight, Truck, Store } from 'lucide-react';
+import { StoreButton } from '@/components/ui/store-button';
+import { OrderSuccessMotion } from '@/components/store/order-success-motion';
+import { OrderFireworksCelebration } from '@/components/store/order-fireworks-celebration';
+import { isValidLocale } from '@/lib/i18n/config';
+import { getTranslations } from '@/lib/i18n/server';
+
+const { locale = 'en', invoiceNumber } = Astro.params;
+if (!isValidLocale(locale)) {
+  return Astro.redirect('/en');
+}
+
+if (!invoiceNumber) {
+  return Astro.redirect(`/${locale}/track-order`);
+}
+
+const order = await db.query.orders.findFirst({
+  where: eq(orders.invoiceNumber, invoiceNumber),
+  with: { items: true },
+});
+
+if (!order) {
+  return Astro.redirect(`/${locale}/track-order`);
+}
+
+const tNav = getTranslations(locale, 'navigation');
+const tTrack = getTranslations(locale, 'trackOrder');
+const tCart = getTranslations(locale, 'cart');
+const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`);
+
+const whatsappUrl = generateWhatsAppUrl({
+  invoiceNumber: order.invoiceNumber,
+  customerName: order.customerNameSnapshot,
+  items: order.items.map((item) => ({
+    name: item.productNameSnapshot,
+    quantity: item.quantity,
+    price: toNumber(item.sellingPriceSnapshot),
+  })),
+  subtotal: toNumber(order.subtotal),
+  discountAmount: toNumber(order.discountAmount),
+  deliveryCharge: toNumber(order.deliveryCharge),
+  totalAmount: toNumber(order.totalAmount),
+  fulfillmentType: order.fulfillmentType as 'DELIVERY' | 'PICKUP',
+  address: order.addressSnapshot as { address: string; city: string; pincode: string } | null,
+});
+---
+
+<StoreLayout
+  title={locale === 'ta' ? 'முன்பதிவு உறுதிசெய்யப்பட்டது | ராஜலக்ஷ்மி பட்டாசு' : 'Order Confirmed | Rajalakshmi Fireworks'}
+  locale={locale}
+>
+  <OrderSuccessMotion client:load>
+    {/* Sivakasi Celebratory Fireworks Effect via fireworks-js */}
+    <OrderFireworksCelebration client:load />
+
+    <div class="mx-auto max-w-2xl px-4 sm:px-6 py-12 space-y-8 relative z-10 font-sans">
+      {/* Success Celebration Header */}
+      <div class="text-center space-y-3">
+        <div class="success-icon inline-flex items-center justify-center h-16 w-16 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 mx-auto shadow-sm">
+          <CheckCircle2 className="h-8 w-8" />
+        </div>
+
+        <div class="success-title space-y-1.5">
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
+            {locale === 'ta' ? 'முன்பதிவு விசாரணை பதிவு செய்யப்பட்டது!' : 'Order registered'}
+          </h1>
+
+          <p class="text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed">
+            {locale === 'ta'
+              ? `நன்றி ${order.customerNameSnapshot}! உங்கள் தீபாவளி முன்பதிவு விசாரணை சிவகாசி அலுவலகத்தில் பெறப்பட்டுள்ளது.`
+              : `Thank you, ${order.customerNameSnapshot}. Your booking has been received at our Sivakasi order desk.`}
+          </p>
+        </div>
+      </div>
+
+      {/* WhatsApp Confirmation CTA Card */}
+      <div class="success-whatsapp p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white shadow-sm text-center space-y-4">
+        <div class="space-y-1">
+          <h2 class="font-bold text-base text-foreground font-heading">
+            {locale === 'ta' ? 'வாட்ஸ்அப்பில் உறுதிசெய்யவும்' : 'Confirm on WhatsApp'}
+          </h2>
+          <p class="text-xs sm:text-sm text-muted-foreground max-w-sm mx-auto">
+            {locale === 'ta'
+              ? 'உடனடி ரசீது மற்றும் இருப்பு உறுதிப்படுத்தலுக்கு உங்கள் முன்பதிவு எண்ணை வாட்ஸ்அப் மூலம் அனுப்பவும்.'
+              : 'Send your order reference to our dispatch counter for immediate invoice verification.'}
+          </p>
+        </div>
+
+        <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" class="inline-block">
+          <StoreButton client:load size="lg" variant="primary">
+            <MessageSquare className="h-4.5 w-4.5" />
+            {locale === 'ta' ? 'வாட்ஸ்அப் உறுதிப்படுத்தலைத் திறக்க' : 'Open WhatsApp Confirmation'}
+          </StoreButton>
+        </a>
+      </div>
+
+      {/* Itemized Order Receipt Card */}
+      <div class="success-receipt p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white space-y-6 shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-neutral-100 gap-2">
+          <div>
+            <span class="text-xs uppercase font-bold text-neutral-400 tracking-wider">
+              {tTrack('orderId')}
+            </span>
+            <p class="font-mono font-bold text-lg text-foreground mt-0.5">
+              {order.invoiceNumber}
+            </p>
+          </div>
+          <div class="text-left sm:text-right">
+            <span class="text-xs uppercase font-bold text-neutral-400 tracking-wider">
+              {tTrack('bookingDate')}
+            </span>
+            <p class="text-xs text-muted-foreground mt-0.5">
+              {formatDateTime(order.placedAt)}
+            </p>
+          </div>
+        </div>
+
+        {/* Items List */}
+        <div>
+          <h3 class="text-xs uppercase font-bold text-neutral-400 tracking-wider mb-3">
+            {tTrack('itemsOrdered')}
+          </h3>
+          <div class="space-y-2.5">
+            {order.items.map((item) => (
+              <div class="flex justify-between items-center text-xs sm:text-sm">
+                <span class="text-foreground font-medium">
+                  {item.productNameSnapshot} <span class="text-muted-foreground font-normal font-mono">× {item.quantity}</span>
+                </span>
+                <span class="font-bold text-foreground font-mono">
+                  {formatCurrency(toNumber(item.lineTotal))}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Calculation Table */}
+        <div class="border-t border-neutral-100 pt-4 space-y-2 text-xs sm:text-sm">
+          <div class="flex justify-between">
+            <span class="text-muted-foreground">{tCart('estimatedTotal')}</span>
+            <span class="font-semibold font-mono">{formatCurrency(toNumber(order.subtotal))}</span>
+          </div>
+
+          {toNumber(order.discountAmount) > 0 && (
+            <div class="flex justify-between text-emerald-700 font-semibold">
+              <span>{tCart('totalSavings')}</span>
+              <span class="font-mono">-{formatCurrency(toNumber(order.discountAmount))}</span>
+            </div>
+          )}
+
+          {toNumber(order.deliveryCharge) > 0 && (
+            <div class="flex justify-between">
+              <span class="text-muted-foreground">{locale === 'ta' ? 'பார்சல் கட்டணம்' : 'Delivery'}</span>
+              <span class="font-mono">{formatCurrency(toNumber(order.deliveryCharge))}</span>
+            </div>
+          )}
+
+          <div class="border-t border-neutral-100 dark:border-neutral-800 pt-3 flex justify-between font-bold text-base text-foreground">
+            <span>{locale === 'ta' ? 'செலுத்த வேண்டிய உத்தேச தொகை' : 'Payable Amount'}</span>
+            <span class="font-mono">{formatCurrency(toNumber(order.totalAmount))}</span>
+          </div>
+        </div>
+
+        {/* Fulfillment Note */}
+        <div class="p-4 rounded-[20px] sm:rounded-[22px] bg-neutral-50 dark:bg-neutral-800/60 text-xs text-muted-foreground flex items-center gap-3">
+          {order.fulfillmentType === 'DELIVERY' ? (
+            <div class="flex items-center gap-3">
+              <Truck className="h-4.5 w-4.5 text-foreground shrink-0" />
+              <span>
+                <strong>{locale === 'ta' ? 'வீட்டு முகவரி டெலிவரி:' : 'Home Delivery:'}</strong>{' '}
+                {locale === 'ta'
+                  ? 'எங்கள் பார்சல் முகவர் வாட்ஸ்அப் மூலம் லாரி சர்வீஸ் மற்றும் பார்சல் விவரங்களை ஒருங்கிணைப்பார்.'
+                  : 'Our dispatch agent will coordinate shipment details via WhatsApp.'}
+              </span>
+            </div>
+          ) : (
+            <div class="flex items-center gap-3">
+              <Store className="h-4.5 w-4.5 text-foreground shrink-0" />
+              <span>
+                <strong>{locale === 'ta' ? 'சிவகாசி நேரடி கவுண்டர்:' : 'Store Pickup:'}</strong>{' '}
+                {locale === 'ta'
+                  ? 'சிவகாசி அலுவலகத்தில் உங்கள் முன்பதிவு எண்ணைக் காண்பித்து பட்டாசுகளைப் பெற்றுக்கொள்ளலாம்.'
+                  : 'Please present your invoice number at our Sivakasi counter to collect.'}
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Navigation Buttons */}
+      <div class="success-nav flex flex-col sm:flex-row gap-4 justify-center pt-2">
+        <a href={getHref('/products')}>
+          <StoreButton client:load variant="outline" size="md" className="w-full sm:w-auto">
+            {locale === 'ta' ? 'மேலும் பட்டாசுகளைப் பார்க்க' : 'Continue shopping'}
+          </StoreButton>
+        </a>
+        <a href={getHref('/track-order')}>
+          <StoreButton client:load variant="secondary" size="md" className="w-full sm:w-auto">
+            {tTrack('title')}
+            <ArrowRight className="h-4 w-4" />
+          </StoreButton>
+        </a>
+      </div>
+    </div>
+  </OrderSuccessMotion>
+</StoreLayout>

@@ -40,13 +40,13 @@ export function getWhatsAppConfig(): WhatsAppConfig {
 
   const parsed = whatsappEnvSchema.safeParse({
     WHATSAPP_ENABLED: process.env.WHATSAPP_ENABLED ?? 'false',
-    WHATSAPP_ACCESS_TOKEN: process.env.WHATSAPP_ACCESS_TOKEN,
-    WHATSAPP_PHONE_NUMBER_ID: process.env.WHATSAPP_PHONE_NUMBER_ID,
-    WHATSAPP_BUSINESS_ACCOUNT_ID: process.env.WHATSAPP_BUSINESS_ACCOUNT_ID,
-    WHATSAPP_VERIFY_TOKEN: process.env.WHATSAPP_VERIFY_TOKEN,
+    WHATSAPP_ACCESS_TOKEN: process.env.WHATSAPP_ACCESS_TOKEN || undefined,
+    WHATSAPP_PHONE_NUMBER_ID: process.env.WHATSAPP_PHONE_NUMBER_ID || undefined,
+    WHATSAPP_BUSINESS_ACCOUNT_ID: process.env.WHATSAPP_BUSINESS_ACCOUNT_ID || undefined,
+    WHATSAPP_VERIFY_TOKEN: process.env.WHATSAPP_VERIFY_TOKEN || undefined,
     WHATSAPP_API_VERSION: process.env.WHATSAPP_API_VERSION || 'v22.0',
-    WHATSAPP_APP_SECRET: process.env.WHATSAPP_APP_SECRET,
-    WHATSAPP_MOCK_MODE: process.env.WHATSAPP_MOCK_MODE,
+    WHATSAPP_APP_SECRET: process.env.WHATSAPP_APP_SECRET || undefined,
+    WHATSAPP_MOCK_MODE: process.env.WHATSAPP_MOCK_MODE || undefined,
   });
 
   const raw = parsed.success

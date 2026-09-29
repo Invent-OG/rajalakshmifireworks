@@ -1,0 +1,8 @@
+---
+import AdminLayout from '@/src/layouts/AdminLayout.astro';
+import BulkUploadPage from '@/app/admin/products/bulk-upload/page';
+---
+
+<AdminLayout title="Bulk Excel Upload | Rajalakshmi Fireworks">
+  <BulkUploadPage client:only="react" />
+</AdminLayout>

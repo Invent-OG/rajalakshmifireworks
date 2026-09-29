@@ -1,0 +1,17 @@
+---
+import StoreLayout from '@/src/layouts/StoreLayout.astro';
+import CheckoutPage from '@/app/[locale]/(store)/checkout/page';
+import { isValidLocale } from '@/lib/i18n/config';
+import { getTranslations } from '@/lib/i18n/server';
+
+const { locale = 'en' } = Astro.params;
+if (!isValidLocale(locale)) {
+  return Astro.redirect('/en');
+}
+
+const t = getTranslations(locale, 'checkout');
+---
+
+<StoreLayout title={`${t('title')} | Rajalakshmi Fireworks`} locale={locale}>
+  <CheckoutPage client:only="react" />
+</StoreLayout>

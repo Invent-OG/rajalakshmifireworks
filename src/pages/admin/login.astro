@@ -1,0 +1,11 @@
+---
+import RootLayout from '@/src/layouts/RootLayout.astro';
+import AdminLoginPage from '@/app/admin/login/page';
+import { Providers } from '@/components/providers';
+---
+
+<RootLayout title="Admin Login | Rajalakshmi Fireworks">
+  <Providers client:only="react">
+    <AdminLoginPage />
+  </Providers>
+</RootLayout>

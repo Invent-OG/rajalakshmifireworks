@@ -129,10 +129,18 @@ function createCartStore(): CartStore {
 const EMPTY_CART: CartState = { items: [] };
 const getServerSnapshot = () => EMPTY_CART;
 
+let defaultCartStore: CartStore | null = null;
+function getDefaultCartStore(): CartStore {
+  if (!defaultCartStore) {
+    defaultCartStore = createCartStore();
+  }
+  return defaultCartStore;
+}
+
 const CartContext = createContext<CartStore | null>(null);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [store] = useState(() => createCartStore());
+  const [store] = useState(() => getDefaultCartStore());
   return (
     <CartContext.Provider value={store}>
       {children}
@@ -141,8 +149,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 }
 
 export function useCart() {
-  const store = useContext(CartContext);
-  if (!store) throw new Error('useCart must be used within CartProvider');
+  const store = useContext(CartContext) ?? getDefaultCartStore();
 
   const state = useSyncExternalStore(
     store.subscribe,
@@ -173,8 +180,7 @@ export function useCart() {
 }
 
 export function useCartItemQuantity(productId: number) {
-  const store = useContext(CartContext);
-  if (!store) throw new Error('useCartItemQuantity must be used within CartProvider');
+  const store = useContext(CartContext) ?? getDefaultCartStore();
 
   const state = useSyncExternalStore(
     store.subscribe,

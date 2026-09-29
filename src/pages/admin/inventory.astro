@@ -1,0 +1,8 @@
+---
+import AdminLayout from '@/src/layouts/AdminLayout.astro';
+import AdminInventoryPage from '@/app/admin/inventory/page';
+---
+
+<AdminLayout title="Inventory Management | Rajalakshmi Fireworks">
+  <AdminInventoryPage client:only="react" />
+</AdminLayout>

@@ -1,0 +1,8 @@
+---
+import AdminLayout from '@/src/layouts/AdminLayout.astro';
+import AdminReportsPage from '@/app/admin/reports/page';
+---
+
+<AdminLayout title="Reports & Analytics | Rajalakshmi Fireworks">
+  <AdminReportsPage client:only="react" />
+</AdminLayout>

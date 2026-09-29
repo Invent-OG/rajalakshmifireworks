@@ -1,0 +1,8 @@
+---
+import AdminLayout from '@/src/layouts/AdminLayout.astro';
+import AdminBackupPage from '@/app/admin/backup/page';
+---
+
+<AdminLayout title="System Backup | Rajalakshmi Fireworks">
+  <AdminBackupPage client:only="react" />
+</AdminLayout>

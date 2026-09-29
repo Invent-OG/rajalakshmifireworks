@@ -1,0 +1,21 @@
+---
+import RootLayout from '@/src/layouts/RootLayout.astro';
+import { StoreButton } from '@/components/ui/store-button';
+---
+
+<RootLayout title="404 - Page Not Found | Rajalakshmi Fireworks">
+  <div class="min-h-[70vh] flex flex-col items-center justify-center text-center px-4 font-sans space-y-4">
+    <div class="h-20 w-20 rounded-full bg-neutral-100 flex items-center justify-center text-2xl font-bold font-mono">
+      404
+    </div>
+    <h1 class="text-3xl font-extrabold font-heading text-foreground">Page Not Found</h1>
+    <p class="text-sm text-muted-foreground max-w-md">
+      The page you are looking for doesn't exist or has been moved.
+    </p>
+    <a href="/en" class="pt-2">
+      <StoreButton client:load variant="primary" size="md">
+        Back to Home
+      </StoreButton>
+    </a>
+  </div>
+</RootLayout>

@@ -1,0 +1,11 @@
+---
+import AdminLayout from '@/src/layouts/AdminLayout.astro';
+import EditProductPage from '@/app/admin/products/[id]/page';
+
+const { id } = Astro.params;
+const paramsPromise = Promise.resolve({ id: id as string });
+---
+
+<AdminLayout title={`Edit Product #${id} | Rajalakshmi Fireworks`}>
+  <EditProductPage client:only="react" params={paramsPromise} />
+</AdminLayout>

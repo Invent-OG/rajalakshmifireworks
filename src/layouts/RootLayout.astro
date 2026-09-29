@@ -1,0 +1,55 @@
+---
+import '@/src/styles/globals.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  keywords?: string[];
+  locale?: string;
+}
+
+const {
+  title = 'Rajalakshmi Fireworks | Premium Crackers & Fireworks',
+  description = 'Shop premium quality fireworks and crackers online. Wide selection of sparklers, flower pots, rockets, chakras, fountains, and gift boxes. Direct from Sivakasi.',
+  keywords = [
+    'fireworks',
+    'crackers',
+    'sparklers',
+    'Diwali crackers',
+    'Sivakasi fireworks',
+    'buy crackers online',
+    'flower pots',
+    'rockets',
+    'gift boxes',
+  ],
+  locale = 'en',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang={locale} class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="keywords" content={keywords.join(', ')} />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="en_IN" />
+    <meta property="og:site_name" content="Rajalakshmi Fireworks" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+
+    <!-- Google Fonts preload & stylesheet -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Noto+Sans+Tamil:wght@100..900&family=Outfit:wght@100..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-background text-foreground min-h-screen flex flex-col font-sans antialiased selection:bg-brand selection:text-brand-foreground">
+    <slot />
+  </body>
+</html>

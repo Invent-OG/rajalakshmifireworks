@@ -1,0 +1,8 @@
+---
+import AdminLayout from '@/src/layouts/AdminLayout.astro';
+import BulkPricePage from '@/app/admin/products/bulk-price/page';
+---
+
+<AdminLayout title="Bulk Price Editor | Rajalakshmi Fireworks">
+  <BulkPricePage client:only="react" />
+</AdminLayout>

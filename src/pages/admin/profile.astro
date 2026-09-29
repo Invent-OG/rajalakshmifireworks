@@ -1,0 +1,8 @@
+---
+import AdminLayout from '@/src/layouts/AdminLayout.astro';
+import AdminProfilePage from '@/app/admin/profile/page';
+---
+
+<AdminLayout title="Admin Profile | Rajalakshmi Fireworks">
+  <AdminProfilePage client:only="react" />
+</AdminLayout>

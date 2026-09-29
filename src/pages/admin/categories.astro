@@ -1,0 +1,8 @@
+---
+import AdminLayout from '@/src/layouts/AdminLayout.astro';
+import AdminCategoriesPage from '@/app/admin/categories/page';
+---
+
+<AdminLayout title="Categories Management | Rajalakshmi Fireworks">
+  <AdminCategoriesPage client:only="react" />
+</AdminLayout>
