@@ -24,7 +24,7 @@ export default defineConfig({
       },
     },
     ssr: {
-      noExternal: ['lucide-react'],
+      noExternal: ['lucide-react', 'gsap', '@gsap/react'],
     },
   },
 });
