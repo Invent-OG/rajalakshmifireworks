@@ -2,7 +2,7 @@
 
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { MorphSVGPlugin } from 'gsap/MorphSVGPlugin';
+import MorphSVGPlugin from 'gsap/MorphSVGPlugin';
 import { useGSAP } from '@gsap/react';
 
 // Register ScrollTrigger & MorphSVGPlugin safely
