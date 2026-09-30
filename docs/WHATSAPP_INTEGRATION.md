@@ -157,7 +157,7 @@ Create the following 6 templates in Meta WhatsApp Manager under **Category: UTIL
    When `WHATSAPP_MOCK_MODE=true` or when credentials are not supplied, the application logs simulated sends with synthetic `wamid.mock_...` IDs and does not hit Meta's servers.
 
 2. **Testing Webhooks Locally:**
-   Use tools like `ngrok` or `localtunnel` to expose your local Next.js server:
+   Use tools like `ngrok` or `localtunnel` to expose your local Astro server:
    ```bash
    ngrok http 3000
    ```
