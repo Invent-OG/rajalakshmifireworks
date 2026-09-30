@@ -1,4 +1,4 @@
-import { wrapHandler } from '@/src/lib/astro-api';
+import { wrapHandler, type NextRequest } from '@/src/lib/astro-api';
 
 import { db } from '@/db';
 import { orders, orderStatusHistory, orderDeliveryAssignments } from '@/db/schema';

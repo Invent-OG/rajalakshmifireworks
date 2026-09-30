@@ -1,5 +1,15 @@
 import type { APIContext, APIRoute } from 'astro';
 
+export type NextRequest = Request & {
+  nextUrl: URL;
+  cookies: {
+    get: (name: string) => { value: string } | undefined;
+    set: (name: string, value: string, options?: any) => void;
+    delete: (name: string, options?: any) => void;
+    has: (name: string) => boolean;
+  };
+};
+
 export function wrapHandler(
   fn: (req: any, ctx: { params: Promise<any> }) => Promise<Response>
 ): APIRoute {
