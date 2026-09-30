@@ -281,7 +281,7 @@ export function QuickCartWidget({ className = '', onClose }: QuickCartWidgetProp
                 format={{
                   style: 'currency',
                   currency: 'INR',
-                  trailingZeroDisplay: 'stripIfInteger',
+                  maximumFractionDigits: 0,
                 }}
                 transformTiming={{
                   duration: 400,

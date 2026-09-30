@@ -17,6 +17,7 @@
   "dependencies": {
     "@astrojs/node": "^11.1.6",
     "@astrojs/react": "^7.0.0",
+    "@astrojs/vercel": "^11.0.11",
     "@fireworks-js/react": "^2.10.8",
     "@gsap/react": "^2.1.2",
     "@hookform/resolvers": "^5.9.1",

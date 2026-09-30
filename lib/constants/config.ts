@@ -16,6 +16,7 @@ export const APP_CONFIG = {
   WHATSAPP_NUMBER: getEnv('NEXT_PUBLIC_WHATSAPP_NUMBER', '919876543210'),
   STORE_ADDRESS: getEnv('NEXT_PUBLIC_STORE_ADDRESS', 'Sivakasi, Tamil Nadu'),
   STORE_EMAIL: getEnv('NEXT_PUBLIC_STORE_EMAIL', 'info@rajalakshmifireworks.com'),
+  STORE_TAGLINE: getEnv('NEXT_PUBLIC_STORE_TAGLINE', 'Direct Sivakasi Fireworks • 100% Genuine Green Crackers'),
   CURRENCY_SYMBOL: '₹',
   CURRENCY_CODE: 'INR',
   INVOICE_PREFIX: 'FW',

@@ -1,6 +1,6 @@
 import React from 'react';
 
-export interface ImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
+export interface ImageProps extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, 'src'> {
   src: string | { src: string };
   alt: string;
   fill?: boolean;

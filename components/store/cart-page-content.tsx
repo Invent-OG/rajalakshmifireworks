@@ -269,7 +269,7 @@ function CartPageContent() {
                     format={{
                       style: 'currency',
                       currency: 'INR',
-                      trailingZeroDisplay: 'stripIfInteger',
+                      maximumFractionDigits: 0,
                     }}
                     transformTiming={{
                       duration: 400,

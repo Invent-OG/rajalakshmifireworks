@@ -23,7 +23,7 @@ describe('WhatsApp Webhook Route Handler', () => {
       );
       const req = new Request(url);
 
-      const res = await GET(req);
+      const res = await GET(req as any);
       expect(res.status).toBe(200);
       const body = await res.text();
       expect(body).toBe('11582012');
@@ -35,7 +35,7 @@ describe('WhatsApp Webhook Route Handler', () => {
       );
       const req = new Request(url);
 
-      const res = await GET(req);
+      const res = await GET(req as any);
       expect(res.status).toBe(403);
     });
 
@@ -45,7 +45,7 @@ describe('WhatsApp Webhook Route Handler', () => {
       );
       const req = new Request(url);
 
-      const res = await GET(req);
+      const res = await GET(req as any);
       expect(res.status).toBe(403);
     });
   });
@@ -57,7 +57,7 @@ describe('WhatsApp Webhook Route Handler', () => {
         body: 'invalid-json',
       });
 
-      const res = await POST(req);
+      const res = await POST(req as any);
       expect(res.status).toBe(400);
     });
 
@@ -67,7 +67,7 @@ describe('WhatsApp Webhook Route Handler', () => {
         body: JSON.stringify({ object: 'unknown_type' }),
       });
 
-      const res = await POST(req);
+      const res = await POST(req as any);
       expect(res.status).toBe(200);
       const json = await res.json();
       expect(json.status).toBe('ignored');

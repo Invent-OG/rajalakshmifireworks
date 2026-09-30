@@ -67,7 +67,7 @@ const address = order.addressSnapshot as {
               #{order.invoiceNumber}
             </p>
             <p class="text-xs text-gray-500 mt-0.5">
-              Date: {formatDateTime(order.createdAt)}
+              Date: {formatDateTime(order.placedAt)}
             </p>
           </div>
         </div>
@@ -81,9 +81,9 @@ const address = order.addressSnapshot as {
             <p class="font-semibold text-gray-900 text-sm">
               {order.customerNameSnapshot}
             </p>
-            <p class="text-gray-600 mt-0.5">{order.customerPhoneSnapshot}</p>
-            {order.customerEmailSnapshot && (
-              <p class="text-gray-600">{order.customerEmailSnapshot}</p>
+            <p class="text-gray-600 mt-0.5">{order.customerMobileSnapshot}</p>
+            {order.customer?.email && (
+              <p class="text-gray-600">{order.customer.email}</p>
             )}
           </div>
           <div>
@@ -149,10 +149,10 @@ const address = order.addressSnapshot as {
                 <span class="font-mono">-{formatCurrency(order.discountAmount)}</span>
               </div>
             )}
-            {toNumber(order.shippingCharges) > 0 && (
+            {toNumber(order.deliveryCharge) > 0 && (
               <div class="flex justify-between text-gray-600">
                 <span>Transport / Packaging:</span>
-                <span class="font-mono">+{formatCurrency(order.shippingCharges)}</span>
+                <span class="font-mono">+{formatCurrency(order.deliveryCharge)}</span>
               </div>
             )}
             <div class="flex justify-between font-bold text-sm text-gray-900 border-t pt-2 border-gray-200">
