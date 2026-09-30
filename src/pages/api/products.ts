@@ -1,10 +1,9 @@
 import { wrapHandler } from '@/src/lib/astro-api';
 import { db } from '@/db';
 import { products, categories } from '@/db/schema';
-import { eq, and, or, ilike, sql, desc, asc, lte, gte, AnyColumn, SQLWrapper } from 'drizzle-orm';
+import { eq, and, or, ilike, sql, desc, asc, lte, gte } from 'drizzle-orm';
 
-
-async function _GET(request: NextRequest) {
+async function _GET(request: any) {
   try {
     const { searchParams } = request.nextUrl;
     const page = Math.max(1, parseInt(searchParams.get('page') || '1'));
@@ -91,7 +90,7 @@ async function _GET(request: NextRequest) {
         with: {
           category: { columns: { id: true, name: true, nameTa: true, slug: true } },
           media: {
-            orderBy: (m: { sortOrder: SQLWrapper | AnyColumn; }) => [asc(m.sortOrder)],
+            orderBy: (m: any) => [asc(m.sortOrder)],
             limit: 1,
           },
         },

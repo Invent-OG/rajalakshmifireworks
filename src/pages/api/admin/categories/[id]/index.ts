@@ -15,7 +15,10 @@ async function _PUT(
   if (!session) return Response.json({ message: 'Unauthorized' }, { status: 401 });
 
   const { id } = await params;
-  const categoryId = parseInt(id);
+  const categoryId = parseInt(id, 10);
+  if (isNaN(categoryId) || categoryId <= 0) {
+    return Response.json({ message: 'Invalid category ID' }, { status: 400 });
+  }
 
   try {
     const body = await request.json();
@@ -61,7 +64,10 @@ async function _DELETE(
   if (!session) return Response.json({ message: 'Unauthorized' }, { status: 401 });
 
   const { id } = await params;
-  const categoryId = parseInt(id);
+  const categoryId = parseInt(id, 10);
+  if (isNaN(categoryId) || categoryId <= 0) {
+    return Response.json({ message: 'Invalid category ID' }, { status: 400 });
+  }
 
   try {
     // Check if category has products

@@ -21,6 +21,10 @@ async function _GET(
   const { id } = await params;
   const orderId = parseInt(id, 10);
 
+  if (isNaN(orderId) || orderId <= 0) {
+    return Response.json({ message: 'Invalid order ID' }, { status: 400 });
+  }
+
   try {
     const order = await db.query.orders.findFirst({
       where: eq(orders.id, orderId),
@@ -64,6 +68,10 @@ async function _PATCH(
 
   const { id } = await params;
   const orderId = parseInt(id, 10);
+
+  if (isNaN(orderId) || orderId <= 0) {
+    return Response.json({ message: 'Invalid order ID' }, { status: 400 });
+  }
 
   try {
     const body = await request.json();

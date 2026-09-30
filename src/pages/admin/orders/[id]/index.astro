@@ -3,9 +3,12 @@ import AdminLayout from '@/src/layouts/AdminLayout.astro';
 import AdminOrderDetailPage from '@/components/admin/admin-order-detail';
 
 const { id } = Astro.params;
-const paramsPromise = Promise.resolve({ id: id as string });
+const orderId = parseInt(id as string, 10);
+if (isNaN(orderId) || orderId <= 0) {
+  return Astro.redirect('/admin/orders');
+}
 ---
 
 <AdminLayout title={`Order #${id} | Rajalakshmi Fireworks`}>
-  <AdminOrderDetailPage client:only="react" params={paramsPromise} />
+  <AdminOrderDetailPage client:only="react" params={{ id: id as string }} />
 </AdminLayout>

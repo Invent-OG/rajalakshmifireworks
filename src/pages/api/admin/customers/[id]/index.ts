@@ -13,7 +13,10 @@ async function _GET(
   if (!session) return Response.json({ message: 'Unauthorized' }, { status: 401 });
 
   const { id } = await params;
-  const customerId = parseInt(id);
+  const customerId = parseInt(id, 10);
+  if (isNaN(customerId) || customerId <= 0) {
+    return Response.json({ message: 'Invalid customer ID' }, { status: 400 });
+  }
 
   try {
     const customer = await db.query.customers.findFirst({

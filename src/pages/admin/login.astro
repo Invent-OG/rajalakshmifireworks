@@ -1,11 +1,17 @@
 ---
 import RootLayout from '@/src/layouts/RootLayout.astro';
 import AdminLoginPage from '@/components/admin/admin-login';
-import { Providers } from '@/components/providers';
+import { getSessionFromToken } from '@/lib/auth/session';
+
+const token = Astro.cookies.get('admin_session')?.value;
+if (token) {
+  const session = await getSessionFromToken(token);
+  if (session) {
+    return Astro.redirect('/admin');
+  }
+}
 ---
 
 <RootLayout title="Admin Login | Rajalakshmi Fireworks">
-  <Providers client:only="react">
-    <AdminLoginPage />
-  </Providers>
+  <AdminLoginPage client:only="react" />
 </RootLayout>

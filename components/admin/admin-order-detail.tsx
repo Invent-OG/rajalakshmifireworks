@@ -75,11 +75,13 @@ import { withAdminShell } from './admin-shell';
 function AdminOrderDetailPageContent({
   params,
 }: {
-  params: Promise<{ id: string }> | { id: string };
+  params?: Promise<{ id: string }> | { id: string };
 }) {
-  const resolvedParams = typeof params === 'object' && 'then' in params ? use(params) : params;
-  const id = resolvedParams?.id || '';
-  const orderId = parseInt(id);
+  const pathId = typeof window !== 'undefined' ? window.location.pathname.split('/').filter(Boolean).pop() : '';
+  const resolvedParams = typeof params === 'object' && params && 'then' in params ? use(params) : params;
+  const id = resolvedParams?.id || pathId || '';
+  const orderId = parseInt(id, 10);
+  const isValidOrderId = !isNaN(orderId) && orderId > 0;
   const queryClient = useQueryClient();
 
   const [selectedPartnerId, setSelectedPartnerId] = useState<string>('');
@@ -89,6 +91,7 @@ function AdminOrderDetailPageContent({
   const { data, isLoading } = useQuery({
     queryKey: queryKeys.admin.orders.detail(orderId),
     queryFn: () => fetch(`/api/admin/orders/${orderId}`).then((r) => r.json()),
+    enabled: isValidOrderId,
   });
 
   // Fetch Active Delivery Partners (All active partners across India)

@@ -13,7 +13,12 @@ import { isValidLocale } from '@/lib/i18n/config';
 import { getTranslations } from '@/lib/i18n/server';
 import { getLocalizedName } from '@/lib/i18n/formatters';
 
+import { GET as apiGet } from '@/src/pages/api/products';
+
 const { locale = 'en' } = Astro.params;
+if (locale === 'api') {
+  return apiGet(Astro);
+}
 if (!isValidLocale(locale)) {
   return Astro.redirect('/en');
 }

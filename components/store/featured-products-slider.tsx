@@ -62,6 +62,7 @@ export function FeaturedProductsSlider({
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeftState, setScrollLeftState] = useState(0);
+  const [hasMoved, setHasMoved] = useState(false);
 
   const checkScrollability = useCallback(() => {
     const el = scrollContainerRef.current;
@@ -104,32 +105,45 @@ export function FeaturedProductsSlider({
     setTimeout(checkScrollability, 350);
   };
 
-  // Mouse / Pointer Drag to Scroll handlers
+  // Mouse / Pointer Drag to Scroll handlers (for desktop)
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.button !== 0) return;
     const el = scrollContainerRef.current;
     if (!el) return;
     setIsDragging(true);
+    setHasMoved(false);
     setStartX(e.pageX - el.offsetLeft);
     setScrollLeftState(el.scrollLeft);
   };
 
   const handleMouseLeave = () => {
     setIsDragging(false);
+    setHasMoved(false);
   };
 
   const handleMouseUp = () => {
     setIsDragging(false);
+    setTimeout(() => setHasMoved(false), 50);
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDragging) return;
     const el = scrollContainerRef.current;
     if (!el) return;
-    e.preventDefault();
     const x = e.pageX - el.offsetLeft;
     const walk = (x - startX) * 1.5;
-    el.scrollLeft = scrollLeftState - walk;
+    if (Math.abs(walk) > 4) {
+      setHasMoved(true);
+      e.preventDefault();
+      el.scrollLeft = scrollLeftState - walk;
+    }
+  };
+
+  const handleClickCapture = (e: React.MouseEvent) => {
+    if (hasMoved) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
   };
 
   if (products.length === 0) return null;
@@ -190,17 +204,21 @@ export function FeaturedProductsSlider({
       <div className="w-full">
         <div
           ref={scrollContainerRef}
+          data-lenis-prevent
           onMouseDown={handleMouseDown}
           onMouseLeave={handleMouseLeave}
           onMouseUp={handleMouseUp}
           onMouseMove={handleMouseMove}
-          className={`flex items-stretch gap-4 sm:gap-6 overflow-x-auto no-scrollbar snap-x py-4 -my-4 px-4 sm:px-8 md:px-12 xl:px-[max(2rem,calc((100vw-1280px)/2+80px))] scroll-pl-4 sm:scroll-pl-8 touch-pan-y ${
+          onClickCapture={handleClickCapture}
+          className={`flex items-stretch gap-4 sm:gap-6 overflow-x-auto no-scrollbar snap-x snap-mandatory py-4 -my-4 px-4 sm:px-8 md:px-12 xl:px-[max(2rem,calc((100vw-1280px)/2+80px))] scroll-pl-4 sm:scroll-pl-8 overscroll-x-contain touch-pan-x touch-pan-y ${
             isDragging ? 'cursor-grabbing' : 'cursor-grab'
           }`}
           style={{
             WebkitOverflowScrolling: 'touch',
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',
+            touchAction: 'pan-x pan-y',
+            scrollSnapType: isDragging ? 'none' : 'x mandatory',
           }}
         >
           {/* Product Cards */}

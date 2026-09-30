@@ -18,6 +18,9 @@ async function _GET(
   try {
     const { id } = await params;
     const partnerId = parseInt(id, 10);
+    if (isNaN(partnerId) || partnerId <= 0) {
+      return Response.json({ message: 'Invalid delivery partner ID' }, { status: 400 });
+    }
 
     const partner = await db.query.deliveryPartners.findFirst({
       where: eq(deliveryPartners.id, partnerId),
@@ -47,6 +50,9 @@ async function _PUT(
   try {
     const { id } = await params;
     const partnerId = parseInt(id, 10);
+    if (isNaN(partnerId) || partnerId <= 0) {
+      return Response.json({ message: 'Invalid delivery partner ID' }, { status: 400 });
+    }
     const body = await request.json();
 
     const existing = await db.query.deliveryPartners.findFirst({
@@ -97,6 +103,9 @@ async function _DELETE(
   try {
     const { id } = await params;
     const partnerId = parseInt(id, 10);
+    if (isNaN(partnerId) || partnerId <= 0) {
+      return Response.json({ message: 'Invalid delivery partner ID' }, { status: 400 });
+    }
 
     const partner = await db.query.deliveryPartners.findFirst({
       where: eq(deliveryPartners.id, partnerId),

@@ -40,7 +40,9 @@ export const logger = {
   },
 
   debug(operation: string, message: string, data?: Record<string, unknown>) {
-    if (process.env.NODE_ENV === 'development') {
+    const isDev = (typeof process !== 'undefined' && process.env?.NODE_ENV === 'development') || 
+                  (typeof import.meta !== 'undefined' && (import.meta as any).env?.DEV);
+    if (isDev) {
       const entry = createLogEntry('debug', operation, message, data);
       console.debug(JSON.stringify(entry));
     }

@@ -40,20 +40,39 @@ interface CartStore {
   getTotalSavings: () => number;
 }
 
+function parseCartState(raw: string | null): CartState {
+  if (!raw) return { items: [] };
+  try {
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) {
+      return { items: parsed };
+    }
+    if (parsed && Array.isArray(parsed.items)) {
+      return { items: parsed.items };
+    }
+  } catch {}
+  return { items: [] };
+}
+
 function createCartStore(): CartStore {
   let state: CartState = { items: [] };
   const listeners = new Set<() => void>();
 
   // Load from localStorage on init
   if (typeof window !== 'undefined') {
-    try {
-      const saved = localStorage.getItem('cart');
-      if (saved) {
-        state = JSON.parse(saved);
+    state = parseCartState(localStorage.getItem('cart'));
+
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'cart') {
+        state = parseCartState(e.newValue);
+        for (const listener of listeners) listener();
       }
-    } catch {
-      // Ignore invalid data
-    }
+    });
+
+    window.addEventListener('cart_sync', () => {
+      state = parseCartState(localStorage.getItem('cart'));
+      for (const listener of listeners) listener();
+    });
   }
 
   function persist() {
@@ -67,6 +86,9 @@ function createCartStore(): CartStore {
     for (const listener of listeners) {
       listener();
     }
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('cart_sync'));
+    }
   }
 
   return {
@@ -76,35 +98,40 @@ function createCartStore(): CartStore {
       return () => listeners.delete(listener);
     },
     addItem: (item) => {
-      const existing = state.items.find((i) => i.productId === item.productId);
+      const items = Array.isArray(state.items) ? state.items : [];
+      const maxLimit = typeof item.maxStock === 'number' && item.maxStock > 0 ? item.maxStock : 999;
+      const existing = items.find((i) => i.productId === item.productId);
       if (existing) {
-        const newQty = Math.min(existing.quantity + (item.quantity || 1), item.maxStock);
+        const newQty = Math.min(existing.quantity + (item.quantity || 1), maxLimit);
         state = {
-          items: state.items.map((i) =>
+          items: items.map((i) =>
             i.productId === item.productId ? { ...i, quantity: newQty } : i
           ),
         };
       } else {
+        const qty = Math.min(item.quantity || 1, maxLimit);
         state = {
-          items: [...state.items, { ...item, quantity: item.quantity || 1 }],
+          items: [...items, { ...item, quantity: qty, maxStock: maxLimit }],
         };
       }
       emit();
     },
     removeItem: (productId) => {
-      state = { items: state.items.filter((i) => i.productId !== productId) };
+      const items = Array.isArray(state.items) ? state.items : [];
+      state = { items: items.filter((i) => i.productId !== productId) };
       emit();
     },
     updateQuantity: (productId, quantity) => {
+      const items = Array.isArray(state.items) ? state.items : [];
       if (quantity <= 0) {
-        state = { items: state.items.filter((i) => i.productId !== productId) };
+        state = { items: items.filter((i) => i.productId !== productId) };
       } else {
         state = {
-          items: state.items.map((i) =>
-            i.productId === productId
-              ? { ...i, quantity: Math.min(quantity, i.maxStock) }
-              : i
-          ),
+          items: items.map((i) => {
+            if (i.productId !== productId) return i;
+            const maxLimit = typeof i.maxStock === 'number' && i.maxStock > 0 ? i.maxStock : 999;
+            return { ...i, quantity: Math.min(quantity, maxLimit) };
+          }),
         };
       }
       emit();
@@ -113,13 +140,13 @@ function createCartStore(): CartStore {
       state = { items: [] };
       emit();
     },
-    getItemCount: () => state.items.reduce((sum, i) => sum + i.quantity, 0),
+    getItemCount: () => (state.items || []).reduce((sum, i) => sum + i.quantity, 0),
     getSubtotal: () =>
-      state.items.reduce((sum, i) => sum + i.sellingPrice * i.quantity, 0),
+      (state.items || []).reduce((sum, i) => sum + i.sellingPrice * i.quantity, 0),
     getTotalMrp: () =>
-      state.items.reduce((sum, i) => sum + i.mrp * i.quantity, 0),
+      (state.items || []).reduce((sum, i) => sum + i.mrp * i.quantity, 0),
     getTotalSavings: () =>
-      state.items.reduce(
+      (state.items || []).reduce(
         (sum, i) => sum + (i.mrp - i.sellingPrice) * i.quantity,
         0
       ),
@@ -131,6 +158,13 @@ const getServerSnapshot = () => EMPTY_CART;
 
 let defaultCartStore: CartStore | null = null;
 function getDefaultCartStore(): CartStore {
+  if (typeof window !== 'undefined') {
+    const win = window as any;
+    if (!win.__rajalakshmi_cart_store__) {
+      win.__rajalakshmi_cart_store__ = createCartStore();
+    }
+    return win.__rajalakshmi_cart_store__;
+  }
   if (!defaultCartStore) {
     defaultCartStore = createCartStore();
   }

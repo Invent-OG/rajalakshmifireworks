@@ -21,11 +21,13 @@ import { withAdminShell } from './admin-shell';
 function EditProductPageContent({
   params,
 }: {
-  params: Promise<{ id: string }> | { id: string };
+  params?: Promise<{ id: string }> | { id: string };
 }) {
-  const resolvedParams = typeof params === 'object' && 'then' in params ? use(params) : params;
-  const id = resolvedParams?.id || '';
-  const productId = parseInt(id);
+  const pathId = typeof window !== 'undefined' ? window.location.pathname.split('/').filter(Boolean).pop() : '';
+  const resolvedParams = typeof params === 'object' && params && 'then' in params ? use(params) : params;
+  const id = resolvedParams?.id || pathId || '';
+  const productId = parseInt(id, 10);
+  const isValidProductId = !isNaN(productId) && productId > 0;
   const router = useRouter();
   const queryClient = useQueryClient();
   const [submitting, setSubmitting] = useState(false);
@@ -35,6 +37,7 @@ function EditProductPageContent({
   const { data: productData, isLoading } = useQuery({
     queryKey: ['admin', 'products', 'detail', productId],
     queryFn: () => fetch(`/api/admin/products/${productId}`).then((r) => r.json()),
+    enabled: isValidProductId,
   });
 
   const { data: catData } = useQuery({

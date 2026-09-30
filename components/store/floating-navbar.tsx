@@ -90,6 +90,18 @@ export function FloatingNavbar() {
   const isHydrated = useIsHydrated();
   const displayCount = isHydrated ? itemCount : 0;
 
+  const getHref = (path: string) => {
+    if (!path) return `/${locale}`;
+    if (path.startsWith('http') || path.startsWith('#')) return path;
+    const cleanPath = path.startsWith('/') ? path : `/${path}`;
+    return `/${locale}${cleanPath === '/' ? '' : cleanPath}`;
+  };
+
+  const isCurrentPath = (path: string) => {
+    const target = getHref(path);
+    return pathname === target || pathname === path;
+  };
+
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isMobileMenuMounted, setIsMobileMenuMounted] = useState(false);
@@ -142,14 +154,14 @@ export function FloatingNavbar() {
       comboItems = adminComboProducts.map((p) => ({
         title: getLocalizedName(p, locale),
         description: getLocalizedDescription(p, locale) || (locale === 'ta' ? 'சிவகாசி நேரடி தீபாவளி காம்போ பேக்.' : 'Curated celebration combo package from Sivakasi.'),
-        href: `/product/${p.slug}`,
+        href: getHref(`/product/${p.slug}`),
         badge: formatCurrency(toNumber(p.sellingPrice)),
       }));
 
       comboFeaturedCards = adminComboProducts.slice(0, 2).map((p) => ({
         title: getLocalizedName(p, locale),
         description: getLocalizedDescription(p, locale) || (locale === 'ta' ? 'அனைத்து வகை பட்டாசுகளும் அடங்கிய சிறப்பு காம்போ பேக்.' : 'Festive celebration combo pack with assorted crackers.'),
-        href: `/product/${p.slug}`,
+        href: getHref(`/product/${p.slug}`),
         image: p.media?.[0]?.url || getCategory3DImage(p.name),
         badge: formatCurrency(toNumber(p.sellingPrice)),
       }));
@@ -158,7 +170,7 @@ export function FloatingNavbar() {
         {
           title: locale === 'ta' ? 'காம்போ பேக்குகள் விரைவில்' : 'Combos Coming Soon',
           description: locale === 'ta' ? 'நிர்வாகக் குழு உருவாக்கிய புதிய காம்போ தொகுப்புகள் இங்கு தோன்றும்.' : 'Custom combo packages created in the admin panel will appear here.',
-          href: '/products',
+          href: getHref('/products'),
           badge: locale === 'ta' ? 'பட்டியல்' : 'Catalog',
         },
       ];
@@ -166,7 +178,7 @@ export function FloatingNavbar() {
         {
           title: locale === 'ta' ? 'அனைத்து பட்டாசுகளையும் பார்க்க' : 'Explore All Crackers',
           description: locale === 'ta' ? 'எங்கள் நேரடி சிவகாசி பட்டாசு பட்டியலை முழுமையாக ஆராயுங்கள்.' : 'Browse our full catalog of premium Sivakasi fireworks.',
-          href: '/products',
+          href: getHref('/products'),
           image: '/images/3d/cat-family-packs.jpg',
           badge: locale === 'ta' ? 'சிவகாசி நேரடி' : 'Direct Sivakasi',
         },
@@ -180,13 +192,13 @@ export function FloatingNavbar() {
         items: activeCategories.map((cat) => ({
           title: getLocalizedName(cat, locale),
           description: getLocalizedDescription(cat, locale) || (locale === 'ta' ? 'சிவகாசி தொழிற்சாலையிலிருந்து நேரடி பசுமை பட்டாசுகள்.' : 'Authentic factory-sealed crackers direct from Sivakasi.'),
-          href: `/category/${cat.slug}`,
+          href: getHref(`/category/${cat.slug}`),
         })),
         featuredSectionTitle: tNav('featuredCollections'),
         featuredCards: activeCategories.slice(0, 2).map((cat) => ({
           title: `${getLocalizedName(cat, locale)}`,
           description: getLocalizedDescription(cat, locale) || (locale === 'ta' ? 'உயர்தர ஒளி, பிரகாசம் மற்றும் பாதுகாப்பிற்கு உத்தரவாதம்.' : 'Tested for supreme sparkle, vibrant colors, and safety.'),
-          href: `/category/${cat.slug}`,
+          href: getHref(`/category/${cat.slug}`),
           image: cat.image || getCategory3DImage(cat.name),
           badge: locale === 'ta' ? 'சிவகாசி நேரடி' : 'Direct Sivakasi',
         })),
@@ -205,17 +217,17 @@ export function FloatingNavbar() {
           {
             title: locale === 'ta' ? 'பசுமை பட்டாசு சான்றிதழ்' : 'Green Crackers Certification',
             description: locale === 'ta' ? 'CSIR-NEERI தரநிலைகள், QR குறியீடு மற்றும் சுற்றுச்சூழல் பாதுகாப்பு.' : 'Understand CSIR-NEERI standards, QR code verification, and eco safety.',
-            href: '/products?certified=green',
+            href: getHref('/products?certified=green'),
           },
           {
             title: locale === 'ta' ? 'பட்டாசு பாதுகாப்பு வழிகாட்டி' : 'Family Bursting Safety Guide',
             description: locale === 'ta' ? 'பாதுகாப்பு முன்னெச்சரிக்கைகள், நீர் வாளி ஏற்பாடு மற்றும் குழந்தை பாதுகாப்பு.' : 'Essential safety precautions, water bucket prep, and child supervision tips.',
-            href: '/track-order',
+            href: getHref('/track-order'),
           },
           {
             title: locale === 'ta' ? 'நேரடி சிவகாசி உத்தரவாதம்' : 'Direct From Sivakasi Guarantee',
             description: locale === 'ta' ? '100% புதிய உற்பத்தி தொகுப்பு, ஈரப்பதம் புகா பேக்கிங்.' : '100% fresh batch manufacturing, moisture-proof sealed packaging.',
-            href: '/products',
+            href: getHref('/products'),
           },
         ],
         featuredSectionTitle: locale === 'ta' ? 'பாதுகாப்பு & நம்பிக்கை' : 'Safety & Trust',
@@ -223,14 +235,14 @@ export function FloatingNavbar() {
           {
             title: locale === 'ta' ? 'சான்றளிக்கப்பட்ட பசுமை பட்டாசு' : 'Certified Safe Green Fireworks',
             description: locale === 'ta' ? 'புகையைக் குறைத்து பிரகாசமான வண்ணங்களை வழங்கும் அரசு அங்கீகரித்த தயாரிப்பு.' : 'Reduced particulate emissions without compromising on sparkle and sound.',
-            href: '/products?certified=green',
+            href: getHref('/products?certified=green'),
             image: '/images/3d/usp-sivakasi-direct.jpg',
             badge: locale === 'ta' ? '100% சான்றளிக்கப்பட்டது' : '100% Certified',
           },
           {
             title: locale === 'ta' ? 'பாதுகாப்பான பார்சல் போக்குவரத்து' : 'Doorstep Transport & Dispatch',
             description: locale === 'ta' ? 'சட்டப்பூர்வ லாரி சர்வீஸ், LR எண்கள் மற்றும் SMS தகவல் வசதி.' : 'Compliant logistics with real-time SMS and WhatsApp dispatch notifications.',
-            href: '/track-order',
+            href: getHref('/track-order'),
             image: '/images/3d/usp-flexible-dispatch.jpg',
             badge: locale === 'ta' ? 'விரைவு பார்சல்' : 'Fast Dispatch',
           },
@@ -358,7 +370,14 @@ export function FloatingNavbar() {
     }
     hoverTimeoutRef.current = setTimeout(() => {
       setActiveMenu(null);
-    }, 200);
+    }, 250);
+  };
+
+  const closeDropdown = () => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+    setActiveMenu(null);
   };
 
   const currentMegaMenu = activeMenu ? megaMenus[activeMenu] : null;
@@ -396,8 +415,9 @@ export function FloatingNavbar() {
             {/* Desktop Capsule Pill Navigation (Light Sub-Capsule) */}
             <nav className="hidden md:inline-flex items-center gap-1.5 bg-neutral-100/90 p-1.5 rounded-full border border-neutral-200/60 shadow-inner shrink-0">
               <Link
-                href="/products"
-                className={`px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 whitespace-nowrap ${pathname === '/products' && !activeMenu
+                href={getHref('/products')}
+                onMouseEnter={closeDropdown}
+                className={`px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 whitespace-nowrap ${isCurrentPath('/products') && !activeMenu
                     ? 'bg-white text-neutral-950 shadow-xs'
                     : 'text-neutral-600 hover:text-neutral-950 hover:bg-white/80'
                   }`}
@@ -430,8 +450,9 @@ export function FloatingNavbar() {
               })}
 
               <Link
-                href="/track-order"
-                className={`px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 whitespace-nowrap ${pathname === '/track-order' && !activeMenu
+                href={getHref('/track-order')}
+                onMouseEnter={closeDropdown}
+                className={`px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 whitespace-nowrap ${isCurrentPath('/track-order') && !activeMenu
                     ? 'bg-white text-neutral-950 shadow-xs'
                     : 'text-neutral-600 hover:text-neutral-950 hover:bg-white/80'
                   }`}
@@ -443,7 +464,7 @@ export function FloatingNavbar() {
 
           {/* Center Column: Brand Logo */}
           <div className="flex items-center justify-center px-1 shrink-0">
-            <Link href="/" className="flex items-center gap-2 group py-1">
+            <Link href={getHref('/')} onMouseEnter={closeDropdown} className="flex items-center gap-2 group py-1">
               <BrandLogo className="h-10 sm:h-11 md:h-12 max-h-12 w-auto transition-transform duration-200 group-hover:scale-105 drop-shadow-sm shrink-0" />
             </Link>
           </div>
@@ -457,7 +478,8 @@ export function FloatingNavbar() {
 
             {/* Quick Search Button */}
             <Link
-              href="/search"
+              href={getHref('/search')}
+              onMouseEnter={closeDropdown}
               className="hidden lg:inline-flex items-center gap-2 h-12 px-4 rounded-full bg-neutral-100/90 hover:bg-neutral-200/90 text-neutral-700 hover:text-neutral-950 text-xs sm:text-sm font-semibold transition-all shadow-xs whitespace-nowrap active:scale-95"
             >
               <Search className="h-4 w-4 text-neutral-400" />
@@ -465,7 +487,8 @@ export function FloatingNavbar() {
             </Link>
 
             <Link
-              href="/search"
+              href={getHref('/search')}
+              onMouseEnter={closeDropdown}
               className="lg:hidden h-12 w-12 flex items-center justify-center rounded-full bg-neutral-100 text-neutral-900 hover:bg-neutral-200 transition-colors shadow-xs active:scale-95"
               aria-label={tCommon('search')}
             >
@@ -474,7 +497,8 @@ export function FloatingNavbar() {
 
             {/* Download Price List Pill Button */}
             <Link
-              href="/price-list"
+              href={getHref('/price-list')}
+              onMouseEnter={closeDropdown}
               className="hidden sm:inline-flex items-center gap-2 h-12 px-4 sm:px-5 rounded-full bg-neutral-100/90 hover:bg-neutral-200/90 text-neutral-900 text-xs sm:text-sm font-bold transition-all active:scale-95 shadow-xs whitespace-nowrap"
             >
               <Download className="h-4 w-4 text-neutral-700" />
@@ -483,7 +507,8 @@ export function FloatingNavbar() {
 
             {/* Shopping Bag Pill Button */}
             <Link
-              href="/cart"
+              href={getHref('/cart')}
+              onMouseEnter={closeDropdown}
               className="relative h-12 px-4 sm:px-5 rounded-full bg-neutral-950 text-white text-xs sm:text-sm font-bold hover:bg-neutral-800 active:scale-95 transition-all flex items-center gap-2 shadow-md whitespace-nowrap cursor-pointer justify-center"
               aria-label={`${tNav('bag')} with ${displayCount} items`}
             >
@@ -546,7 +571,7 @@ export function FloatingNavbar() {
                   {currentMegaMenu.id === 'categories' && (
                     <div className="pt-2 border-t border-neutral-100">
                       <Link
-                        href="/products"
+                        href={getHref('/products')}
                         onClick={() => setActiveMenu(null)}
                         className="inline-flex items-center gap-1.5 text-xs font-bold text-neutral-950 hover:underline"
                       >
@@ -559,7 +584,7 @@ export function FloatingNavbar() {
                   {currentMegaMenu.id === 'combos' && (
                     <div className="pt-2 border-t border-neutral-100">
                       <Link
-                        href="/products?featured=true"
+                        href={getHref('/products?featured=true')}
                         onClick={() => setActiveMenu(null)}
                         className="inline-flex items-center gap-1.5 text-xs font-bold text-neutral-950 hover:underline"
                       >
@@ -635,7 +660,7 @@ export function FloatingNavbar() {
               {/* Catalog Link */}
               <div className="mobile-nav-item pb-3 border-b border-neutral-100">
                 <Link
-                  href="/products"
+                  href={getHref('/products')}
                   onClick={() => setMobileMenuOpen(false)}
                   className="block text-sm font-bold text-neutral-900 hover:text-neutral-950 transition-colors py-1"
                 >
@@ -653,7 +678,7 @@ export function FloatingNavbar() {
                     {adminComboProducts.slice(0, 4).map((p) => (
                       <Link
                         key={p.id}
-                        href={`/product/${p.slug}`}
+                        href={getHref(`/product/${p.slug}`)}
                         onClick={() => setMobileMenuOpen(false)}
                         className="flex items-center justify-between py-1 text-xs font-semibold text-neutral-800 hover:text-neutral-950 transition-colors"
                       >
@@ -677,7 +702,7 @@ export function FloatingNavbar() {
                     {activeCategories.map((cat) => (
                       <Link
                         key={cat.id}
-                        href={`/category/${cat.slug}`}
+                        href={getHref(`/category/${cat.slug}`)}
                         onClick={() => setMobileMenuOpen(false)}
                         className="text-xs font-medium text-neutral-800 hover:text-neutral-950 transition-colors truncate py-0.5"
                       >
@@ -691,14 +716,14 @@ export function FloatingNavbar() {
               {/* Direct Links: Green Crackers & Track */}
               <div className="mobile-nav-item pb-3 border-b border-neutral-100 space-y-2">
                 <Link
-                  href="/products?certified=green"
+                  href={getHref('/products?certified=green')}
                   onClick={() => setMobileMenuOpen(false)}
                   className="block text-xs font-medium text-neutral-800 hover:text-neutral-950 transition-colors py-0.5"
                 >
                   {locale === 'ta' ? 'பசுமை பட்டாசு சான்றிதழ்' : 'Green Certified Fireworks'}
                 </Link>
                 <Link
-                  href="/track-order"
+                  href={getHref('/track-order')}
                   onClick={() => setMobileMenuOpen(false)}
                   className="block text-xs font-medium text-neutral-800 hover:text-neutral-950 transition-colors py-0.5"
                 >
@@ -709,7 +734,7 @@ export function FloatingNavbar() {
               {/* Bottom Quick Action Buttons */}
               <div className="mobile-nav-item pt-1 flex items-center justify-between gap-3">
                 <Link
-                  href="/price-list"
+                  href={getHref('/price-list')}
                   onClick={() => setMobileMenuOpen(false)}
                   className="inline-flex items-center justify-center gap-2 h-12 px-4 rounded-full bg-neutral-100 hover:bg-neutral-200 text-xs sm:text-sm font-bold text-neutral-900 shadow-2xs transition-all active:scale-95 flex-1"
                 >
@@ -718,7 +743,7 @@ export function FloatingNavbar() {
                 </Link>
 
                 <Link
-                  href="/cart"
+                  href={getHref('/cart')}
                   onClick={() => setMobileMenuOpen(false)}
                   className="inline-flex items-center justify-center gap-2 h-12 px-4 rounded-full bg-neutral-950 hover:bg-neutral-800 text-xs sm:text-sm font-bold text-white shadow-md transition-all active:scale-95 flex-1"
                 >

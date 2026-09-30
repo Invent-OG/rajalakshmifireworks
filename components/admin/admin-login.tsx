@@ -29,10 +29,9 @@ function AdminLoginPageContent() {
 
       if (res.ok) {
         toast.success('Signed in successfully');
-        router.push('/admin');
-        router.refresh();
+        window.location.href = '/admin';
       } else {
-        const data = await res.json();
+        const data = await res.json().catch(() => ({}));
         toast.error(data.message || 'Invalid email or password');
       }
     } catch {

@@ -31,15 +31,18 @@ import { withAdminShell } from './admin-shell';
 function CustomerDetailPageContent({
   params,
 }: {
-  params: Promise<{ id: string }> | { id: string };
+  params?: Promise<{ id: string }> | { id: string };
 }) {
-  const resolvedParams = typeof params === 'object' && 'then' in params ? use(params) : params;
-  const id = resolvedParams?.id || '';
-  const customerId = parseInt(id);
+  const pathId = typeof window !== 'undefined' ? window.location.pathname.split('/').filter(Boolean).pop() : '';
+  const resolvedParams = typeof params === 'object' && params && 'then' in params ? use(params) : params;
+  const id = resolvedParams?.id || pathId || '';
+  const customerId = parseInt(id, 10);
+  const isValidCustomerId = !isNaN(customerId) && customerId > 0;
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin', 'customers', 'detail', customerId],
     queryFn: () => fetch(`/api/admin/customers/${customerId}`).then((r) => r.json()),
+    enabled: isValidCustomerId,
   });
 
   const customer = data?.customer;

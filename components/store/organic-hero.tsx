@@ -289,7 +289,13 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
 
         {/* ── USP Trust Ribbon Strip ── */}
         <div
-          className="bg-[#e24100] pt-[3rem] pb-[1rem] -mt-8 rounded-b-[36px] sm:rounded-b-[40px]  px-4 sm:px-8 shadow-sm overflow-x-auto no-scrollbar touch-pan-y"
+          data-lenis-prevent
+          className="bg-[#e24100] pt-[3rem] pb-[1rem] -mt-8 rounded-b-[36px] sm:rounded-b-[40px] px-4 sm:px-8 shadow-sm overflow-x-auto no-scrollbar touch-pan-x touch-pan-y"
+          style={{
+            WebkitOverflowScrolling: 'touch',
+            scrollbarWidth: 'none',
+            touchAction: 'pan-x pan-y',
+          }}
         >
           <div className="flex items-center justify-between min-w-[720px] lg:min-w-0 gap-6 sm:gap-8 text-xs sm:text-[13px] font-semibold text-neutral-950">
             <div className="flex items-center gap-2.5 whitespace-nowrap select-none hover:text-white transition-colors">

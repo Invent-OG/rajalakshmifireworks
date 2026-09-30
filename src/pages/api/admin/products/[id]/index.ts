@@ -2,26 +2,30 @@ import { wrapHandler } from '@/src/lib/astro-api';
 
 import { db } from '@/db';
 import { products, productMedia, comboItems } from '@/db/schema';
-import { eq, asc, AnyColumn, SQLWrapper } from 'drizzle-orm';
+import { eq, asc } from 'drizzle-orm';
 import { getSession } from '@/lib/auth/session';
 import { productUpdateSchema } from '@/lib/validation/product';
 import { slugify } from '@/lib/utils/format';
 
 async function _GET(
-  request: NextRequest,
+  request: any,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getSession();
   if (!session) return Response.json({ message: 'Unauthorized' }, { status: 401 });
 
   const { id } = await params;
+  const productId = parseInt(id, 10);
+  if (isNaN(productId) || productId <= 0) {
+    return Response.json({ message: 'Invalid product ID' }, { status: 400 });
+  }
 
   try {
     const product = await db.query.products.findFirst({
-      where: eq(products.id, parseInt(id)),
+      where: eq(products.id, productId),
       with: {
         category: true,
-        media: { orderBy: (m: { sortOrder: SQLWrapper | AnyColumn }) => [asc(m.sortOrder)] },
+        media: { orderBy: (m: any) => [asc(m.sortOrder)] },
         comboItems: {
           with: {
             product: {
@@ -54,7 +58,10 @@ async function _PUT(
   if (!session) return Response.json({ message: 'Unauthorized' }, { status: 401 });
 
   const { id } = await params;
-  const productId = parseInt(id);
+  const productId = parseInt(id, 10);
+  if (isNaN(productId) || productId <= 0) {
+    return Response.json({ message: 'Invalid product ID' }, { status: 400 });
+  }
 
   try {
     const body = await request.json();
@@ -126,6 +133,10 @@ async function _DELETE(
   if (!session) return Response.json({ message: 'Unauthorized' }, { status: 401 });
 
   const { id } = await params;
+  const productId = parseInt(id, 10);
+  if (isNaN(productId) || productId <= 0) {
+    return Response.json({ message: 'Invalid product ID' }, { status: 400 });
+  }
 
   try {
     // Soft delete — set archived
@@ -136,7 +147,7 @@ async function _DELETE(
         archivedAt: new Date(),
         updatedAt: new Date(),
       })
-      .where(eq(products.id, parseInt(id)));
+      .where(eq(products.id, productId));
 
     return Response.json({ success: true });
   } catch (error) {

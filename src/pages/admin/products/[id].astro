@@ -3,9 +3,12 @@ import AdminLayout from '@/src/layouts/AdminLayout.astro';
 import EditProductPage from '@/components/admin/admin-product-edit';
 
 const { id } = Astro.params;
-const paramsPromise = Promise.resolve({ id: id as string });
+const productId = parseInt(id as string, 10);
+if (isNaN(productId) || productId <= 0) {
+  return Astro.redirect('/admin/products');
+}
 ---
 
 <AdminLayout title={`Edit Product #${id} | Rajalakshmi Fireworks`}>
-  <EditProductPage client:only="react" params={paramsPromise} />
+  <EditProductPage client:only="react" params={{ id: id as string }} />
 </AdminLayout>
