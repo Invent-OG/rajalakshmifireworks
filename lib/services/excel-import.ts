@@ -1,6 +1,6 @@
 import * as XLSX from 'xlsx';
 import { db } from '@/db';
-import { categories, products, productMedia } from '@/db/schema';
+import { categories, products } from '@/db/schema';
 import { eq, inArray, sql } from 'drizzle-orm';
 import { slugify, toNumber } from '@/lib/utils/format';
 import { logger } from '@/lib/utils/logger';
@@ -22,7 +22,7 @@ export interface ParsedProductItem {
   sellingPrice: number;
   stockQuantity: number;
   lowStockThreshold: number;
-  imageUrls: string[];
+  imageUrls?: string[];
   isFeatured: boolean;
   isBestseller: boolean;
   isActive: boolean;
@@ -73,8 +73,6 @@ export async function generateBulkUploadTemplate(): Promise<Buffer> {
     'Low Stock Threshold',
     'Description (EN)',
     'Description (TA)',
-    'Image URL 1',
-    'Image URL 2',
     'Featured (TRUE/FALSE)',
     'Bestseller (TRUE/FALSE)',
     'Active (TRUE/FALSE)',
@@ -96,8 +94,6 @@ export async function generateBulkUploadTemplate(): Promise<Buffer> {
       15,
       'Dazzling golden sparks with low smoke and long burning time. Sivakasi factory made.',
       'புகை குறைந்த, நீண்ட நேரம் எரியும் தங்க நிற கம்பி மத்தாப்பு. சிவகாசி நேரடி தயாரிப்பு.',
-      'https://images.unsplash.com/photo-1514565131-fce0801e5785?w=800',
-      'https://images.unsplash.com/photo-1531747056595-07f6cbbe10ad?w=800',
       'FALSE',
       'TRUE',
       'TRUE',
@@ -113,8 +109,6 @@ export async function generateBulkUploadTemplate(): Promise<Buffer> {
       10,
       'High speed spinning ground chakkars with vibrant emerald and ruby sparks.',
       'வேகமாக சுழன்று பல வண்ண தீப்பொறிகளை வெளிப்படுத்தும் தரமான தரை சக்கரம்.',
-      'https://images.unsplash.com/photo-1569429593410-b498b3fb3387?w=800',
-      '',
       'TRUE',
       'TRUE',
       'TRUE',
@@ -130,8 +124,6 @@ export async function generateBulkUploadTemplate(): Promise<Buffer> {
       10,
       'Soars high into the sky with whistle sound and bursts into golden willow stars.',
       'வானில் உயரே சீறிப்பாய்ந்து பொன்னிற ஒளியுடன் வெடிக்கும் சிறப்பு ராக்கெட்.',
-      'https://images.unsplash.com/photo-1498931299472-f7a63a5a1cfa?w=800',
-      '',
       'FALSE',
       'FALSE',
       'TRUE',
@@ -152,8 +144,6 @@ export async function generateBulkUploadTemplate(): Promise<Buffer> {
     { wch: 20 }, // Low Stock Threshold
     { wch: 45 }, // Description (EN)
     { wch: 45 }, // Description (TA)
-    { wch: 40 }, // Image URL 1
-    { wch: 40 }, // Image URL 2
     { wch: 22 }, // Featured
     { wch: 22 }, // Bestseller
     { wch: 20 }, // Active
@@ -225,10 +215,10 @@ export async function generateBulkUploadTemplate(): Promise<Buffer> {
       'Product details and effect description in Tamil.',
     ],
     [
-      'Image URL 1 & 2',
-      'Optional',
-      'Valid URL (http/https)',
-      'Direct web image links for product media display. Multiple image URLs will be ordered automatically.',
+      'Product Images',
+      'Upload in Admin',
+      'Supabase WebP Storage',
+      'Product photos are uploaded directly on each product edit page (optimized & compressed to WebP in Supabase Storage). No image URLs required in Excel.',
     ],
     [
       'Featured (TRUE/FALSE)',
@@ -464,27 +454,12 @@ export async function parseAndValidateExcel(fileBuffer: Buffer | ArrayBuffer): P
     const description = normalized.description ? String(normalized.description).trim() : null;
     const descriptionTa = normalized.descriptionTa ? String(normalized.descriptionTa).trim() : null;
 
-    // 8. Image URLs
-    const imageUrls: string[] = [];
-    if (normalized.imageUrl1 && String(normalized.imageUrl1).trim()) {
-      imageUrls.push(String(normalized.imageUrl1).trim());
-    }
-    if (normalized.imageUrl2 && String(normalized.imageUrl2).trim()) {
-      imageUrls.push(String(normalized.imageUrl2).trim());
-    }
-    if (normalized.images && String(normalized.images).trim()) {
-      const split = String(normalized.images).split(/[,|\n]/).map((s) => s.trim()).filter(Boolean);
-      for (const img of split) {
-        if (!imageUrls.includes(img)) imageUrls.push(img);
-      }
-    }
-
-    // 9. Flags
+    // 8. Flags
     const isFeatured = parseBooleanValue(normalized.isFeatured, false);
     const isBestseller = parseBooleanValue(normalized.isBestseller, false);
     const isActive = parseBooleanValue(normalized.isActive, true);
 
-    // 10. Check if exists in DB (by SKU or slug)
+    // 9. Check if exists in DB (by SKU or slug)
     const generatedSlug = slugify(name);
     let isExisting = false;
     let existingProductId: number | undefined;
@@ -523,7 +498,6 @@ export async function parseAndValidateExcel(fileBuffer: Buffer | ArrayBuffer): P
           sellingPrice,
           stockQuantity,
           lowStockThreshold,
-          imageUrls,
           isFeatured,
           isBestseller,
           isActive,
@@ -688,21 +662,6 @@ export async function executeBulkProductImport({
                 })
                 .where(eq(products.id, existingId));
 
-              // If image URLs provided, replace or update product media
-              if (item.imageUrls && item.imageUrls.length > 0) {
-                // Delete existing images and re-insert
-                await tx.delete(productMedia).where(eq(productMedia.productId, existingId));
-                for (let sortIdx = 0; sortIdx < item.imageUrls.length; sortIdx++) {
-                  await tx.insert(productMedia).values({
-                    productId: existingId,
-                    type: 'image',
-                    url: item.imageUrls[sortIdx],
-                    alt: `${item.name} image ${sortIdx + 1}`,
-                    sortOrder: sortIdx,
-                  });
-                }
-              }
-
               updatedCount++;
               continue;
             }
@@ -741,19 +700,6 @@ export async function executeBulkProductImport({
           // Update local maps
           if (item.sku) skuMap.set(item.sku.toLowerCase(), newProduct.id);
           slugMap.set(finalSlug.toLowerCase(), newProduct.id);
-
-          // Insert product media images
-          if (item.imageUrls && item.imageUrls.length > 0) {
-            for (let sortIdx = 0; sortIdx < item.imageUrls.length; sortIdx++) {
-              await tx.insert(productMedia).values({
-                productId: newProduct.id,
-                type: 'image',
-                url: item.imageUrls[sortIdx],
-                alt: `${item.name} image ${sortIdx + 1}`,
-                sortOrder: sortIdx,
-              });
-            }
-          }
 
           importedCount++;
         } catch (err: any) {

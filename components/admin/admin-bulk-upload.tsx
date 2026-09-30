@@ -42,7 +42,7 @@ interface ParsedProduct {
   sellingPrice: number;
   stockQuantity: number;
   lowStockThreshold: number;
-  imageUrls: string[];
+  imageUrls?: string[];
   isFeatured: boolean;
   isBestseller: boolean;
   isActive: boolean;
@@ -278,7 +278,7 @@ function BulkProductUploadPageContent() {
             Excel Bulk Product Upload
           </h1>
           <p className="text-xs text-muted-foreground">
-            Batch import fireworks products, bilingual details, pricing, media, and stock using Excel (.xlsx).
+            Batch import fireworks products, bilingual details, pricing, and stock using Excel (.xlsx).
           </p>
         </div>
 
