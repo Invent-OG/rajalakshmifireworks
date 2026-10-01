@@ -2,7 +2,7 @@
 import StoreLayout from '@/src/layouts/StoreLayout.astro';
 import { db } from '@/db';
 import { orders } from '@/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, or, ilike } from 'drizzle-orm';
 import { formatCurrency, formatDateTime, toNumber } from '@/lib/utils/format';
 import { generateWhatsAppUrl } from '@/lib/services/whatsapp-service';
 import { CheckCircle2, MessageSquare, ArrowRight, Truck, Store } from 'lucide-react';
@@ -17,12 +17,16 @@ if (!isValidLocale(locale)) {
   return Astro.redirect('/en');
 }
 
-if (!invoiceNumber) {
+const rawParam = decodeURIComponent(invoiceNumber || '').trim();
+if (!rawParam || rawParam === 'undefined') {
   return Astro.redirect(`/${locale}/track-order`);
 }
 
+const isNumeric = /^\d+$/.test(rawParam);
 const order = await db.query.orders.findFirst({
-  where: eq(orders.invoiceNumber, invoiceNumber),
+  where: isNumeric
+    ? or(eq(orders.id, parseInt(rawParam, 10)), ilike(orders.invoiceNumber, rawParam))
+    : ilike(orders.invoiceNumber, rawParam),
   with: { items: true },
 });
 

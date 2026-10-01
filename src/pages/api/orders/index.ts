@@ -38,7 +38,14 @@ async function _POST(request: NextRequest) {
       });
     });
 
-    return Response.json({ order }, { status: 201 });
+    return Response.json(
+      {
+        order,
+        orderId: order.orderId,
+        invoiceNumber: order.invoiceNumber,
+      },
+      { status: 201 }
+    );
   } catch (error) {
     const { message, statusCode } = toErrorResponse(error);
     return Response.json({ message }, { status: statusCode });

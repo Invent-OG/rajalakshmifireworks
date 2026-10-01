@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from '@/lib/navigation';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -70,9 +69,9 @@ import { Providers } from '@/components/providers';
 type CheckoutFormData = z.infer<typeof checkoutFormSchema>;
 
 function CheckoutPageContent() {
-  const router = useRouter();
   const { items, subtotal, totalSavings, itemCount, clearCart } = useCart();
   const [submitting, setSubmitting] = useState(false);
+  const [isOrderPlaced, setIsOrderPlaced] = useState(false);
   const [showNoticeModal, setShowNoticeModal] = useState(false);
   const [pendingFormData, setPendingFormData] = useState<CheckoutFormData | null>(null);
 
@@ -141,7 +140,7 @@ function CheckoutPageContent() {
 
   const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`);
 
-  if (items.length === 0) {
+  if (items.length === 0 && !submitting && !isOrderPlaced) {
     return (
       <div className="w-full px-4 sm:px-8 lg:px-12 py-16 font-sans">
         <EmptyState
@@ -204,6 +203,19 @@ function CheckoutPageContent() {
         throw new Error(result.message || 'Failed to place order');
       }
 
+      // Resolve invoiceNumber or orderId from API response
+      const invoiceNumber =
+        result.order?.invoiceNumber ||
+        result.invoiceNumber ||
+        result.order?.orderId ||
+        result.orderId;
+
+      if (!invoiceNumber) {
+        throw new Error('Order placed successfully, but confirmation reference was missing.');
+      }
+
+      setIsOrderPlaced(true);
+
       // Clear local cart
       clearCart();
 
@@ -214,8 +226,9 @@ function CheckoutPageContent() {
           : 'Your Diwali fireworks enquiry has been placed successfully!'
       );
 
-      // Redirect to Confirmation Page
-      router.push(getHref(`/order-confirmation/${result.orderId}`));
+      // Redirect directly to localized Confirmation Page
+      const targetUrl = `/${locale}/order-confirmation/${encodeURIComponent(String(invoiceNumber))}`;
+      window.location.href = targetUrl;
     } catch (error: any) {
       toast.error(error.message || 'Failed to place order. Please try again.');
     } finally {
