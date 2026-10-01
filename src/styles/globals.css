@@ -737,5 +737,12 @@ p, span, input, select, textarea, button {
   transform: scale(0.98);
 }
 
+/* ── Astro React Islands Block Layout ── */
+astro-island,
+astro-slot {
+  display: block;
+  width: 100%;
+}
+
 
 

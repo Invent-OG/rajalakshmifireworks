@@ -61,30 +61,38 @@ const tSeo = getTranslations(locale, 'seo');
   <HomeMotion client:load>
     <div class="w-full space-y-16 sm:space-y-24 md:space-y-[100px] pb-12 overflow-hidden font-sans">
       {/* ── 1. Hero Section ─── */}
-      <OrganicHero client:load initialConfig={heroConfig} />
+      <section class="reveal-section w-full">
+        <OrganicHero client:load initialConfig={heroConfig} />
+      </section>
 
       {/* ── Infinite Ribbon Ticker ─── */}
-      <InfiniteRibbonPreview client:load />
+      <section class="reveal-section w-full">
+        <InfiniteRibbonPreview client:load />
+      </section>
 
       {/* ── Diwali Live Countdown Banner ─── */}
-      <DiwaliCountdownBanner client:load />
+      <section class="reveal-section w-full">
+        <DiwaliCountdownBanner client:load />
+      </section>
 
       {/* ── 4. Festive Bestsellers Slider ─── */}
       {bestsellerProducts.length > 0 && (
-        <FeaturedProductsSlider
-          client:load
-          products={bestsellerProducts}
-          title={locale === 'ta' ? 'அதிகம் விற்பனையான பட்டாசுகள்' : 'Festive Bestsellers'}
-          subtitle={
-            locale === 'ta'
-              ? 'தமிழ்நாடு மற்றும் தென் இந்தியா முழுவதும் வாடிக்கையாளர்களால் அதிகம் விரும்பப்பட்ட சிறந்த பட்டாசுகள்.'
-              : 'The most demanded celebration fireworks across Tamil Nadu & South India, packaged fresh from Sivakasi workshops.'
-          }
-          tagLabel={locale === 'ta' ? 'வாடிக்கையாளர் விருப்பம்' : 'Customer Favorites'}
-          viewAllHref={locale === 'en' ? '/products?bestseller=true' : `/${locale}/products?bestseller=true`}
-          viewAllLabel={locale === 'ta' ? 'அனைத்தையும் பார்க்க' : 'View All Bestsellers'}
-          scrollDrift="left"
-        />
+        <section class="reveal-section w-full">
+          <FeaturedProductsSlider
+            client:load
+            products={bestsellerProducts}
+            title={locale === 'ta' ? 'அதிகம் விற்பனையான பட்டாசுகள்' : 'Festive Bestsellers'}
+            subtitle={
+              locale === 'ta'
+                ? 'தமிழ்நாடு மற்றும் தென் இந்தியா முழுவதும் வாடிக்கையாளர்களால் அதிகம் விரும்பப்பட்ட சிறந்த பட்டாசுகள்.'
+                : 'The most demanded celebration fireworks across Tamil Nadu & South India, packaged fresh from Sivakasi workshops.'
+            }
+            tagLabel={locale === 'ta' ? 'வாடிக்கையாளர் விருப்பம்' : 'Customer Favorites'}
+            viewAllHref={locale === 'en' ? '/products?bestseller=true' : `/${locale}/products?bestseller=true`}
+            viewAllLabel={locale === 'ta' ? 'அனைத்தையும் பார்க்க' : 'View All Bestsellers'}
+            scrollDrift="left"
+          />
+        </section>
       )}
 
       {/* ── 2. Live Fireworks Categories Bento Discovery Grid ─── */}
@@ -94,20 +102,22 @@ const tSeo = getTranslations(locale, 'seo');
 
       {/* ── 3. Featured Products Slider ─── */}
       {featuredProducts.length > 0 && (
-        <FeaturedProductsSlider
-          client:load
-          products={featuredProducts}
-          title={locale === 'ta' ? 'சிறப்பு பட்டாசு ரகங்கள்' : 'Featured Fireworks'}
-          subtitle={
-            locale === 'ta'
-              ? 'கம்பி மத்தாப்புகள், வான்வெளி வெடிகள் மற்றும் வண்ணமயமான பவுண்டன்களின் தேர்ந்தெடுக்கப்பட்ட சிறப்பு தொகுப்பு.'
-              : 'Hand-selected aerial cakes, vibrant flower pots, and family combo boxes tested for maximum sparkle.'
-          }
-          tagLabel={locale === 'ta' ? 'சிறப்பு தொகுப்பு' : 'Curated Masterpieces'}
-          viewAllHref={locale === 'en' ? '/products?featured=true' : `/${locale}/products?featured=true`}
-          viewAllLabel={locale === 'ta' ? 'அனைத்தையும் பார்க்க' : 'View All Featured'}
-          scrollDrift="right"
-        />
+        <section class="reveal-section w-full">
+          <FeaturedProductsSlider
+            client:load
+            products={featuredProducts}
+            title={locale === 'ta' ? 'சிறப்பு பட்டாசு ரகங்கள்' : 'Featured Fireworks'}
+            subtitle={
+              locale === 'ta'
+                ? 'கம்பி மத்தாப்புகள், வான்வெளி வெடிகள் மற்றும் வண்ணமயமான பவுண்டன்களின் தேர்ந்தெடுக்கப்பட்ட சிறப்பு தொகுப்பு.'
+                : 'Hand-selected aerial cakes, vibrant flower pots, and family combo boxes tested for maximum sparkle.'
+            }
+            tagLabel={locale === 'ta' ? 'சிறப்பு தொகுப்பு' : 'Curated Masterpieces'}
+            viewAllHref={locale === 'en' ? '/products?featured=true' : `/${locale}/products?featured=true`}
+            viewAllLabel={locale === 'ta' ? 'அனைத்தையும் பார்க்க' : 'View All Featured'}
+            scrollDrift="right"
+          />
+        </section>
       )}
 
       {/* ── 5. Testimonial 02 Blaze ─── */}
