@@ -183,6 +183,15 @@ async function _POST(request: NextRequest) {
     const existing = await db.query.products.findFirst({ where: eq(products.slug, slug) });
     const finalSlug = existing ? `${slug}-${Date.now()}` : slug;
 
+    // Calculate discount percent if not explicitly provided
+    const calculatedDiscount = Math.round(
+      ((Number(productData.mrp) - Number(productData.sellingPrice)) / Number(productData.mrp)) * 100
+    );
+    const discountPercent =
+      productData.discountPercent !== undefined && productData.discountPercent !== null
+        ? productData.discountPercent
+        : Math.max(0, calculatedDiscount);
+
     const [product] = await db
       .insert(products)
       .values({
@@ -191,6 +200,8 @@ async function _POST(request: NextRequest) {
         slug: finalSlug,
         mrp: String(productData.mrp),
         sellingPrice: String(productData.sellingPrice),
+        piecesPerBox: productData.piecesPerBox ?? 1,
+        discountPercent: discountPercent,
         isCombo: Boolean(productData.isCombo),
       })
       .returning();

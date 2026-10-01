@@ -87,8 +87,20 @@ async function _PUT(
     if (result.data.description !== undefined) updateData.description = result.data.description;
     if (result.data.descriptionTa !== undefined) updateData.descriptionTa = result.data.descriptionTa;
     if (result.data.sku !== undefined) updateData.sku = result.data.sku;
+    if (result.data.piecesPerBox !== undefined) {
+      updateData.piecesPerBox = result.data.piecesPerBox ? Number(result.data.piecesPerBox) : 1;
+    }
     if (result.data.mrp !== undefined) updateData.mrp = String(result.data.mrp);
     if (result.data.sellingPrice !== undefined) updateData.sellingPrice = String(result.data.sellingPrice);
+    if (result.data.discountPercent !== undefined && result.data.discountPercent !== null) {
+      updateData.discountPercent = Number(result.data.discountPercent);
+    } else if (result.data.mrp !== undefined || result.data.sellingPrice !== undefined) {
+      const finalMrp = Number(result.data.mrp ?? 0);
+      const finalPrice = Number(result.data.sellingPrice ?? 0);
+      if (finalMrp > 0) {
+        updateData.discountPercent = Math.max(0, Math.round(((finalMrp - finalPrice) / finalMrp) * 100));
+      }
+    }
     if (result.data.stockQuantity !== undefined) updateData.stockQuantity = result.data.stockQuantity;
     if (result.data.lowStockThreshold !== undefined) updateData.lowStockThreshold = result.data.lowStockThreshold;
     if (result.data.isActive !== undefined) updateData.isActive = result.data.isActive;

@@ -29,7 +29,9 @@ export const products = pgTable(
     description: text('description'),
     descriptionTa: text('description_ta'),
     sku: varchar('sku', { length: 100 }),
+    piecesPerBox: integer('pieces_per_box').default(1),
     mrp: numeric('mrp', { precision: 10, scale: 2 }).notNull(),
+    discountPercent: integer('discount_percent').default(0),
     sellingPrice: numeric('selling_price', { precision: 10, scale: 2 }).notNull(),
     stockQuantity: integer('stock_quantity').notNull().default(0),
     lowStockThreshold: integer('low_stock_threshold').notNull().default(10),
@@ -49,6 +51,7 @@ export const products = pgTable(
     index('products_is_bestseller_idx').on(table.isBestseller),
     index('products_is_combo_idx').on(table.isCombo),
     index('products_selling_price_idx').on(table.sellingPrice),
+    index('products_discount_percent_idx').on(table.discountPercent),
     index('products_sku_idx').on(table.sku),
   ]
 );

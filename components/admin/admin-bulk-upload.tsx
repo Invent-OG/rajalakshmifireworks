@@ -38,7 +38,9 @@ interface ParsedProduct {
   categoryNameOrSlug: string;
   categoryId: number;
   categoryName: string;
+  piecesPerBox?: number | null;
   mrp: number;
+  discountPercent?: number | null;
   sellingPrice: number;
   stockQuantity: number;
   lowStockThreshold: number;
@@ -719,9 +721,16 @@ function BulkProductUploadPageContent() {
 
                               <td className="py-3 px-3">
                                 <div className="space-y-0.5">
-                                  <p className="font-bold text-foreground text-xs">
-                                    {p?.name || row.raw['Product Name (EN)'] || row.raw['name'] || '-'}
-                                  </p>
+                                  <div className="flex items-center gap-1.5 flex-wrap">
+                                    <p className="font-bold text-foreground text-xs">
+                                      {p?.name || row.raw['Product Name (EN)'] || row.raw['name'] || '-'}
+                                    </p>
+                                    {p?.piecesPerBox && p.piecesPerBox > 0 && (
+                                      <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-blue-50 text-blue-800 border border-blue-200">
+                                        {p.piecesPerBox} Pcs/Box
+                                      </span>
+                                    )}
+                                  </div>
                                   {(p?.nameTa || row.raw['Product Name (TA)'] || row.raw['nameTa']) && (
                                     <p className="text-[11px] text-muted-foreground font-tamil">
                                       {p?.nameTa || row.raw['Product Name (TA)'] || row.raw['nameTa']}

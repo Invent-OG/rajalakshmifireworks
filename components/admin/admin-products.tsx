@@ -32,7 +32,9 @@ interface ProductListItem {
   id: number;
   name: string;
   sku: string | null;
+  piecesPerBox?: number | null;
   mrp: string | number;
+  discountPercent?: number | null;
   sellingPrice: string | number;
   stockQuantity: number;
   lowStockThreshold: number;
@@ -475,6 +477,11 @@ function AdminProductsPageContent() {
                                   <Layers className="h-2.5 w-2.5" /> Combo
                                 </span>
                               )}
+                              {p.piecesPerBox && p.piecesPerBox > 0 && (
+                                <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-50 text-blue-800 border border-blue-200">
+                                  {p.piecesPerBox} Pcs/Box
+                                </span>
+                              )}
                               {!p.isActive && (
                                 <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-muted text-muted-foreground uppercase">
                                   Archived
@@ -493,8 +500,15 @@ function AdminProductsPageContent() {
                       <td className="px-4 py-3.5 text-muted-foreground line-through">
                         {formatCurrency(p.mrp)}
                       </td>
-                      <td className="px-4 py-3.5 font-semibold text-foreground text-right">
-                        {formatCurrency(p.sellingPrice)}
+                      <td className="px-4 py-3.5 text-right">
+                        <div className="font-semibold text-foreground">
+                          {formatCurrency(p.sellingPrice)}
+                        </div>
+                        {((p.discountPercent && p.discountPercent > 0) || (Number(p.mrp) > Number(p.sellingPrice))) && (
+                          <span className="inline-block text-[10px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-200/60 px-1.5 py-0.2 rounded">
+                            {p.discountPercent || Math.round(((Number(p.mrp) - Number(p.sellingPrice)) / Number(p.mrp)) * 100)}% OFF
+                          </span>
+                        )}
                       </td>
                       <td className="px-4 py-3.5 font-medium text-foreground">
                         {stock} units

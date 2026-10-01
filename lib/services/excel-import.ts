@@ -18,7 +18,9 @@ export interface ParsedProductItem {
   categoryNameOrSlug: string;
   categoryId: number;
   categoryName: string;
+  piecesPerBox?: number | null;
   mrp: number;
+  discountPercent?: number | null;
   sellingPrice: number;
   stockQuantity: number;
   lowStockThreshold: number;
@@ -67,7 +69,9 @@ export async function generateBulkUploadTemplate(): Promise<Buffer> {
     'Product Name (EN)',
     'Product Name (TA)',
     'Category (Name or Slug)',
+    'Pieces Per Box',
     'MRP (₹)',
+    'Discount (%)',
     'Selling Price (₹)',
     'Stock Quantity',
     'Low Stock Threshold',
@@ -88,7 +92,9 @@ export async function generateBulkUploadTemplate(): Promise<Buffer> {
       '10cm Electric Sparklers (10 Pcs)',
       '10 செ.மீ எலக்ட்ரிக் கம்பி மத்தாப்பு (10 எண்ணிக்கை)',
       sampleCategory,
+      10,
       150,
+      50,
       75,
       150,
       15,
@@ -103,7 +109,9 @@ export async function generateBulkUploadTemplate(): Promise<Buffer> {
       'Special Deluxe Ground Spinner (10 Pcs)',
       'ஸ்பெஷல் டீலக்ஸ் தரை சக்கரம் (10 எண்ணிக்கை)',
       sampleCategory2,
+      10,
       280,
+      50,
       140,
       80,
       10,
@@ -118,7 +126,9 @@ export async function generateBulkUploadTemplate(): Promise<Buffer> {
       'Lunik Rocket Super Sonic (10 Pcs)',
       'லுனிக் ராக்கெட் சூப்பர் சோனிக் (10 எண்ணிக்கை)',
       sampleCategory3,
+      10,
       400,
+      50,
       200,
       50,
       10,
@@ -138,7 +148,9 @@ export async function generateBulkUploadTemplate(): Promise<Buffer> {
     { wch: 36 }, // Product Name (EN)
     { wch: 42 }, // Product Name (TA)
     { wch: 24 }, // Category
+    { wch: 16 }, // Pieces Per Box
     { wch: 12 }, // MRP
+    { wch: 14 }, // Discount (%)
     { wch: 18 }, // Selling Price
     { wch: 16 }, // Stock Quantity
     { wch: 20 }, // Low Stock Threshold
@@ -179,10 +191,22 @@ export async function generateBulkUploadTemplate(): Promise<Buffer> {
       'Must match one of the categories listed in the "Categories" sheet. You can use either Category Name or Slug.',
     ],
     [
+      'Pieces Per Box',
+      'Optional (Default 1)',
+      'Integer >= 1',
+      'Number of cracker pieces inside the box/pack (e.g. 10, 5, 25, 50). Displayed to customers as "10 Pcs / Box".',
+    ],
+    [
       'MRP (₹)',
       'REQUIRED',
       'Positive Number',
       'Original Maximum Retail Price printed on box (e.g. 150). Must be greater than 0.',
+    ],
+    [
+      'Discount (%)',
+      'Optional',
+      'Number (0 - 100)',
+      'Discount percentage off MRP (e.g. 50 or 80). If provided without selling price, selling price is auto-calculated.',
     ],
     [
       'Selling Price (₹)',
@@ -285,6 +309,8 @@ function normalizeHeaderKey(header: string): string {
   if (clean.includes('descriptionta') || clean.includes('descta') || clean.includes('tamildesc')) return 'descriptionTa';
   if (clean.includes('description') || clean.includes('desc')) return 'description';
   if (clean.includes('category')) return 'category';
+  if (clean.includes('piecesperbox') || clean.includes('pieces') || clean.includes('piece') || clean.includes('boxcontent') || clean.includes('boxcount')) return 'piecesPerBox';
+  if (clean.includes('discountpercent') || clean.includes('discountpercentage') || clean.includes('discount')) return 'discountPercent';
   if (clean.includes('mrp') || clean.includes('originalprice') || clean.includes('marketprice')) return 'mrp';
   if (clean.includes('sellingprice') || clean.includes('offerprice') || clean.includes('discountprice') || clean.includes('price')) return 'sellingPrice';
   if (clean.includes('stockquantity') || clean.includes('stock') || clean.includes('quantity') || clean.includes('qty')) return 'stockQuantity';
@@ -406,12 +432,23 @@ export async function parseAndValidateExcel(fileBuffer: Buffer | ArrayBuffer): P
       }
     }
 
-    // 4. MRP & Selling Price (Required, numeric)
+    // 4. Pricing & Discount
     const mrp = toNumber(normalized.mrp);
-    const sellingPrice = toNumber(normalized.sellingPrice);
+    let sellingPrice = toNumber(normalized.sellingPrice);
+    let discountPercent = normalized.discountPercent !== '' && normalized.discountPercent !== undefined
+      ? Math.round(toNumber(normalized.discountPercent))
+      : undefined;
 
     if (isNaN(mrp) || mrp <= 0) {
       rowErrors.push('MRP must be a valid positive number greater than 0.');
+    }
+
+    if (discountPercent !== undefined && discountPercent >= 0) {
+      if (discountPercent > 100) {
+        rowErrors.push('Discount (%) cannot exceed 100%.');
+      } else if ((isNaN(sellingPrice) || sellingPrice <= 0) && mrp > 0) {
+        sellingPrice = Math.round(mrp * (1 - discountPercent / 100) * 100) / 100;
+      }
     }
 
     if (isNaN(sellingPrice) || sellingPrice <= 0) {
@@ -422,7 +459,20 @@ export async function parseAndValidateExcel(fileBuffer: Buffer | ArrayBuffer): P
       rowErrors.push(`Selling Price (₹${sellingPrice}) cannot be greater than MRP (₹${mrp}).`);
     }
 
-    // 5. Stock & Low Stock (Optional, numeric)
+    if (discountPercent === undefined && mrp > 0 && sellingPrice > 0) {
+      discountPercent = Math.max(0, Math.round(((mrp - sellingPrice) / mrp) * 100));
+    }
+
+    // 5. Pieces Per Box
+    const piecesPerBox = normalized.piecesPerBox !== '' && normalized.piecesPerBox !== undefined
+      ? parseInt(String(normalized.piecesPerBox), 10)
+      : 1;
+
+    if (isNaN(piecesPerBox) || piecesPerBox < 1) {
+      rowErrors.push('Pieces Per Box must be a positive integer (1 or more).');
+    }
+
+    // 6. Stock & Low Stock (Optional, numeric)
     const stockQuantity = normalized.stockQuantity !== '' && normalized.stockQuantity !== undefined
       ? parseInt(String(normalized.stockQuantity), 10)
       : 0;
@@ -494,7 +544,9 @@ export async function parseAndValidateExcel(fileBuffer: Buffer | ArrayBuffer): P
           categoryNameOrSlug: categoryInput,
           categoryId: matchedCategory!.id,
           categoryName: matchedCategory!.name,
+          piecesPerBox,
           mrp,
+          discountPercent: discountPercent ?? 0,
           sellingPrice,
           stockQuantity,
           lowStockThreshold,
@@ -651,7 +703,9 @@ export async function executeBulkProductImport({
                   description: item.description,
                   descriptionTa: item.descriptionTa,
                   sku: item.sku,
+                  piecesPerBox: item.piecesPerBox ?? 1,
                   mrp: String(item.mrp),
+                  discountPercent: item.discountPercent ?? 0,
                   sellingPrice: String(item.sellingPrice),
                   stockQuantity: item.stockQuantity,
                   lowStockThreshold: item.lowStockThreshold,
@@ -686,7 +740,9 @@ export async function executeBulkProductImport({
               description: item.description,
               descriptionTa: item.descriptionTa,
               sku: item.sku,
+              piecesPerBox: item.piecesPerBox ?? 1,
               mrp: String(item.mrp),
+              discountPercent: item.discountPercent ?? 0,
               sellingPrice: String(item.sellingPrice),
               stockQuantity: item.stockQuantity,
               lowStockThreshold: item.lowStockThreshold,

@@ -17,6 +17,8 @@ interface ProductCardProps {
     slug: string;
     description?: string | null;
     descriptionTa?: string | null;
+    piecesPerBox?: number | null;
+    discountPercent?: number | null;
     mrp: string;
     sellingPrice: string;
     stockQuantity: number;
@@ -49,7 +51,12 @@ export function ProductCard({ product }: ProductCardProps) {
   );
   const categoryName = getLocalizedName(product.category, locale) || (locale === 'ta' ? 'பட்டாசு' : 'Fireworks');
 
-  const discount = mrp > price ? Math.round(((mrp - price) / mrp) * 100) : 0;
+  const discount =
+    product.discountPercent && product.discountPercent > 0
+      ? product.discountPercent
+      : mrp > price
+      ? Math.round(((mrp - price) / mrp) * 100)
+      : 0;
 
   function handleAddToCart(e: React.MouseEvent) {
     e.preventDefault();
@@ -69,6 +76,9 @@ export function ProductCard({ product }: ProductCardProps) {
   // Generate contextual tags
   const tags: string[] = [];
   if (discount > 0) tags.push(tCommon('off', { percent: discount }));
+  if (product.piecesPerBox && product.piecesPerBox > 1) {
+    tags.push(`${product.piecesPerBox} ${locale === 'ta' ? 'பீஸ் / பெட்டி' : 'Pcs / Box'}`);
+  }
   tags.push(locale === 'ta' ? 'பசுமை பட்டாசு' : 'Green Cracker');
   if (categoryName) tags.push(categoryName);
 

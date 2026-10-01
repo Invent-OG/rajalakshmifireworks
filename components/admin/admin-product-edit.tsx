@@ -68,6 +68,15 @@ function EditProductPageContent({
         setComboItems([]);
       }
 
+      const initialMrp = parseFloat(product.mrp);
+      const initialPrice = parseFloat(product.sellingPrice);
+      const initialDiscount =
+        product.discountPercent !== undefined && product.discountPercent !== null
+          ? product.discountPercent
+          : initialMrp > 0
+          ? Math.max(0, Math.round(((initialMrp - initialPrice) / initialMrp) * 100))
+          : 0;
+
       form.reset({
         name: product.name,
         nameTa: product.nameTa || '',
@@ -75,8 +84,10 @@ function EditProductPageContent({
         description: product.description || '',
         descriptionTa: product.descriptionTa || '',
         sku: product.sku || '',
-        mrp: parseFloat(product.mrp),
-        sellingPrice: parseFloat(product.sellingPrice),
+        piecesPerBox: product.piecesPerBox ?? 1,
+        mrp: initialMrp,
+        discountPercent: initialDiscount,
+        sellingPrice: initialPrice,
         stockQuantity: product.stockQuantity,
         lowStockThreshold: product.lowStockThreshold,
         isActive: product.isActive,
@@ -87,10 +98,50 @@ function EditProductPageContent({
     }
   }, [product, form]);
 
+  const watchMrp = form.watch('mrp');
+  const watchSellingPrice = form.watch('sellingPrice');
+  const watchDiscount = form.watch('discountPercent');
+  const savingsAmount = Math.max(0, (watchMrp || 0) - (watchSellingPrice || 0));
+
+  const handleMrpChange = (newMrp: number) => {
+    form.setValue('mrp', newMrp, { shouldValidate: true });
+    const currentDiscount = form.getValues('discountPercent') || 0;
+    if (currentDiscount > 0 && newMrp > 0) {
+      const calcPrice = Math.round(newMrp * (1 - currentDiscount / 100) * 100) / 100;
+      form.setValue('sellingPrice', calcPrice, { shouldValidate: true });
+    } else {
+      const currentPrice = form.getValues('sellingPrice') || 0;
+      if (newMrp > 0 && currentPrice > 0) {
+        const calcDiscount = Math.max(0, Math.round(((newMrp - currentPrice) / newMrp) * 100));
+        form.setValue('discountPercent', calcDiscount);
+      }
+    }
+  };
+
+  const handleDiscountChange = (newDiscount: number) => {
+    form.setValue('discountPercent', newDiscount);
+    const currentMrp = form.getValues('mrp') || 0;
+    if (currentMrp > 0) {
+      const calcPrice = Math.round(currentMrp * (1 - newDiscount / 100) * 100) / 100;
+      form.setValue('sellingPrice', Math.max(0, calcPrice), { shouldValidate: true });
+    }
+  };
+
+  const handleSellingPriceChange = (newPrice: number) => {
+    form.setValue('sellingPrice', newPrice, { shouldValidate: true });
+    const currentMrp = form.getValues('mrp') || 0;
+    if (currentMrp > 0) {
+      const calcDiscount = Math.max(0, Math.round(((currentMrp - newPrice) / currentMrp) * 100));
+      form.setValue('discountPercent', calcDiscount);
+    }
+  };
+
   const handleApplyCalculatedPricing = (calcMrp: number, calcPrice: number) => {
     form.setValue('mrp', calcMrp);
     form.setValue('sellingPrice', calcPrice);
-    toast.success(`Applied calculated prices: MRP ₹${calcMrp}, Price ₹${calcPrice}`);
+    const calcDiscount = calcMrp > 0 ? Math.max(0, Math.round(((calcMrp - calcPrice) / calcMrp) * 100)) : 0;
+    form.setValue('discountPercent', calcDiscount);
+    toast.success(`Applied calculated prices: MRP ₹${calcMrp}, Price ₹${calcPrice} (${calcDiscount}% OFF)`);
   };
 
   async function onSubmit(data: ProductUpdateInput) {
@@ -208,7 +259,7 @@ function EditProductPageContent({
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Select
               label={isCombo ? 'Category Collection (Optional)' : 'Category Collection *'}
               defaultValue={product.categoryId ? String(product.categoryId) : ''}
@@ -229,6 +280,15 @@ function EditProductPageContent({
               placeholder="e.g. SPK-10CM-01"
               error={form.formState.errors.sku?.message}
               {...form.register('sku')}
+            />
+
+            <Input
+              label="Pieces in Box / Pack (Pcs) *"
+              type="number"
+              min={1}
+              placeholder="e.g. 10 (10 pcs/box)"
+              error={form.formState.errors.piecesPerBox?.message}
+              {...form.register('piecesPerBox', { valueAsNumber: true })}
             />
           </div>
 
@@ -269,21 +329,42 @@ function EditProductPageContent({
             03. Pricing & Warehouse Inventory
           </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Input
               label="MRP Reference (₹) *"
               type="number"
               step="0.01"
               error={form.formState.errors.mrp?.message}
-              {...form.register('mrp', { valueAsNumber: true })}
+              value={watchMrp !== undefined && watchMrp !== null && !isNaN(watchMrp) ? watchMrp : ''}
+              onChange={(e) => handleMrpChange(parseFloat(e.target.value) || 0)}
             />
+
+            <div>
+              <Input
+                label="Discount (%)"
+                type="number"
+                min={0}
+                max={100}
+                placeholder="e.g. 80"
+                value={watchDiscount !== undefined && watchDiscount !== null && !isNaN(watchDiscount) ? watchDiscount : ''}
+                onChange={(e) => handleDiscountChange(parseFloat(e.target.value) || 0)}
+              />
+              <p className="text-[11px] text-muted-foreground mt-1">
+                {savingsAmount > 0 ? (
+                  <span className="text-emerald-600 font-semibold">Saves ₹{savingsAmount.toFixed(2)} off MRP</span>
+                ) : (
+                  'Auto-computes Selling Price'
+                )}
+              </p>
+            </div>
 
             <Input
               label="Selling Price (₹) *"
               type="number"
               step="0.01"
               error={form.formState.errors.sellingPrice?.message}
-              {...form.register('sellingPrice', { valueAsNumber: true })}
+              value={watchSellingPrice !== undefined && watchSellingPrice !== null && !isNaN(watchSellingPrice) ? watchSellingPrice : ''}
+              onChange={(e) => handleSellingPriceChange(parseFloat(e.target.value) || 0)}
             />
           </div>
 
