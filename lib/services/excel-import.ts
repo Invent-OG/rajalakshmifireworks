@@ -312,29 +312,122 @@ export async function generateBulkUploadTemplate(): Promise<Buffer> {
 }
 
 /**
- * Normalizes column names to key identifiers
+ * Normalizes any cell value by converting null/undefined to empty string and trimming.
  */
-function normalizeHeaderKey(header: string): string {
+export function normalizeCellValue(value: any): string {
+  if (value === null || value === undefined) return '';
+  return String(value).trim();
+}
+
+export interface CategoryLookupItem {
+  id: number;
+  name: string;
+  slug: string;
+  nameTa?: string | null;
+}
+
+/**
+ * Resolves a category by Name (case-insensitive), Slug (case-insensitive),
+ * Tamil Name, slugified name, or numeric ID.
+ */
+export function resolveCategory(
+  categoryInput: string,
+  categoriesList: CategoryLookupItem[]
+): CategoryLookupItem | null {
+  const value = normalizeCellValue(categoryInput);
+  if (!value) return null;
+
+  const lower = value.toLowerCase();
+  const slugified = slugify(value).toLowerCase();
+
+  // 1. Direct ID match (if numeric)
+  const numericId = parseInt(value, 10);
+  if (!isNaN(numericId) && String(numericId) === value) {
+    const byId = categoriesList.find((c) => c.id === numericId);
+    if (byId) return byId;
+  }
+
+  // 2. Exact slug match (case-insensitive)
+  const bySlug = categoriesList.find((c) => c.slug.toLowerCase() === lower);
+  if (bySlug) return bySlug;
+
+  // 3. Exact name match (case-insensitive)
+  const byName = categoriesList.find((c) => c.name.toLowerCase() === lower);
+  if (byName) return byName;
+
+  // 4. Tamil name match (if present)
+  const byNameTa = categoriesList.find(
+    (c) => c.nameTa && c.nameTa.trim().toLowerCase() === lower
+  );
+  if (byNameTa) return byNameTa;
+
+  // 5. Slugified input vs category slug
+  const bySlugified = categoriesList.find(
+    (c) => c.slug.toLowerCase() === slugified
+  );
+  if (bySlugified) return bySlugified;
+
+  // 6. Slugified input vs slugified category name
+  const bySlugifiedName = categoriesList.find(
+    (c) => slugify(c.name).toLowerCase() === slugified
+  );
+  if (bySlugifiedName) return bySlugifiedName;
+
+  return null;
+}
+
+/**
+ * Normalizes column names to key identifiers.
+ * Specific compound patterns MUST be evaluated before generic keywords
+ * (e.g. "Category (Name or Slug)" must map to "category", not "name").
+ */
+export function normalizeHeaderKey(header: string): string {
   const clean = header.toLowerCase().trim().replace(/[^a-z0-9]/g, '');
-  if (clean.includes('sku') || clean.includes('itemcode') || clean.includes('code')) return 'sku';
-  if (clean.includes('productnameta') || clean.includes('nameta') || clean.includes('tamilname')) return 'nameTa';
-  if (clean.includes('productname') || clean.includes('nameen') || clean.includes('name') || clean.includes('title')) return 'name';
+
+  // 1. SKU / Item Code
+  if (clean.includes('sku') || clean.includes('itemcode') || clean.includes('productcode') || clean === 'code') return 'sku';
+
+  // 2. Tamil Product Name (MUST be before generic name)
+  if (clean.includes('productnameta') || clean.includes('nameta') || clean.includes('tamilname') || clean.includes('tamiltitle')) return 'nameTa';
+
+  // 3. Category (MUST be before generic 'name' because headers like 'Category (Name or Slug)' or 'Category Name' contain 'name')
+  if (clean.includes('category') || clean.includes('catname') || clean.includes('catslug') || clean === 'cat') return 'category';
+
+  // 4. Product Name (EN) / Title
+  if (clean.includes('productname') || clean.includes('nameen') || clean.includes('producttitle') || clean.includes('name') || clean.includes('title')) return 'name';
+
+  // 5. Tamil Description (MUST be before generic description)
   if (clean.includes('descriptionta') || clean.includes('descta') || clean.includes('tamildesc')) return 'descriptionTa';
-  if (clean.includes('description') || clean.includes('desc')) return 'description';
-  if (clean.includes('category')) return 'category';
+
+  // 6. Description (EN)
+  if (clean.includes('description') || clean.includes('desc') || clean.includes('details')) return 'description';
+
+  // 7. Box Content & Packaging count
   if (clean.includes('boxcontent') || clean.includes('boxcount') || clean.includes('piecesperbox') || clean.includes('pieces') || clean.includes('piece') || clean.includes('contentcount')) return 'boxContent';
-  if (clean.includes('unitofcontent') || clean.includes('contentunit') || clean.includes('unit') || clean.includes('packunit') || clean.includes('uom')) return 'contentUnit';
+
+  // 8. Unit of Content / UOM
+  if (clean.includes('unitofcontent') || clean.includes('contentunit') || clean.includes('packunit') || clean.includes('uom') || clean.includes('unit')) return 'contentUnit';
+
+  // 9. Discount percentage
   if (clean.includes('discountpercent') || clean.includes('discountpercentage') || clean.includes('discount')) return 'discountPercent';
-  if (clean.includes('mrp') || clean.includes('originalprice') || clean.includes('marketprice')) return 'mrp';
-  if (clean.includes('sellingprice') || clean.includes('offerprice') || clean.includes('discountprice') || clean.includes('price')) return 'sellingPrice';
+
+  // 10. Low Stock Threshold (MUST be before generic 'stock' because 'lowstockthreshold' contains 'stock')
+  if (clean.includes('lowstock') || clean.includes('threshold') || clean.includes('minstock') || clean.includes('alertstock')) return 'lowStockThreshold';
+
+  // 11. Stock Quantity
   if (clean.includes('stockquantity') || clean.includes('stock') || clean.includes('quantity') || clean.includes('qty')) return 'stockQuantity';
-  if (clean.includes('lowstock') || clean.includes('threshold') || clean.includes('minstock')) return 'lowStockThreshold';
-  if (clean.includes('imageurl1') || clean.includes('image1') || clean.includes('primaryimage')) return 'imageUrl1';
-  if (clean.includes('imageurl2') || clean.includes('image2') || clean.includes('secondaryimage')) return 'imageUrl2';
-  if (clean.includes('image') || clean.includes('images') || clean.includes('imageurl')) return 'images';
+
+  // 12. MRP (Market Price) (MUST be before generic 'price')
+  if (clean.includes('mrp') || clean.includes('originalprice') || clean.includes('marketprice') || clean.includes('listprice')) return 'mrp';
+
+  // 13. Selling Price / Offer Price
+  if (clean.includes('sellingprice') || clean.includes('offerprice') || clean.includes('discountprice') || clean.includes('saleprice') || clean.includes('price')) return 'sellingPrice';
+
+  // 14. Flags
   if (clean.includes('featured')) return 'isFeatured';
   if (clean.includes('bestseller') || clean.includes('popular')) return 'isBestseller';
   if (clean.includes('active') || clean.includes('status') || clean.includes('published')) return 'isActive';
+
   return header;
 }
 
@@ -394,7 +487,6 @@ export async function parseAndValidateExcel(fileBuffer: Buffer | ArrayBuffer): P
 
   const fileSkus = new Set<string>();
   const validatedRows: ValidatedRow[] = [];
-
   let validCount = 0;
   let errorCount = 0;
   let existingCount = 0;
@@ -413,7 +505,7 @@ export async function parseAndValidateExcel(fileBuffer: Buffer | ArrayBuffer): P
     }
 
     // 1. Name EN (Required)
-    const name = String(normalized.name || '').trim();
+    const name = normalizeCellValue(normalized.name);
     if (!name) {
       rowErrors.push('Product Name (EN) is required.');
     } else if (name.length > 255) {
@@ -421,28 +513,22 @@ export async function parseAndValidateExcel(fileBuffer: Buffer | ArrayBuffer): P
     }
 
     // 2. Name TA (Optional)
-    const nameTa = normalized.nameTa ? String(normalized.nameTa).trim() : null;
+    const nameTa = normalized.nameTa ? normalizeCellValue(normalized.nameTa) : null;
 
-    // 3. Category (Required)
-    const categoryInput = String(normalized.category || '').trim();
+    // 3. Category (Required) - Phase 4 & Phase 8 resolution
+    const categoryInput = normalizeCellValue(normalized.category);
     let matchedCategory: typeof dbCategories[0] | undefined;
 
     if (!categoryInput) {
       rowErrors.push('Category is required.');
     } else {
-      const catLower = categoryInput.toLowerCase();
-      // Match by ID, slug, or name (EN or TA)
-      matchedCategory = dbCategories.find(
-        (c) =>
-          String(c.id) === categoryInput ||
-          c.slug.toLowerCase() === catLower ||
-          c.name.toLowerCase() === catLower ||
-          (c.nameTa && c.nameTa.toLowerCase() === catLower) ||
-          slugify(c.name) === slugify(categoryInput)
-      );
-
-      if (!matchedCategory) {
-        rowErrors.push(`Category "${categoryInput}" not found in database. Check "Categories" sheet for valid names.`);
+      const resolved = resolveCategory(categoryInput, dbCategories);
+      if (!resolved) {
+        rowErrors.push(`Category "${categoryInput}" was not found.`);
+      } else if (!resolved.id) {
+        rowErrors.push(`Category "${categoryInput}" could not be resolved to a category ID.`);
+      } else {
+        matchedCategory = resolved as typeof dbCategories[0];
       }
     }
 
