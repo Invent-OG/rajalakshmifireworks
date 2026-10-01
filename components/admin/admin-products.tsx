@@ -33,6 +33,8 @@ interface ProductListItem {
   name: string;
   sku: string | null;
   piecesPerBox?: number | null;
+  boxContent?: number | null;
+  contentUnit?: string | null;
   mrp: string | number;
   discountPercent?: number | null;
   sellingPrice: string | number;
@@ -415,6 +417,8 @@ function AdminProductsPageContent() {
                   </th>
                   <th className="px-4 py-3.5">Product</th>
                   <th className="px-4 py-3.5">Category</th>
+                  <th className="px-4 py-3.5 text-center">Box Content</th>
+                  <th className="px-4 py-3.5 text-center">Unit</th>
                   <th className="px-4 py-3.5">MRP</th>
                   <th className="px-4 py-3.5 text-right">Selling Price</th>
                   <th className="px-4 py-3.5">Stock</th>
@@ -477,9 +481,9 @@ function AdminProductsPageContent() {
                                   <Layers className="h-2.5 w-2.5" /> Combo
                                 </span>
                               )}
-                              {p.piecesPerBox && p.piecesPerBox > 0 && (
+                              {((p.boxContent && p.boxContent > 0) || (p.piecesPerBox && p.piecesPerBox > 0)) && (
                                 <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-50 text-blue-800 border border-blue-200">
-                                  {p.piecesPerBox} Pcs/Box
+                                  {p.boxContent ?? p.piecesPerBox} {p.contentUnit || 'Pcs'}/Box
                                 </span>
                               )}
                               {!p.isActive && (
@@ -496,6 +500,14 @@ function AdminProductsPageContent() {
                       </td>
                       <td className="px-4 py-3.5 text-muted-foreground font-medium">
                         {p.category?.name ?? '—'}
+                      </td>
+                      <td className="px-4 py-3.5 text-center font-bold text-foreground">
+                        {p.boxContent ?? p.piecesPerBox ?? 1}
+                      </td>
+                      <td className="px-4 py-3.5 text-center">
+                        <span className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-blue-50 text-blue-800 border border-blue-200">
+                          {p.contentUnit || 'Pcs'}
+                        </span>
                       </td>
                       <td className="px-4 py-3.5 text-muted-foreground line-through">
                         {formatCurrency(p.mrp)}

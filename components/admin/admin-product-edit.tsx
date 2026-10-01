@@ -84,7 +84,9 @@ function EditProductPageContent({
         description: product.description || '',
         descriptionTa: product.descriptionTa || '',
         sku: product.sku || '',
-        piecesPerBox: product.piecesPerBox ?? 1,
+        piecesPerBox: product.boxContent ?? product.piecesPerBox ?? 1,
+        boxContent: product.boxContent ?? product.piecesPerBox ?? 1,
+        contentUnit: product.contentUnit || 'Pcs',
         mrp: initialMrp,
         discountPercent: initialDiscount,
         sellingPrice: initialPrice,
@@ -259,7 +261,7 @@ function EditProductPageContent({
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <Select
               label={isCombo ? 'Category Collection (Optional)' : 'Category Collection *'}
               defaultValue={product.categoryId ? String(product.categoryId) : ''}
@@ -283,12 +285,22 @@ function EditProductPageContent({
             />
 
             <Input
-              label="Pieces in Box / Pack (Pcs) *"
+              label="Box Content *"
               type="number"
               min={1}
-              placeholder="e.g. 10 (10 pcs/box)"
-              error={form.formState.errors.piecesPerBox?.message}
-              {...form.register('piecesPerBox', { valueAsNumber: true })}
+              placeholder="e.g. 10"
+              error={form.formState.errors.boxContent?.message || form.formState.errors.piecesPerBox?.message}
+              {...form.register('boxContent', {
+                valueAsNumber: true,
+                onChange: (e) => form.setValue('piecesPerBox', parseInt(e.target.value) || 1),
+              })}
+            />
+
+            <Input
+              label="Unit of Content *"
+              placeholder="e.g. Pcs, Pack, Box, Items"
+              error={form.formState.errors.contentUnit?.message}
+              {...form.register('contentUnit')}
             />
           </div>
 

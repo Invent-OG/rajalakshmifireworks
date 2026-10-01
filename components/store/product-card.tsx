@@ -18,6 +18,8 @@ interface ProductCardProps {
     description?: string | null;
     descriptionTa?: string | null;
     piecesPerBox?: number | null;
+    boxContent?: number | null;
+    contentUnit?: string | null;
     discountPercent?: number | null;
     mrp: string;
     sellingPrice: string;
@@ -76,8 +78,18 @@ export function ProductCard({ product }: ProductCardProps) {
   // Generate contextual tags
   const tags: string[] = [];
   if (discount > 0) tags.push(tCommon('off', { percent: discount }));
-  if (product.piecesPerBox && product.piecesPerBox > 1) {
-    tags.push(`${product.piecesPerBox} ${locale === 'ta' ? 'பீஸ் / பெட்டி' : 'Pcs / Box'}`);
+  const count = product.boxContent ?? product.piecesPerBox;
+  if (count && count > 0) {
+    const rawUnit = product.contentUnit || 'Pcs';
+    let unitLabel = rawUnit;
+    if (locale === 'ta') {
+      if (rawUnit.toLowerCase() === 'pack' || rawUnit.toLowerCase() === 'packs') unitLabel = 'பேக்';
+      else if (rawUnit.toLowerCase() === 'items' || rawUnit.toLowerCase() === 'item') unitLabel = 'பொருட்கள்';
+      else if (rawUnit.toLowerCase() === 'box' || rawUnit.toLowerCase() === 'boxes') unitLabel = 'பெட்டி';
+      else if (rawUnit.toLowerCase() === 'rolls' || rawUnit.toLowerCase() === 'roll') unitLabel = 'ரோல்';
+      else unitLabel = 'பீஸ்';
+    }
+    tags.push(`${count} ${unitLabel} / ${locale === 'ta' ? 'பெட்டி' : 'Box'}`);
   }
   tags.push(locale === 'ta' ? 'பசுமை பட்டாசு' : 'Green Cracker');
   if (categoryName) tags.push(categoryName);

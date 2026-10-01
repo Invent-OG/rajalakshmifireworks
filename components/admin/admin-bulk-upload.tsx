@@ -39,6 +39,8 @@ interface ParsedProduct {
   categoryId: number;
   categoryName: string;
   piecesPerBox?: number | null;
+  boxContent?: number | null;
+  contentUnit?: string | null;
   mrp: number;
   discountPercent?: number | null;
   sellingPrice: number;
@@ -725,9 +727,9 @@ function BulkProductUploadPageContent() {
                                     <p className="font-bold text-foreground text-xs">
                                       {p?.name || row.raw['Product Name (EN)'] || row.raw['name'] || '-'}
                                     </p>
-                                    {p?.piecesPerBox && p.piecesPerBox > 0 && (
+                                    {((p?.boxContent && p.boxContent > 0) || (p?.piecesPerBox && p.piecesPerBox > 0)) && (
                                       <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-blue-50 text-blue-800 border border-blue-200">
-                                        {p.piecesPerBox} Pcs/Box
+                                        {p.boxContent ?? p.piecesPerBox} {p.contentUnit || 'Pcs'}/Box
                                       </span>
                                     )}
                                   </div>

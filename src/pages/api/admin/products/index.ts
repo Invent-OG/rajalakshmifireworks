@@ -192,6 +192,9 @@ async function _POST(request: NextRequest) {
         ? productData.discountPercent
         : Math.max(0, calculatedDiscount);
 
+    const boxContent = productData.boxContent ?? productData.piecesPerBox ?? 1;
+    const contentUnit = productData.contentUnit?.trim() || 'Pcs';
+
     const [product] = await db
       .insert(products)
       .values({
@@ -200,7 +203,9 @@ async function _POST(request: NextRequest) {
         slug: finalSlug,
         mrp: String(productData.mrp),
         sellingPrice: String(productData.sellingPrice),
-        piecesPerBox: productData.piecesPerBox ?? 1,
+        piecesPerBox: boxContent,
+        boxContent: boxContent,
+        contentUnit: contentUnit,
         discountPercent: discountPercent,
         isCombo: Boolean(productData.isCombo),
       })

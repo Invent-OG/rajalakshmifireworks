@@ -142,14 +142,27 @@ const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`)
           </h1>
           <div class="flex items-center gap-3 flex-wrap text-xs text-muted-foreground">
             <span class="font-mono">SKU: {product.sku || 'N/A'}</span>
-            {product.piecesPerBox && product.piecesPerBox > 0 && (
+            {((product.boxContent && product.boxContent > 0) || (product.piecesPerBox && product.piecesPerBox > 0)) && (
               <>
                 <span>•</span>
                 <span class="inline-flex items-center gap-1 font-semibold text-foreground bg-primary/10 text-primary px-2.5 py-0.5 rounded-full">
                   <Package className="h-3.5 w-3.5" />
-                  {locale === 'ta'
-                    ? `${product.piecesPerBox} பீஸ் / பெட்டி`
-                    : `${product.piecesPerBox} Pieces / Box`}
+                  {(() => {
+                    const count = product.boxContent ?? product.piecesPerBox ?? 1;
+                    const rawUnit = (product.contentUnit || 'Pcs').trim();
+                    const unitLower = rawUnit.toLowerCase();
+                    if (locale === 'ta') {
+                      let taUnit = 'பீஸ்';
+                      if (unitLower.includes('pack')) taUnit = 'பேக்';
+                      else if (unitLower.includes('item')) taUnit = 'பொருட்கள்';
+                      else if (unitLower.includes('box')) taUnit = 'பெட்டி';
+                      return `${count} ${taUnit} / பெட்டி`;
+                    }
+                    const enUnit = unitLower === 'pcs' || unitLower === 'pieces'
+                      ? (count === 1 ? 'Piece' : 'Pieces')
+                      : rawUnit;
+                    return `${count} ${enUnit} / Box`;
+                  })()}
                 </span>
               </>
             )}

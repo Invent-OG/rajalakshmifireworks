@@ -39,6 +39,8 @@ function NewProductPageContent() {
       description: '',
       sku: '',
       piecesPerBox: 1,
+      boxContent: 1,
+      contentUnit: 'Pcs',
       mrp: 0,
       discountPercent: 0,
       sellingPrice: 0,
@@ -187,7 +189,7 @@ function NewProductPageContent() {
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <Select
               label={isCombo ? 'Category Collection (Optional)' : 'Category Collection *'}
               placeholder={isCombo ? 'None (Combo Pack)' : 'Select Category'}
@@ -210,12 +212,22 @@ function NewProductPageContent() {
             />
 
             <Input
-              label="Pieces in Box / Pack (Pcs) *"
+              label="Box Content *"
               type="number"
               min={1}
-              placeholder="e.g. 10 (10 pcs/box)"
-              error={form.formState.errors.piecesPerBox?.message}
-              {...form.register('piecesPerBox', { valueAsNumber: true })}
+              placeholder="e.g. 10"
+              error={form.formState.errors.boxContent?.message || form.formState.errors.piecesPerBox?.message}
+              {...form.register('boxContent', {
+                valueAsNumber: true,
+                onChange: (e) => form.setValue('piecesPerBox', parseInt(e.target.value) || 1),
+              })}
+            />
+
+            <Input
+              label="Unit of Content *"
+              placeholder="e.g. Pcs, Pack, Box, Items"
+              error={form.formState.errors.contentUnit?.message}
+              {...form.register('contentUnit')}
             />
           </div>
 

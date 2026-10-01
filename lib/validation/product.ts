@@ -23,6 +23,8 @@ export const productBaseSchema = z.object({
   descriptionTa: z.string().max(2000).optional().nullable(),
   sku: z.string().max(100).optional(),
   piecesPerBox: z.number().int().min(1, 'Pieces per box must be at least 1').optional().nullable(),
+  boxContent: z.number().int().min(1, 'Box content must be at least 1').optional().nullable(),
+  contentUnit: z.string().max(50).optional().nullable(),
   mrp: z.number().positive('MRP must be greater than 0'),
   discountPercent: z.number().min(0).max(100).optional().nullable(),
   sellingPrice: z.number().positive('Selling price must be greater than 0'),

@@ -86,9 +86,13 @@ async function _PUT(
     }
     if (result.data.description !== undefined) updateData.description = result.data.description;
     if (result.data.descriptionTa !== undefined) updateData.descriptionTa = result.data.descriptionTa;
-    if (result.data.sku !== undefined) updateData.sku = result.data.sku;
-    if (result.data.piecesPerBox !== undefined) {
-      updateData.piecesPerBox = result.data.piecesPerBox ? Number(result.data.piecesPerBox) : 1;
+    if (result.data.boxContent !== undefined || result.data.piecesPerBox !== undefined) {
+      const val = result.data.boxContent ?? result.data.piecesPerBox ?? 1;
+      updateData.boxContent = Number(val);
+      updateData.piecesPerBox = Number(val);
+    }
+    if (result.data.contentUnit !== undefined) {
+      updateData.contentUnit = result.data.contentUnit?.trim() || 'Pcs';
     }
     if (result.data.mrp !== undefined) updateData.mrp = String(result.data.mrp);
     if (result.data.sellingPrice !== undefined) updateData.sellingPrice = String(result.data.sellingPrice);

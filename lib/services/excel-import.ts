@@ -19,6 +19,8 @@ export interface ParsedProductItem {
   categoryId: number;
   categoryName: string;
   piecesPerBox?: number | null;
+  boxContent?: number | null;
+  contentUnit?: string | null;
   mrp: number;
   discountPercent?: number | null;
   sellingPrice: number;
@@ -69,7 +71,8 @@ export async function generateBulkUploadTemplate(): Promise<Buffer> {
     'Product Name (EN)',
     'Product Name (TA)',
     'Category (Name or Slug)',
-    'Pieces Per Box',
+    'Box Content',
+    'Unit of Content',
     'MRP (₹)',
     'Discount (%)',
     'Selling Price (₹)',
@@ -93,6 +96,7 @@ export async function generateBulkUploadTemplate(): Promise<Buffer> {
       '10 செ.மீ எலக்ட்ரிக் கம்பி மத்தாப்பு (10 எண்ணிக்கை)',
       sampleCategory,
       10,
+      'Pcs',
       150,
       50,
       75,
@@ -110,6 +114,7 @@ export async function generateBulkUploadTemplate(): Promise<Buffer> {
       'ஸ்பெஷல் டீலக்ஸ் தரை சக்கரம் (10 எண்ணிக்கை)',
       sampleCategory2,
       10,
+      'Pcs',
       280,
       50,
       140,
@@ -127,6 +132,7 @@ export async function generateBulkUploadTemplate(): Promise<Buffer> {
       'லுனிக் ராக்கெட் சூப்பர் சோனிக் (10 எண்ணிக்கை)',
       sampleCategory3,
       10,
+      'Pcs',
       400,
       50,
       200,
@@ -148,7 +154,8 @@ export async function generateBulkUploadTemplate(): Promise<Buffer> {
     { wch: 36 }, // Product Name (EN)
     { wch: 42 }, // Product Name (TA)
     { wch: 24 }, // Category
-    { wch: 16 }, // Pieces Per Box
+    { wch: 14 }, // Box Content
+    { wch: 16 }, // Unit of Content
     { wch: 12 }, // MRP
     { wch: 14 }, // Discount (%)
     { wch: 18 }, // Selling Price
@@ -191,10 +198,16 @@ export async function generateBulkUploadTemplate(): Promise<Buffer> {
       'Must match one of the categories listed in the "Categories" sheet. You can use either Category Name or Slug.',
     ],
     [
-      'Pieces Per Box',
+      'Box Content',
       'Optional (Default 1)',
       'Integer >= 1',
-      'Number of cracker pieces inside the box/pack (e.g. 10, 5, 25, 50). Displayed to customers as "10 Pcs / Box".',
+      'Number of content units inside one box/pack (e.g. 10, 5, 1, 22).',
+    ],
+    [
+      'Unit of Content',
+      'Optional (Default Pcs)',
+      'Text',
+      'Unit measurement of the box content (e.g. "Pcs", "Pieces", "Pack", "Box", "Items", "Rolls"). Displayed to customers as "10 Pcs / Box" or "1 Pack / Box".',
     ],
     [
       'MRP (₹)',
@@ -309,7 +322,8 @@ function normalizeHeaderKey(header: string): string {
   if (clean.includes('descriptionta') || clean.includes('descta') || clean.includes('tamildesc')) return 'descriptionTa';
   if (clean.includes('description') || clean.includes('desc')) return 'description';
   if (clean.includes('category')) return 'category';
-  if (clean.includes('piecesperbox') || clean.includes('pieces') || clean.includes('piece') || clean.includes('boxcontent') || clean.includes('boxcount')) return 'piecesPerBox';
+  if (clean.includes('boxcontent') || clean.includes('boxcount') || clean.includes('piecesperbox') || clean.includes('pieces') || clean.includes('piece') || clean.includes('contentcount')) return 'boxContent';
+  if (clean.includes('unitofcontent') || clean.includes('contentunit') || clean.includes('unit') || clean.includes('packunit') || clean.includes('uom')) return 'contentUnit';
   if (clean.includes('discountpercent') || clean.includes('discountpercentage') || clean.includes('discount')) return 'discountPercent';
   if (clean.includes('mrp') || clean.includes('originalprice') || clean.includes('marketprice')) return 'mrp';
   if (clean.includes('sellingprice') || clean.includes('offerprice') || clean.includes('discountprice') || clean.includes('price')) return 'sellingPrice';
@@ -463,14 +477,19 @@ export async function parseAndValidateExcel(fileBuffer: Buffer | ArrayBuffer): P
       discountPercent = Math.max(0, Math.round(((mrp - sellingPrice) / mrp) * 100));
     }
 
-    // 5. Pieces Per Box
-    const piecesPerBox = normalized.piecesPerBox !== '' && normalized.piecesPerBox !== undefined
-      ? parseInt(String(normalized.piecesPerBox), 10)
+    // 5. Box Content & Unit of Content
+    const boxContentRaw = normalized.boxContent !== undefined && normalized.boxContent !== ''
+      ? normalized.boxContent
+      : normalized.piecesPerBox;
+    const boxContent = boxContentRaw !== '' && boxContentRaw !== undefined
+      ? parseInt(String(boxContentRaw), 10)
       : 1;
 
-    if (isNaN(piecesPerBox) || piecesPerBox < 1) {
-      rowErrors.push('Pieces Per Box must be a positive integer (1 or more).');
+    if (isNaN(boxContent) || boxContent < 1) {
+      rowErrors.push('Box Content must be a positive integer (1 or more).');
     }
+
+    const contentUnit = normalized.contentUnit ? String(normalized.contentUnit).trim() : 'Pcs';
 
     // 6. Stock & Low Stock (Optional, numeric)
     const stockQuantity = normalized.stockQuantity !== '' && normalized.stockQuantity !== undefined
@@ -544,7 +563,9 @@ export async function parseAndValidateExcel(fileBuffer: Buffer | ArrayBuffer): P
           categoryNameOrSlug: categoryInput,
           categoryId: matchedCategory!.id,
           categoryName: matchedCategory!.name,
-          piecesPerBox,
+          piecesPerBox: boxContent,
+          boxContent,
+          contentUnit,
           mrp,
           discountPercent: discountPercent ?? 0,
           sellingPrice,
@@ -703,7 +724,9 @@ export async function executeBulkProductImport({
                   description: item.description,
                   descriptionTa: item.descriptionTa,
                   sku: item.sku,
-                  piecesPerBox: item.piecesPerBox ?? 1,
+                  piecesPerBox: item.boxContent ?? item.piecesPerBox ?? 1,
+                  boxContent: item.boxContent ?? item.piecesPerBox ?? 1,
+                  contentUnit: item.contentUnit || 'Pcs',
                   mrp: String(item.mrp),
                   discountPercent: item.discountPercent ?? 0,
                   sellingPrice: String(item.sellingPrice),
@@ -740,7 +763,9 @@ export async function executeBulkProductImport({
               description: item.description,
               descriptionTa: item.descriptionTa,
               sku: item.sku,
-              piecesPerBox: item.piecesPerBox ?? 1,
+              piecesPerBox: item.boxContent ?? item.piecesPerBox ?? 1,
+              boxContent: item.boxContent ?? item.piecesPerBox ?? 1,
+              contentUnit: item.contentUnit || 'Pcs',
               mrp: String(item.mrp),
               discountPercent: item.discountPercent ?? 0,
               sellingPrice: String(item.sellingPrice),

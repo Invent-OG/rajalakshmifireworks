@@ -30,6 +30,8 @@ export const products = pgTable(
     descriptionTa: text('description_ta'),
     sku: varchar('sku', { length: 100 }),
     piecesPerBox: integer('pieces_per_box').default(1),
+    boxContent: integer('box_content').default(1),
+    contentUnit: varchar('content_unit', { length: 50 }).default('Pcs'),
     mrp: numeric('mrp', { precision: 10, scale: 2 }).notNull(),
     discountPercent: integer('discount_percent').default(0),
     sellingPrice: numeric('selling_price', { precision: 10, scale: 2 }).notNull(),
