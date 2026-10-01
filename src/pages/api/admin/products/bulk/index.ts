@@ -79,12 +79,17 @@ async function _POST(request: NextRequest) {
           updatedCount = productIds.length;
           break;
 
-        case 'DELETE':
-          for (const pid of productIds) {
+        case 'DELETE': {
+          const prodsToDelete = await tx.query.products.findMany({
+            where: inArray(products.id, productIds),
+            columns: { id: true, slug: true, name: true },
+          });
+
+          for (const p of prodsToDelete) {
             const [ordersCount] = await tx
               .select({ count: sql<number>`count(*)` })
               .from(orderItems)
-              .where(eq(orderItems.productId, pid));
+              .where(eq(orderItems.productId, p.id));
 
             const hasOrders = Number(ordersCount?.count ?? 0) > 0;
             if (hasOrders) {
@@ -94,19 +99,20 @@ async function _POST(request: NextRequest) {
                   isActive: false,
                   archivedAt: new Date(),
                   updatedAt: new Date(),
-                  slug: sql`concat(${products.slug}, '-archived-', ${Date.now()})`,
+                  slug: `${p.slug}-archived-${Date.now()}`,
                 })
-                .where(eq(products.id, pid));
+                .where(eq(products.id, p.id));
             } else {
-              await tx.delete(comboItems).where(eq(comboItems.comboProductId, pid));
-              await tx.delete(comboItems).where(eq(comboItems.productId, pid));
-              await tx.delete(productMedia).where(eq(productMedia.productId, pid));
-              await tx.delete(inventoryTransactions).where(eq(inventoryTransactions.productId, pid));
-              await tx.delete(products).where(eq(products.id, pid));
+              await tx.delete(comboItems).where(eq(comboItems.comboProductId, p.id));
+              await tx.delete(comboItems).where(eq(comboItems.productId, p.id));
+              await tx.delete(productMedia).where(eq(productMedia.productId, p.id));
+              await tx.delete(inventoryTransactions).where(eq(inventoryTransactions.productId, p.id));
+              await tx.delete(products).where(eq(products.id, p.id));
             }
           }
-          updatedCount = productIds.length;
+          updatedCount = prodsToDelete.length;
           break;
+        }
       }
     });
 
