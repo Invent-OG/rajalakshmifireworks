@@ -9,9 +9,10 @@ import { productUpdateSchema, type ProductUpdateInput } from '@/lib/validation/p
 import { Button } from '@/components/ui/button';
 import { Input, Textarea, Select } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Trash2, AlertTriangle } from 'lucide-react';
 import Link from '@/components/ui/link';
 import { toast } from 'sonner';
+import { Portal } from '@/components/ui/portal';
 
 import { ProductMediaManager } from '@/components/admin/product-media-manager';
 import { ComboProductBuilder, type ComboItemEntry } from '@/components/admin/combo-product-builder';
@@ -31,8 +32,26 @@ function EditProductPageContent({
   const router = useRouter();
   const queryClient = useQueryClient();
   const [submitting, setSubmitting] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [isCombo, setIsCombo] = useState(false);
   const [comboItems, setComboItems] = useState<ComboItemEntry[]>([]);
+
+  const handleDeleteProduct = async () => {
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/admin/products/${productId}`, { method: 'DELETE' });
+      const resData = await res.json();
+      if (!res.ok) throw new Error(resData.message || 'Failed to delete product');
+      toast.success(resData.message || 'Product deleted successfully');
+      queryClient.invalidateQueries({ queryKey: ['admin', 'products'] });
+      window.location.href = '/admin/products';
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to delete product');
+      setDeleting(false);
+      setDeleteDialogOpen(false);
+    }
+  };
 
   const { data: productData, isLoading } = useQuery({
     queryKey: ['admin', 'products', 'detail', productId],
@@ -215,27 +234,40 @@ function EditProductPageContent({
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-fade-in">
       {/* Header */}
-      <div className="flex items-center gap-3 pb-4 border-b border-border">
-        <Link href="/admin/products">
-          <Button variant="outline" size="icon" className="rounded-xl">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-        </Link>
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold text-foreground tracking-tight">
-              Edit {product.name}
-            </h1>
-            {isCombo && (
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-200">
-                Combo Pack
-              </span>
-            )}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
+        <div className="flex items-center gap-3">
+          <Link href="/admin/products">
+            <Button variant="outline" size="icon" className="rounded-xl">
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+          </Link>
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-2xl font-bold text-foreground tracking-tight">
+                Edit {product.name}
+              </h1>
+              {isCombo && (
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-200">
+                  Combo Pack
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground font-mono mt-0.5">
+              Internal ID: #{product.id} • SKU: {product.sku || 'N/A'}
+            </p>
           </div>
-          <p className="text-xs text-muted-foreground font-mono mt-0.5">
-            Internal ID: #{product.id} • SKU: {product.sku || 'N/A'}
-          </p>
         </div>
+
+        <Button
+          type="button"
+          variant="destructive"
+          size="sm"
+          onClick={() => setDeleteDialogOpen(true)}
+          className="self-start sm:self-auto font-medium"
+        >
+          <Trash2 className="h-4 w-4 mr-1.5" />
+          Delete Product
+        </Button>
       </div>
 
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -460,6 +492,53 @@ function EditProductPageContent({
           </Button>
         </div>
       </form>
+
+      {/* DELETE CONFIRMATION MODAL */}
+      {deleteDialogOpen && (
+        <Portal>
+          <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in">
+            <div className="bg-card rounded-2xl border border-border shadow-xl max-w-sm w-full p-6 space-y-4">
+              <div className="h-10 w-10 rounded-full bg-destructive/10 text-destructive flex items-center justify-center mx-auto">
+                <AlertTriangle className="h-5 w-5" />
+              </div>
+
+              <div className="text-center space-y-1">
+                <h3 className="font-bold text-foreground text-sm">Delete Product?</h3>
+                <p className="text-xs text-muted-foreground">
+                  Are you sure you want to delete <strong className="text-foreground">{product.name}</strong>?
+                </p>
+                {product.sku && (
+                  <p className="font-mono text-[11px] text-muted-foreground">SKU: {product.sku}</p>
+                )}
+                <p className="text-[11px] text-muted-foreground/80 pt-1">
+                  If this product has historical orders, it will be safely archived to preserve receipts and accounting data. Otherwise, it will be permanently deleted.
+                </p>
+              </div>
+
+              <div className="flex items-center justify-center gap-2 pt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  type="button"
+                  onClick={() => setDeleteDialogOpen(false)}
+                  disabled={deleting}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  type="button"
+                  onClick={handleDeleteProduct}
+                  loading={deleting}
+                >
+                  Confirm Delete
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Portal>
+      )}
     </div>
   );
 }

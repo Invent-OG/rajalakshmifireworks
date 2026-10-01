@@ -1,15 +1,15 @@
 import { wrapHandler } from '@/src/lib/astro-api';
 
 import { db } from '@/db';
-import { products } from '@/db/schema';
-import { inArray, sql } from 'drizzle-orm';
+import { products, productMedia, comboItems, orderItems, inventoryTransactions } from '@/db/schema';
+import { inArray, sql, eq } from 'drizzle-orm';
 import { getSession } from '@/lib/auth/session';
 import { logger } from '@/lib/utils/logger';
 import { z } from 'zod';
 
 const bulkProductActionSchema = z.object({
   productIds: z.array(z.number().int().positive()).min(1, 'Please select at least one product'),
-  action: z.enum(['ACTIVATE', 'DEACTIVATE', 'SET_CATEGORY', 'ADJUST_PRICE']),
+  action: z.enum(['ACTIVATE', 'DEACTIVATE', 'SET_CATEGORY', 'ADJUST_PRICE', 'DELETE']),
   categoryId: z.number().int().positive().optional(),
   percentageChange: z.number().min(-90).max(500).optional(),
 });
@@ -76,6 +76,35 @@ async function _POST(request: NextRequest) {
               updatedAt: new Date(),
             })
             .where(inArray(products.id, productIds));
+          updatedCount = productIds.length;
+          break;
+
+        case 'DELETE':
+          for (const pid of productIds) {
+            const [ordersCount] = await tx
+              .select({ count: sql<number>`count(*)` })
+              .from(orderItems)
+              .where(eq(orderItems.productId, pid));
+
+            const hasOrders = Number(ordersCount?.count ?? 0) > 0;
+            if (hasOrders) {
+              await tx
+                .update(products)
+                .set({
+                  isActive: false,
+                  archivedAt: new Date(),
+                  updatedAt: new Date(),
+                  slug: sql`concat(${products.slug}, '-archived-', ${Date.now()})`,
+                })
+                .where(eq(products.id, pid));
+            } else {
+              await tx.delete(comboItems).where(eq(comboItems.comboProductId, pid));
+              await tx.delete(comboItems).where(eq(comboItems.productId, pid));
+              await tx.delete(productMedia).where(eq(productMedia.productId, pid));
+              await tx.delete(inventoryTransactions).where(eq(inventoryTransactions.productId, pid));
+              await tx.delete(products).where(eq(products.id, pid));
+            }
+          }
           updatedCount = productIds.length;
           break;
       }

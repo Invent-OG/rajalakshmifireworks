@@ -35,6 +35,13 @@ async function _GET(request: NextRequest) {
       conditions.push(eq(products.categoryId, parseInt(categoryId, 10)));
     }
 
+    // Exclude archived/deleted products by default
+    if (statusFilter === 'archived') {
+      conditions.push(sql`${products.archivedAt} IS NOT NULL`);
+    } else {
+      conditions.push(sql`${products.archivedAt} IS NULL`);
+    }
+
     if (statusFilter === 'active') {
       conditions.push(eq(products.isActive, true));
     } else if (statusFilter === 'inactive') {
@@ -115,13 +122,13 @@ async function _GET(request: NextRequest) {
         columns: { id: true, name: true, slug: true },
       }),
       db.select({
-        total: sql<number>`count(*)`,
-        inStock: sql<number>`count(*) filter (where ${products.stockQuantity} > ${products.lowStockThreshold})`,
-        lowStock: sql<number>`count(*) filter (where ${products.stockQuantity} <= ${products.lowStockThreshold} and ${products.stockQuantity} > 0)`,
-        outOfStock: sql<number>`count(*) filter (where ${products.stockQuantity} = 0)`,
-        active: sql<number>`count(*) filter (where ${products.isActive} = true)`,
-        inactive: sql<number>`count(*) filter (where ${products.isActive} = false)`,
-        combos: sql<number>`count(*) filter (where ${products.isCombo} = true)`,
+        total: sql<number>`count(*) filter (where ${products.archivedAt} is null)`,
+        inStock: sql<number>`count(*) filter (where ${products.stockQuantity} > ${products.lowStockThreshold} and ${products.archivedAt} is null)`,
+        lowStock: sql<number>`count(*) filter (where ${products.stockQuantity} <= ${products.lowStockThreshold} and ${products.stockQuantity} > 0 and ${products.archivedAt} is null)`,
+        outOfStock: sql<number>`count(*) filter (where ${products.stockQuantity} = 0 and ${products.archivedAt} is null)`,
+        active: sql<number>`count(*) filter (where ${products.isActive} = true and ${products.archivedAt} is null)`,
+        inactive: sql<number>`count(*) filter (where ${products.isActive} = false and ${products.archivedAt} is null)`,
+        combos: sql<number>`count(*) filter (where ${products.isCombo} = true and ${products.archivedAt} is null)`,
       }).from(products),
     ]);
 

@@ -14,6 +14,8 @@ import {
   Search,
   Plus,
   Edit,
+  Trash2,
+  AlertTriangle,
   Archive,
   DollarSign,
   Download,
@@ -66,6 +68,8 @@ function AdminProductsPageContent() {
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [bulkPriceModalOpen, setBulkPriceModalOpen] = useState(false);
   const [bulkCategoryModalOpen, setBulkCategoryModalOpen] = useState(false);
+  const [bulkDeleteModalOpen, setBulkDeleteModalOpen] = useState(false);
+  const [deletingProduct, setDeletingProduct] = useState<ProductListItem | null>(null);
   const [bulkPercentage, setBulkPercentage] = useState<number>(10);
   const [bulkTargetCategoryId, setBulkTargetCategoryId] = useState<number>(0);
 
@@ -102,16 +106,18 @@ function AdminProductsPageContent() {
   const pagination = data?.pagination ?? { total: 0, totalPages: 1, page: 1, limit: 25 };
   const stats = data?.stats ?? { total: 0, inStock: 0, lowStock: 0, outOfStock: 0, active: 0, inactive: 0, combos: 0 };
 
-  // Single Archive Mutation
-  const archiveMutation = useMutation({
+  // Single Product Delete Mutation
+  const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
       const res = await fetch(`/api/admin/products/${id}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Failed to archive product');
-      return res.json();
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.message || 'Failed to delete product');
+      return json;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      toast.success(data.message || 'Product deleted successfully');
       queryClient.invalidateQueries({ queryKey: ['admin', 'products'] });
-      toast.success('Product archived successfully');
+      setDeletingProduct(null);
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -119,7 +125,7 @@ function AdminProductsPageContent() {
   // Bulk Product Actions Mutation
   const bulkActionMutation = useMutation({
     mutationFn: async (payload: {
-      action: 'ACTIVATE' | 'DEACTIVATE' | 'SET_CATEGORY' | 'ADJUST_PRICE';
+      action: 'ACTIVATE' | 'DEACTIVATE' | 'SET_CATEGORY' | 'ADJUST_PRICE' | 'DELETE';
       categoryId?: number;
       percentageChange?: number;
     }) => {
@@ -136,11 +142,15 @@ function AdminProductsPageContent() {
       return json;
     },
     onSuccess: (res) => {
-      toast.success(`Updated ${res.updatedCount} products successfully`);
+      const msg = res.action === 'DELETE'
+        ? `Deleted ${res.updatedCount} products successfully`
+        : `Updated ${res.updatedCount} products successfully`;
+      toast.success(msg);
       queryClient.invalidateQueries({ queryKey: ['admin', 'products'] });
       setSelectedIds([]);
       setBulkPriceModalOpen(false);
       setBulkCategoryModalOpen(false);
+      setBulkDeleteModalOpen(false);
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -531,25 +541,19 @@ function AdminProductsPageContent() {
                       <td className="px-4 py-3.5 text-right">
                         <div className="flex items-center justify-end gap-1">
                           <Link href={`/admin/products/${p.id}`}>
-                            <Button variant="ghost" size="icon-sm" aria-label="Edit product">
+                            <Button variant="ghost" size="icon-sm" aria-label="Edit product" title="Edit product">
                               <Edit className="h-3.5 w-3.5" />
                             </Button>
                           </Link>
                           <Button
                             variant="ghost"
                             size="icon-sm"
-                            aria-label="Archive product"
-                            onClick={() => {
-                              if (
-                                confirm(
-                                  `Archive "${p.name}"? It will no longer show in the storefront.`
-                                )
-                              ) {
-                                archiveMutation.mutate(p.id);
-                              }
-                            }}
+                            aria-label="Delete product"
+                            title="Delete product"
+                            className="text-muted-foreground hover:text-destructive transition-colors"
+                            onClick={() => setDeletingProduct(p)}
                           >
-                            <Archive className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
+                            <Trash2 className="h-3.5 w-3.5" />
                           </Button>
                         </div>
                       </td>
@@ -628,6 +632,16 @@ function AdminProductsPageContent() {
           onClick={() => setBulkPriceModalOpen(true)}
         >
           <Percent className="h-3.5 w-3.5 mr-1" /> Price %
+        </Button>
+
+        <Button
+          size="sm"
+          variant="outline"
+          className="bg-destructive/15 text-destructive border-destructive/30 hover:bg-destructive hover:text-white text-xs font-semibold"
+          onClick={() => setBulkDeleteModalOpen(true)}
+          disabled={bulkActionMutation.isPending}
+        >
+          <Trash2 className="h-3.5 w-3.5 mr-1" /> Delete ({selectedIds.length})
         </Button>
 
         <Button
@@ -753,6 +767,95 @@ function AdminProductsPageContent() {
                   loading={bulkActionMutation.isPending}
                 >
                   Apply Price Change
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Portal>
+      )}
+
+      {/* SINGLE PRODUCT DELETE CONFIRMATION MODAL */}
+      {deletingProduct && (
+        <Portal>
+          <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in">
+            <div className="bg-card rounded-2xl border border-border shadow-xl max-w-sm w-full p-6 space-y-4">
+              <div className="h-10 w-10 rounded-full bg-destructive/10 text-destructive flex items-center justify-center mx-auto">
+                <AlertTriangle className="h-5 w-5" />
+              </div>
+
+              <div className="text-center space-y-1">
+                <h3 className="font-bold text-foreground text-sm">Delete Product?</h3>
+                <p className="text-xs text-muted-foreground">
+                  Are you sure you want to remove <strong className="text-foreground">{deletingProduct.name}</strong>?
+                </p>
+                {deletingProduct.sku && (
+                  <p className="font-mono text-[11px] text-muted-foreground">SKU: {deletingProduct.sku}</p>
+                )}
+                <p className="text-[11px] text-muted-foreground/80 pt-1">
+                  If this product has historical orders, it will be safely archived to preserve customer invoice records. Otherwise, it will be permanently deleted.
+                </p>
+              </div>
+
+              <div className="flex items-center justify-center gap-2 pt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setDeletingProduct(null)}
+                  disabled={deleteMutation.isPending}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => deleteMutation.mutate(deletingProduct.id)}
+                  loading={deleteMutation.isPending}
+                >
+                  Confirm Delete
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Portal>
+      )}
+
+      {/* BULK DELETE CONFIRMATION MODAL */}
+      {bulkDeleteModalOpen && (
+        <Portal>
+          <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in">
+            <div className="bg-card rounded-2xl border border-border shadow-xl max-w-sm w-full p-6 space-y-4">
+              <div className="h-10 w-10 rounded-full bg-destructive/10 text-destructive flex items-center justify-center mx-auto">
+                <AlertTriangle className="h-5 w-5" />
+              </div>
+
+              <div className="text-center space-y-1">
+                <h3 className="font-bold text-foreground text-sm">Delete {selectedIds.length} Products?</h3>
+                <p className="text-xs text-muted-foreground">
+                  Are you sure you want to delete the <strong className="text-foreground">{selectedIds.length}</strong> selected products?
+                </p>
+                <p className="text-[11px] text-muted-foreground/80 pt-1">
+                  Products with historical orders will be safely archived to preserve customer records, while products without order history will be permanently deleted.
+                </p>
+              </div>
+
+              <div className="flex items-center justify-center gap-2 pt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setBulkDeleteModalOpen(false)}
+                  disabled={bulkActionMutation.isPending}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => {
+                    bulkActionMutation.mutate({ action: 'DELETE' });
+                  }}
+                  loading={bulkActionMutation.isPending}
+                >
+                  Confirm Delete All
                 </Button>
               </div>
             </div>

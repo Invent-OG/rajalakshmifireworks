@@ -1,8 +1,8 @@
 import { wrapHandler } from '@/src/lib/astro-api';
 
 import { db } from '@/db';
-import { products, productMedia, comboItems } from '@/db/schema';
-import { eq, asc } from 'drizzle-orm';
+import { products, productMedia, comboItems, orderItems, inventoryTransactions } from '@/db/schema';
+import { eq, asc, sql } from 'drizzle-orm';
 import { getSession } from '@/lib/auth/session';
 import { productUpdateSchema } from '@/lib/validation/product';
 import { slugify } from '@/lib/utils/format';
@@ -155,20 +155,56 @@ async function _DELETE(
   }
 
   try {
-    // Soft delete — set archived
-    await db
-      .update(products)
-      .set({
-        isActive: false,
-        archivedAt: new Date(),
-        updatedAt: new Date(),
-      })
-      .where(eq(products.id, productId));
+    const existing = await db.query.products.findFirst({
+      where: eq(products.id, productId),
+    });
 
-    return Response.json({ success: true });
+    if (!existing) {
+      return Response.json({ message: 'Product not found' }, { status: 404 });
+    }
+
+    // Check if product is referenced in orders (orderItems)
+    const [ordersCount] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(orderItems)
+      .where(eq(orderItems.productId, productId));
+
+    const hasOrderHistory = Number(ordersCount?.count ?? 0) > 0;
+
+    if (hasOrderHistory) {
+      // Soft-delete to preserve order history and customer receipts
+      await db
+        .update(products)
+        .set({
+          isActive: false,
+          archivedAt: new Date(),
+          updatedAt: new Date(),
+          slug: `${existing.slug}-archived-${Date.now()}`,
+        })
+        .where(eq(products.id, productId));
+
+      return Response.json({
+        success: true,
+        archived: true,
+        message: `Product "${existing.name}" archived from store catalog to preserve past order records.`,
+      });
+    }
+
+    // No orders linked: hard delete cleanly with all dependent records
+    await db.delete(comboItems).where(eq(comboItems.comboProductId, productId));
+    await db.delete(comboItems).where(eq(comboItems.productId, productId));
+    await db.delete(productMedia).where(eq(productMedia.productId, productId));
+    await db.delete(inventoryTransactions).where(eq(inventoryTransactions.productId, productId));
+    await db.delete(products).where(eq(products.id, productId));
+
+    return Response.json({
+      success: true,
+      archived: false,
+      message: `Product "${existing.name}" deleted successfully.`,
+    });
   } catch (error) {
-    console.error('Error archiving product:', error);
-    return Response.json({ message: 'Failed to archive product' }, { status: 500 });
+    console.error('Error deleting product:', error);
+    return Response.json({ message: 'Failed to delete product' }, { status: 500 });
   }
 }
 
