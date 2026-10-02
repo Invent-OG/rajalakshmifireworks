@@ -36,3 +36,29 @@ export type LoginInput = z.infer<typeof loginSchema>;
 export type StockAdjustmentInput = z.infer<typeof stockAdjustmentSchema>;
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
+
+export const bulkStockItemSchema = z
+  .object({
+    productId: z.number().int().positive().optional(),
+    sku: z.string().trim().optional(),
+    quantityChange: z.number().int().optional(),
+    newStock: z.number().int().min(0, 'Stock cannot be negative').optional(),
+    note: z.string().max(500).optional(),
+  })
+  .refine(
+    (item) => item.productId !== undefined || (item.sku !== undefined && item.sku.length > 0),
+    {
+      message: 'Each item must have a valid productId or sku',
+    }
+  );
+
+export const bulkStockAdjustmentSchema = z.object({
+  mode: z.enum(['ADD', 'REMOVE', 'SET', 'CUSTOM']),
+  quantity: z.number().int().optional(),
+  defaultNote: z.string().max(500).optional(),
+  items: z.array(bulkStockItemSchema).min(1, 'Please select or provide at least one product to adjust'),
+});
+
+export type BulkStockItemInput = z.infer<typeof bulkStockItemSchema>;
+export type BulkStockAdjustmentInput = z.infer<typeof bulkStockAdjustmentSchema>;
+

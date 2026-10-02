@@ -12,6 +12,10 @@ async function _POST(
   if (!session) return Response.json({ message: 'Unauthorized' }, { status: 401 });
 
   const { productId } = await params;
+  const parsedId = parseInt(productId, 10);
+  if (!productId || isNaN(parsedId)) {
+    return Response.json({ message: 'Invalid product ID' }, { status: 400 });
+  }
 
   try {
     const body = await request.json();
