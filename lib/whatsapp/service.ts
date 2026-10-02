@@ -44,6 +44,7 @@ export class WhatsAppService {
       with: {
         items: true,
         customer: true,
+        deliveryPartner: true,
       },
     });
 
@@ -145,6 +146,14 @@ export class WhatsAppService {
         sellingPriceSnapshot: item.sellingPriceSnapshot,
         lineTotal: item.lineTotal,
       })),
+      deliveryPartner: order.deliveryPartner
+        ? {
+            name: order.deliveryPartner.name,
+            mobileNumber: order.deliveryPartner.mobileNumber,
+            vehicleType: order.deliveryPartner.vehicleType,
+            vehicleNumber: order.deliveryPartner.vehicleNumber,
+          }
+        : null,
       placedAt: order.placedAt,
     };
 
@@ -274,6 +283,10 @@ export class WhatsAppService {
 
   async sendOrderConfirmed(orderId: number): Promise<SendWhatsAppResult> {
     return this.sendOrderNotification(orderId, 'ORDER_CONFIRMED');
+  }
+
+  async sendOrderAssigned(orderId: number): Promise<SendWhatsAppResult> {
+    return this.sendOrderNotification(orderId, 'ORDER_ASSIGNED');
   }
 
   async sendOrderPacked(orderId: number): Promise<SendWhatsAppResult> {

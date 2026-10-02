@@ -88,7 +88,7 @@ WHATSAPP_MOCK_MODE=false
 
 ## 4. Message Templates (Meta Utility Category)
 
-Create the following 6 templates in Meta WhatsApp Manager under **Category: UTILITY** and **Language: English (en)**.
+Create the following 7 templates in Meta WhatsApp Manager under **Category: UTILITY** and **Language: English (en)**.
 
 ### 1. `order_received`
 - **Category:** Utility
@@ -109,29 +109,55 @@ Create the following 6 templates in Meta WhatsApp Manager under **Category: UTIL
   ```text
   Hello {{1}}, great news! Your order #{{2}} for {{3}} has been confirmed and is being prepared at our Sivakasi facility. Fulfillment: {{4}}.
   ```
+- **Variables & Product/Quotation Mapping:**
+  - `{{1}}`: Customer Name
+  - `{{2}}`: Invoice Number (`FW-20260903-XXXX`)
+  - `{{3}}`: Quotation & Bill Breakdown (e.g. `₹1,450.00 (Subtotal: ₹1,400.00, Delivery: ₹50.00)`)
+  - `{{4}}`: Fulfillment Type & Items Breakdown (e.g. `Home Delivery | Items: 2x 10cm Sparklers (₹200.00), 1x Standard Rocket (₹300.00)`)
 
-### 3. `order_packed`
+### 3. `order_assigned`
+- **Category:** Utility
+- **Body:**
+  ```text
+  Hello {{1}}, your order #{{2}} ({{3}}) has been assigned for delivery with {{4}}. Fulfillment: {{5}}.
+  ```
+- **Variables & Product/Quotation Mapping:**
+  - `{{1}}`: Customer Name
+  - `{{2}}`: Invoice Number (`FW-20260903-XXXX`)
+  - `{{3}}`: Quotation & Bill Breakdown (`₹1,450.00`)
+  - `{{4}}`: Delivery Partner Details (e.g. `Ramesh (+91 9876543210 - TN67AB1234)`)
+  - `{{5}}`: Delivery Address & Items Breakdown (`Home Delivery | Items: ...`)
+
+### 4. `order_packed`
 - **Category:** Utility
 - **Body:**
   ```text
   Hello {{1}}, your order #{{2}} has been packed securely and is ready for {{3}}.
   ```
 
-### 4. `order_out_for_delivery`
+### 5. `order_out_for_delivery`
 - **Category:** Utility
 - **Body:**
   ```text
   Hello {{1}}, your order #{{2}} is out for delivery to {{3}}. Please be available to receive your package.
   ```
+- **Variables & Product/Quotation Mapping:**
+  - `{{1}}`: Customer Name
+  - `{{2}}`: Invoice Number (`FW-20260903-XXXX`)
+  - `{{3}}`: Delivery Destination, Total Quotation & Items (`123 Bazaar St, Sivakasi | Total: ₹1,450.00 | Items: 2x Sparklers...`)
 
-### 5. `order_delivered`
+### 6. `order_delivered`
 - **Category:** Utility
 - **Body:**
   ```text
   Hello {{1}}, your order #{{2}} has been successfully delivered/collected. Thank you for celebrating with {{3}}!
   ```
+- **Variables & Product/Quotation Mapping:**
+  - `{{1}}`: Customer Name
+  - `{{2}}`: Invoice Number (`FW-20260903-XXXX`)
+  - `{{3}}`: Store Name with Total Quotation & Items (`Rajalakshmi Fireworks (Total: ₹1,450.00 - Items: ...)`)
 
-### 6. `order_cancelled`
+### 7. `order_cancelled`
 - **Category:** Utility
 - **Body:**
   ```text

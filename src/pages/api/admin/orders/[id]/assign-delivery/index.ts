@@ -5,6 +5,7 @@ import { orders, deliveryPartners, orderDeliveryAssignments, orderStatusHistory 
 import { eq, and } from 'drizzle-orm';
 import { getSession } from '@/lib/auth/session';
 import { assignDeliverySchema } from '@/lib/validation/order';
+import { whatsAppService } from '@/lib/whatsapp/service';
 import { logger } from '@/lib/utils/logger';
 
 async function _POST(
@@ -124,6 +125,15 @@ async function _POST(
       deliveryPartnerId,
       partnerName: partner.name,
       assignedBy: session.email,
+    });
+
+    // Notify customer on WhatsApp with assigned partner, products, and quotation
+    whatsAppService.sendOrderAssigned(orderId).catch((err) => {
+      logger.error('admin.orders.assign_delivery', 'Background WhatsApp dispatch failed', {
+        orderId,
+        deliveryPartnerId,
+        error: (err as Error).message,
+      });
     });
 
     return Response.json({

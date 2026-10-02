@@ -69,7 +69,97 @@ describe('WhatsApp Templates Builder', () => {
     expect(components[0].parameters[1].text).toBe('FW-20260903-1001');
   });
 
-  it('builds ORDER_OUT_FOR_DELIVERY with full delivery address', () => {
+  it('builds ORDER_CONFIRMED template with products and quotation when items are provided', () => {
+    const orderWithProducts: WhatsAppOrderDetails = {
+      ...mockOrder,
+      items: [
+        {
+          productNameSnapshot: '10cm Electric Sparklers',
+          quantity: 2,
+          sellingPriceSnapshot: '150.00',
+          lineTotal: '300.00',
+        },
+        {
+          productNameSnapshot: 'Flower Pots Deluxe',
+          quantity: 1,
+          sellingPriceSnapshot: '400.00',
+          lineTotal: '400.00',
+        },
+      ],
+    };
+
+    const components = buildTemplateComponents('ORDER_CONFIRMED', orderWithProducts);
+    expect(components[0].parameters[0].text).toBe('Murugan Raja');
+    expect(components[0].parameters[1].text).toBe('FW-20260903-1001');
+    // Parameter 2 includes quotation breakdown
+    expect(components[0].parameters[2].text).toContain('Subtotal:');
+    // Parameter 3 includes products summary
+    expect(components[0].parameters[3].text).toContain('10cm Electric Sparklers (x2)');
+    expect(components[0].parameters[3].text).toContain('Flower Pots Deluxe (x1)');
+  });
+
+  it('builds ORDER_ASSIGNED template with assigned delivery partner and products', () => {
+    const assignedOrder: WhatsAppOrderDetails = {
+      ...mockOrder,
+      deliveryPartner: {
+        name: 'Ramesh Kumar',
+        mobileNumber: '9842100000',
+        vehicleType: 'Tata Ace',
+        vehicleNumber: 'TN 67 AB 1234',
+      },
+      items: [
+        {
+          productNameSnapshot: 'Ground Chakkar Big',
+          quantity: 5,
+          sellingPriceSnapshot: '80.00',
+          lineTotal: '400.00',
+        },
+      ],
+    };
+
+    const components = buildTemplateComponents('ORDER_ASSIGNED', assignedOrder);
+    expect(components[0].parameters[0].text).toBe('Murugan Raja');
+    expect(components[0].parameters[1].text).toBe('FW-20260903-1001');
+    expect(components[0].parameters[2].text).toContain('Ramesh Kumar (9842100000)');
+    expect(components[0].parameters[2].text).toContain('TN 67 AB 1234');
+    expect(components[0].parameters[3].text).toContain('Ground Chakkar Big (x5)');
+    expect(components[0].parameters[3].text).toContain('2,450');
+  });
+
+  it('builds ORDER_OUT_FOR_DELIVERY with full delivery address and products', () => {
+    const orderWithProducts: WhatsAppOrderDetails = {
+      ...mockOrder,
+      items: [
+        {
+          productNameSnapshot: '28 Chorsa Crackers',
+          quantity: 3,
+          sellingPriceSnapshot: '50.00',
+          lineTotal: '150.00',
+        },
+      ],
+    };
+    const components = buildTemplateComponents('ORDER_OUT_FOR_DELIVERY', orderWithProducts);
+    expect(components[0].parameters[2].text).toContain('10 Gandhi Road, Madurai - 625001');
+    expect(components[0].parameters[2].text).toContain('28 Chorsa Crackers (x3)');
+  });
+
+  it('builds ORDER_DELIVERED with delivered products summary', () => {
+    const orderWithProducts: WhatsAppOrderDetails = {
+      ...mockOrder,
+      items: [
+        {
+          productNameSnapshot: 'Magic Peacock Fountain',
+          quantity: 2,
+          sellingPriceSnapshot: '200.00',
+          lineTotal: '400.00',
+        },
+      ],
+    };
+    const components = buildTemplateComponents('ORDER_DELIVERED', orderWithProducts);
+    expect(components[0].parameters[2].text).toContain('Magic Peacock Fountain (x2)');
+  });
+
+  it('builds ORDER_OUT_FOR_DELIVERY with fallback when no items provided', () => {
     const components = buildTemplateComponents('ORDER_OUT_FOR_DELIVERY', mockOrder);
     expect(components[0].parameters[2].text).toBe('10 Gandhi Road, Madurai - 625001');
   });
@@ -80,3 +170,4 @@ describe('WhatsApp Templates Builder', () => {
     expect(components[0].parameters[1].text).toBe('FW-20260903-1001');
   });
 });
+

@@ -1,14 +1,48 @@
 ---
 import AdminLayout from '@/src/layouts/AdminLayout.astro';
 import AdminOrderDetailPage from '@/components/admin/admin-order-detail';
+import { db } from '@/db';
+import { orders, orderStatusHistory, orderDeliveryAssignments, whatsappMessages } from '@/db/schema';
+import { eq, desc } from 'drizzle-orm';
 
 const { id } = Astro.params;
 const orderId = parseInt(id as string, 10);
 if (isNaN(orderId) || orderId <= 0) {
   return Astro.redirect('/admin/orders');
 }
+
+const initialOrder = await db.query.orders.findFirst({
+  where: eq(orders.id, orderId),
+  with: {
+    items: true,
+    customer: true,
+    state: true,
+    city: true,
+    deliveryPartner: true,
+    deliveryAssignments: {
+      orderBy: [desc(orderDeliveryAssignments.createdAt)],
+      with: {
+        deliveryPartner: true,
+      },
+    },
+    statusHistory: {
+      orderBy: [desc(orderStatusHistory.createdAt)],
+    },
+    whatsappMessages: {
+      orderBy: [desc(whatsappMessages.createdAt)],
+    },
+  },
+});
+
+const invoiceNumber = initialOrder?.invoiceNumber || `#${id}`;
 ---
 
-<AdminLayout title={`Order #${id} | Rajalakshmi Fireworks`}>
-  <AdminOrderDetailPage client:only="react" params={{ id: id as string }} />
+<AdminLayout title={`Order ${invoiceNumber} | Rajalakshmi Fireworks`}>
+  <AdminOrderDetailPage
+    client:load
+    orderId={orderId}
+    params={{ id: id as string }}
+    initialOrder={initialOrder ? JSON.parse(JSON.stringify(initialOrder)) : null}
+  />
 </AdminLayout>
+

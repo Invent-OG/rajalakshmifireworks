@@ -62,6 +62,9 @@ async function _POST(request: NextRequest) {
       case 'CONFIRMED':
         notificationType = 'ORDER_CONFIRMED';
         break;
+      case 'ASSIGNED':
+        notificationType = 'ORDER_ASSIGNED';
+        break;
       case 'OUT_FOR_DELIVERY':
         notificationType = 'ORDER_OUT_FOR_DELIVERY';
         break;

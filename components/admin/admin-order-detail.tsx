@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/query/keys';
-import { use, useState } from 'react';
+import { useState } from 'react';
 import { StatusBadge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { formatCurrency, formatDateTime, toNumber } from '@/lib/utils/format';
@@ -24,9 +24,37 @@ import {
   Calendar,
   AlertTriangle,
   RotateCcw,
+  MessageSquare,
+  RefreshCw,
+  Copy,
+  Check,
+  ExternalLink,
+  Share2,
 } from 'lucide-react';
 import Link from '@/components/ui/link';
 import { Skeleton } from '@/components/ui/skeleton';
+import { 
+  getOrderWhatsAppTemplates, 
+  generateCustomerWhatsAppQuotationUrl,
+  type WhatsAppProcessType,
+  type WhatsAppOrderData 
+} from '@/lib/services/whatsapp-service';
+
+interface WhatsAppMessageEntry {
+  id: number;
+  messageType: string;
+  templateName: string;
+  phoneNumber: string;
+  status: string;
+  errorCode?: string | null;
+  errorMessage?: string | null;
+  attemptCount: number;
+  sentAt?: string | null;
+  deliveredAt?: string | null;
+  readAt?: string | null;
+  failedAt?: string | null;
+  createdAt: string;
+}
 
 interface OrderItemDetail {
   id: number;
@@ -72,25 +100,39 @@ interface DeliveryPartnerItem {
 
 import { withAdminShell } from './admin-shell';
 
+interface AdminOrderDetailPageProps {
+  params?: { id?: string } | Promise<{ id: string }>;
+  orderId?: number;
+  initialOrder?: any;
+}
+
 function AdminOrderDetailPageContent({
   params,
-}: {
-  params?: Promise<{ id: string }> | { id: string };
-}) {
+  orderId: propOrderId,
+  initialOrder,
+}: AdminOrderDetailPageProps) {
   const pathId = typeof window !== 'undefined' ? window.location.pathname.split('/').filter(Boolean).pop() : '';
-  const resolvedParams = typeof params === 'object' && params && 'then' in params ? use(params) : params;
-  const id = resolvedParams?.id || pathId || '';
-  const orderId = parseInt(id, 10);
+  const paramId = params && typeof params === 'object' && 'id' in params && typeof params.id === 'string' ? params.id : '';
+  const id = paramId || pathId || (propOrderId ? String(propOrderId) : '');
+  const orderId = propOrderId || parseInt(id, 10);
   const isValidOrderId = !isNaN(orderId) && orderId > 0;
   const queryClient = useQueryClient();
 
   const [selectedPartnerId, setSelectedPartnerId] = useState<string>('');
   const [isReassigning, setIsReassigning] = useState<boolean>(false);
 
-  // Fetch Order
-  const { data, isLoading } = useQuery({
+  // Fetch Order with SSR initialData support
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: queryKeys.admin.orders.detail(orderId),
-    queryFn: () => fetch(`/api/admin/orders/${orderId}`).then((r) => r.json()),
+    queryFn: async () => {
+      const res = await fetch(`/api/admin/orders/${orderId}`);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || `Failed to load order (HTTP ${res.status})`);
+      }
+      return res.json();
+    },
+    initialData: initialOrder ? { order: initialOrder } : undefined,
     enabled: isValidOrderId,
   });
 
@@ -100,7 +142,8 @@ function AdminOrderDetailPageContent({
     queryFn: async () => {
       const res = await fetch('/api/admin/delivery-partners?status=ACTIVE');
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json();
+      return Array.isArray(json) ? json : [];
     },
   });
 
@@ -118,11 +161,15 @@ function AdminOrderDetailPageContent({
       }
       return res.json();
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.admin.orders.detail(orderId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.admin.orders.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.admin.dashboard() });
       toast.success('Order status updated');
+      if (variables.newStatus === 'CONFIRMED') setSelectedWhatsAppProcess('ORDER_CONFIRMED');
+      else if (variables.newStatus === 'ASSIGNED') setSelectedWhatsAppProcess('ORDER_ASSIGNED');
+      else if (variables.newStatus === 'OUT_FOR_DELIVERY') setSelectedWhatsAppProcess('ORDER_OUT_FOR_DELIVERY');
+      else if (variables.newStatus === 'DELIVERED') setSelectedWhatsAppProcess('ORDER_DELIVERED');
     },
     onError: (error: Error) => {
       toast.error(error.message);
@@ -148,6 +195,7 @@ function AdminOrderDetailPageContent({
       queryClient.invalidateQueries({ queryKey: queryKeys.admin.orders.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.admin.dashboard() });
       toast.success('Delivery partner assigned successfully');
+      setSelectedWhatsAppProcess('ORDER_ASSIGNED');
       setIsReassigning(false);
       setSelectedPartnerId('');
     },
@@ -169,13 +217,36 @@ function AdminOrderDetailPageContent({
   }
 
   const order = data?.order;
-  if (!order) {
+  if (!isValidOrderId || isError || !order) {
     return (
-      <div className="text-center py-16 bg-card rounded-2xl border border-border">
-        <p className="font-semibold text-base">Order not found</p>
-        <Link href="/admin/orders" className="text-xs text-brand hover:underline mt-2 block">
-          Back to Orders
-        </Link>
+      <div className="text-center py-16 bg-card rounded-2xl border border-border space-y-4">
+        <div className="h-12 w-12 rounded-2xl bg-destructive/10 text-destructive flex items-center justify-center mx-auto">
+          <AlertTriangle className="h-6 w-6" />
+        </div>
+        <div>
+          <h2 className="font-bold text-lg text-foreground">
+            {!isValidOrderId ? 'Invalid Order Reference' : isError ? 'Failed to Load Order' : 'Order Not Found'}
+          </h2>
+          <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
+            {error instanceof Error
+              ? error.message
+              : !isValidOrderId
+              ? `Order ID "${id}" is not valid.`
+              : `Order #${id} could not be found or may have been removed.`}
+          </p>
+        </div>
+        <div className="flex items-center justify-center gap-3">
+          {isError && (
+            <Button size="sm" variant="outline" onClick={() => refetch()}>
+              <RotateCcw className="h-3.5 w-3.5 mr-1.5" /> Try Again
+            </Button>
+          )}
+          <Link href="/admin/orders">
+            <Button size="sm" variant="primary">
+              <ArrowLeft className="h-3.5 w-3.5 mr-1.5" /> Back to Orders
+            </Button>
+          </Link>
+        </div>
       </div>
     );
   }
@@ -206,6 +277,93 @@ function AdminOrderDetailPageContent({
     CANCELLED: XCircle,
   };
 
+  // Retry / Dispatch WhatsApp Notification Mutation
+  const retryWhatsAppMutation = useMutation({
+    mutationFn: async ({ messageId, messageType }: { messageId?: number; messageType?: string }) => {
+      const res = await fetch(`/api/admin/orders/${orderId}/whatsapp/retry`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messageId, messageType }),
+      });
+      const resData = await res.json();
+      if (!res.ok) throw new Error(resData.message || 'Failed to dispatch WhatsApp notification');
+      return resData;
+    },
+    onSuccess: (resData) => {
+      toast.success(resData.message || 'WhatsApp notification dispatched');
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.orders.detail(orderId) });
+    },
+    onError: (err: Error) => {
+      toast.error(err.message);
+    },
+  });
+
+  const [selectedWhatsAppProcess, setSelectedWhatsAppProcess] = useState<WhatsAppProcessType>(() => {
+    if (order?.orderStatus === 'ASSIGNED') return 'ORDER_ASSIGNED';
+    if (order?.orderStatus === 'OUT_FOR_DELIVERY') return 'ORDER_OUT_FOR_DELIVERY';
+    if (order?.orderStatus === 'DELIVERED') return 'ORDER_DELIVERED';
+    return 'ORDER_CONFIRMED';
+  });
+  const [isCopied, setIsCopied] = useState(false);
+
+  // Dynamic public tracking link for customer
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://rajalakshmifireworks.com';
+  const trackingUrl = `${origin}/en/order-confirmation/${order.invoiceNumber}`;
+
+  const whatsAppOrderData: WhatsAppOrderData = {
+    invoiceNumber: order.invoiceNumber || '',
+    customerName: order.customerNameSnapshot || 'Customer',
+    customerMobile: order.customerMobileSnapshot,
+    items: (order.items || []).map((i: OrderItemDetail) => ({
+      name: i.productNameSnapshot || 'Product',
+      quantity: i.quantity || 1,
+      price: toNumber(i.sellingPriceSnapshot),
+    })),
+    subtotal: toNumber(order.subtotal),
+    discountAmount: toNumber(order.discountAmount),
+    deliveryCharge: toNumber(order.deliveryCharge),
+    totalAmount: toNumber(order.totalAmount),
+    fulfillmentType: (order.fulfillmentType || 'DELIVERY') as 'DELIVERY' | 'PICKUP',
+    address: order.addressSnapshot
+      ? {
+          address: streetAddress || '',
+          city: cityName || '',
+          state: stateName || '',
+          pincode: address?.pincode || '',
+        }
+      : null,
+    deliveryPartner: assignedPartner
+      ? {
+          name: assignedPartner.name || '',
+          mobileNumber: assignedPartner.mobileNumber || null,
+          vehicleNumber: assignedPartner.vehicleNumber || null,
+        }
+      : null,
+    trackingUrl,
+  };
+
+  const templatesList = getOrderWhatsAppTemplates(whatsAppOrderData, order.customerMobileSnapshot);
+  const activeTemplate =
+    templatesList.find((t) => t.type === selectedWhatsAppProcess) || templatesList[0];
+
+  const currentStatusTemplate =
+    templatesList.find((t) => {
+      if (currentStatus === 'CONFIRMED') return t.type === 'ORDER_CONFIRMED';
+      if (currentStatus === 'ASSIGNED') return t.type === 'ORDER_ASSIGNED';
+      if (currentStatus === 'OUT_FOR_DELIVERY') return t.type === 'ORDER_OUT_FOR_DELIVERY';
+      if (currentStatus === 'DELIVERED') return t.type === 'ORDER_DELIVERED';
+      return t.type === 'ORDER_CONFIRMED';
+    }) || templatesList[0];
+
+  const handleCopyMessage = (text: string) => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(text);
+      setIsCopied(true);
+      toast.success('WhatsApp message template copied to clipboard');
+      setTimeout(() => setIsCopied(false), 2000);
+    }
+  };
+
   return (
     <div className="space-y-8 animate-fade-in">
       {/* Top Header Bar */}
@@ -229,7 +387,18 @@ function AdminOrderDetailPageContent({
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 flex-wrap">
+          {order?.customerMobileSnapshot && (
+            <a
+              href={currentStatusTemplate.shareUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+              title={`Open WhatsApp chat with pre-filled ${currentStatusTemplate.label}`}
+            >
+              <MessageSquare className="h-3.5 w-3.5" /> Share {currentStatusTemplate.badge}
+            </a>
+          )}
           <Link href={`/admin/orders/${order.id}/print`} target="_blank">
             <Button variant="outline" size="sm" className="rounded-xl text-xs font-medium">
               <Printer className="h-3.5 w-3.5 mr-1 text-muted-foreground" /> Print Slip
@@ -428,6 +597,17 @@ function AdminOrderDetailPageContent({
                     <Truck className="h-4 w-4 mr-1.5" />
                     {assignDeliveryMutation.isPending ? 'Assigning...' : 'Assign Delivery'}
                   </Button>
+
+                  {currentStatus === 'CONFIRMED' && (
+                    <a
+                      href={templatesList.find((t) => t.type === 'ORDER_CONFIRMED')?.shareUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center gap-1.5 w-full h-8 px-3 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-700 dark:text-emerald-400 text-xs font-semibold border border-emerald-500/20 transition-colors cursor-pointer"
+                    >
+                      <MessageSquare className="h-3.5 w-3.5" /> Share Confirmed Quotation via WhatsApp
+                    </a>
+                  )}
                 </div>
               ) : (
                 <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 text-xs text-amber-800 dark:text-amber-300 space-y-2">
@@ -507,6 +687,15 @@ function AdminOrderDetailPageContent({
                     <Truck className="h-4 w-4 mr-1.5" /> Mark Out for Delivery
                   </Button>
 
+                  <a
+                    href={templatesList.find((t) => t.type === 'ORDER_ASSIGNED')?.shareUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-1.5 w-full h-8 px-3 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-700 dark:text-emerald-400 text-xs font-semibold border border-emerald-500/20 transition-colors cursor-pointer"
+                  >
+                    <MessageSquare className="h-3.5 w-3.5" /> Share Dispatch Info via WhatsApp
+                  </a>
+
                   <Button
                     variant="destructive"
                     className="w-full justify-center font-medium"
@@ -532,13 +721,33 @@ function AdminOrderDetailPageContent({
                   >
                     <CheckCircle2 className="h-4 w-4 mr-1.5" /> Mark Delivered
                   </Button>
+
+                  <a
+                    href={templatesList.find((t) => t.type === 'ORDER_OUT_FOR_DELIVERY')?.shareUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-1.5 w-full h-8 px-3 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-700 dark:text-emerald-400 text-xs font-semibold border border-emerald-500/20 transition-colors cursor-pointer"
+                  >
+                    <MessageSquare className="h-3.5 w-3.5" /> Share Out-for-Delivery Alert via WhatsApp
+                  </a>
                 </div>
               )}
 
               {/* Status Actions for Delivered */}
               {currentStatus === 'DELIVERED' && (
-                <div className="p-3 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-semibold text-center flex items-center justify-center gap-1.5">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-600" /> Order Delivered Successfully
+                <div className="space-y-2">
+                  <div className="p-3 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-semibold text-center flex items-center justify-center gap-1.5">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-600" /> Order Delivered Successfully
+                  </div>
+
+                  <a
+                    href={templatesList.find((t) => t.type === 'ORDER_DELIVERED')?.shareUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-1.5 w-full h-8 px-3 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-700 dark:text-emerald-400 text-xs font-semibold border border-emerald-500/20 transition-colors cursor-pointer"
+                  >
+                    <MessageSquare className="h-3.5 w-3.5" /> Share Delivered Wishes via WhatsApp
+                  </a>
                 </div>
               )}
             </div>
@@ -561,9 +770,9 @@ function AdminOrderDetailPageContent({
             </h2>
 
             <div className="relative pl-6 space-y-5 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-px before:bg-border">
-              {order.statusHistory?.map((entry: OrderStatusHistoryEntry, idx: number) => {
+              {Array.isArray(order.statusHistory) && order.statusHistory.map((entry: OrderStatusHistoryEntry, idx: number) => {
                 const isLatest = idx === 0;
-                const Icon = statusIcons[entry.newStatus] || Clock;
+                const Icon = (entry.newStatus && statusIcons[entry.newStatus]) || Clock;
                 return (
                   <div key={entry.id} className="relative flex items-start gap-3">
                     <div
@@ -582,7 +791,7 @@ function AdminOrderDetailPageContent({
                           isLatest ? 'text-foreground' : 'text-muted-foreground'
                         }`}
                       >
-                        {ORDER_STATUS_LABELS[entry.newStatus as OrderStatus] || entry.newStatus}
+                        {(entry.newStatus && ORDER_STATUS_LABELS[entry.newStatus as OrderStatus]) || entry.newStatus || 'Status Update'}
                       </p>
                       {entry.note && (
                         <p className="text-[11px] text-muted-foreground leading-snug">{entry.note}</p>
@@ -594,6 +803,135 @@ function AdminOrderDetailPageContent({
                   </div>
                 );
               })}
+            </div>
+          </div>
+
+          {/* WhatsApp Direct Share Hub */}
+          <div className="p-6 rounded-2xl bg-card border border-border space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-border">
+              <div>
+                <h2 className="font-semibold text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <MessageSquare className="h-4 w-4 text-emerald-600" /> WhatsApp Direct Share
+                </h2>
+                <p className="text-[11px] text-muted-foreground mt-0.5">
+                  Send live updates and quotation to customer via direct WhatsApp link (No Meta API required)
+                </p>
+              </div>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-semibold">
+                wa.me Link
+              </span>
+            </div>
+
+            {/* Process Stage Selector Pills */}
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-medium text-muted-foreground">Select Process Template:</label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {templatesList.map((tpl) => {
+                  const isCurrent =
+                    (currentStatus === 'CONFIRMED' && tpl.type === 'ORDER_CONFIRMED') ||
+                    (currentStatus === 'ASSIGNED' && tpl.type === 'ORDER_ASSIGNED') ||
+                    (currentStatus === 'OUT_FOR_DELIVERY' && tpl.type === 'ORDER_OUT_FOR_DELIVERY') ||
+                    (currentStatus === 'DELIVERED' && tpl.type === 'ORDER_DELIVERED') ||
+                    (currentStatus === 'NEW' && tpl.type === 'ORDER_RECEIVED');
+                  const isSelected = selectedWhatsAppProcess === tpl.type;
+
+                  return (
+                    <button
+                      key={tpl.type}
+                      type="button"
+                      onClick={() => setSelectedWhatsAppProcess(tpl.type)}
+                      className={`text-left p-2.5 rounded-xl border text-xs transition-all cursor-pointer relative ${
+                        isSelected
+                          ? 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/20 text-emerald-900 dark:text-emerald-200 font-medium shadow-xs'
+                          : 'border-border/80 hover:border-border hover:bg-muted/30 text-foreground'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-1">
+                        <span className="font-semibold text-[11px] truncate">{tpl.label}</span>
+                        {isCurrent && (
+                          <span className="shrink-0 text-[9px] font-bold px-1.5 py-0.5 bg-emerald-600 text-white rounded-full">
+                            Current Status
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[10px] text-muted-foreground line-clamp-1 mt-0.5">{tpl.badge}</p>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Recipient info & description */}
+            <div className="p-3 rounded-xl bg-muted/30 border border-border/80 flex items-center justify-between gap-2 text-xs">
+              <div className="flex items-center gap-2">
+                <div className="h-7 w-7 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0">
+                  <Phone className="h-3.5 w-3.5" />
+                </div>
+                <div>
+                  <div className="font-medium text-foreground text-xs">
+                    {order.customerNameSnapshot || 'Customer'}
+                  </div>
+                  <div className="text-[11px] font-mono text-muted-foreground">
+                    {order.customerMobileSnapshot ? `+91 ${order.customerMobileSnapshot}` : 'No phone specified'}
+                  </div>
+                </div>
+              </div>
+              <span className="text-[11px] text-muted-foreground font-medium text-right">
+                {activeTemplate.badge}
+              </span>
+            </div>
+
+            {/* WhatsApp Text Preview Box */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-medium text-muted-foreground">WhatsApp Message Preview:</span>
+                <button
+                  type="button"
+                  onClick={() => handleCopyMessage(activeTemplate.messageText)}
+                  className="text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1 cursor-pointer font-medium"
+                >
+                  {isCopied ? (
+                    <>
+                      <Check className="h-3 w-3 text-emerald-600" />
+                      <span className="text-emerald-600 font-semibold">Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-3 w-3" />
+                      <span>Copy Text</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-emerald-950/5 dark:bg-emerald-950/20 border border-emerald-500/20 max-h-60 overflow-y-auto text-[11px] font-mono whitespace-pre-wrap leading-relaxed text-foreground select-all">
+                {activeTemplate.messageText}
+              </div>
+            </div>
+
+            {/* Primary Action Buttons */}
+            <div className="pt-2 flex flex-col sm:flex-row items-center gap-2">
+              <a
+                href={activeTemplate.shareUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full sm:flex-1 inline-flex items-center justify-center gap-2 h-9 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+              >
+                <MessageSquare className="h-4 w-4" />
+                Send on WhatsApp
+                <ExternalLink className="h-3.5 w-3.5 opacity-70" />
+              </a>
+
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="w-full sm:w-auto h-9 text-xs"
+                onClick={() => handleCopyMessage(activeTemplate.messageText)}
+              >
+                {isCopied ? <Check className="h-3.5 w-3.5 mr-1 text-emerald-600" /> : <Copy className="h-3.5 w-3.5 mr-1" />}
+                {isCopied ? 'Copied' : 'Copy Text'}
+              </Button>
             </div>
           </div>
         </div>

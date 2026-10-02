@@ -1,11 +1,13 @@
 import { wrapHandler, type NextRequest } from '@/src/lib/astro-api';
 
 import { db } from '@/db';
-import { orders, orderStatusHistory, orderDeliveryAssignments } from '@/db/schema';
+import { orders, orderStatusHistory, orderDeliveryAssignments, whatsappMessages } from '@/db/schema';
 import { eq, desc } from 'drizzle-orm';
 import { getSession } from '@/lib/auth/session';
 import { validateTransition, getStatusTimestampField } from '@/lib/services/order-status-machine';
 import { restoreInventoryForOrder } from '@/lib/services/order-service';
+import { whatsAppService } from '@/lib/whatsapp/service';
+import type { WhatsAppMessageType } from '@/lib/whatsapp/types';
 import { logger } from '@/lib/utils/logger';
 import type { OrderStatus, FulfillmentType } from '@/db/schema';
 
@@ -42,6 +44,9 @@ async function _GET(
         },
         statusHistory: {
           orderBy: [desc(orderStatusHistory.createdAt)],
+        },
+        whatsappMessages: {
+          orderBy: [desc(whatsappMessages.createdAt)],
         },
       },
     });
@@ -136,6 +141,36 @@ async function _PATCH(
       // Restore inventory if cancelled
       if (newStatus === 'CANCELLED') {
         await restoreInventoryForOrder(orderId, session.email);
+      }
+
+      // Map status transition to WhatsApp notification type
+      let notificationType: WhatsAppMessageType | null = null;
+      switch (newStatus) {
+        case 'CONFIRMED':
+          notificationType = 'ORDER_CONFIRMED';
+          break;
+        case 'ASSIGNED':
+          notificationType = 'ORDER_ASSIGNED';
+          break;
+        case 'OUT_FOR_DELIVERY':
+          notificationType = 'ORDER_OUT_FOR_DELIVERY';
+          break;
+        case 'DELIVERED':
+          notificationType = 'ORDER_DELIVERED';
+          break;
+        case 'CANCELLED':
+          notificationType = 'ORDER_CANCELLED';
+          break;
+      }
+
+      if (notificationType) {
+        whatsAppService.sendOrderNotification(orderId, notificationType).catch((err) => {
+          logger.error('admin.orders.status', 'Background WhatsApp dispatch failed on status update', {
+            orderId,
+            newStatus,
+            error: (err as Error).message,
+          });
+        });
       }
 
       logger.info('order.status', 'Order status updated', {

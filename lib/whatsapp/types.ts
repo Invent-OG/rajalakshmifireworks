@@ -5,6 +5,7 @@
 export type WhatsAppMessageType =
   | 'ORDER_RECEIVED'
   | 'ORDER_CONFIRMED'
+  | 'ORDER_ASSIGNED'
   | 'ORDER_PACKED'
   | 'ORDER_OUT_FOR_DELIVERY'
   | 'ORDER_DELIVERED'
@@ -181,5 +182,11 @@ export interface WhatsAppOrderDetails {
     sellingPriceSnapshot: string | number;
     lineTotal: string | number;
   }>;
+  deliveryPartner?: {
+    name: string;
+    mobileNumber: string;
+    vehicleType?: string | null;
+    vehicleNumber?: string | null;
+  } | null;
   placedAt?: Date | string;
 }
