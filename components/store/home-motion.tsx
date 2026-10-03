@@ -17,46 +17,114 @@ export function HomeMotion({ children }: HomeMotionProps) {
 
       const mm = gsap.matchMedia();
 
-      // Desktop animations: Initial Hero Entrance only
+      // Desktop animations (min-width: 768px)
       mm.add('(min-width: 768px)', () => {
+        // 1. Initial Hero Entrance Animation
         const heroTl = gsap.timeline({ defaults: { ease: 'power3.out' } });
         heroTl
           .fromTo(
             '.hero-heading',
             { opacity: 0, y: 30 },
-            { opacity: 1, y: 0, duration: 0.7, clearProps: 'transform,opacity' }
+            { opacity: 1, y: 0, duration: 0.75, clearProps: 'transform,opacity' }
           )
           .fromTo(
             '.hero-text',
             { opacity: 0, y: 15 },
-            { opacity: 1, y: 0, duration: 0.5, clearProps: 'transform,opacity' },
-            '-=0.35'
+            { opacity: 1, y: 0, duration: 0.55, clearProps: 'transform,opacity' },
+            '-=0.4'
           )
           .fromTo(
             '.hero-ctas',
             { opacity: 0, scale: 0.95, y: 10 },
-            { opacity: 1, scale: 1, y: 0, duration: 0.45, ease: 'back.out(1.5)', clearProps: 'transform,opacity' },
-            '-=0.25'
+            { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: 'back.out(1.5)', clearProps: 'transform,opacity' },
+            '-=0.3'
           )
           .fromTo(
             '.organic-hero-cards',
-            { opacity: 0, x: 20 },
-            { opacity: 1, x: 0, duration: 0.6, stagger: 0.1, clearProps: 'transform,opacity' },
-            '-=0.35'
+            { opacity: 0, x: 25 },
+            { opacity: 1, x: 0, duration: 0.65, stagger: 0.1, clearProps: 'transform,opacity' },
+            '-=0.4'
           );
+
+        // 2. Smooth Scroll Reveal for all subsequent sections
+        const allSections = gsap.utils.toArray<HTMLElement>('.reveal-section', containerRef.current);
+        const scrollSections = allSections.slice(1);
+
+        scrollSections.forEach((section) => {
+          gsap.fromTo(
+            section,
+            {
+              opacity: 0,
+              y: 45,
+              scale: 0.985,
+            },
+            {
+              opacity: 1,
+              y: 0,
+              scale: 1,
+              duration: 0.95,
+              ease: 'power3.out',
+              clearProps: 'transform,opacity',
+              scrollTrigger: {
+                trigger: section,
+                start: 'top 88%',
+                once: true,
+              },
+            }
+          );
+        });
       });
 
-      // Mobile animations: Initial Hero Entrance only
+      // Mobile animations (max-width: 767px)
       mm.add('(max-width: 767px)', () => {
+        // Mobile hero entrance
         const heroTl = gsap.timeline({ defaults: { ease: 'power2.out' } });
         heroTl.fromTo(
           '.hero-heading, .hero-text, .hero-ctas',
           { opacity: 0, y: 15 },
-          { opacity: 1, y: 0, duration: 0.5, stagger: 0.1, clearProps: 'all' }
+          { opacity: 1, y: 0, duration: 0.55, stagger: 0.1, clearProps: 'transform,opacity' }
         );
+
+        // Mobile smooth scroll reveal for sections
+        const allSections = gsap.utils.toArray<HTMLElement>('.reveal-section', containerRef.current);
+        const scrollSections = allSections.slice(1);
+
+        scrollSections.forEach((section) => {
+          gsap.fromTo(
+            section,
+            {
+              opacity: 0,
+              y: 28,
+            },
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.75,
+              ease: 'power2.out',
+              clearProps: 'transform,opacity',
+              scrollTrigger: {
+                trigger: section,
+                start: 'top 90%',
+                once: true,
+              },
+            }
+          );
+        });
       });
 
-      return () => mm.revert();
+      // Refresh ScrollTrigger once DOM/fonts/images settle
+      const timer = setTimeout(() => {
+        ScrollTrigger.refresh();
+      }, 200);
+
+      const handleLoad = () => ScrollTrigger.refresh();
+      window.addEventListener('load', handleLoad);
+
+      return () => {
+        clearTimeout(timer);
+        window.removeEventListener('load', handleLoad);
+        mm.revert();
+      };
     },
     { scope: containerRef }
   );

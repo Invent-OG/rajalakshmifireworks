@@ -744,5 +744,20 @@ astro-slot {
   width: 100%;
 }
 
+/* ── Homepage Smooth Reveal Sections ── */
+.reveal-section {
+  contain: paint;
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-section {
+    will-change: auto;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+}
+
 
 
