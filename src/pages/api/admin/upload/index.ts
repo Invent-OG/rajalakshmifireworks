@@ -2,6 +2,7 @@ import { wrapHandler } from '@/src/lib/astro-api';
 
 import { getSession } from '@/lib/auth/session';
 import { uploadMediaToSupabase } from '@/lib/supabase/storage';
+import { compressImageToWebp, MAX_IMAGE_BYTES } from '@/lib/utils/image-compression';
 import { logger } from '@/lib/utils/logger';
 import path from 'path';
 
@@ -14,13 +15,14 @@ async function _POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
+    const folderParam = formData.get('folder') as string | null;
 
     if (!file) {
       return Response.json({ message: 'No file provided' }, { status: 400 });
     }
 
     const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    const rawBuffer = Buffer.from(bytes);
 
     // Validate mime type
     const mimeType = file.type || 'application/octet-stream';
@@ -36,28 +38,56 @@ async function _POST(request: NextRequest) {
 
     const mediaType: 'image' | 'video' = isVideo ? 'video' : 'image';
 
-    // Sanitize extension and filename
+    let uploadBuffer: Buffer;
+    let uploadContentType: string;
+    let fileExtension: string;
+    let finalSize: number;
+
     const originalExt = path.extname(file.name) || (isVideo ? '.mp4' : '.jpg');
-    const safeExt = originalExt.toLowerCase().replace(/[^a-z0-9.]/g, '');
-    const cleanName = path
+    const cleanBaseName = path
       .basename(file.name, originalExt)
       .toLowerCase()
       .replace(/[^a-z0-9]/g, '-');
-    const uniqueFileName = `${cleanName}-${Date.now()}-${Math.random().toString(36).substring(2, 7)}${safeExt}`;
+
+    if (isImage) {
+      // Compress image into WebP format and guarantee size <= 1MB
+      const compressed = await compressImageToWebp(rawBuffer, MAX_IMAGE_BYTES);
+      uploadBuffer = compressed.buffer;
+      uploadContentType = compressed.contentType;
+      fileExtension = compressed.extension;
+      finalSize = compressed.size;
+    } else {
+      // Validate video file size against the 1MB limit
+      if (rawBuffer.length > MAX_IMAGE_BYTES) {
+        return Response.json(
+          {
+            message: `Video size (${(rawBuffer.length / (1024 * 1024)).toFixed(2)}MB) exceeds the 1MB limit. Please compress your video or use an external URL.`,
+          },
+          { status: 400 }
+        );
+      }
+      uploadBuffer = rawBuffer;
+      uploadContentType = mimeType;
+      fileExtension = originalExt.toLowerCase().replace(/[^a-z0-9.]/g, '');
+      finalSize = rawBuffer.length;
+    }
+
+    const uniqueFileName = `${cleanBaseName}-${Date.now()}-${Math.random().toString(36).substring(2, 7)}${fileExtension}`;
 
     // Upload to Supabase Storage Bucket
-    const folder = mediaType === 'video' ? 'videos' : 'images';
+    const targetFolder = folderParam || (mediaType === 'video' ? 'videos' : 'images');
     const uploadResult = await uploadMediaToSupabase({
-      buffer,
+      buffer: uploadBuffer,
       filename: uniqueFileName,
-      contentType: mimeType,
-      folder,
+      contentType: uploadContentType,
+      folder: targetFolder,
     });
 
     logger.info('media.upload', 'Media uploaded to Supabase Storage', {
       filename: uniqueFileName,
       mediaType,
-      size: file.size,
+      originalSize: file.size,
+      finalSize,
       url: uploadResult.url,
       adminEmail: session.email,
     });
@@ -66,8 +96,9 @@ async function _POST(request: NextRequest) {
       {
         url: uploadResult.url,
         type: mediaType,
-        name: file.name,
-        size: file.size,
+        name: uniqueFileName,
+        size: finalSize,
+        originalName: file.name,
       },
       { status: 201 }
     );

@@ -305,6 +305,16 @@ export function buildWhatsAppMessage(order: WhatsAppOrderData): string {
   return buildOrderConfirmationMessage(order);
 }
 
+/**
+ * Generate WhatsApp click-to-chat URL for customer order confirmation (to store phone)
+ */
+export function generateWhatsAppUrl(order: WhatsAppOrderData): string {
+  const message = buildOrderConfirmationMessage(order);
+  const phone = APP_CONFIG.WHATSAPP_NUMBER;
+  return buildWhatsAppShareUrl(phone, message);
+}
+
+
 export function generateCustomerWhatsAppQuotationUrl(
   customerMobile: string | null | undefined,
   order: WhatsAppOrderData
