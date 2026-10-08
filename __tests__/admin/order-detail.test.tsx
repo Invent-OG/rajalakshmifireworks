@@ -47,6 +47,9 @@ describe('AdminOrderDetailPage Component', () => {
     const html = renderToString(<AdminOrderDetailPage params={{ id: '999' }} />);
     expect(html).toContain('FW-20261002-9999');
     expect(html).toContain('10cm Electric Sparklers');
+    expect(html).toContain('WhatsApp Message (Editable):');
+    expect(html).toContain('<textarea');
+    expect(html).toContain('Send on WhatsApp');
   });
 
   it('renders fallback error card when order is not found', () => {

@@ -30,12 +30,15 @@ import {
   Check,
   ExternalLink,
   Share2,
+  Edit,
 } from 'lucide-react';
 import Link from '@/components/ui/link';
 import { Skeleton } from '@/components/ui/skeleton';
+import { InvoiceCustomizer } from '@/components/admin/invoice-customizer';
 import { 
   getOrderWhatsAppTemplates, 
   generateCustomerWhatsAppQuotationUrl,
+  buildWhatsAppShareUrl,
   type WhatsAppProcessType,
   type WhatsAppOrderData 
 } from '@/lib/services/whatsapp-service';
@@ -355,6 +358,49 @@ function AdminOrderDetailPageContent({
       return t.type === 'ORDER_CONFIRMED';
     }) || templatesList[0];
 
+  // Editable WhatsApp Template message state keyed by process type
+  const [customMessages, setCustomMessages] = useState<Record<string, string>>({});
+  const [isPrintModalOpen, setIsPrintModalOpen] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.location.search.includes('print=true');
+    }
+    return false;
+  });
+
+  const activeDefaultText = activeTemplate.messageText;
+  const currentMessageText = customMessages[selectedWhatsAppProcess] ?? activeDefaultText;
+  const isCustomized =
+    customMessages[selectedWhatsAppProcess] !== undefined &&
+    customMessages[selectedWhatsAppProcess] !== activeDefaultText;
+
+  const currentShareUrl = buildWhatsAppShareUrl(
+    order.customerMobileSnapshot || '',
+    currentMessageText
+  );
+
+  const handleMessageChange = (newText: string) => {
+    setCustomMessages((prev) => ({
+      ...prev,
+      [selectedWhatsAppProcess]: newText,
+    }));
+  };
+
+  const handleResetTemplate = () => {
+    setCustomMessages((prev) => {
+      const updated = { ...prev };
+      delete updated[selectedWhatsAppProcess];
+      return updated;
+    });
+    toast.info(`Reset ${activeTemplate.label} to default`);
+  };
+
+  const getProcessShareUrl = (processType: WhatsAppProcessType) => {
+    const tpl = templatesList.find((t) => t.type === processType);
+    const defaultText = tpl?.messageText || '';
+    const text = customMessages[processType] ?? defaultText;
+    return buildWhatsAppShareUrl(order.customerMobileSnapshot || '', text);
+  };
+
   const handleCopyMessage = (text: string) => {
     if (typeof navigator !== 'undefined' && navigator.clipboard) {
       navigator.clipboard.writeText(text);
@@ -390,20 +436,22 @@ function AdminOrderDetailPageContent({
         <div className="flex items-center gap-3 flex-wrap">
           {order?.customerMobileSnapshot && (
             <a
-              href={currentStatusTemplate.shareUrl}
+              href={getProcessShareUrl(currentStatusTemplate.type)}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 h-11 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold shadow-xs transition-colors cursor-pointer"
-              title={`Open WhatsApp chat with pre-filled ${currentStatusTemplate.label}`}
+              title={`Open WhatsApp chat with ${currentStatusTemplate.label}`}
             >
               <MessageSquare className="h-4 w-4" /> Share {currentStatusTemplate.badge}
             </a>
           )}
-          <Link href={`/admin/orders/${order.id}/print`} target="_blank">
-            <Button variant="outline" className="h-11 px-4 rounded-xl text-sm font-semibold">
-              <Printer className="h-4 w-4 mr-1.5 text-muted-foreground" /> Print Slip
-            </Button>
-          </Link>
+          <Button
+            variant="outline"
+            onClick={() => setIsPrintModalOpen(true)}
+            className="h-11 px-4 rounded-xl text-sm font-semibold cursor-pointer"
+          >
+            <Printer className="h-4 w-4 mr-1.5 text-muted-foreground" /> Print Slip
+          </Button>
           <span className="text-sm font-semibold px-4 py-2.5 rounded-xl bg-card border border-border text-foreground shadow-xs">
             {fulfillmentType === 'DELIVERY' ? 'Doorstep Delivery' : 'Sivakasi Counter Pickup'}
           </span>
@@ -600,7 +648,7 @@ function AdminOrderDetailPageContent({
 
                   {currentStatus === 'CONFIRMED' && (
                     <a
-                      href={templatesList.find((t) => t.type === 'ORDER_CONFIRMED')?.shareUrl}
+                      href={getProcessShareUrl('ORDER_CONFIRMED')}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center justify-center gap-2 w-full h-11 px-4 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-600 dark:text-emerald-400 text-sm font-bold border border-emerald-500/20 transition-colors cursor-pointer"
@@ -688,7 +736,7 @@ function AdminOrderDetailPageContent({
                   </Button>
 
                   <a
-                    href={templatesList.find((t) => t.type === 'ORDER_ASSIGNED')?.shareUrl}
+                    href={getProcessShareUrl('ORDER_ASSIGNED')}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center gap-2 w-full h-11 px-4 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-600 dark:text-emerald-400 text-sm font-bold border border-emerald-500/20 transition-colors cursor-pointer"
@@ -723,7 +771,7 @@ function AdminOrderDetailPageContent({
                   </Button>
 
                   <a
-                    href={templatesList.find((t) => t.type === 'ORDER_OUT_FOR_DELIVERY')?.shareUrl}
+                    href={getProcessShareUrl('ORDER_OUT_FOR_DELIVERY')}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center gap-2 w-full h-11 px-4 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-600 dark:text-emerald-400 text-sm font-bold border border-emerald-500/20 transition-colors cursor-pointer"
@@ -741,7 +789,7 @@ function AdminOrderDetailPageContent({
                   </div>
 
                   <a
-                    href={templatesList.find((t) => t.type === 'ORDER_DELIVERED')?.shareUrl}
+                    href={getProcessShareUrl('ORDER_DELIVERED')}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center gap-2 w-full h-11 px-4 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-600 dark:text-emerald-400 text-sm font-bold border border-emerald-500/20 transition-colors cursor-pointer"
@@ -834,6 +882,9 @@ function AdminOrderDetailPageContent({
                     (currentStatus === 'DELIVERED' && tpl.type === 'ORDER_DELIVERED') ||
                     (currentStatus === 'NEW' && tpl.type === 'ORDER_RECEIVED');
                   const isSelected = selectedWhatsAppProcess === tpl.type;
+                  const isTplCustomized =
+                    customMessages[tpl.type] !== undefined &&
+                    customMessages[tpl.type] !== tpl.messageText;
 
                   return (
                     <button
@@ -848,11 +899,18 @@ function AdminOrderDetailPageContent({
                     >
                       <div className="flex items-center justify-between gap-1">
                         <span className="font-semibold text-[11px] truncate">{tpl.label}</span>
-                        {isCurrent && (
-                          <span className="shrink-0 text-[9px] font-bold px-1.5 py-0.5 bg-emerald-600 text-white rounded-full">
-                            Current Status
-                          </span>
-                        )}
+                        <div className="flex items-center gap-1 shrink-0">
+                          {isTplCustomized && (
+                            <span className="text-[9px] font-bold px-1.5 py-0.5 bg-amber-500/15 text-amber-700 dark:text-amber-400 rounded-md">
+                              Edited
+                            </span>
+                          )}
+                          {isCurrent && (
+                            <span className="shrink-0 text-[9px] font-bold px-1.5 py-0.5 bg-emerald-600 text-white rounded-full">
+                              Current Status
+                            </span>
+                          )}
+                        </div>
                       </div>
                       <p className="text-[10px] text-muted-foreground line-clamp-1 mt-0.5">{tpl.badge}</p>
                     </button>
@@ -881,41 +939,102 @@ function AdminOrderDetailPageContent({
               </span>
             </div>
 
-            {/* WhatsApp Text Preview Box */}
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-medium text-muted-foreground">WhatsApp Message Preview:</span>
-                <button
-                  type="button"
-                  onClick={() => handleCopyMessage(activeTemplate.messageText)}
-                  className="text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1 cursor-pointer font-medium"
-                >
-                  {isCopied ? (
-                    <>
-                      <Check className="h-3 w-3 text-emerald-600" />
-                      <span className="text-emerald-600 font-semibold">Copied!</span>
-                    </>
+            {/* WhatsApp Text Preview / Editable Box */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-semibold text-foreground flex items-center gap-1.5">
+                    <Edit className="h-3.5 w-3.5 text-emerald-600" />
+                    WhatsApp Message (Editable):
+                  </span>
+                  {isCustomized ? (
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/20">
+                      Modified
+                    </span>
                   ) : (
-                    <>
-                      <Copy className="h-3 w-3" />
-                      <span>Copy Text</span>
-                    </>
+                    <span className="text-[10px] text-muted-foreground font-medium">
+                      Auto-generated
+                    </span>
                   )}
-                </button>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  {isCustomized && (
+                    <button
+                      type="button"
+                      onClick={handleResetTemplate}
+                      className="text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1 cursor-pointer font-medium transition-colors"
+                      title="Reset to default template text"
+                    >
+                      <RotateCcw className="h-3 w-3" />
+                      <span>Reset</span>
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => handleCopyMessage(currentMessageText)}
+                    className="text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1 cursor-pointer font-medium transition-colors"
+                  >
+                    {isCopied ? (
+                      <>
+                        <Check className="h-3 w-3 text-emerald-600" />
+                        <span className="text-emerald-600 font-semibold">Copied!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="h-3 w-3" />
+                        <span>Copy Text</span>
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-emerald-950/5 dark:bg-emerald-950/20 border border-emerald-500/20 max-h-60 overflow-y-auto text-[11px] font-mono whitespace-pre-wrap leading-relaxed text-foreground select-all">
-                {activeTemplate.messageText}
+              {/* Editable Text Area */}
+              <div className="relative">
+                <textarea
+                  value={currentMessageText}
+                  onChange={(e) => handleMessageChange(e.target.value)}
+                  rows={9}
+                  placeholder="Type or edit WhatsApp message here..."
+                  className="w-full p-3.5 rounded-xl bg-emerald-950/5 dark:bg-[#161616] border border-emerald-500/25 dark:border-[#282828] focus:border-emerald-500 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none text-[12px] font-mono leading-relaxed text-foreground dark:text-gray-100 transition-all resize-y min-h-[180px] shadow-2xs"
+                />
+              </div>
+
+              {/* Quick Inserts & Character Counter */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-muted-foreground pt-0.5">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-[10px] font-medium text-muted-foreground">Quick add:</span>
+                  {[
+                    { label: 'Order #', value: order.invoiceNumber },
+                    { label: 'Total', value: formatCurrency(order.finalAmount ?? order.totalAmount ?? 0) },
+                    ...(order.customerMobileSnapshot ? [{ label: 'Mobile', value: order.customerMobileSnapshot }] : []),
+                    ...(trackingUrl ? [{ label: 'Tracking', value: trackingUrl }] : []),
+                  ].map((chip) => (
+                    <button
+                      key={chip.label}
+                      type="button"
+                      onClick={() => handleMessageChange(currentMessageText ? `${currentMessageText}\n${chip.value}` : chip.value)}
+                      className="text-[10px] px-2 py-0.5 rounded-md bg-muted/60 hover:bg-muted text-foreground border border-border/60 transition-colors cursor-pointer"
+                    >
+                      + {chip.label}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex items-center gap-2 self-end sm:self-auto shrink-0 font-mono text-[10px]">
+                  <span>{currentMessageText.length} chars</span>
+                </div>
               </div>
             </div>
 
             {/* Primary Action Buttons */}
             <div className="pt-2 flex flex-col sm:flex-row items-center gap-2">
               <a
-                href={activeTemplate.shareUrl}
+                href={currentShareUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full sm:flex-1 inline-flex items-center justify-center gap-2 h-9 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+                className="w-full sm:flex-1 inline-flex items-center justify-center gap-2 h-10 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
               >
                 <MessageSquare className="h-4 w-4" />
                 Send on WhatsApp
@@ -926,8 +1045,8 @@ function AdminOrderDetailPageContent({
                 type="button"
                 variant="outline"
                 size="sm"
-                className="w-full sm:w-auto h-9 text-xs"
-                onClick={() => handleCopyMessage(activeTemplate.messageText)}
+                className="w-full sm:w-auto h-10 text-xs font-semibold"
+                onClick={() => handleCopyMessage(currentMessageText)}
               >
                 {isCopied ? <Check className="h-3.5 w-3.5 mr-1 text-emerald-600" /> : <Copy className="h-3.5 w-3.5 mr-1" />}
                 {isCopied ? 'Copied' : 'Copy Text'}
@@ -936,6 +1055,39 @@ function AdminOrderDetailPageContent({
           </div>
         </div>
       </div>
+
+      {/* Invoice Customizer Modal (Shows in current page without redirecting) */}
+      {isPrintModalOpen && (
+        <div className="invoice-no-print fixed inset-0 z-50 overflow-y-auto bg-black/75 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 md:p-6 animate-fade-in print:p-0 print:bg-white print:static print:overflow-visible">
+          <div className="relative w-full max-w-5xl bg-white dark:bg-[#121212] rounded-2xl shadow-2xl border border-neutral-300 dark:border-neutral-800 overflow-hidden print:border-none print:shadow-none print:rounded-none">
+            {/* Modal Header */}
+            <div className="invoice-no-print px-5 py-3.5 bg-neutral-900 text-white flex items-center justify-between border-b border-neutral-800 print:hidden">
+              <div className="flex items-center gap-2.5">
+                <Printer className="h-4 w-4 text-emerald-400" />
+                <span className="font-bold text-sm">Invoice Slip Preview & Customizer</span>
+                <span className="text-xs text-neutral-400 font-mono">#{order.invoiceNumber}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsPrintModalOpen(false)}
+                className="h-8 w-8 rounded-lg hover:bg-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white transition-colors cursor-pointer"
+                title="Close"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Modal Scrollable Body */}
+            <div className="max-h-[85vh] overflow-y-auto print:max-h-none print:overflow-visible">
+              <InvoiceCustomizer
+                order={order}
+                isModal={true}
+                onClose={() => setIsPrintModalOpen(false)}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

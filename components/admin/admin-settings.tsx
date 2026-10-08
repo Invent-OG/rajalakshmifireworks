@@ -6,10 +6,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input, Textarea } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Save, Truck, MessageSquare, Sparkles, UserCog, ArrowRight, Sun, Moon } from 'lucide-react';
+import { Save, Truck, MessageSquare, Sparkles, UserCog, ArrowRight, Sun, Moon, Printer, CreditCard, FileText, Sliders, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Banner } from '@/components/ui/banner';
 import { useAdminTheme } from '@/hooks/use-admin-theme';
+import { InvoiceCustomizer } from '@/components/admin/invoice-customizer';
 
 import { withAdminShell } from './admin-shell';
 
@@ -27,7 +28,49 @@ function AdminSettingsPageContent() {
   const [bannerText, setBannerText] = useState('');
   const [bannerLink, setBannerLink] = useState('');
   const [bannerVariant, setBannerVariant] = useState('rainbow');
+  const [invoiceTitle, setInvoiceTitle] = useState('');
+  const [invoiceGstin, setInvoiceGstin] = useState('');
+  const [invoiceLicenseNo, setInvoiceLicenseNo] = useState('');
+  const [invoiceBankName, setInvoiceBankName] = useState('');
+  const [invoiceAccountName, setInvoiceAccountName] = useState('');
+  const [invoiceAccountNumber, setInvoiceAccountNumber] = useState('');
+  const [invoiceIfsc, setInvoiceIfsc] = useState('');
+  const [invoiceUpiId, setInvoiceUpiId] = useState('');
+  const [invoiceTerms, setInvoiceTerms] = useState('');
+  const [invoiceSafetyNotice, setInvoiceSafetyNotice] = useState('');
+  const [isInvoiceEditorOpen, setIsInvoiceEditorOpen] = useState(false);
   const [initialized, setInitialized] = useState(false);
+
+  const demoOrder = {
+    id: 1,
+    invoiceNumber: 'FW-20261007-0002',
+    orderStatus: 'CONFIRMED',
+    fulfillmentType: 'DELIVERY',
+    subtotal: '3250.00',
+    discountAmount: '0.00',
+    deliveryCharge: '0.00',
+    totalAmount: '3250.00',
+    finalAmount: '3250.00',
+    customerNameSnapshot: 'Diya',
+    customerMobileSnapshot: '8825631744',
+    placedAt: new Date().toISOString(),
+    addressSnapshot: {
+      address: '104, Vaigai street, janatha nagar west',
+      city: 'Coimbatore',
+      pincode: '641035',
+    },
+    paymentStatus: 'PAID',
+    items: [
+      {
+        id: 1,
+        productNameSnapshot: 'SILVER SPARKLERS',
+        quantity: 1,
+        sellingPriceSnapshot: '3250.00',
+        mrpSnapshot: '5500.00',
+        lineTotal: '3250.00',
+      },
+    ],
+  };
 
   const { isLoading } = useQuery({
     queryKey: ['admin', 'settings'],
@@ -50,6 +93,22 @@ function AdminSettingsPageContent() {
         );
         setBannerLink(s.ANNOUNCEMENT_BANNER_LINK ?? '/products');
         setBannerVariant(s.ANNOUNCEMENT_BANNER_VARIANT ?? 'rainbow');
+        setInvoiceTitle(s.INVOICE_DEFAULT_TITLE ?? 'ESTIMATE / DISPATCH MEMO');
+        setInvoiceGstin(s.INVOICE_GSTIN ?? '33AAAAA0000A1Z5');
+        setInvoiceLicenseNo(s.INVOICE_LICENSE_NO ?? 'E/SC/TN/2024/00142 (PESO Approved)');
+        setInvoiceBankName(s.INVOICE_BANK_NAME ?? 'State Bank of India');
+        setInvoiceAccountName(s.INVOICE_ACCOUNT_NAME ?? 'Rajalakshmi Fireworks Sivakasi');
+        setInvoiceAccountNumber(s.INVOICE_ACCOUNT_NUMBER ?? '38492019482');
+        setInvoiceIfsc(s.INVOICE_IFSC ?? 'SBIN0001234');
+        setInvoiceUpiId(s.INVOICE_UPI_ID ?? 'rajalakshmifireworks@sbi');
+        setInvoiceTerms(
+          s.INVOICE_TERMS ??
+            '1. Goods once sold cannot be returned or exchanged.\n2. All fireworks are manufactured & dispatched under Supreme Court & PESO safety standards.\n3. Transport risk is on buyer\'s account.\n4. Subject to Sivakasi Jurisdiction only.'
+        );
+        setInvoiceSafetyNotice(
+          s.INVOICE_SAFETY_NOTICE ??
+            'This is a computer generated invoice/dispatch memo. All products conform to Sivakasi fireworks safety guidelines. Keep strictly away from unattended children.'
+        );
         setInitialized(true);
       }
       return json;
@@ -70,6 +129,16 @@ function AdminSettingsPageContent() {
         ANNOUNCEMENT_BANNER_TEXT: bannerText,
         ANNOUNCEMENT_BANNER_LINK: bannerLink,
         ANNOUNCEMENT_BANNER_VARIANT: bannerVariant,
+        INVOICE_DEFAULT_TITLE: invoiceTitle,
+        INVOICE_GSTIN: invoiceGstin,
+        INVOICE_LICENSE_NO: invoiceLicenseNo,
+        INVOICE_BANK_NAME: invoiceBankName,
+        INVOICE_ACCOUNT_NAME: invoiceAccountName,
+        INVOICE_ACCOUNT_NUMBER: invoiceAccountNumber,
+        INVOICE_IFSC: invoiceIfsc,
+        INVOICE_UPI_ID: invoiceUpiId,
+        INVOICE_TERMS: invoiceTerms,
+        INVOICE_SAFETY_NOTICE: invoiceSafetyNotice,
       };
 
       const res = await fetch('/api/admin/settings', {
@@ -378,7 +447,149 @@ function AdminSettingsPageContent() {
             </div>
           </div>
         </div>
+
+        {/* 04. Invoice & Print Memo Customization Defaults */}
+        <div className="p-6 sm:p-7 rounded-2xl bg-card border border-border space-y-6">
+          <div className="flex items-center justify-between pb-3 border-b border-border">
+            <div className="flex items-center gap-2.5">
+              <Printer className="h-5 w-5 text-foreground" />
+              <div>
+                <h2 className="font-bold text-sm uppercase tracking-wider text-foreground">
+                  04. Invoice & Print Slip Customization Defaults
+                </h2>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Configure default business registration, bank account, and terms printed on customer invoices.
+                </p>
+              </div>
+            </div>
+            <Button
+              type="button"
+              onClick={() => setIsInvoiceEditorOpen(true)}
+              className="text-xs h-9 px-3.5 font-bold bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 hover:bg-black cursor-pointer shadow-xs flex items-center gap-1.5"
+            >
+              <Sliders className="h-3.5 w-3.5" />
+              <span>Open Template Editor & Live Preview</span>
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            <Input
+              label="Default Invoice Title"
+              value={invoiceTitle}
+              onChange={(e) => setInvoiceTitle(e.target.value)}
+              placeholder="e.g. ESTIMATE / DISPATCH MEMO"
+              hint="Printed at top right badge of slip"
+            />
+
+            <Input
+              label="Store GSTIN Number"
+              value={invoiceGstin}
+              onChange={(e) => setInvoiceGstin(e.target.value)}
+              placeholder="e.g. 33AAAAA0000A1Z5"
+              hint="Tax identifier for invoices"
+            />
+
+            <Input
+              label="PESO Explosives License No."
+              value={invoiceLicenseNo}
+              onChange={(e) => setInvoiceLicenseNo(e.target.value)}
+              placeholder="e.g. E/SC/TN/2024/00142"
+              hint="Fireworks manufacturing/storage license"
+            />
+          </div>
+
+          <div className="pt-2 border-t border-border">
+            <h3 className="font-semibold text-xs uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-1.5">
+              <CreditCard className="h-4 w-4" /> Bank Account & UPI Payment Information
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              <Input
+                label="Bank Name"
+                value={invoiceBankName}
+                onChange={(e) => setInvoiceBankName(e.target.value)}
+                placeholder="e.g. State Bank of India"
+              />
+
+              <Input
+                label="Account Holder Name"
+                value={invoiceAccountName}
+                onChange={(e) => setInvoiceAccountName(e.target.value)}
+                placeholder="e.g. Rajalakshmi Fireworks"
+              />
+
+              <Input
+                label="Bank Account Number"
+                value={invoiceAccountNumber}
+                onChange={(e) => setInvoiceAccountNumber(e.target.value)}
+                placeholder="e.g. 38492019482"
+              />
+
+              <Input
+                label="IFSC Code"
+                value={invoiceIfsc}
+                onChange={(e) => setInvoiceIfsc(e.target.value)}
+                placeholder="e.g. SBIN0001234"
+              />
+
+              <Input
+                label="UPI ID / GPay / PhonePe"
+                value={invoiceUpiId}
+                onChange={(e) => setInvoiceUpiId(e.target.value)}
+                placeholder="e.g. rajalakshmifireworks@sbi"
+              />
+            </div>
+          </div>
+
+          <div className="pt-2 border-t border-border grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <Textarea
+              label="Default Terms & Conditions"
+              rows={4}
+              value={invoiceTerms}
+              onChange={(e) => setInvoiceTerms(e.target.value)}
+              hint="Printed at the bottom of customer invoices"
+            />
+
+            <Textarea
+              label="Legal & Safety Notice"
+              rows={4}
+              value={invoiceSafetyNotice}
+              onChange={(e) => setInvoiceSafetyNotice(e.target.value)}
+              hint="Sivakasi fireworks compliance statement"
+            />
+          </div>
+        </div>
       </div>
+
+      {/* Invoice Customizer Modal inside Admin Settings */}
+      {isInvoiceEditorOpen && (
+        <div className="invoice-no-print fixed inset-0 z-50 overflow-y-auto bg-black/75 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 md:p-6 animate-fade-in print:p-0 print:bg-white print:static print:overflow-visible">
+          <div className="relative w-full max-w-5xl bg-white dark:bg-[#121212] rounded-2xl shadow-2xl border border-neutral-300 dark:border-neutral-800 overflow-hidden print:border-none print:shadow-none print:rounded-none">
+            <div className="invoice-no-print px-5 py-3.5 bg-neutral-900 text-white flex items-center justify-between border-b border-neutral-800 print:hidden">
+              <div className="flex items-center gap-2.5">
+                <Printer className="h-4 w-4 text-emerald-400" />
+                <span className="font-bold text-sm">Invoice Slip Template Editor & Live Preview</span>
+                <span className="text-xs text-neutral-400">Settings Mode</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsInvoiceEditorOpen(false)}
+                className="h-8 w-8 rounded-lg hover:bg-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white transition-colors cursor-pointer"
+                title="Close"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="max-h-[85vh] overflow-y-auto print:max-h-none print:overflow-visible">
+              <InvoiceCustomizer
+                order={demoOrder}
+                isModal={true}
+                onClose={() => setIsInvoiceEditorOpen(false)}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

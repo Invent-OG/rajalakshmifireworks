@@ -1,13 +1,12 @@
-'use client';
-
-import { use } from 'react';
+import { use, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { StatusBadge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatCurrency, formatDateTime } from '@/lib/utils/format';
-import { ArrowLeft, Phone, Mail, MapPin, Truck, Store, ArrowUpRight, Printer } from 'lucide-react';
+import { ArrowLeft, Phone, Mail, MapPin, Truck, Store, ArrowUpRight, Printer, X } from 'lucide-react';
 import Link from '@/components/ui/link';
+import { InvoiceCustomizer } from './invoice-customizer';
 
 interface AddressItem {
   id: number;
@@ -38,6 +37,22 @@ function CustomerDetailPageContent({
   const id = resolvedParams?.id || pathId || '';
   const customerId = parseInt(id, 10);
   const isValidCustomerId = !isNaN(customerId) && customerId > 0;
+
+  const [selectedPrintOrder, setSelectedPrintOrder] = useState<any | null>(null);
+
+  const handlePrintOrder = async (orderSummary: any) => {
+    try {
+      const res = await fetch(`/api/admin/orders/${orderSummary.id}`);
+      const resData = await res.json();
+      if (resData?.order) {
+        setSelectedPrintOrder(resData.order);
+      } else {
+        setSelectedPrintOrder(orderSummary);
+      }
+    } catch {
+      setSelectedPrintOrder(orderSummary);
+    }
+  };
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin', 'customers', 'detail', customerId],
@@ -211,15 +226,15 @@ function CustomerDetailPageContent({
                     </td>
                     <td className="px-5 py-3.5 text-right whitespace-nowrap">
                       <div className="flex items-center justify-end gap-2">
-                        <Link
-                          href={`/admin/orders/${o.id}/print`}
-                          target="_blank"
+                        <button
+                          type="button"
+                          onClick={() => handlePrintOrder(o)}
                           className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg border border-border bg-card dark:bg-[#1a1a1a] hover:bg-muted dark:hover:bg-[#262626] text-foreground text-xs font-semibold shadow-xs transition-all active:scale-95 cursor-pointer"
                           title="Print Dispatch Slip"
                         >
                           <Printer className="h-3.5 w-3.5 text-muted-foreground" />
                           <span>Print Slip</span>
-                        </Link>
+                        </button>
                         <Link
                           href={`/admin/orders/${o.id}`}
                           className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 text-xs font-semibold shadow-xs transition-all active:scale-95 cursor-pointer"
@@ -241,6 +256,37 @@ function CustomerDetailPageContent({
           </div>
         )}
       </div>
+
+      {/* In-page Invoice Customizer Modal inside Customer Detail */}
+      {selectedPrintOrder && (
+        <div className="invoice-no-print fixed inset-0 z-50 overflow-y-auto bg-black/75 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 md:p-6 animate-fade-in print:p-0 print:bg-white print:static print:overflow-visible">
+          <div className="relative w-full max-w-5xl bg-white dark:bg-[#121212] rounded-2xl shadow-2xl border border-neutral-300 dark:border-neutral-800 overflow-hidden print:border-none print:shadow-none print:rounded-none">
+            <div className="invoice-no-print px-5 py-3.5 bg-neutral-900 text-white flex items-center justify-between border-b border-neutral-800 print:hidden">
+              <div className="flex items-center gap-2.5">
+                <Printer className="h-4 w-4 text-emerald-400" />
+                <span className="font-bold text-sm">Invoice Slip Preview & Customizer</span>
+                <span className="text-xs text-neutral-400 font-mono">#{selectedPrintOrder.invoiceNumber}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedPrintOrder(null)}
+                className="h-8 w-8 rounded-lg hover:bg-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white transition-colors cursor-pointer"
+                title="Close"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="max-h-[85vh] overflow-y-auto print:max-h-none print:overflow-visible">
+              <InvoiceCustomizer
+                order={selectedPrintOrder}
+                isModal={true}
+                onClose={() => setSelectedPrintOrder(null)}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

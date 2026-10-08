@@ -1,0 +1,8 @@
+---
+import AdminLayout from '@/src/layouts/AdminLayout.astro';
+import AdminInvoicePage from '@/components/admin/admin-invoice-page';
+---
+
+<AdminLayout title="Invoice Template Editor | Rajalakshmi Fireworks">
+  <AdminInvoicePage client:only="react" />
+</AdminLayout>

@@ -20,6 +20,7 @@ import {
   Truck,
   Sun,
   Moon,
+  FileText,
 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -63,6 +64,7 @@ const navGroups = [
   {
     group: 'SYSTEM',
     items: [
+      { href: '/admin/invoice-editor', icon: FileText, label: 'Invoice Editor' },
       { href: '/admin/profile', icon: UserCog, label: 'Profile & Security' },
       { href: '/admin/settings', icon: Settings, label: 'Settings' },
     ],
