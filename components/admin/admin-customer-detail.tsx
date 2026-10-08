@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { StatusBadge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatCurrency, formatDateTime } from '@/lib/utils/format';
-import { ArrowLeft, Phone, Mail, MapPin, Truck, Store, ArrowUpRight } from 'lucide-react';
+import { ArrowLeft, Phone, Mail, MapPin, Truck, Store, ArrowUpRight, Printer } from 'lucide-react';
 import Link from '@/components/ui/link';
 
 interface AddressItem {
@@ -209,13 +209,26 @@ function CustomerDetailPageContent({
                     <td className="px-5 py-3.5 text-xs text-muted-foreground whitespace-nowrap">
                       {formatDateTime(o.placedAt)}
                     </td>
-                    <td className="px-5 py-3.5 text-right">
-                      <Link
-                        href={`/admin/orders/${o.id}`}
-                        className="inline-flex items-center gap-1 text-xs font-medium text-foreground hover:underline"
-                      >
-                        Inspect <ArrowUpRight className="h-3 w-3 text-muted-foreground" />
-                      </Link>
+                    <td className="px-5 py-3.5 text-right whitespace-nowrap">
+                      <div className="flex items-center justify-end gap-2">
+                        <Link
+                          href={`/admin/orders/${o.id}/print`}
+                          target="_blank"
+                          className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg border border-border bg-card dark:bg-[#1a1a1a] hover:bg-muted dark:hover:bg-[#262626] text-foreground text-xs font-semibold shadow-xs transition-all active:scale-95 cursor-pointer"
+                          title="Print Dispatch Slip"
+                        >
+                          <Printer className="h-3.5 w-3.5 text-muted-foreground" />
+                          <span>Print Slip</span>
+                        </Link>
+                        <Link
+                          href={`/admin/orders/${o.id}`}
+                          className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 text-xs font-semibold shadow-xs transition-all active:scale-95 cursor-pointer"
+                          title="Inspect Order"
+                        >
+                          <span>Inspect</span>
+                          <ArrowUpRight className="h-3.5 w-3.5 opacity-80" />
+                        </Link>
+                      </div>
                     </td>
                   </tr>
                 ))}

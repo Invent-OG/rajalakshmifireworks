@@ -12,6 +12,7 @@ import {
   Clock,
   Users,
   ArrowUpRight,
+  Printer,
 } from 'lucide-react';
 import Link from '@/components/ui/link';
 import { useGSAP } from '@gsap/react';
@@ -321,13 +322,26 @@ function AdminDashboardPageContent() {
                     <td className="px-5 py-4 text-sm text-muted-foreground">
                       {formatDateTime(order.placedAt)}
                     </td>
-                    <td className="px-5 py-4 text-right">
-                      <Link
-                        href={`/admin/orders/${order.id}`}
-                        className="text-sm font-bold text-foreground hover:underline"
-                      >
-                        Inspect
-                      </Link>
+                    <td className="px-5 py-4 text-right whitespace-nowrap">
+                      <div className="flex items-center justify-end gap-2">
+                        <Link
+                          href={`/admin/orders/${order.id}/print`}
+                          target="_blank"
+                          className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg border border-border bg-card dark:bg-[#1a1a1a] hover:bg-muted dark:hover:bg-[#262626] text-foreground text-xs font-semibold shadow-xs transition-all active:scale-95 cursor-pointer"
+                          title="Print Dispatch Slip"
+                        >
+                          <Printer className="h-3.5 w-3.5 text-muted-foreground" />
+                          <span>Print Slip</span>
+                        </Link>
+                        <Link
+                          href={`/admin/orders/${order.id}`}
+                          className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 text-xs font-semibold shadow-xs transition-all active:scale-95 cursor-pointer"
+                          title="Inspect Order"
+                        >
+                          <span>Inspect</span>
+                          <ArrowUpRight className="h-3.5 w-3.5 opacity-80" />
+                        </Link>
+                      </div>
                     </td>
                   </tr>
                 ))

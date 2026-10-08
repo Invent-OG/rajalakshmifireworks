@@ -429,21 +429,24 @@ function AdminOrdersPageContent() {
                       <td className="px-4 py-3.5 text-xs text-muted-foreground whitespace-nowrap">
                         {formatDateTime(order.placedAt)}
                       </td>
-                      <td className="px-4 py-3.5 text-right">
+                      <td className="px-4 py-3.5 text-right whitespace-nowrap">
                         <div className="flex items-center justify-end gap-2">
                           <Link
                             href={`/admin/orders/${order.id}/print`}
                             target="_blank"
-                            className="text-muted-foreground hover:text-foreground p-1 rounded hover:bg-muted"
+                            className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg border border-border bg-card dark:bg-[#1a1a1a] hover:bg-muted dark:hover:bg-[#262626] text-foreground text-xs font-semibold shadow-xs transition-all active:scale-95 cursor-pointer"
                             title="Print Dispatch Slip"
                           >
-                            <Printer className="h-3.5 w-3.5" />
+                            <Printer className="h-3.5 w-3.5 text-muted-foreground" />
+                            <span>Print Slip</span>
                           </Link>
                           <Link
                             href={`/admin/orders/${order.id}`}
-                            className="inline-flex items-center gap-1 text-xs font-medium text-foreground hover:underline"
+                            className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 text-xs font-semibold shadow-xs transition-all active:scale-95 cursor-pointer"
+                            title="Inspect Order"
                           >
-                            Inspect <ArrowUpRight className="h-3 w-3 text-muted-foreground" />
+                            <span>Inspect</span>
+                            <ArrowUpRight className="h-3.5 w-3.5 opacity-80" />
                           </Link>
                         </div>
                       </td>
