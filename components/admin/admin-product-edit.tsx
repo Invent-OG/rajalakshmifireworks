@@ -2,7 +2,8 @@
 
 import { useEffect, use, useState } from 'react';
 import { useRouter } from '@/lib/navigation';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/lib/query/keys';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { productUpdateSchema, type ProductUpdateInput } from '@/lib/validation/product';
@@ -31,36 +32,42 @@ function EditProductPageContent({
   const isValidProductId = !isNaN(productId) && productId > 0;
   const router = useRouter();
   const queryClient = useQueryClient();
-  const [submitting, setSubmitting] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [deleting, setDeleting] = useState(false);
   const [isCombo, setIsCombo] = useState(false);
   const [comboItems, setComboItems] = useState<ComboItemEntry[]>([]);
 
-  const handleDeleteProduct = async () => {
-    setDeleting(true);
-    try {
+  const deleteProductMutation = useMutation({
+    mutationFn: async () => {
       const res = await fetch(`/api/admin/products/${productId}`, { method: 'DELETE' });
       const resData = await res.json();
       if (!res.ok) throw new Error(resData.message || 'Failed to delete product');
-      toast.success(resData.message || 'Product deleted successfully');
-      queryClient.invalidateQueries({ queryKey: ['admin', 'products'] });
+      return resData;
+    },
+    onSuccess: (resData) => {
+      toast.success(resData?.message || 'Product deleted successfully');
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.products.all });
       window.location.href = '/admin/products';
-    } catch (err: any) {
+    },
+    onError: (err: any) => {
       toast.error(err.message || 'Failed to delete product');
-      setDeleting(false);
       setDeleteDialogOpen(false);
-    }
+    },
+  });
+
+  const deleting = deleteProductMutation.isPending;
+
+  const handleDeleteProduct = () => {
+    deleteProductMutation.mutate();
   };
 
   const { data: productData, isLoading } = useQuery({
-    queryKey: ['admin', 'products', 'detail', productId],
+    queryKey: queryKeys.admin.products.detail(productId),
     queryFn: () => fetch(`/api/admin/products/${productId}`).then((r) => r.json()),
     enabled: isValidProductId,
   });
 
   const { data: catData } = useQuery({
-    queryKey: ['admin', 'categories', 'list'],
+    queryKey: queryKeys.admin.categories.list(),
     queryFn: () => fetch('/api/admin/categories').then((r) => r.json()),
   });
 
@@ -165,7 +172,34 @@ function EditProductPageContent({
     toast.success(`Applied calculated prices: MRP ₹${calcMrp}, Price ₹${calcPrice} (${calcDiscount}% OFF)`);
   };
 
-  async function onSubmit(data: ProductUpdateInput) {
+  const updateProductMutation = useMutation({
+    mutationFn: async (payload: any) => {
+      const res = await fetch(`/api/admin/products/${productId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const resData = await res.json();
+      if (!res.ok) {
+        throw new Error(resData.message || 'Failed to update product');
+      }
+      return resData;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.products.all });
+      toast.success(isCombo ? 'Combo product details updated successfully' : 'Product details updated successfully');
+      router.push('/admin/products');
+      router.refresh();
+    },
+    onError: (err: any) => {
+      toast.error(err.message || 'An unexpected error occurred.');
+    },
+  });
+
+  const submitting = updateProductMutation.isPending;
+
+  function onSubmit(data: ProductUpdateInput) {
     if (data.sellingPrice !== undefined && data.mrp !== undefined && data.sellingPrice > data.mrp) {
       toast.error('Selling price cannot exceed MRP');
       return;
@@ -176,39 +210,17 @@ function EditProductPageContent({
       return;
     }
 
-    setSubmitting(true);
-    try {
-      const res = await fetch(`/api/admin/products/${productId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...data,
-          isCombo,
-          comboItems: isCombo
-            ? comboItems.map((ci, idx) => ({
-                productId: ci.productId,
-                quantity: ci.quantity,
-                sortOrder: idx,
-              }))
-            : [],
-        }),
-      });
-
-      const resData = await res.json();
-      if (!res.ok) {
-        toast.error(resData.message || 'Failed to update product');
-        return;
-      }
-
-      queryClient.invalidateQueries({ queryKey: ['admin', 'products'] });
-      toast.success(isCombo ? 'Combo product details updated successfully' : 'Product details updated successfully');
-      router.push('/admin/products');
-      router.refresh();
-    } catch {
-      toast.error('An unexpected error occurred.');
-    } finally {
-      setSubmitting(false);
-    }
+    updateProductMutation.mutate({
+      ...data,
+      isCombo,
+      comboItems: isCombo
+        ? comboItems.map((ci, idx) => ({
+            productId: ci.productId,
+            quantity: ci.quantity,
+            sortOrder: idx,
+          }))
+        : [],
+    });
   }
 
   if (isLoading) {

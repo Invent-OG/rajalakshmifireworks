@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/lib/query/keys';
 import Link from '@/components/ui/link';
 import { Button } from '@/components/ui/button';
 import { StatusBadge } from '@/components/ui/badge';
@@ -84,13 +86,13 @@ interface ImportResult {
 import { withAdminShell } from './admin-shell';
 
 function BulkProductUploadPageContent() {
+  const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // States
   const [file, setFile] = useState<File | null>(null);
   const [isDownloadingTemplate, setIsDownloadingTemplate] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
-  const [isImporting, setIsImporting] = useState(false);
   const [isDownloadingErrors, setIsDownloadingErrors] = useState(false);
 
   // Data states
@@ -203,19 +205,9 @@ function BulkProductUploadPageContent() {
     }
   };
 
-  // 4. Confirm Import
-  const handleConfirmImport = async () => {
-    const validItems = rows
-      .filter((r) => r.status === 'valid' && r.parsed)
-      .map((r) => r.parsed as ParsedProduct);
-
-    if (validItems.length === 0) {
-      toast.error('No valid products to import.');
-      return;
-    }
-
-    setIsImporting(true);
-    try {
+  // 4. Confirm Import Mutation
+  const importMutation = useMutation({
+    mutationFn: async (validItems: ParsedProduct[]) => {
       const res = await fetch('/api/admin/products/bulk-upload/import', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -227,16 +219,33 @@ function BulkProductUploadPageContent() {
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Failed to import products');
-
+      return data;
+    },
+    onSuccess: (data) => {
       setImportResult(data);
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.products.all });
       toast.success(
         `Import complete: ${data.imported} added, ${data.updated} updated, ${data.skipped} skipped`
       );
-    } catch (err: any) {
+    },
+    onError: (err: any) => {
       toast.error(err.message || 'Import failed');
-    } finally {
-      setIsImporting(false);
+    },
+  });
+
+  const isImporting = importMutation.isPending;
+
+  const handleConfirmImport = () => {
+    const validItems = rows
+      .filter((r) => r.status === 'valid' && r.parsed)
+      .map((r) => r.parsed as ParsedProduct);
+
+    if (validItems.length === 0) {
+      toast.error('No valid products to import.');
+      return;
     }
+
+    importMutation.mutate(validItems);
   };
 
   // 5. Reset Form

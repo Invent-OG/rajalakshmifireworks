@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from '@/lib/navigation';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/lib/query/keys';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { productBaseSchema, type ProductBaseInput } from '@/lib/validation/product';
@@ -19,13 +20,13 @@ import { withAdminShell } from './admin-shell';
 
 function NewProductPageContent() {
   const router = useRouter();
-  const [submitting, setSubmitting] = useState(false);
+  const queryClient = useQueryClient();
   const [mediaItems, setMediaItems] = useState<ProductMediaItem[]>([]);
   const [isCombo, setIsCombo] = useState(false);
   const [comboItems, setComboItems] = useState<ComboItemEntry[]>([]);
 
   const { data: catData } = useQuery({
-    queryKey: ['admin', 'categories', 'list'],
+    queryKey: queryKeys.admin.categories.list(),
     queryFn: () => fetch('/api/admin/categories').then((r) => r.json()),
   });
 
@@ -99,7 +100,34 @@ function NewProductPageContent() {
     toast.success(`Applied calculated prices: MRP ₹${calcMrp}, Price ₹${calcPrice} (${calcDiscount}% OFF)`);
   };
 
-  async function onSubmit(data: ProductBaseInput) {
+  const createProductMutation = useMutation({
+    mutationFn: async (payload: any) => {
+      const res = await fetch('/api/admin/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const resData = await res.json();
+      if (!res.ok) {
+        throw new Error(resData.message || 'Failed to create product');
+      }
+      return resData;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.products.all });
+      toast.success(isCombo ? 'Combo product created successfully' : 'Product created successfully');
+      router.push('/admin/products');
+      router.refresh();
+    },
+    onError: (err: any) => {
+      toast.error(err.message || 'An unexpected error occurred.');
+    },
+  });
+
+  const submitting = createProductMutation.isPending;
+
+  function onSubmit(data: ProductBaseInput) {
     if (data.sellingPrice > data.mrp) {
       toast.error('Selling price cannot exceed MRP');
       return;
@@ -110,39 +138,18 @@ function NewProductPageContent() {
       return;
     }
 
-    setSubmitting(true);
-    try {
-      const res = await fetch('/api/admin/products', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...data,
-          isCombo,
-          media: mediaItems,
-          comboItems: isCombo
-            ? comboItems.map((ci, idx) => ({
-                productId: ci.productId,
-                quantity: ci.quantity,
-                sortOrder: idx,
-              }))
-            : [],
-        }),
-      });
-
-      const resData = await res.json();
-      if (!res.ok) {
-        toast.error(resData.message || 'Failed to create product');
-        return;
-      }
-
-      toast.success(isCombo ? 'Combo product created successfully' : 'Product created successfully');
-      router.push('/admin/products');
-      router.refresh();
-    } catch {
-      toast.error('An unexpected error occurred.');
-    } finally {
-      setSubmitting(false);
-    }
+    createProductMutation.mutate({
+      ...data,
+      isCombo,
+      media: mediaItems,
+      comboItems: isCombo
+        ? comboItems.map((ci, idx) => ({
+            productId: ci.productId,
+            quantity: ci.quantity,
+            sortOrder: idx,
+          }))
+        : [],
+    });
   }
 
   return (

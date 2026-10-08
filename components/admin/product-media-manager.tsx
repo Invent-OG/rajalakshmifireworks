@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/lib/query/keys';
 import {
   Upload,
   Image as ImageIcon,
@@ -39,7 +41,7 @@ export function ProductMediaManager({
   onChange,
 }: ProductMediaManagerProps) {
   const [mediaList, setMediaList] = useState<ProductMediaItem[]>(media);
-  const [uploading, setUploading] = useState(false);
+  const queryClient = useQueryClient();
   const [videoUrlInput, setVideoUrlInput] = useState('');
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [previewMedia, setPreviewMedia] = useState<ProductMediaItem | null>(null);
@@ -55,12 +57,11 @@ export function ProductMediaManager({
     }
   }
 
-  async function handleFileUpload(file: File, typeOverride?: 'image' | 'video') {
-    const formData = new FormData();
-    formData.append('file', file);
+  const uploadMutation = useMutation({
+    mutationFn: async ({ file, typeOverride }: { file: File; typeOverride?: 'image' | 'video' }) => {
+      const formData = new FormData();
+      formData.append('file', file);
 
-    setUploading(true);
-    try {
       const res = await fetch('/api/admin/upload', {
         method: 'POST',
         body: formData,
@@ -68,8 +69,7 @@ export function ProductMediaManager({
 
       const data = await res.json();
       if (!res.ok) {
-        toast.error(data.message || 'Upload failed');
-        return;
+        throw new Error(data.message || 'Upload failed');
       }
 
       const detectedType = typeOverride || data.type || (file.type.startsWith('video/') ? 'video' : 'image');
@@ -93,39 +93,43 @@ export function ProductMediaManager({
         }
       }
 
+      return { newMediaItem, detectedType };
+    },
+    onSuccess: ({ newMediaItem, detectedType }) => {
       const updated = [...currentList, newMediaItem];
       updateList(updated);
+      if (productId) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.admin.products.detail(productId) });
+      }
       toast.success(`${detectedType === 'video' ? 'Demo video' : 'Image'} uploaded`);
-    } catch {
-      toast.error('Failed to upload file');
-    } finally {
-      setUploading(false);
-    }
-  }
+    },
+    onError: (err: any) => {
+      toast.error(err.message || 'Failed to upload file');
+    },
+  });
+
+  const uploading = uploadMutation.isPending;
 
   async function handleFilesSelected(e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'video') {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
     for (let i = 0; i < files.length; i++) {
-      await handleFileUpload(files[i], type);
+      await uploadMutation.mutateAsync({ file: files[i], typeOverride: type });
     }
     e.target.value = '';
   }
 
-  async function handleAddVideoUrl() {
-    if (!videoUrlInput.trim()) return;
+  const addVideoMutation = useMutation({
+    mutationFn: async (url: string) => {
+      const newMediaItem: ProductMediaItem = {
+        type: 'video',
+        url,
+        alt: 'Product Demo Video',
+        sortOrder: currentList.length,
+      };
 
-    const url = videoUrlInput.trim();
-    const newMediaItem: ProductMediaItem = {
-      type: 'video',
-      url,
-      alt: 'Product Demo Video',
-      sortOrder: currentList.length,
-    };
-
-    if (productId) {
-      try {
+      if (productId) {
         const res = await fetch(`/api/admin/products/${productId}/media`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -135,40 +139,60 @@ export function ProductMediaManager({
         if (res.ok) {
           const data = await res.json();
           newMediaItem.id = data.media.id;
+        } else {
+          throw new Error('Failed to save demo video');
         }
-      } catch {
-        toast.error('Failed to save demo video');
-        return;
       }
-    }
 
-    updateList([...currentList, newMediaItem]);
-    setVideoUrlInput('');
-    setShowVideoModal(false);
-    toast.success('Demo video attached');
+      return newMediaItem;
+    },
+    onSuccess: (newMediaItem) => {
+      updateList([...currentList, newMediaItem]);
+      setVideoUrlInput('');
+      setShowVideoModal(false);
+      if (productId) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.admin.products.detail(productId) });
+      }
+      toast.success('Demo video attached');
+    },
+    onError: (err: any) => {
+      toast.error(err.message || 'Failed to save demo video');
+    },
+  });
+
+  function handleAddVideoUrl() {
+    if (!videoUrlInput.trim()) return;
+    addVideoMutation.mutate(videoUrlInput.trim());
   }
 
-  async function handleDelete(index: number) {
-    const target = currentList[index];
-
-    if (productId && target.id) {
-      try {
+  const deleteMediaMutation = useMutation({
+    mutationFn: async ({ index, target }: { index: number; target: ProductMediaItem }) => {
+      if (productId && target.id) {
         const res = await fetch(`/api/admin/products/${productId}/media?mediaId=${target.id}`, {
           method: 'DELETE',
         });
         if (!res.ok) {
-          toast.error('Failed to delete media');
-          return;
+          throw new Error('Failed to delete media');
         }
-      } catch {
-        toast.error('Error deleting media');
-        return;
       }
-    }
+      return index;
+    },
+    onSuccess: (index) => {
+      const filtered = currentList.filter((_, i) => i !== index);
+      updateList(filtered);
+      if (productId) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.admin.products.detail(productId) });
+      }
+      toast.success('Media removed');
+    },
+    onError: (err: any) => {
+      toast.error(err.message || 'Error deleting media');
+    },
+  });
 
-    const filtered = currentList.filter((_, i) => i !== index);
-    updateList(filtered);
-    toast.success('Media removed');
+  function handleDelete(index: number) {
+    const target = currentList[index];
+    deleteMediaMutation.mutate({ index, target });
   }
 
   return (

@@ -23,6 +23,7 @@ import {
   FileText,
 } from 'lucide-react';
 import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { BrandLogo } from '@/components/ui/brand-logo';
 import { useAdminTheme } from '@/hooks/use-admin-theme';
@@ -81,10 +82,24 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return <>{children}</>;
   }
 
-  async function handleLogout() {
-    await fetch('/api/admin/auth/logout', { method: 'POST' });
-    toast.success('Signed out successfully');
-    router.push('/admin/login');
+  const queryClient = useQueryClient();
+  const logoutMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch('/api/admin/auth/logout', { method: 'POST' });
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.clear();
+      toast.success('Signed out successfully');
+      router.push('/admin/login');
+    },
+    onError: () => {
+      router.push('/admin/login');
+    },
+  });
+
+  function handleLogout() {
+    logoutMutation.mutate();
   }
 
   return (

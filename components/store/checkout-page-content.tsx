@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { useCart } from '@/hooks/use-cart';
 import { StoreButton } from '@/components/ui/store-button';
 import { Input, Textarea } from '@/components/ui/input';
@@ -71,7 +71,6 @@ type CheckoutFormData = z.infer<typeof checkoutFormSchema>;
 
 function CheckoutPageContent() {
   const { items, subtotal, totalSavings, itemCount, clearCart } = useCart();
-  const [submitting, setSubmitting] = useState(false);
   const [isOrderPlaced, setIsOrderPlaced] = useState(false);
   const [showNoticeModal, setShowNoticeModal] = useState(false);
   const [pendingFormData, setPendingFormData] = useState<CheckoutFormData | null>(null);
@@ -176,39 +175,8 @@ function CheckoutPageContent() {
     setShowNoticeModal(true);
   }
 
-  async function executeBooking(data: CheckoutFormData) {
-    setSubmitting(true);
-    try {
-      const idempotencyKey = nanoid();
-      const selectedState = states.find((s) => s.id === Number(data.stateId));
-      const selectedCity = cities.find((c) => c.id === Number(data.cityId));
-
-      const payload = {
-        customer: {
-          name: data.name.trim(),
-          mobile: data.mobile.trim(),
-        },
-        fulfillmentType: data.fulfillmentType,
-        address:
-          data.fulfillmentType === 'DELIVERY'
-            ? {
-                address: data.address!.trim(),
-                stateId: data.stateId ? Number(data.stateId) : undefined,
-                cityId: data.cityId ? Number(data.cityId) : undefined,
-                state: selectedState?.name || '',
-                city: selectedCity?.name || data.city || '',
-                area: data.area?.trim() || undefined,
-                pincode: data.pincode!.trim(),
-              }
-            : undefined,
-        notes: data.notes?.trim() || undefined,
-        items: items.map((item) => ({
-          productId: item.productId,
-          quantity: item.quantity,
-        })),
-        idempotencyKey,
-      };
-
+  const placeOrderMutation = useMutation({
+    mutationFn: async (payload: any) => {
       const res = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -216,17 +184,18 @@ function CheckoutPageContent() {
       });
 
       const result = await res.json();
-
       if (!res.ok) {
         throw new Error(result.message || 'Failed to place order');
       }
-
+      return result;
+    },
+    onSuccess: (result) => {
       // Resolve invoiceNumber or orderId from API response
       const invoiceNumber =
-        result.order?.invoiceNumber ||
-        result.invoiceNumber ||
-        result.order?.orderId ||
-        result.orderId;
+        result?.order?.invoiceNumber ||
+        result?.invoiceNumber ||
+        result?.order?.orderId ||
+        result?.orderId;
 
       if (!invoiceNumber) {
         throw new Error('Order placed successfully, but confirmation reference was missing.');
@@ -247,12 +216,49 @@ function CheckoutPageContent() {
       // Redirect directly to localized Confirmation Page
       const targetUrl = `/${locale}/order-confirmation/${encodeURIComponent(String(invoiceNumber))}`;
       window.location.href = targetUrl;
-    } catch (error: any) {
+    },
+    onError: (error: any) => {
       toast.error(error.message || 'Failed to place order. Please try again.');
-    } finally {
-      setSubmitting(false);
+    },
+    onSettled: () => {
       setShowNoticeModal(false);
-    }
+    },
+  });
+
+  const submitting = placeOrderMutation.isPending;
+
+  function executeBooking(data: CheckoutFormData) {
+    const idempotencyKey = nanoid();
+    const selectedState = states.find((s) => s.id === Number(data.stateId));
+    const selectedCity = cities.find((c) => c.id === Number(data.cityId));
+
+    const payload = {
+      customer: {
+        name: data.name.trim(),
+        mobile: data.mobile.trim(),
+      },
+      fulfillmentType: data.fulfillmentType,
+      address:
+        data.fulfillmentType === 'DELIVERY'
+          ? {
+              address: data.address!.trim(),
+              stateId: data.stateId ? Number(data.stateId) : undefined,
+              cityId: data.cityId ? Number(data.cityId) : undefined,
+              state: selectedState?.name || '',
+              city: selectedCity?.name || data.city || '',
+              area: data.area?.trim() || undefined,
+              pincode: data.pincode!.trim(),
+            }
+          : undefined,
+      notes: data.notes?.trim() || undefined,
+      items: items.map((item) => ({
+        productId: item.productId,
+        quantity: item.quantity,
+      })),
+      idempotencyKey,
+    };
+
+    placeOrderMutation.mutate(payload);
   }
 
   return (

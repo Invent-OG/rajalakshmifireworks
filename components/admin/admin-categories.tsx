@@ -47,12 +47,36 @@ function AdminCategoriesPageContent() {
   const [sortOrder, setSortOrder] = useState<number>(0);
   const [isActive, setIsActive] = useState<boolean>(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [uploadingImage, setUploadingImage] = useState(false);
-
   const { data, isLoading } = useQuery({
     queryKey: ['admin', 'categories', 'list'],
     queryFn: () => fetch('/api/admin/categories').then((r) => r.json()),
   });
+
+  const uploadImageMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('folder', 'categories');
+
+      const res = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const resData = await res.json();
+      if (!res.ok) throw new Error(resData.message || 'Image upload failed');
+      return resData.url;
+    },
+    onSuccess: (url) => {
+      setImage(url);
+      toast.success('Category image uploaded successfully');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to upload category image');
+    },
+  });
+
+  const uploadingImage = uploadImageMutation.isPending;
 
   const categories: CategoryItem[] = data?.categories || [];
 
@@ -80,31 +104,10 @@ function AdminCategoriesPageContent() {
     setIsModalOpen(true);
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    setUploadingImage(true);
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('folder', 'categories');
-
-      const res = await fetch('/api/admin/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      const resData = await res.json();
-      if (!res.ok) throw new Error(resData.message || 'Image upload failed');
-
-      setImage(resData.url);
-      toast.success('Category image uploaded successfully');
-    } catch (error) {
-      toast.error((error as Error).message || 'Failed to upload category image');
-    } finally {
-      setUploadingImage(false);
-    }
+    uploadImageMutation.mutate(file);
   };
 
   const saveMutation = useMutation({

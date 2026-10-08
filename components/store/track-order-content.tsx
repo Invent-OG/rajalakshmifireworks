@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation } from '@tanstack/react-query';
 import { orderTrackingSchema, type OrderTrackingInput } from '@/lib/validation/order';
 import { StoreButton } from '@/components/ui/store-button';
 import { Input } from '@/components/ui/input';
@@ -40,7 +41,6 @@ import { Providers } from '@/components/providers';
 
 function TrackOrderPageContent() {
   const [orders, setOrders] = useState<TrackedOrder[]>([]);
-  const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const resultsContainerRef = useRef<HTMLDivElement>(null);
   const t = useTranslations('trackOrder');
@@ -72,22 +72,30 @@ function TrackOrderPageContent() {
     defaultValues: { mobile: '', invoiceNumber: '' },
   });
 
-  async function onSubmit(data: OrderTrackingInput) {
-    setLoading(true);
-    setSearched(true);
-    try {
+  const trackOrderMutation = useMutation({
+    mutationFn: async (data: OrderTrackingInput) => {
       const res = await fetch('/api/orders/track', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
-      const result = await res.json();
-      setOrders(result.orders || []);
-    } catch {
+      if (!res.ok) throw new Error('Failed to track order');
+      return res.json() as Promise<{ orders: TrackedOrder[] }>;
+    },
+    onSuccess: (result) => {
+      setOrders(result?.orders || []);
+      setSearched(true);
+    },
+    onError: () => {
       setOrders([]);
-    } finally {
-      setLoading(false);
-    }
+      setSearched(true);
+    },
+  });
+
+  const loading = trackOrderMutation.isPending;
+
+  function onSubmit(data: OrderTrackingInput) {
+    trackOrderMutation.mutate(data);
   }
 
   return (

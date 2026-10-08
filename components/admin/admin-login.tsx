@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from '@/lib/navigation';
+import { useMutation } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Lock, ShieldCheck, Sun, Moon } from 'lucide-react';
@@ -15,32 +16,36 @@ function AdminLoginPageContent() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
   const { theme, toggleTheme } = useAdminTheme();
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
+  const loginMutation = useMutation({
+    mutationFn: async (credentials: { email: string; password: string }) => {
       const res = await fetch('/api/admin/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify(credentials),
       });
 
-      if (res.ok) {
-        toast.success('Signed in successfully');
-        window.location.href = '/admin';
-      } else {
-        const data = await res.json().catch(() => ({}));
-        toast.error(data.message || 'Invalid email or password');
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.message || 'Invalid email or password');
       }
-    } catch {
-      toast.error('Login failed. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+      return data;
+    },
+    onSuccess: () => {
+      toast.success('Signed in successfully');
+      window.location.href = '/admin';
+    },
+    onError: (err: any) => {
+      toast.error(err.message || 'Login failed. Please try again.');
+    },
+  });
+
+  const loading = loginMutation.isPending;
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    loginMutation.mutate({ email, password });
   }
 
   return (

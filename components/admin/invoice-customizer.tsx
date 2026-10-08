@@ -1,6 +1,9 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useQuery, QueryClientProvider } from '@tanstack/react-query';
+import { sharedQueryClient } from '@/components/providers';
+import { queryKeys } from '@/lib/query/keys';
 import {
   Printer,
   Sliders,
@@ -141,7 +144,7 @@ interface InvoiceCustomizerProps {
   onClose?: () => void;
 }
 
-export function InvoiceCustomizer({
+function InvoiceCustomizerContent({
   order,
   initialSettings = {},
   isModal = false,
@@ -210,32 +213,36 @@ export function InvoiceCustomizer({
     };
   });
 
-  // If initialSettings is empty, fetch current store settings asynchronously to ensure latest GST/Terms/Bank info
+  // Fetch store settings via TanStack Query when initialSettings is empty
+  const { data: storeSettingsData } = useQuery<{ settings?: Record<string, string> }>({
+    queryKey: queryKeys.admin.settings.all,
+    queryFn: async () => {
+      const res = await fetch('/api/admin/settings');
+      if (!res.ok) throw new Error('Failed to load settings');
+      return res.json();
+    },
+    enabled: Object.keys(initialSettings).length === 0,
+    staleTime: 1000 * 60 * 5,
+  });
+
   useEffect(() => {
-    if (Object.keys(initialSettings).length === 0) {
-      fetch('/api/admin/settings')
-        .then((res) => res.json())
-        .then((data) => {
-          if (data?.settings) {
-            const s = data.settings;
-            setConfig((prev) => ({
-              ...prev,
-              storeGstin: s.INVOICE_GSTIN || prev.storeGstin,
-              bankName: s.INVOICE_BANK_NAME || prev.bankName,
-              accountName: s.INVOICE_ACCOUNT_NAME || prev.accountName,
-              accountNumber: s.INVOICE_ACCOUNT_NUMBER || prev.accountNumber,
-              ifscCode: s.INVOICE_IFSC || prev.ifscCode,
-              upiId: s.INVOICE_UPI_ID || prev.upiId,
-              termsAndConditions:
-                prev.termsAndConditions && prev.termsAndConditions.trim().length > 0
-                  ? prev.termsAndConditions
-                  : (s.INVOICE_TERMS || DEFAULT_INVOICE_CONFIG.termsAndConditions),
-            }));
-          }
-        })
-        .catch(() => {});
+    if (storeSettingsData?.settings) {
+      const s = storeSettingsData.settings;
+      setConfig((prev) => ({
+        ...prev,
+        storeGstin: s.INVOICE_GSTIN || prev.storeGstin,
+        bankName: s.INVOICE_BANK_NAME || prev.bankName,
+        accountName: s.INVOICE_ACCOUNT_NAME || prev.accountName,
+        accountNumber: s.INVOICE_ACCOUNT_NUMBER || prev.accountNumber,
+        ifscCode: s.INVOICE_IFSC || prev.ifscCode,
+        upiId: s.INVOICE_UPI_ID || prev.upiId,
+        termsAndConditions:
+          prev.termsAndConditions && prev.termsAndConditions.trim().length > 0
+            ? prev.termsAndConditions
+            : (s.INVOICE_TERMS || DEFAULT_INVOICE_CONFIG.termsAndConditions),
+      }));
     }
-  }, []);
+  }, [storeSettingsData]);
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'style' | 'media' | 'details' | 'payment' | 'terms'>('style');
@@ -1230,6 +1237,14 @@ export function InvoiceCustomizer({
         </div>
       </main>
     </div>
+  );
+}
+
+export function InvoiceCustomizer(props: InvoiceCustomizerProps) {
+  return (
+    <QueryClientProvider client={sharedQueryClient}>
+      <InvoiceCustomizerContent {...props} />
+    </QueryClientProvider>
   );
 }
 
