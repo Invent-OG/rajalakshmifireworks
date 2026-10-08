@@ -134,8 +134,8 @@ const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`)
         href={getHref('/products')}
         class={`px-4 py-2 rounded-full text-xs font-semibold shrink-0 transition-all ${
           !categorySlug && !featured && !bestseller
-            ? 'bg-neutral-900 text-white shadow-xs'
-            : 'bg-white text-neutral-600 shadow-xs hover:bg-neutral-100'
+            ? 'bg-neutral-900 text-white dark:bg-white dark:text-black shadow-xs'
+            : 'bg-white dark:bg-[#141414] text-neutral-600 dark:text-neutral-300 shadow-xs hover:bg-neutral-100 dark:hover:bg-[#202020] dark:border dark:border-[#282828]'
         }`}
       >
         {tCommon('all')}
@@ -144,8 +144,8 @@ const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`)
         href={getHref('/products?featured=true')}
         class={`px-4 py-2 rounded-full text-xs font-semibold shrink-0 transition-all ${
           featured
-            ? 'bg-neutral-900 text-white shadow-xs'
-            : 'bg-white text-neutral-600 shadow-xs hover:bg-neutral-100'
+            ? 'bg-neutral-900 text-white dark:bg-white dark:text-black shadow-xs'
+            : 'bg-white dark:bg-[#141414] text-neutral-600 dark:text-neutral-300 shadow-xs hover:bg-neutral-100 dark:hover:bg-[#202020] dark:border dark:border-[#282828]'
         }`}
       >
         {tNav('combos')}
@@ -154,8 +154,8 @@ const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`)
         href={getHref('/products?bestseller=true')}
         class={`px-4 py-2 rounded-full text-xs font-semibold shrink-0 transition-all ${
           bestseller
-            ? 'bg-neutral-900 text-white shadow-xs'
-            : 'bg-white text-neutral-600 shadow-xs hover:bg-neutral-100'
+            ? 'bg-neutral-900 text-white dark:bg-white dark:text-black shadow-xs'
+            : 'bg-white dark:bg-[#141414] text-neutral-600 dark:text-neutral-300 shadow-xs hover:bg-neutral-100 dark:hover:bg-[#202020] dark:border dark:border-[#282828]'
         }`}
       >
         {tProd('bestseller')}
@@ -165,8 +165,8 @@ const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`)
           href={getHref(`/products?category=${cat.slug}`)}
           class={`px-4 py-2 rounded-full text-xs font-semibold shrink-0 transition-all ${
             categorySlug === cat.slug
-              ? 'bg-neutral-900 text-white shadow-xs'
-              : 'bg-white text-neutral-600 shadow-xs hover:bg-neutral-100'
+              ? 'bg-neutral-900 text-white dark:bg-white dark:text-black shadow-xs'
+              : 'bg-white dark:bg-[#141414] text-neutral-600 dark:text-neutral-300 shadow-xs hover:bg-neutral-100 dark:hover:bg-[#202020] dark:border dark:border-[#282828]'
           }`}
         >
           {getLocalizedName(cat, locale)}
@@ -177,8 +177,8 @@ const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`)
     {/* Main Catalog View: Category Sidebar + Product Grid + Quick Cart Widget */}
     <div class="flex gap-6 items-start">
       {/* Desktop Category Sidebar */}
-      <aside class="hidden lg:block w-56 shrink-0 bg-white rounded-[28px] sm:rounded-[32px] p-5 sticky top-24 shadow-sm">
-        <div class="flex items-center gap-2 pb-3 mb-3 border-b border-neutral-100 font-bold text-xs uppercase tracking-wider text-neutral-500">
+      <aside class="hidden lg:block w-56 shrink-0 bg-white dark:bg-[#141414] dark:border dark:border-[#282828] rounded-[28px] sm:rounded-[32px] p-5 sticky top-24 shadow-sm dark:shadow-none">
+        <div class="flex items-center gap-2 pb-3 mb-3 border-b border-neutral-100 dark:border-[#282828] font-bold text-xs uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
           <Filter className="h-3.5 w-3.5 text-brand" />
           <span>{tCat('title')}</span>
         </div>
@@ -189,8 +189,8 @@ const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`)
               href={getHref('/products')}
               class={`block px-3.5 py-2 rounded-full text-xs font-semibold transition-all ${
                 !categorySlug && !featured && !bestseller
-                  ? 'bg-neutral-900 text-white shadow-xs'
-                  : 'text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900'
+                  ? 'bg-neutral-900 text-white dark:bg-white dark:text-black shadow-xs'
+                  : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-[#202020] hover:text-neutral-900 dark:hover:text-white'
               }`}
             >
               {tNav('allProducts')}
@@ -201,8 +201,8 @@ const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`)
               href={getHref('/products?featured=true')}
               class={`block px-3.5 py-2 rounded-full text-xs font-semibold transition-all ${
                 featured
-                  ? 'bg-neutral-900 text-white shadow-xs'
-                  : 'text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900'
+                  ? 'bg-neutral-900 text-white dark:bg-white dark:text-black shadow-xs'
+                  : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-[#202020] hover:text-neutral-900 dark:hover:text-white'
               }`}
             >
               {tNav('combos')}
@@ -213,15 +213,15 @@ const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`)
               href={getHref('/products?bestseller=true')}
               class={`block px-3.5 py-2 rounded-full text-xs font-semibold transition-all ${
                 bestseller
-                  ? 'bg-neutral-900 text-white shadow-xs'
-                  : 'text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900'
+                  ? 'bg-neutral-900 text-white dark:bg-white dark:text-black shadow-xs'
+                  : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-[#202020] hover:text-neutral-900 dark:hover:text-white'
               }`}
             >
               {tProd('bestseller')}
             </a>
           </li>
 
-          <li class="pt-2 pb-1 border-t border-neutral-100 my-2 text-[10px] uppercase font-bold text-neutral-400 tracking-wider px-3">
+          <li class="pt-2 pb-1 border-t border-neutral-100 dark:border-[#282828] my-2 text-[10px] uppercase font-bold text-neutral-400 tracking-wider px-3">
             {tCat('title')}
           </li>
 
@@ -231,8 +231,8 @@ const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`)
                 href={getHref(`/products?category=${cat.slug}`)}
                 class={`block px-3.5 py-2 rounded-full text-xs font-semibold transition-all ${
                   categorySlug === cat.slug
-                    ? 'bg-neutral-900 text-white shadow-xs'
-                    : 'text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900'
+                    ? 'bg-neutral-900 text-white dark:bg-white dark:text-black shadow-xs'
+                    : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-[#202020] hover:text-neutral-900 dark:hover:text-white'
                 }`}
               >
                 {getLocalizedName(cat, locale)}

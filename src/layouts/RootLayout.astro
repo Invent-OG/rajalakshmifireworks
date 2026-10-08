@@ -27,8 +27,36 @@ const {
 ---
 
 <!doctype html>
-<html lang={locale} class="dark">
+<html lang={locale}>
   <head>
+    <script is:inline>
+      (function() {
+        try {
+          var pathname = window.location.pathname;
+          var isAdmin = pathname.indexOf('/admin') !== -1;
+          if (isAdmin) {
+            var adminTheme = localStorage.getItem('admin_theme');
+            // Default to dark mode for admin console if not specified
+            if (adminTheme === 'light') {
+              document.documentElement.classList.remove('dark');
+              document.documentElement.setAttribute('data-theme', 'light');
+            } else {
+              document.documentElement.classList.add('dark');
+              document.documentElement.setAttribute('data-theme', 'dark');
+            }
+          } else {
+            var siteTheme = localStorage.getItem('theme');
+            if (siteTheme === 'dark') {
+              document.documentElement.classList.add('dark');
+              document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+              document.documentElement.classList.remove('dark');
+              document.documentElement.setAttribute('data-theme', 'light');
+            }
+          }
+        } catch (e) {}
+      })();
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/logo.svg" />

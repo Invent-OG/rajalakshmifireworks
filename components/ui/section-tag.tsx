@@ -25,7 +25,7 @@ export function SectionTag({
       {/* Circular Rotating Sparkle Badge */}
       <div
         className={cn(
-          'rounded-full border border-[#e2e8f1] flex items-center justify-center bg-white overflow-hidden shadow-xs shrink-0',
+          'rounded-full border border-[#e2e8f1] dark:border-[#2c2c2c] flex items-center justify-center bg-white dark:bg-[#141414] overflow-hidden shadow-xs shrink-0',
           isSm ? 'w-9 h-9' : 'w-[44px] h-[44px]'
         )}
       >
@@ -36,7 +36,7 @@ export function SectionTag({
         >
           <Icon
             size={isSm ? 15 : 18}
-            className="text-[#0f162b] fill-[#0f162b]"
+            className="text-[#0f162b] fill-[#0f162b] dark:text-white dark:fill-white"
           />
         </motion.div>
       </div>
@@ -44,13 +44,13 @@ export function SectionTag({
       {/* Pill Tag */}
       <div
         className={cn(
-          'rounded-full border border-[#e2e8f1] flex items-center justify-center bg-white shadow-xs',
+          'rounded-full border border-[#e2e8f1] dark:border-[#2c2c2c] flex items-center justify-center bg-white dark:bg-[#141414] shadow-xs',
           isSm ? 'px-3 py-2' : 'px-3 py-2.5 sm:py-3'
         )}
       >
         <span
           className={cn(
-            'font-medium text-[#0f162b] px-2 sm:px-3 whitespace-nowrap tracking-tight',
+            'font-medium text-[#0f162b] dark:text-white px-2 sm:px-3 whitespace-nowrap tracking-tight',
             isSm ? 'text-xs sm:text-sm' : 'text-sm sm:text-[15px]'
           )}
         >

@@ -31,7 +31,7 @@ export function MobileBottomNav() {
     <div className="md:hidden fixed bottom-4 left-0 right-0 z-50 px-4 pointer-events-none transition-all">
       <nav
         aria-label="Mobile Navigation"
-        className="mx-auto max-w-[340px] w-full pointer-events-auto rounded-full bg-neutral-950 text-white p-1.5 shadow-[0_12px_36px_rgba(0,0,0,0.65)] flex items-center justify-between backdrop-blur-xl"
+        className="mx-auto max-w-[340px] w-full pointer-events-auto rounded-full bg-neutral-950 dark:bg-[#121212] text-white p-1.5 shadow-[0_12px_36px_rgba(0,0,0,0.65)] dark:border dark:border-[#383838] flex items-center justify-between backdrop-blur-xl"
       >
         {navItems.map((item) => {
           const isActive =

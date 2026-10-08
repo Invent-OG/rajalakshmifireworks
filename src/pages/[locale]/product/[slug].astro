@@ -102,12 +102,12 @@ const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`)
 
         {/* If Combo: Highlight Box on Left */}
         {isComboProduct && (
-          <div class="p-5 rounded-[28px] bg-amber-50/80 border border-amber-200/90 text-amber-950 space-y-2">
+          <div class="p-5 rounded-[28px] bg-amber-50/80 dark:bg-amber-950/20 border border-amber-200/90 dark:border-amber-800/40 text-amber-950 dark:text-amber-200 space-y-2">
             <div class="flex items-center gap-2 font-bold text-xs sm:text-sm">
-              <Sparkles className="h-4 w-4 text-amber-600" />
+              <Sparkles className="h-4 w-4 text-amber-600 dark:text-amber-400" />
               <span>{locale === 'ta' ? 'தீபாவளி திருநாள் சிறப்பு காம்போ பேக்' : 'Festival Celebration Combo Pack'}</span>
             </div>
-            <p class="text-xs text-amber-900/90 leading-relaxed">
+            <p class="text-xs text-amber-900/90 dark:text-amber-300/90 leading-relaxed">
               {locale === 'ta' ? (
                 <>
                   சிவகாசி தொழிற்சாலையிலிருந்து <strong>{totalComboPieces} தேர்ந்தெடுக்கப்பட்ட பட்டாசுகள்</strong> அடங்கியது. முழு பாதுகாப்புடன் கூடிய உற்சாகக் கொண்டாட்டம்.
@@ -170,7 +170,7 @@ const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`)
         </div>
 
         {/* Pricing Hierarchy */}
-        <div class="p-6 rounded-[28px] sm:rounded-[32px] bg-white shadow-sm space-y-2">
+        <div class="p-6 rounded-[28px] sm:rounded-[32px] bg-white dark:bg-[#141414] dark:border dark:border-[#282828] shadow-sm dark:shadow-none space-y-2">
           <PriceDisplay client:load sellingPrice={price} mrp={mrp} size="xl" />
           <p class="text-[11px] text-muted-foreground">
             {locale === 'ta' ? 'GST மற்றும் தொழிற்சாலை பேக்கிங் உள்ளடங்கியது. மறைமுக கட்டணங்கள் இல்லை.' : 'Inclusive of GST & Factory Packaging. No hidden charges.'}
@@ -211,17 +211,17 @@ const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`)
 
         {/* What's Included in this Combo Breakdown */}
         {isComboProduct && product.comboItems && product.comboItems.length > 0 && (
-          <div class="p-6 rounded-[28px] sm:rounded-[32px] bg-white shadow-sm space-y-4">
-            <div class="flex items-center justify-between pb-3 border-b border-neutral-100">
+          <div class="p-6 rounded-[28px] sm:rounded-[32px] bg-white dark:bg-[#141414] dark:border dark:border-[#282828] shadow-sm dark:shadow-none space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-neutral-100 dark:border-[#282828]">
               <div class="flex items-center gap-2">
-                <Package className="h-4.5 w-4.5 text-neutral-900" />
+                <Package className="h-4.5 w-4.5 text-neutral-900 dark:text-white" />
                 <h3 class="font-bold text-sm text-foreground">
                   {locale === 'ta'
                     ? `இணைக்கப்பட்டுள்ள பட்டாசுகள் (${product.comboItems.length} வகைகள் • ${totalComboPieces} மொத்த எண்ணிக்கை)`
                     : `Included Items (${product.comboItems.length} Varieties • ${totalComboPieces} Total Pcs)`}
                 </h3>
               </div>
-              <span class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full">
+              <span class="text-xs font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-0.5 rounded-full">
                 {locale === 'ta' ? '100% அசல் சிவகாசி' : '100% Genuine Sivakasi'}
               </span>
             </div>
@@ -235,10 +235,10 @@ const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`)
 
                 return (
                   <div
-                    class="p-3 rounded-2xl bg-neutral-50/70 border border-neutral-100 flex items-center justify-between gap-3"
+                    class="p-3 rounded-2xl bg-neutral-50/70 dark:bg-[#1c1c1c] border border-neutral-100 dark:border-[#282828] flex items-center justify-between gap-3"
                   >
                     <div class="flex items-center gap-3 min-w-0 flex-1">
-                      <div class="h-11 w-11 rounded-xl bg-white flex items-center justify-center shrink-0 overflow-hidden border border-neutral-200/60">
+                      <div class="h-11 w-11 rounded-xl bg-white dark:bg-[#242424] flex items-center justify-center shrink-0 overflow-hidden border border-neutral-200/60 dark:border-[#333333]">
                         {itemImg ? (
                           <img
                             src={itemImg}
@@ -269,7 +269,7 @@ const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`)
                     </div>
 
                     <div class="shrink-0 text-right">
-                      <span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-neutral-900 text-white font-mono">
+                      <span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-neutral-900 dark:bg-white text-white dark:text-black font-mono">
                         × {ci.quantity}
                       </span>
                     </div>
@@ -282,7 +282,7 @@ const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`)
 
         {/* Description Section */}
         {displayDescription && (
-          <div class="border-t border-neutral-100 pt-6 space-y-2">
+          <div class="border-t border-neutral-100 dark:border-[#282828] pt-6 space-y-2">
             <h3 class="font-bold text-xs uppercase tracking-wider text-foreground">
               {locale === 'ta' ? 'விளக்கம்' : 'Description'}
             </h3>
@@ -293,9 +293,9 @@ const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`)
         )}
 
         {/* Safety & Handling Notice */}
-        <div class="rounded-[28px] sm:rounded-[32px] bg-white p-6 space-y-3 shadow-sm text-xs text-muted-foreground">
+        <div class="rounded-[28px] sm:rounded-[32px] bg-white dark:bg-[#141414] dark:border dark:border-[#282828] p-6 space-y-3 shadow-sm dark:shadow-none text-xs text-muted-foreground">
           <div class="flex items-center gap-2 font-bold text-foreground">
-            <AlertCircle className="h-4 w-4 text-neutral-900" />
+            <AlertCircle className="h-4 w-4 text-neutral-900 dark:text-white" />
             <span>{locale === 'ta' ? 'பாதுகாப்பு & பயன்பாட்டு விதிமுறைகள்' : 'Safety & Usage Instructions'}</span>
           </div>
           <ul class="space-y-1.5 pl-4 list-disc">

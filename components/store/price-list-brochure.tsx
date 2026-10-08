@@ -273,9 +273,9 @@ export function PriceListBrochure({ categories, combos }: PriceListBrochureProps
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#f8f9fa] text-neutral-900 select-none font-sans print:bg-white print:text-black">
+    <div className="w-full min-h-screen bg-[#f8f9fa] dark:bg-[#000000] text-neutral-900 dark:text-white select-none font-sans print:bg-white print:text-black">
       {/* ── Screen-Only Hero & Action Bar ── */}
-      <div className="print:hidden border-b border-neutral-200 bg-white sticky top-0 z-30 shadow-xs">
+      <div className="print:hidden border-b border-neutral-200 dark:border-[#242424] bg-white dark:bg-[#141414] sticky top-0 z-30 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
             <div>
@@ -404,16 +404,16 @@ export function PriceListBrochure({ categories, combos }: PriceListBrochureProps
         className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 print:p-0 print:max-w-full"
       >
         {/* ── 1. Document Header & Official Sivakasi Masthead ── */}
-        <div className="bg-white rounded-3xl p-6 sm:p-10 shadow-sm border border-neutral-200/90 mb-8 print:border-b-2 print:border-black print:rounded-none print:shadow-none print:p-4">
-          <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6 pb-6 border-b border-neutral-100 print:border-black">
+        <div className="bg-white dark:bg-[#141414] rounded-3xl p-6 sm:p-10 shadow-sm border border-neutral-200/90 dark:border-[#242424] mb-8 print:border-b-2 print:border-black print:rounded-none print:shadow-none print:p-4">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6 pb-6 border-b border-neutral-100 dark:border-[#242424] print:border-black">
             {/* Left: Brand Identity */}
             <div className="flex flex-col items-center sm:items-start text-center sm:text-left space-y-2">
               <BrandLogo className="h-14 sm:h-16 w-auto max-h-16 object-contain" />
               <div>
-                <h2 className="text-xl sm:text-2xl font-black text-neutral-950 tracking-tight">
+                <h2 className="text-xl sm:text-2xl font-black text-neutral-950 dark:text-white tracking-tight">
                   {locale === 'ta' ? 'ராஜலக்ஷ்மி பட்டாசு' : APP_CONFIG.STORE_NAME}
                 </h2>
-                <p className="text-xs text-neutral-600 font-medium">
+                <p className="text-xs text-neutral-600 dark:text-neutral-400 font-medium">
                   {locale === 'ta'
                     ? 'அசல் சிவகாசி நேரடி பட்டாசு உற்பத்தியாளர் & மொத்த விநியோகம்'
                     : 'Premier Sivakasi Fireworks Manufacturer & Direct Wholesale Outlet'}
@@ -422,23 +422,23 @@ export function PriceListBrochure({ categories, combos }: PriceListBrochureProps
             </div>
 
             {/* Right: Contact & Verification Badges */}
-            <div className="text-center sm:text-right space-y-1.5 text-xs text-neutral-600">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 font-bold border border-emerald-200 print:border-black">
-                <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+            <div className="text-center sm:text-right space-y-1.5 text-xs text-neutral-600 dark:text-neutral-300">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-200 dark:border-emerald-800 print:border-black">
+                <ShieldCheck className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
                 <span>100% Sivakasi Genuine • CSIR-NEERI Green Certified</span>
               </div>
               <p className="flex items-center justify-center sm:justify-end gap-1.5 font-medium">
                 <MapPin className="h-3.5 w-3.5 text-neutral-400 shrink-0" />
                 <span>{APP_CONFIG.STORE_ADDRESS}</span>
               </p>
-              <p className="flex items-center justify-center sm:justify-end gap-1.5 font-bold text-neutral-900">
+              <p className="flex items-center justify-center sm:justify-end gap-1.5 font-bold text-neutral-900 dark:text-white">
                 <Phone className="h-3.5 w-3.5 text-neutral-400 shrink-0" />
                 <span>{APP_CONFIG.STORE_PHONE}</span>
-                <span className="text-neutral-300">|</span>
-                <MessageSquare className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                <span className="text-neutral-300 dark:text-neutral-600">|</span>
+                <MessageSquare className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                 <span>+{APP_CONFIG.WHATSAPP_NUMBER}</span>
               </p>
-              <p className="text-[11px] text-neutral-500">
+              <p className="text-[11px] text-neutral-500 dark:text-neutral-400">
                 <span>{APP_CONFIG.STORE_EMAIL}</span>
               </p>
             </div>
@@ -446,21 +446,21 @@ export function PriceListBrochure({ categories, combos }: PriceListBrochureProps
 
           {/* Key Highlights Strip inside Document */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 text-center text-xs">
-            <div className="p-2.5 rounded-2xl bg-neutral-50 border border-neutral-100 print:border-black">
-              <span className="block font-black text-sm text-neutral-950">₹500</span>
-              <span className="text-[11px] text-neutral-500">{locale === 'ta' ? 'குறைந்தபட்ச ஆர்டர்' : 'Min Order Value'}</span>
+            <div className="p-2.5 rounded-2xl bg-neutral-50 dark:bg-[#202020] border border-neutral-100 dark:border-[#2c2c2c] print:border-black">
+              <span className="block font-black text-sm text-neutral-950 dark:text-white">₹500</span>
+              <span className="text-[11px] text-neutral-500 dark:text-neutral-400">{locale === 'ta' ? 'குறைந்தபட்ச ஆர்டர்' : 'Min Order Value'}</span>
             </div>
-            <div className="p-2.5 rounded-2xl bg-neutral-50 border border-neutral-100 print:border-black">
-              <span className="block font-black text-sm text-emerald-600">Up to 80% OFF</span>
-              <span className="text-[11px] text-neutral-500">{locale === 'ta' ? 'தொழிற்சாலை தள்ளுபடி' : 'Factory Discount'}</span>
+            <div className="p-2.5 rounded-2xl bg-neutral-50 dark:bg-[#202020] border border-neutral-100 dark:border-[#2c2c2c] print:border-black">
+              <span className="block font-black text-sm text-emerald-600 dark:text-emerald-400">Up to 80% OFF</span>
+              <span className="text-[11px] text-neutral-500 dark:text-neutral-400">{locale === 'ta' ? 'தொழிற்சாலை தள்ளுபடி' : 'Factory Discount'}</span>
             </div>
-            <div className="p-2.5 rounded-2xl bg-neutral-50 border border-neutral-100 print:border-black">
-              <span className="block font-black text-sm text-neutral-950">100% GST Included</span>
-              <span className="text-[11px] text-neutral-500">{locale === 'ta' ? 'வரி அடங்கும்' : 'Taxes Included'}</span>
+            <div className="p-2.5 rounded-2xl bg-neutral-50 dark:bg-[#202020] border border-neutral-100 dark:border-[#2c2c2c] print:border-black">
+              <span className="block font-black text-sm text-neutral-950 dark:text-white">100% GST Included</span>
+              <span className="text-[11px] text-neutral-500 dark:text-neutral-400">{locale === 'ta' ? 'வரி அடங்கும்' : 'Taxes Included'}</span>
             </div>
-            <div className="p-2.5 rounded-2xl bg-neutral-50 border border-neutral-100 print:border-black">
-              <span className="block font-black text-sm text-neutral-950">LR Tracking</span>
-              <span className="text-[11px] text-neutral-500">{locale === 'ta' ? 'பாதுகாப்பான லாரி பார்சல்' : 'Licensed Transport'}</span>
+            <div className="p-2.5 rounded-2xl bg-neutral-50 dark:bg-[#202020] border border-neutral-100 dark:border-[#2c2c2c] print:border-black">
+              <span className="block font-black text-sm text-neutral-950 dark:text-white">LR Tracking</span>
+              <span className="text-[11px] text-neutral-500 dark:text-neutral-400">{locale === 'ta' ? 'பாதுகாப்பான லாரி பார்சல்' : 'Licensed Transport'}</span>
             </div>
           </div>
         </div>
@@ -496,17 +496,17 @@ export function PriceListBrochure({ categories, combos }: PriceListBrochureProps
                 return (
                   <div
                     key={combo.id}
-                    className="bg-white rounded-2xl p-5 border border-amber-200 shadow-xs flex flex-col justify-between relative overflow-hidden print:border-black print:rounded-none"
+                    className="bg-white dark:bg-[#141414] rounded-2xl p-5 border border-amber-200 dark:border-amber-900/40 shadow-xs flex flex-col justify-between relative overflow-hidden print:border-black print:rounded-none"
                   >
                     <div className="absolute top-0 right-0 bg-amber-500 text-black font-black text-[10px] px-3 py-1 rounded-bl-xl uppercase tracking-wider">
                       {discountPercent}% OFF
                     </div>
 
                     <div>
-                      <h4 className="font-black text-base text-neutral-950 pr-16 leading-snug">
+                      <h4 className="font-black text-base text-neutral-950 dark:text-white pr-16 leading-snug">
                         {getLocalizedName(combo, locale)}
                       </h4>
-                      <p className="text-xs text-neutral-600 mt-1 line-clamp-2">
+                      <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1 line-clamp-2">
                         {getLocalizedDescription(combo, locale) || (locale === 'ta' ? 'அனைத்து வகை பட்டாசுகளும் அடங்கிய சிறப்பு தொகுப்பு.' : 'Curated celebration combo with assorted fireworks.')}
                       </p>
 
@@ -569,27 +569,27 @@ export function PriceListBrochure({ categories, combos }: PriceListBrochureProps
             return (
               <div
                 key={category.id}
-                className="bg-white rounded-3xl p-5 sm:p-7 border border-neutral-200/90 shadow-xs page-break-inside-avoid print:rounded-none print:border-black print:p-0 print:shadow-none mb-6"
+                className="bg-white dark:bg-[#141414] rounded-3xl p-5 sm:p-7 border border-neutral-200/90 dark:border-[#242424] shadow-xs page-break-inside-avoid print:rounded-none print:border-black print:p-0 print:shadow-none mb-6"
               >
                 {/* Category Header */}
-                <div className="flex items-center justify-between gap-4 pb-4 mb-4 border-b border-neutral-100 print:border-black">
+                <div className="flex items-center justify-between gap-4 pb-4 mb-4 border-b border-neutral-100 dark:border-[#242424] print:border-black">
                   <div className="flex items-center gap-3">
-                    <div className="h-7 w-7 rounded-lg bg-neutral-900 text-white flex items-center justify-center font-bold text-xs">
+                    <div className="h-7 w-7 rounded-lg bg-neutral-900 dark:bg-white text-white dark:text-black flex items-center justify-center font-bold text-xs">
                       <Layers className="h-4 w-4" />
                     </div>
                     <div>
-                      <h3 className="text-base sm:text-lg font-black text-neutral-950 tracking-tight">
+                      <h3 className="text-base sm:text-lg font-black text-neutral-950 dark:text-white tracking-tight">
                         {getLocalizedName(category, locale)}
                       </h3>
                       {category.description && (
-                        <p className="text-xs text-neutral-500 hidden sm:block">
+                        <p className="text-xs text-neutral-500 dark:text-neutral-400 hidden sm:block">
                           {category.description}
                         </p>
                       )}
                     </div>
                   </div>
 
-                  <span className="text-xs font-bold text-neutral-500 bg-neutral-100 px-3 py-1 rounded-full print:border print:border-black">
+                  <span className="text-xs font-bold text-neutral-500 dark:text-neutral-400 bg-neutral-100 dark:bg-[#202020] px-3 py-1 rounded-full print:border print:border-black">
                     {category.products.length} {locale === 'ta' ? 'வகைகள்' : 'Items'}
                   </span>
                 </div>
@@ -696,13 +696,13 @@ export function PriceListBrochure({ categories, combos }: PriceListBrochureProps
         </div>
 
         {/* ── 4. Terms, Dispatch Policy & Statutory Compliance Footer ── */}
-        <div className="mt-10 bg-white rounded-3xl p-6 sm:p-8 border border-neutral-200/90 shadow-xs print:border-t-2 print:border-black print:rounded-none print:p-4 page-break-inside-avoid">
-          <h4 className="font-black text-sm uppercase tracking-wider text-neutral-900 mb-3 flex items-center gap-2">
-            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+        <div className="mt-10 bg-white dark:bg-[#141414] rounded-3xl p-6 sm:p-8 border border-neutral-200/90 dark:border-[#242424] shadow-xs print:border-t-2 print:border-black print:rounded-none print:p-4 page-break-inside-avoid">
+          <h4 className="font-black text-sm uppercase tracking-wider text-neutral-900 dark:text-white mb-3 flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
             {locale === 'ta' ? 'முக்கிய விதிமுறைகள் & பார்சல் வழிகாட்டுதல்' : 'Terms, Logistics & Ordering Information'}
           </h4>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-neutral-600 leading-relaxed">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-neutral-600 dark:text-neutral-300 leading-relaxed">
             <div className="space-y-2">
               <p>
                 <strong>1. {locale === 'ta' ? 'விலை விபரம்:' : 'Pricing & Packaging:'}</strong>{' '}

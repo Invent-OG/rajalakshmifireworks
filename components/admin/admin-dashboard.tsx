@@ -198,46 +198,46 @@ function AdminDashboardPageContent() {
   return (
     <div ref={containerRef} className="space-y-8">
       {/* Welcome Greeting */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-6 border-b border-border">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-border">
         <div>
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">
+          <h1 className="text-3xl font-bold text-foreground tracking-tight">
             Dashboard
           </h1>
-          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+          <p className="text-sm sm:text-base text-muted-foreground mt-1">
             Real-time status of your Sivakasi fireworks sales, orders, and inventory.
           </p>
         </div>
 
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-card border border-border text-xs font-medium text-muted-foreground self-start sm:self-auto shadow-xs">
-          <span className="h-2 w-2 rounded-full bg-emerald-600 animate-pulse" />
+        <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-xl bg-card border border-border text-sm font-semibold text-foreground self-start sm:self-auto shadow-xs">
+          <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse" />
           <span>Live Store Operations</span>
         </div>
       </div>
 
       {/* 4 Primary KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {kpis.map((kpi) => (
           <div
             key={kpi.label}
-            className="admin-kpi-card p-5 rounded-2xl bg-card border border-border space-y-3"
+            className="admin-kpi-card p-6 rounded-2xl bg-card border border-border space-y-4 shadow-xs"
           >
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-muted-foreground">
+              <span className="text-sm font-semibold text-muted-foreground">
                 {kpi.label}
               </span>
-              <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center text-foreground-secondary border border-border">
-                <kpi.icon className="h-4 w-4" />
+              <div className="h-10 w-10 rounded-xl bg-secondary dark:bg-[#242424] flex items-center justify-center text-foreground border border-border">
+                <kpi.icon className="h-5 w-5" />
               </div>
             </div>
 
-            <div className="space-y-0.5">
-              <p className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
+            <div className="space-y-1">
+              <p className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight">
                 <KpiValueCounter
                   target={kpi.valueNumber}
                   isCurrency={kpi.isCurrency}
                 />
               </p>
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 {kpi.trend}
               </p>
             </div>
@@ -246,59 +246,59 @@ function AdminDashboardPageContent() {
       </div>
 
       {/* Fulfillment Status Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
         {fulfillmentCounters.map((card) => (
           <Link
             key={card.label}
             href={card.href}
-            className="admin-fulfillment-card p-4 rounded-xl bg-card border border-border hover:border-neutral-300 transition-all flex items-center justify-between"
+            className="admin-fulfillment-card p-5 rounded-2xl bg-card border border-border hover:bg-secondary/40 dark:hover:bg-[#242424]/40 hover:border-neutral-500 transition-all flex items-center justify-between group shadow-xs"
           >
             <div>
-              <p className="text-2xl font-bold text-foreground">{card.value}</p>
-              <p className="text-xs font-medium text-muted-foreground mt-0.5">{card.label}</p>
+              <p className="text-3xl font-bold text-foreground">{card.value}</p>
+              <p className="text-sm font-semibold text-muted-foreground mt-1 group-hover:text-foreground transition-colors">{card.label}</p>
             </div>
-            <ArrowUpRight className="h-4 w-4 text-muted-foreground opacity-60" />
+            <ArrowUpRight className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
           </Link>
         ))}
       </div>
 
       {/* Recent Orders Section */}
-      <div className="admin-table-card rounded-2xl bg-card border border-border overflow-hidden">
-        <div className="p-5 border-b border-border flex items-center justify-between">
+      <div className="admin-table-card rounded-2xl bg-card border border-border overflow-hidden shadow-xs">
+        <div className="p-6 border-b border-border flex items-center justify-between">
           <div>
-            <h2 className="font-semibold text-base text-foreground tracking-tight">
+            <h2 className="font-bold text-lg sm:text-xl text-foreground tracking-tight">
               Recent Orders
             </h2>
-            <p className="text-xs text-muted-foreground mt-0.5">
+            <p className="text-sm text-muted-foreground mt-0.5">
               Latest transactions placed on the storefront
             </p>
           </div>
           <Link
             href="/admin/orders"
-            className="text-xs font-medium text-foreground hover:text-brand transition-colors flex items-center gap-1"
+            className="text-sm font-bold text-foreground hover:text-brand transition-colors flex items-center gap-1.5"
           >
-            All orders <ArrowUpRight className="h-3.5 w-3.5" />
+            All orders <ArrowUpRight className="h-4 w-4" />
           </Link>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs sm:text-sm">
-            <thead className="bg-muted/40 text-muted-foreground border-b border-border text-[11px] uppercase tracking-wider font-semibold">
+          <table className="w-full text-left text-sm sm:text-base">
+            <thead className="bg-secondary/50 dark:bg-[#242424]/50 text-muted-foreground border-b border-border text-xs uppercase tracking-wider font-bold">
               <tr>
-                <th className="px-5 py-3">Invoice</th>
-                <th className="px-5 py-3">Customer</th>
-                <th className="px-5 py-3">Items</th>
-                <th className="px-5 py-3 text-right">Order Total</th>
-                <th className="px-5 py-3">Status</th>
-                <th className="px-5 py-3">Timestamp</th>
-                <th className="px-5 py-3 text-right">Action</th>
+                <th className="px-5 py-4">Invoice</th>
+                <th className="px-5 py-4">Customer</th>
+                <th className="px-5 py-4">Items</th>
+                <th className="px-5 py-4 text-right">Order Total</th>
+                <th className="px-5 py-4">Status</th>
+                <th className="px-5 py-4">Timestamp</th>
+                <th className="px-5 py-4 text-right">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {d?.recentOrders && d.recentOrders.length > 0 ? (
                 d.recentOrders.map((order) => (
-                  <tr key={order.id} className="hover:bg-muted/30 transition-colors">
-                    <td className="px-5 py-3.5 font-mono font-medium text-foreground">
+                  <tr key={order.id} className="hover:bg-secondary/30 dark:hover:bg-[#242424]/30 transition-colors">
+                    <td className="px-5 py-4 font-mono font-semibold text-foreground">
                       <Link
                         href={`/admin/orders/${order.id}`}
                         className="hover:underline"
@@ -306,25 +306,25 @@ function AdminDashboardPageContent() {
                         {order.invoiceNumber}
                       </Link>
                     </td>
-                    <td className="px-5 py-3.5 font-medium text-foreground">
+                    <td className="px-5 py-4 font-semibold text-foreground">
                       {order.customerNameSnapshot}
                     </td>
-                    <td className="px-5 py-3.5 text-muted-foreground">
+                    <td className="px-5 py-4 text-muted-foreground">
                       {order.items.length} items
                     </td>
-                    <td className="px-5 py-3.5 font-semibold text-foreground text-right">
+                    <td className="px-5 py-4 font-bold text-foreground text-right font-mono">
                       {formatCurrency(order.totalAmount)}
                     </td>
-                    <td className="px-5 py-3.5">
-                      <StatusBadge status={order.orderStatus} />
+                    <td className="px-5 py-4">
+                      <StatusBadge status={order.orderStatus} className="text-xs px-3 py-1 font-semibold" />
                     </td>
-                    <td className="px-5 py-3.5 text-xs text-muted-foreground">
+                    <td className="px-5 py-4 text-sm text-muted-foreground">
                       {formatDateTime(order.placedAt)}
                     </td>
-                    <td className="px-5 py-3.5 text-right">
+                    <td className="px-5 py-4 text-right">
                       <Link
                         href={`/admin/orders/${order.id}`}
-                        className="text-xs font-medium text-foreground hover:underline"
+                        className="text-sm font-bold text-foreground hover:underline"
                       >
                         Inspect
                       </Link>
@@ -333,7 +333,7 @@ function AdminDashboardPageContent() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={7} className="px-5 py-12 text-center text-muted-foreground text-xs">
+                  <td colSpan={7} className="px-5 py-14 text-center text-muted-foreground text-sm font-medium">
                     No orders booked yet.
                   </td>
                 </tr>

@@ -157,10 +157,10 @@ export function FeaturedProductsSlider({
             <div className="mb-3 sm:mb-4">
               <SectionTag label={finalTagLabel} />
             </div>
-            <h2 className="text-2xl sm:text-3xl md:text-[44px] lg:text-[50px] font-bold text-neutral-950 leading-[1.15] md:leading-[1.1] tracking-tight">
-              {finalTitle} <span className="text-neutral-400 font-light">—</span>
+            <h2 className="text-2xl sm:text-3xl md:text-[44px] lg:text-[50px] font-bold text-neutral-950 dark:text-white leading-[1.15] md:leading-[1.1] tracking-tight">
+              {finalTitle} <span className="text-neutral-400 dark:text-neutral-500 font-light">—</span>
             </h2>
-            <p className="text-[13px] sm:text-[15px] text-neutral-600 font-normal leading-relaxed mt-2 max-w-xl">
+            <p className="text-[13px] sm:text-[15px] text-neutral-600 dark:text-neutral-300 font-normal leading-relaxed mt-2 max-w-xl">
               {finalSubtitle}
             </p>
           </div>
@@ -169,7 +169,7 @@ export function FeaturedProductsSlider({
           <div className="flex items-center gap-3 self-start md:self-end shrink-0">
             <Link
               href={viewAllHref}
-              className="inline-flex items-center gap-2 h-11 px-5 rounded-full bg-white hover:bg-neutral-950 text-neutral-900 hover:text-white border-2 border-neutral-900 text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-200 shadow-xs active:scale-95 group"
+              className="inline-flex items-center gap-2 h-11 px-5 rounded-full bg-white dark:bg-[#141414] hover:bg-neutral-950 dark:hover:bg-white text-neutral-900 dark:text-white hover:text-white dark:hover:text-black border-2 border-neutral-900 dark:border-white text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-200 shadow-xs active:scale-95 group"
             >
               <span>{finalViewAllLabel}</span>
               <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -182,7 +182,7 @@ export function FeaturedProductsSlider({
                 onClick={() => scroll('left')}
                 disabled={!canScrollLeft}
                 aria-label="Scroll left"
-                className="h-11 w-11 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-900 disabled:opacity-30 disabled:pointer-events-none transition-all flex items-center justify-center cursor-pointer shadow-2xs active:scale-95 shrink-0"
+                className="h-11 w-11 rounded-full bg-neutral-100 dark:bg-[#202020] hover:bg-neutral-200 dark:hover:bg-[#2c2c2c] text-neutral-900 dark:text-white dark:border dark:border-[#333333] disabled:opacity-30 disabled:pointer-events-none transition-all flex items-center justify-center cursor-pointer shadow-2xs active:scale-95 shrink-0"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
@@ -191,7 +191,7 @@ export function FeaturedProductsSlider({
                 onClick={() => scroll('right')}
                 disabled={!canScrollRight}
                 aria-label="Scroll right"
-                className="h-11 w-11 rounded-full bg-neutral-950 hover:bg-neutral-800 text-white disabled:opacity-30 disabled:pointer-events-none transition-all flex items-center justify-center cursor-pointer shadow-md active:scale-95 shrink-0"
+                className="h-11 w-11 rounded-full bg-neutral-950 dark:bg-white hover:bg-neutral-800 dark:hover:bg-neutral-200 text-white dark:text-black disabled:opacity-30 disabled:pointer-events-none transition-all flex items-center justify-center cursor-pointer shadow-md active:scale-95 shrink-0"
               >
                 <ChevronRight className="h-4 w-4" />
               </button>

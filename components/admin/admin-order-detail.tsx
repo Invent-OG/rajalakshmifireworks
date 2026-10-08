@@ -368,43 +368,43 @@ function AdminOrderDetailPageContent({
     <div className="space-y-8 animate-fade-in">
       {/* Top Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-border gap-4">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3.5">
           <Link href="/admin/orders">
-            <Button variant="outline" size="icon" className="rounded-xl">
-              <ArrowLeft className="h-4 w-4" />
+            <Button variant="outline" size="icon" className="h-11 w-11 rounded-xl">
+              <ArrowLeft className="h-5 w-5" />
             </Button>
           </Link>
           <div>
-            <div className="flex items-center gap-2.5">
-              <h1 className="text-xl font-mono font-bold text-foreground">
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl sm:text-3xl font-mono font-bold text-foreground tracking-tight">
                 {order.invoiceNumber}
               </h1>
-              <StatusBadge status={currentStatus} className="text-xs px-2.5 py-0.5" />
+              <StatusBadge status={currentStatus} className="text-sm px-3 py-1 font-bold" />
             </div>
-            <p className="text-xs text-muted-foreground mt-0.5">
+            <p className="text-sm text-muted-foreground mt-1">
               Placed on {formatDateTime(order.placedAt)}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5 flex-wrap">
+        <div className="flex items-center gap-3 flex-wrap">
           {order?.customerMobileSnapshot && (
             <a
               href={currentStatusTemplate.shareUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+              className="inline-flex items-center gap-2 h-11 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold shadow-xs transition-colors cursor-pointer"
               title={`Open WhatsApp chat with pre-filled ${currentStatusTemplate.label}`}
             >
-              <MessageSquare className="h-3.5 w-3.5" /> Share {currentStatusTemplate.badge}
+              <MessageSquare className="h-4 w-4" /> Share {currentStatusTemplate.badge}
             </a>
           )}
           <Link href={`/admin/orders/${order.id}/print`} target="_blank">
-            <Button variant="outline" size="sm" className="rounded-xl text-xs font-medium">
-              <Printer className="h-3.5 w-3.5 mr-1 text-muted-foreground" /> Print Slip
+            <Button variant="outline" className="h-11 px-4 rounded-xl text-sm font-semibold">
+              <Printer className="h-4 w-4 mr-1.5 text-muted-foreground" /> Print Slip
             </Button>
           </Link>
-          <span className="text-xs font-medium px-3 py-1.5 rounded-xl bg-card border border-border text-foreground">
+          <span className="text-sm font-semibold px-4 py-2.5 rounded-xl bg-card border border-border text-foreground shadow-xs">
             {fulfillmentType === 'DELIVERY' ? 'Doorstep Delivery' : 'Sivakasi Counter Pickup'}
           </span>
         </div>
@@ -415,28 +415,28 @@ function AdminOrderDetailPageContent({
         {/* Left Column: Customer Details, Address, Ordered Items */}
         <div className="lg:col-span-8 space-y-6">
           {/* Customer & Delivery Address Card */}
-          <div className="p-6 rounded-2xl bg-card border border-border space-y-4">
-            <h2 className="font-semibold text-xs uppercase tracking-wider text-muted-foreground pb-2 border-b border-border">
+          <div className="p-6 rounded-2xl bg-card border border-border space-y-4 shadow-xs">
+            <h2 className="font-bold text-xs uppercase tracking-wider text-muted-foreground pb-3 border-b border-border">
               Customer & Delivery Information
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm">
-              <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center text-muted-foreground shrink-0">
-                  <User className="h-4 w-4" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm sm:text-base">
+              <div className="flex items-center gap-3.5">
+                <div className="h-10 w-10 rounded-xl bg-secondary dark:bg-[#242424] flex items-center justify-center text-foreground shrink-0 border border-border">
+                  <User className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-muted-foreground text-[11px]">Customer Name</p>
-                  <p className="font-semibold text-foreground">{order.customerNameSnapshot}</p>
+                  <p className="text-muted-foreground text-xs font-semibold">Customer Name</p>
+                  <p className="font-bold text-foreground text-base">{order.customerNameSnapshot}</p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center text-muted-foreground shrink-0">
-                  <Phone className="h-4 w-4" />
+              <div className="flex items-center gap-3.5">
+                <div className="h-10 w-10 rounded-xl bg-secondary dark:bg-[#242424] flex items-center justify-center text-foreground shrink-0 border border-border">
+                  <Phone className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-muted-foreground text-[11px]">WhatsApp / Contact Number</p>
-                  <p className="font-mono font-semibold text-foreground">
+                  <p className="text-muted-foreground text-xs font-semibold">WhatsApp / Contact Number</p>
+                  <p className="font-mono font-bold text-foreground text-base">
                     {order.customerMobileSnapshot}
                   </p>
                 </div>
@@ -444,14 +444,14 @@ function AdminOrderDetailPageContent({
 
               {/* Delivery Address Details */}
               {fulfillmentType === 'DELIVERY' && address && (
-                <div className="sm:col-span-2 flex items-start gap-3 pt-2 border-t border-border/60">
-                  <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center text-muted-foreground shrink-0 mt-0.5">
-                    <MapPin className="h-4 w-4 text-brand" />
+                <div className="sm:col-span-2 flex items-start gap-3.5 pt-3 border-t border-border">
+                  <div className="h-10 w-10 rounded-xl bg-secondary dark:bg-[#242424] flex items-center justify-center text-foreground shrink-0 mt-0.5 border border-border">
+                    <MapPin className="h-5 w-5 text-brand" />
                   </div>
                   <div className="space-y-1">
-                    <p className="text-muted-foreground text-[11px] uppercase font-semibold">Delivery Address (Historical Snapshot)</p>
-                    <p className="font-medium text-foreground">{streetAddress}</p>
-                    <p className="text-xs text-foreground font-semibold">
+                    <p className="text-muted-foreground text-xs uppercase font-bold">Delivery Address (Historical Snapshot)</p>
+                    <p className="font-semibold text-foreground text-base">{streetAddress}</p>
+                    <p className="text-sm text-foreground font-bold">
                       {[cityName, stateName].filter(Boolean).join(', ')} {address.pincode ? `- ${address.pincode}` : ''}
                     </p>
                   </div>
@@ -461,26 +461,26 @@ function AdminOrderDetailPageContent({
           </div>
 
           {/* Ordered Products Card */}
-          <div className="p-6 rounded-2xl bg-card border border-border space-y-4">
-            <h2 className="font-semibold text-xs uppercase tracking-wider text-muted-foreground pb-2 border-b border-border">
+          <div className="p-6 rounded-2xl bg-card border border-border space-y-4 shadow-xs">
+            <h2 className="font-bold text-xs uppercase tracking-wider text-muted-foreground pb-3 border-b border-border">
               Ordered Products ({order.items?.length ?? 0})
             </h2>
 
             <div className="divide-y divide-border">
               {order.items?.map((item: OrderItemDetail) => (
-                <div key={item.id} className="py-3 flex items-center justify-between gap-4 text-xs sm:text-sm">
-                  <div className="space-y-0.5">
-                    <p className="font-medium text-foreground">{item.productNameSnapshot}</p>
-                    <p className="text-xs text-muted-foreground">
+                <div key={item.id} className="py-4 flex items-center justify-between gap-4 text-sm sm:text-base">
+                  <div className="space-y-1">
+                    <p className="font-semibold text-base text-foreground">{item.productNameSnapshot}</p>
+                    <p className="text-sm text-muted-foreground font-medium">
                       {formatCurrency(toNumber(item.sellingPriceSnapshot))} × {item.quantity}
                       {toNumber(item.mrpSnapshot) > toNumber(item.sellingPriceSnapshot) && (
-                        <span className="ml-2 line-through opacity-70">
+                        <span className="ml-2 line-through opacity-60">
                           {formatCurrency(toNumber(item.mrpSnapshot))}
                         </span>
                       )}
                     </p>
                   </div>
-                  <span className="font-semibold text-foreground font-mono">
+                  <span className="font-bold text-base text-foreground font-mono">
                     {formatCurrency(toNumber(item.lineTotal))}
                   </span>
                 </div>
@@ -488,26 +488,26 @@ function AdminOrderDetailPageContent({
             </div>
 
             {/* Financial Summary */}
-            <div className="pt-4 border-t border-border space-y-2 text-xs sm:text-sm">
-              <div className="flex justify-between text-muted-foreground">
+            <div className="pt-4 border-t border-border space-y-2.5 text-sm sm:text-base">
+              <div className="flex justify-between text-muted-foreground font-medium">
                 <span>Subtotal</span>
-                <span className="font-mono">{formatCurrency(toNumber(order.subtotal))}</span>
+                <span className="font-mono font-semibold">{formatCurrency(toNumber(order.subtotal))}</span>
               </div>
               {toNumber(order.discountAmount) > 0 && (
-                <div className="flex justify-between text-emerald-600">
+                <div className="flex justify-between text-emerald-500 font-semibold">
                   <span>Festival Discount</span>
                   <span className="font-mono">-{formatCurrency(toNumber(order.discountAmount))}</span>
                 </div>
               )}
               {toNumber(order.deliveryCharge) > 0 && (
-                <div className="flex justify-between text-muted-foreground">
+                <div className="flex justify-between text-muted-foreground font-medium">
                   <span>Delivery Charge</span>
-                  <span className="font-mono">{formatCurrency(toNumber(order.deliveryCharge))}</span>
+                  <span className="font-mono font-semibold">{formatCurrency(toNumber(order.deliveryCharge))}</span>
                 </div>
               )}
-              <div className="flex justify-between font-bold text-base text-foreground pt-2 border-t border-border">
+              <div className="flex justify-between font-bold text-xl text-foreground pt-3 border-t border-border">
                 <span>Total Amount</span>
-                <span className="font-mono">{formatCurrency(toNumber(order.totalAmount))}</span>
+                <span className="font-mono text-xl">{formatCurrency(toNumber(order.totalAmount))}</span>
               </div>
             </div>
           </div>
@@ -517,24 +517,24 @@ function AdminOrderDetailPageContent({
         <div className="lg:col-span-4 space-y-6">
           {/* STEP 1: ORDER CONFIRMATION WORKFLOW */}
           {currentStatus === 'NEW' && (
-            <div className="p-6 rounded-2xl bg-card border border-border space-y-3">
-              <h2 className="font-semibold text-xs uppercase tracking-wider text-muted-foreground pb-2 border-b border-border">
+            <div className="p-6 rounded-2xl bg-card border border-border space-y-4 shadow-xs">
+              <h2 className="font-bold text-xs uppercase tracking-wider text-muted-foreground pb-2 border-b border-border">
                 Order Action
               </h2>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 Review this newly placed order and confirm it before delivery partner assignment.
               </p>
               <Button
-                className="w-full justify-center font-bold"
+                className="w-full h-12 justify-center font-bold text-base"
                 onClick={() => statusMutation.mutate({ newStatus: 'CONFIRMED' })}
                 disabled={statusMutation.isPending}
               >
-                <CheckCircle2 className="h-4 w-4 mr-1.5" /> Confirm Order
+                <CheckCircle2 className="h-5 w-5 mr-2" /> Confirm Order
               </Button>
 
               <Button
                 variant="destructive"
-                className="w-full justify-center font-medium mt-2"
+                className="w-full h-11 justify-center font-semibold text-sm mt-2"
                 onClick={() => {
                   if (confirm('Are you sure you want to cancel this order?')) {
                     statusMutation.mutate({ newStatus: 'CANCELLED', note: 'Cancelled by store admin' });
@@ -552,31 +552,31 @@ function AdminOrderDetailPageContent({
             <div className="p-6 rounded-2xl bg-card border-2 border-brand/40 shadow-xs space-y-4">
               <div className="flex items-center justify-between pb-2 border-b border-border">
                 <div className="flex items-center gap-2">
-                  <Truck className="h-4 w-4 text-brand" />
-                  <h2 className="font-bold text-xs uppercase tracking-wider text-foreground">
+                  <Truck className="h-5 w-5 text-brand" />
+                  <h2 className="font-bold text-sm uppercase tracking-wider text-foreground">
                     {isReassigning ? 'Reassign Delivery Partner' : 'Assign Delivery Partner'}
                   </h2>
                 </div>
                 {isReassigning && (
                   <button
                     onClick={() => setIsReassigning(false)}
-                    className="text-xs text-muted-foreground hover:text-foreground"
+                    className="text-sm font-semibold text-muted-foreground hover:text-foreground"
                   >
                     Cancel
                   </button>
                 )}
               </div>
 
-              <p className="text-xs text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 Select an active delivery personnel to fulfill this shipment across India:
               </p>
 
               {deliveryPartners.length > 0 ? (
-                <div className="space-y-3">
+                <div className="space-y-3.5">
                   <select
                     value={selectedPartnerId}
                     onChange={(e) => setSelectedPartnerId(e.target.value)}
-                    className="w-full h-10 px-3 rounded-xl border border-border bg-card text-xs font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 cursor-pointer shadow-xs"
+                    className="w-full h-12 px-4 rounded-xl border border-border bg-card text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 cursor-pointer shadow-xs"
                   >
                     <option value="">-- Select Active Delivery Partner --</option>
                     {deliveryPartners.map((p) => (
@@ -587,14 +587,14 @@ function AdminOrderDetailPageContent({
                   </select>
 
                   <Button
-                    className="w-full justify-center font-bold"
+                    className="w-full h-12 justify-center font-bold text-base"
                     disabled={!selectedPartnerId || assignDeliveryMutation.isPending}
                     onClick={() => {
                       if (!selectedPartnerId) return;
                       assignDeliveryMutation.mutate({ partnerId: Number(selectedPartnerId) });
                     }}
                   >
-                    <Truck className="h-4 w-4 mr-1.5" />
+                    <Truck className="h-5 w-5 mr-2" />
                     {assignDeliveryMutation.isPending ? 'Assigning...' : 'Assign Delivery'}
                   </Button>
 
@@ -603,16 +603,16 @@ function AdminOrderDetailPageContent({
                       href={templatesList.find((t) => t.type === 'ORDER_CONFIRMED')?.shareUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-1.5 w-full h-8 px-3 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-700 dark:text-emerald-400 text-xs font-semibold border border-emerald-500/20 transition-colors cursor-pointer"
+                      className="inline-flex items-center justify-center gap-2 w-full h-11 px-4 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-600 dark:text-emerald-400 text-sm font-bold border border-emerald-500/20 transition-colors cursor-pointer"
                     >
-                      <MessageSquare className="h-3.5 w-3.5" /> Share Confirmed Quotation via WhatsApp
+                      <MessageSquare className="h-4 w-4" /> Share Confirmed Quotation via WhatsApp
                     </a>
                   )}
                 </div>
               ) : (
-                <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 text-xs text-amber-800 dark:text-amber-300 space-y-2">
+                <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 text-sm text-amber-800 dark:text-amber-300 space-y-2">
                   <p className="font-semibold">No active delivery partners available.</p>
-                  <p className="text-[11px]">Please add or activate a delivery partner before assigning this order.</p>
+                  <p className="text-xs">Please add or activate a delivery partner before assigning this order.</p>
                   <Link href="/admin/delivery-partners" className="inline-block font-bold underline">
                     Go to Delivery Partners →
                   </Link>
@@ -641,64 +641,64 @@ function AdminOrderDetailPageContent({
                 )}
               </div>
 
-              <div className="p-3.5 rounded-xl bg-muted/30 border border-border space-y-2.5 text-xs">
+              <div className="p-4 rounded-xl bg-secondary/50 dark:bg-[#242424]/50 border border-border space-y-3 text-sm">
                 <div className="flex items-center justify-between">
-                  <p className="font-bold text-foreground text-sm">{assignedPartner.name || assignedPartner.fullName}</p>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                  <p className="font-bold text-foreground text-base">{assignedPartner.name || assignedPartner.fullName}</p>
+                  <span className="text-xs font-bold px-2.5 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
                     Active
                   </span>
                 </div>
 
-                <div className="flex items-center gap-2 text-foreground font-mono font-semibold">
-                  <Phone className="h-3.5 w-3.5 text-muted-foreground" /> {assignedPartner.mobileNumber}
+                <div className="flex items-center gap-2 text-foreground font-mono font-bold text-sm">
+                  <Phone className="h-4 w-4 text-muted-foreground" /> {assignedPartner.mobileNumber}
                 </div>
 
                 {(assignedPartner.vehicleType || assignedPartner.vehicleNumber) && (
-                  <div className="flex items-center gap-1.5 text-muted-foreground">
-                    <Car className="h-3.5 w-3.5 text-muted-foreground" />
+                  <div className="flex items-center gap-2 text-muted-foreground font-medium">
+                    <Car className="h-4 w-4 text-muted-foreground" />
                     <span>{assignedPartner.vehicleType || 'Vehicle'}</span>
-                    {assignedPartner.vehicleNumber && <span className="font-mono uppercase font-medium text-foreground">({assignedPartner.vehicleNumber})</span>}
+                    {assignedPartner.vehicleNumber && <span className="font-mono uppercase font-semibold text-foreground">({assignedPartner.vehicleNumber})</span>}
                   </div>
                 )}
 
                 {order.assignedAt && (
-                  <div className="text-[10px] text-muted-foreground pt-1 border-t border-border flex items-center justify-between">
+                  <div className="text-xs text-muted-foreground pt-2 border-t border-border flex items-center justify-between">
                     <span>Assigned Date:</span>
-                    <span className="font-medium text-foreground">{formatDateTime(order.assignedAt)}</span>
+                    <span className="font-semibold text-foreground">{formatDateTime(order.assignedAt)}</span>
                   </div>
                 )}
 
                 {order.assignedBy && (
-                  <div className="text-[10px] text-muted-foreground flex items-center justify-between">
+                  <div className="text-xs text-muted-foreground flex items-center justify-between">
                     <span>Assigned By:</span>
-                    <span className="font-medium text-foreground">{order.assignedBy}</span>
+                    <span className="font-semibold text-foreground">{order.assignedBy}</span>
                   </div>
                 )}
               </div>
 
               {/* Status Actions for Assigned Orders */}
               {currentStatus === 'ASSIGNED' && (
-                <div className="space-y-2 pt-2 border-t border-border">
+                <div className="space-y-2.5 pt-2 border-t border-border">
                   <Button
-                    className="w-full justify-center font-bold"
+                    className="w-full h-12 justify-center font-bold text-base"
                     onClick={() => statusMutation.mutate({ newStatus: 'OUT_FOR_DELIVERY' })}
                     disabled={statusMutation.isPending}
                   >
-                    <Truck className="h-4 w-4 mr-1.5" /> Mark Out for Delivery
+                    <Truck className="h-5 w-5 mr-2" /> Mark Out for Delivery
                   </Button>
 
                   <a
                     href={templatesList.find((t) => t.type === 'ORDER_ASSIGNED')?.shareUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-1.5 w-full h-8 px-3 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-700 dark:text-emerald-400 text-xs font-semibold border border-emerald-500/20 transition-colors cursor-pointer"
+                    className="inline-flex items-center justify-center gap-2 w-full h-11 px-4 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-600 dark:text-emerald-400 text-sm font-bold border border-emerald-500/20 transition-colors cursor-pointer"
                   >
-                    <MessageSquare className="h-3.5 w-3.5" /> Share Dispatch Info via WhatsApp
+                    <MessageSquare className="h-4 w-4" /> Share Dispatch Info via WhatsApp
                   </a>
 
                   <Button
                     variant="destructive"
-                    className="w-full justify-center font-medium"
+                    className="w-full h-11 justify-center font-semibold text-sm"
                     onClick={() => {
                       if (confirm('Cancel this assigned order?')) {
                         statusMutation.mutate({ newStatus: 'CANCELLED', note: 'Cancelled by admin' });
@@ -713,40 +713,40 @@ function AdminOrderDetailPageContent({
 
               {/* Status Actions for Out for Delivery */}
               {currentStatus === 'OUT_FOR_DELIVERY' && (
-                <div className="space-y-2 pt-2 border-t border-border">
+                <div className="space-y-2.5 pt-2 border-t border-border">
                   <Button
-                    className="w-full justify-center font-bold bg-emerald-600 hover:bg-emerald-700 text-white"
+                    className="w-full h-12 justify-center font-bold text-base bg-emerald-600 hover:bg-emerald-700 text-white"
                     onClick={() => statusMutation.mutate({ newStatus: 'DELIVERED' })}
                     disabled={statusMutation.isPending}
                   >
-                    <CheckCircle2 className="h-4 w-4 mr-1.5" /> Mark Delivered
+                    <CheckCircle2 className="h-5 w-5 mr-2" /> Mark Delivered
                   </Button>
 
                   <a
                     href={templatesList.find((t) => t.type === 'ORDER_OUT_FOR_DELIVERY')?.shareUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-1.5 w-full h-8 px-3 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-700 dark:text-emerald-400 text-xs font-semibold border border-emerald-500/20 transition-colors cursor-pointer"
+                    className="inline-flex items-center justify-center gap-2 w-full h-11 px-4 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-600 dark:text-emerald-400 text-sm font-bold border border-emerald-500/20 transition-colors cursor-pointer"
                   >
-                    <MessageSquare className="h-3.5 w-3.5" /> Share Out-for-Delivery Alert via WhatsApp
+                    <MessageSquare className="h-4 w-4" /> Share Out-for-Delivery Alert via WhatsApp
                   </a>
                 </div>
               )}
 
               {/* Status Actions for Delivered */}
               {currentStatus === 'DELIVERED' && (
-                <div className="space-y-2">
-                  <div className="p-3 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-semibold text-center flex items-center justify-center gap-1.5">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-600" /> Order Delivered Successfully
+                <div className="space-y-2.5">
+                  <div className="p-4 rounded-xl bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-sm font-bold text-center flex items-center justify-center gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" /> Order Delivered Successfully
                   </div>
 
                   <a
                     href={templatesList.find((t) => t.type === 'ORDER_DELIVERED')?.shareUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-1.5 w-full h-8 px-3 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-700 dark:text-emerald-400 text-xs font-semibold border border-emerald-500/20 transition-colors cursor-pointer"
+                    className="inline-flex items-center justify-center gap-2 w-full h-11 px-4 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-600 dark:text-emerald-400 text-sm font-bold border border-emerald-500/20 transition-colors cursor-pointer"
                   >
-                    <MessageSquare className="h-3.5 w-3.5" /> Share Delivered Wishes via WhatsApp
+                    <MessageSquare className="h-4 w-4" /> Share Delivered Wishes via WhatsApp
                   </a>
                 </div>
               )}

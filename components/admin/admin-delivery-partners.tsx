@@ -221,46 +221,46 @@ function AdminDeliveryPartnersPageContent() {
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            <Truck className="h-6 w-6 text-brand" /> Delivery Partners
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
+            <Truck className="h-7 w-7 text-brand" /> Delivery Partners
           </h1>
-          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+          <p className="text-sm sm:text-base text-muted-foreground mt-1">
             Manage delivery personnel and fleet partners eligible for order fulfillment across India.
           </p>
         </div>
 
-        <Button onClick={handleOpenAdd} className="font-semibold text-xs gap-1.5 shadow-sm">
-          <Plus className="h-4 w-4" /> Add Delivery Partner
+        <Button onClick={handleOpenAdd} className="h-12 px-5 font-bold text-sm gap-2 shadow-xs">
+          <Plus className="h-5 w-5" /> Add Delivery Partner
         </Button>
       </div>
 
       {/* Quick Summary Cards */}
-      <div className="grid grid-cols-3 gap-3">
-        <div className="p-4 rounded-2xl bg-card border border-border">
-          <p className="text-[11px] font-semibold uppercase text-muted-foreground tracking-wider">Total Partners</p>
-          <p className="text-2xl font-bold text-foreground mt-1">{totalCount}</p>
+      <div className="grid grid-cols-3 gap-4">
+        <div className="p-5 rounded-2xl bg-card border border-border shadow-xs">
+          <p className="text-xs font-bold uppercase text-muted-foreground tracking-wider">Total Partners</p>
+          <p className="text-3xl font-bold text-foreground mt-1.5">{totalCount}</p>
         </div>
-        <div className="p-4 rounded-2xl bg-card border border-border">
-          <p className="text-[11px] font-semibold uppercase text-muted-foreground tracking-wider">Active</p>
-          <p className="text-2xl font-bold text-emerald-600 mt-1">{activeCount}</p>
+        <div className="p-5 rounded-2xl bg-card border border-border shadow-xs">
+          <p className="text-xs font-bold uppercase text-muted-foreground tracking-wider">Active</p>
+          <p className="text-3xl font-bold text-emerald-500 mt-1.5">{activeCount}</p>
         </div>
-        <div className="p-4 rounded-2xl bg-card border border-border">
-          <p className="text-[11px] font-semibold uppercase text-muted-foreground tracking-wider">Inactive</p>
-          <p className="text-2xl font-bold text-amber-600 mt-1">{inactiveCount}</p>
+        <div className="p-5 rounded-2xl bg-card border border-border shadow-xs">
+          <p className="text-xs font-bold uppercase text-muted-foreground tracking-wider">Inactive</p>
+          <p className="text-3xl font-bold text-amber-500 mt-1.5">{inactiveCount}</p>
         </div>
       </div>
 
       {/* Filter & Search Bar */}
-      <div className="p-4 rounded-2xl bg-card border border-border space-y-3">
-        <div className="flex flex-wrap items-center gap-2">
+      <div className="p-5 rounded-2xl bg-card border border-border space-y-4 shadow-xs">
+        <div className="flex flex-wrap items-center gap-2.5">
           {(['ALL', 'ACTIVE', 'INACTIVE'] as const).map((st) => (
             <button
               key={st}
               onClick={() => setStatusFilter(st)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+              className={`px-4 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer ${
                 statusFilter === st
                   ? 'bg-foreground text-background shadow-xs'
-                  : 'bg-muted/50 text-muted-foreground hover:text-foreground border border-border hover:bg-muted'
+                  : 'bg-secondary/60 dark:bg-[#242424]/60 text-muted-foreground hover:text-foreground border border-border hover:bg-secondary'
               }`}
             >
               {st === 'ALL' ? 'All Partners' : st === 'ACTIVE' ? 'Active' : 'Inactive'}
@@ -269,13 +269,13 @@ function AdminDeliveryPartnersPageContent() {
         </div>
 
         <div className="relative">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <input
             type="text"
             placeholder="Search by name, mobile number, or vehicle number..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full h-10 pl-9 pr-3 rounded-xl border border-border bg-muted/30 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand transition-all"
+            className="w-full h-12 pl-12 pr-4 rounded-xl border border-border bg-card text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand transition-all shadow-xs"
           />
         </div>
       </div>
@@ -290,14 +290,14 @@ function AdminDeliveryPartnersPageContent() {
       ) : partners.length > 0 ? (
         <div className="rounded-2xl bg-card border border-border overflow-hidden shadow-xs">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs sm:text-sm">
-              <thead className="bg-muted/40 text-muted-foreground border-b border-border text-[11px] uppercase tracking-wider font-semibold">
+            <table className="w-full text-left text-sm sm:text-base">
+              <thead className="bg-secondary/50 dark:bg-[#242424]/50 text-muted-foreground border-b border-border text-xs uppercase tracking-wider font-bold">
                 <tr>
-                  <th className="px-5 py-3.5">Name</th>
-                  <th className="px-5 py-3.5">Mobile</th>
-                  <th className="px-5 py-3.5">Vehicle</th>
-                  <th className="px-5 py-3.5">Status</th>
-                  <th className="px-5 py-3.5 text-right">Actions</th>
+                  <th className="px-5 py-4">Name</th>
+                  <th className="px-5 py-4">Mobile</th>
+                  <th className="px-5 py-4">Vehicle</th>
+                  <th className="px-5 py-4">Status</th>
+                  <th className="px-5 py-4 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -305,34 +305,34 @@ function AdminDeliveryPartnersPageContent() {
                   const isActive = partner.status === 'ACTIVE';
 
                   return (
-                    <tr key={partner.id} className="hover:bg-muted/30 transition-colors">
+                    <tr key={partner.id} className="hover:bg-secondary/30 dark:hover:bg-[#242424]/30 transition-colors">
                       {/* Name & Email */}
-                      <td className="px-5 py-3.5">
-                        <p className="font-semibold text-foreground">{partner.name || partner.fullName}</p>
+                      <td className="px-5 py-4">
+                        <p className="font-bold text-foreground text-base">{partner.name || partner.fullName}</p>
                         {partner.email && (
-                          <p className="text-[11px] text-muted-foreground flex items-center gap-1 mt-0.5">
-                            <Mail className="h-3 w-3" /> {partner.email}
+                          <p className="text-xs text-muted-foreground flex items-center gap-1.5 mt-0.5">
+                            <Mail className="h-3.5 w-3.5" /> {partner.email}
                           </p>
                         )}
                       </td>
 
                       {/* Mobile */}
-                      <td className="px-5 py-3.5">
-                        <div className="flex items-center gap-1.5 text-foreground font-mono text-xs font-semibold">
-                          <Phone className="h-3.5 w-3.5 text-muted-foreground" /> {partner.mobileNumber}
+                      <td className="px-5 py-4">
+                        <div className="flex items-center gap-2 text-foreground font-mono text-sm font-bold">
+                          <Phone className="h-4 w-4 text-muted-foreground" /> {partner.mobileNumber}
                         </div>
                       </td>
 
                       {/* Vehicle */}
-                      <td className="px-5 py-3.5 text-xs text-foreground">
+                      <td className="px-5 py-4 text-sm text-foreground">
                         {partner.vehicleType || partner.vehicleNumber ? (
-                          <div className="space-y-0.5">
-                            <p className="font-medium flex items-center gap-1">
-                              <Car className="h-3.5 w-3.5 text-muted-foreground" />
+                          <div className="space-y-1">
+                            <p className="font-semibold flex items-center gap-1.5">
+                              <Car className="h-4 w-4 text-muted-foreground" />
                               {partner.vehicleType || 'Vehicle'}
                             </p>
                             {partner.vehicleNumber && (
-                              <p className="font-mono text-[11px] text-muted-foreground uppercase">{partner.vehicleNumber}</p>
+                              <p className="font-mono text-xs text-muted-foreground uppercase font-semibold">{partner.vehicleNumber}</p>
                             )}
                           </div>
                         ) : (
@@ -341,7 +341,7 @@ function AdminDeliveryPartnersPageContent() {
                       </td>
 
                       {/* Status */}
-                      <td className="px-5 py-3.5">
+                      <td className="px-5 py-4">
                         <button
                           onClick={() =>
                             toggleStatusMutation.mutate({
@@ -349,47 +349,47 @@ function AdminDeliveryPartnersPageContent() {
                               newStatus: isActive ? 'INACTIVE' : 'ACTIVE',
                             })
                           }
-                          className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-lg border transition-colors cursor-pointer ${
+                          className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg border transition-colors cursor-pointer ${
                             isActive
                               ? 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800'
-                              : 'bg-muted text-muted-foreground border-border hover:bg-muted/80'
+                              : 'bg-secondary/60 dark:bg-[#242424]/60 text-muted-foreground border-border hover:bg-secondary'
                           }`}
                         >
                           {isActive ? (
                             <>
-                              <CheckCircle2 className="h-3 w-3 text-emerald-600" /> Active
+                              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" /> Active
                             </>
                           ) : (
                             <>
-                              <XCircle className="h-3 w-3 text-muted-foreground" /> Inactive
+                              <XCircle className="h-3.5 w-3.5 text-muted-foreground" /> Inactive
                             </>
                           )}
                         </button>
                       </td>
 
                       {/* Actions */}
-                      <td className="px-5 py-3.5 text-right">
-                        <div className="flex items-center justify-end gap-1">
+                      <td className="px-5 py-4 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
                           <button
                             onClick={() => setDetailsPartner(partner)}
                             title="View Details"
-                            className="p-1.5 rounded-lg border border-border bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                            className="p-2 rounded-lg border border-border bg-card hover:bg-secondary dark:hover:bg-[#242424] text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                           >
-                            <Eye className="h-3.5 w-3.5" />
+                            <Eye className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => handleOpenEdit(partner)}
                             title="Edit Partner"
-                            className="p-1.5 rounded-lg border border-border bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                            className="p-2 rounded-lg border border-border bg-card hover:bg-secondary dark:hover:bg-[#242424] text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                           >
-                            <Edit2 className="h-3.5 w-3.5" />
+                            <Edit2 className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => setDeletingPartner(partner)}
                             title="Delete Partner"
-                            className="p-1.5 rounded-lg border border-border bg-card hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                            className="p-2 rounded-lg border border-border bg-card hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
                           >
-                            <Trash2 className="h-3.5 w-3.5" />
+                            <Trash2 className="h-4 w-4" />
                           </button>
                         </div>
                       </td>
@@ -412,27 +412,27 @@ function AdminDeliveryPartnersPageContent() {
 
       {/* CREATE / EDIT MODAL */}
       {isFormOpen && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-card rounded-2xl border border-border shadow-xl max-w-md w-full max-h-[90vh] flex flex-col my-auto">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-card rounded-2xl border border-border shadow-2xl max-w-lg w-full max-h-[90vh] flex flex-col my-auto">
             {/* Modal Header */}
-            <div className="px-6 py-4 border-b border-border flex items-center justify-between">
-              <h2 className="text-base font-bold text-foreground flex items-center gap-2">
-                <Truck className="h-4 w-4 text-brand" />
+            <div className="px-6 py-5 border-b border-border flex items-center justify-between">
+              <h2 className="text-lg font-bold text-foreground flex items-center gap-2.5">
+                <Truck className="h-5 w-5 text-brand" />
                 {editingPartner ? 'Edit Delivery Partner' : 'Add Delivery Partner'}
               </h2>
               <button
                 onClick={() => setIsFormOpen(false)}
-                className="p-1 rounded-lg text-muted-foreground hover:bg-muted"
+                className="p-1.5 rounded-xl text-muted-foreground hover:bg-secondary dark:hover:bg-[#242424] hover:text-foreground cursor-pointer"
               >
-                <X className="h-4 w-4" />
+                <X className="h-5 w-5" />
               </button>
             </div>
 
             {/* Modal Form Body */}
-            <div className="p-6 overflow-y-auto space-y-4 text-xs">
+            <div className="p-6 overflow-y-auto space-y-4.5 text-sm">
               {/* Full Name */}
               <div>
-                <label className="block font-semibold text-foreground mb-1">
+                <label className="block text-sm font-semibold text-foreground mb-1.5">
                   Full Name <span className="text-destructive">*</span>
                 </label>
                 <input
@@ -440,13 +440,13 @@ function AdminDeliveryPartnersPageContent() {
                   placeholder="e.g. Rajesh Kumar"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full h-10 px-3 rounded-xl border border-border bg-muted/20 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand"
+                  className="w-full h-12 px-3.5 rounded-xl border border-border bg-card text-base font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand shadow-xs"
                 />
               </div>
 
               {/* Mobile Number */}
               <div>
-                <label className="block font-semibold text-foreground mb-1">
+                <label className="block text-sm font-semibold text-foreground mb-1.5">
                   Mobile Number <span className="text-destructive">*</span>
                 </label>
                 <input
@@ -454,127 +454,126 @@ function AdminDeliveryPartnersPageContent() {
                   placeholder="e.g. 9842100001"
                   value={formData.mobileNumber}
                   onChange={(e) => setFormData({ ...formData, mobileNumber: e.target.value })}
-                  className="w-full h-10 px-3 rounded-xl border border-border bg-muted/20 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand"
+                  className="w-full h-12 px-3.5 rounded-xl border border-border bg-card text-base font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand shadow-xs"
                 />
               </div>
 
               {/* Email & Pincode */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
-                  <label className="block font-semibold text-foreground mb-1">Email (Optional)</label>
+                  <label className="block text-sm font-semibold text-foreground mb-1.5">Email (Optional)</label>
                   <input
                     type="email"
                     placeholder="rajesh@example.com"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full h-10 px-3 rounded-xl border border-border bg-muted/20 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand"
+                    className="w-full h-12 px-3.5 rounded-xl border border-border bg-card text-base font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand shadow-xs"
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-foreground mb-1">Pincode (Optional)</label>
+                  <label className="block text-sm font-semibold text-foreground mb-1.5">Pincode (Optional)</label>
                   <input
                     type="text"
                     placeholder="e.g. 626123"
                     value={formData.pincode}
                     onChange={(e) => setFormData({ ...formData, pincode: e.target.value })}
-                    className="w-full h-10 px-3 rounded-xl border border-border bg-muted/20 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand"
+                    className="w-full h-12 px-3.5 rounded-xl border border-border bg-card text-base font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand shadow-xs"
                   />
                 </div>
               </div>
 
               {/* Vehicle Info */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
-                  <label className="block font-semibold text-foreground mb-1">Vehicle Type (Optional)</label>
+                  <label className="block text-sm font-semibold text-foreground mb-1.5">Vehicle Type (Optional)</label>
                   <input
                     type="text"
                     placeholder="e.g. Bike, Van, Tata Ace"
                     value={formData.vehicleType}
                     onChange={(e) => setFormData({ ...formData, vehicleType: e.target.value })}
-                    className="w-full h-10 px-3 rounded-xl border border-border bg-muted/20 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand"
+                    className="w-full h-12 px-3.5 rounded-xl border border-border bg-card text-base font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand shadow-xs"
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-foreground mb-1">Vehicle Number (Optional)</label>
+                  <label className="block text-sm font-semibold text-foreground mb-1.5">Vehicle Number (Optional)</label>
                   <input
                     type="text"
                     placeholder="e.g. TN 67 AB 1234"
                     value={formData.vehicleNumber}
                     onChange={(e) => setFormData({ ...formData, vehicleNumber: e.target.value })}
-                    className="w-full h-10 px-3 rounded-xl border border-border bg-muted/20 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand uppercase"
+                    className="w-full h-12 px-3.5 rounded-xl border border-border bg-card text-base font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand uppercase shadow-xs"
                   />
                 </div>
               </div>
 
               {/* Address */}
               <div>
-                <label className="block font-semibold text-foreground mb-1">Address / Hub (Optional)</label>
+                <label className="block text-sm font-semibold text-foreground mb-1.5">Address / Hub (Optional)</label>
                 <textarea
                   rows={2}
                   placeholder="Street address or logistics hub"
                   value={formData.address}
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  className="w-full p-2.5 rounded-xl border border-border bg-muted/20 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand resize-none"
+                  className="w-full p-3 rounded-xl border border-border bg-card text-base font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand resize-none shadow-xs"
                 />
               </div>
 
               {/* Notes */}
               <div>
-                <label className="block font-semibold text-foreground mb-1">Internal Notes (Optional)</label>
+                <label className="block text-sm font-semibold text-foreground mb-1.5">Internal Notes (Optional)</label>
                 <textarea
                   rows={2}
                   placeholder="Special instructions, contact timing, routes..."
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  className="w-full p-2.5 rounded-xl border border-border bg-muted/20 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand resize-none"
+                  className="w-full p-3 rounded-xl border border-border bg-card text-base font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand resize-none shadow-xs"
                 />
               </div>
 
               {/* Status */}
               <div>
-                <label className="block font-semibold text-foreground mb-1">Status</label>
-                <div className="flex items-center gap-4">
-                  <label className="flex items-center gap-1.5 cursor-pointer">
+                <label className="block text-sm font-semibold text-foreground mb-1.5">Status</label>
+                <div className="flex items-center gap-6">
+                  <label className="flex items-center gap-2 cursor-pointer text-sm font-bold">
                     <input
                       type="radio"
                       name="partner_status"
                       value="ACTIVE"
                       checked={formData.status === 'ACTIVE'}
                       onChange={() => setFormData({ ...formData, status: 'ACTIVE' })}
-                      className="accent-brand"
+                      className="accent-brand h-4 w-4"
                     />
-                    <span className="font-semibold text-emerald-700 dark:text-emerald-400">Active</span>
+                    <span className="text-emerald-600 dark:text-emerald-400">Active</span>
                   </label>
-                  <label className="flex items-center gap-1.5 cursor-pointer">
+                  <label className="flex items-center gap-2 cursor-pointer text-sm font-bold">
                     <input
                       type="radio"
                       name="partner_status"
                       value="INACTIVE"
                       checked={formData.status === 'INACTIVE'}
                       onChange={() => setFormData({ ...formData, status: 'INACTIVE' })}
-                      className="accent-brand"
+                      className="accent-brand h-4 w-4"
                     />
-                    <span className="font-semibold text-muted-foreground">Inactive</span>
+                    <span className="text-muted-foreground">Inactive</span>
                   </label>
                 </div>
               </div>
             </div>
 
             {/* Modal Footer */}
-            <div className="px-6 py-4 border-t border-border flex items-center justify-end gap-2 bg-muted/20">
+            <div className="px-6 py-4 border-t border-border flex items-center justify-end gap-3 bg-secondary/30 dark:bg-[#242424]/30">
               <Button
                 variant="outline"
-                size="sm"
                 onClick={() => setIsFormOpen(false)}
                 disabled={saveMutation.isPending}
+                className="h-11 px-5 text-sm font-semibold"
               >
                 Cancel
               </Button>
               <Button
-                size="sm"
                 onClick={() => saveMutation.mutate()}
                 disabled={saveMutation.isPending}
-                className="gap-1 font-semibold"
+                className="h-11 px-5 gap-2 font-bold text-sm"
               >
                 {saveMutation.isPending ? 'Saving...' : editingPartner ? 'Update Partner' : 'Create Partner'}
               </Button>

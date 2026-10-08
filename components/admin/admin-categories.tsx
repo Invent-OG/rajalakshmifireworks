@@ -160,25 +160,25 @@ function AdminCategoriesPageContent() {
   });
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-8 animate-fade-in pb-12">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-border">
         <div>
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
             Categories
           </h1>
-          <p className="text-xs text-muted-foreground mt-0.5">
+          <p className="text-sm sm:text-base text-muted-foreground mt-1">
             Organize fireworks into sparklers, ground spinners, rockets, and gift combos with live backend images.
           </p>
         </div>
 
         <Button
           variant="primary"
-          size="md"
-          className="font-medium text-xs self-start sm:self-auto"
+          size="lg"
+          className="h-12 px-5 font-bold text-sm sm:text-base self-start sm:self-auto cursor-pointer shadow-xs"
           onClick={handleOpenAdd}
         >
-          <Plus className="h-4 w-4" /> Add Category
+          <Plus className="h-5 w-5 mr-1" /> Add Category
         </Button>
       </div>
 
@@ -186,21 +186,21 @@ function AdminCategoriesPageContent() {
       {isLoading ? (
         <div className="space-y-3">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-14 rounded-xl" />
+            <Skeleton key={i} className="h-16 rounded-xl" />
           ))}
         </div>
       ) : categories.length > 0 ? (
-        <div className="rounded-2xl bg-card border border-border overflow-hidden">
+        <div className="rounded-2xl bg-card border border-border overflow-hidden shadow-xs">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs sm:text-sm">
-              <thead className="bg-muted/40 text-muted-foreground border-b border-border text-[11px] uppercase tracking-wider font-semibold">
+            <table className="w-full text-left">
+              <thead className="bg-muted/50 text-muted-foreground border-b border-border text-xs uppercase tracking-wider font-bold">
                 <tr>
-                  <th className="px-5 py-3">Sort #</th>
-                  <th className="px-5 py-3">Category</th>
-                  <th className="px-5 py-3">URL Slug</th>
-                  <th className="px-5 py-3">Products</th>
-                  <th className="px-5 py-3">Status</th>
-                  <th className="px-5 py-3 text-right">Actions</th>
+                  <th className="px-5 py-4">Sort #</th>
+                  <th className="px-5 py-4">Category</th>
+                  <th className="px-5 py-4">URL Slug</th>
+                  <th className="px-5 py-4">Products</th>
+                  <th className="px-5 py-4">Status</th>
+                  <th className="px-5 py-4 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -208,12 +208,12 @@ function AdminCategoriesPageContent() {
                   const displayImg = cat.image || getCategory3DImage(cat.name);
                   return (
                     <tr key={cat.id} className="hover:bg-muted/30 transition-colors">
-                      <td className="px-5 py-3.5 font-mono font-medium text-muted-foreground">
+                      <td className="px-5 py-4 font-mono font-bold text-base text-muted-foreground">
                         #{cat.sortOrder}
                       </td>
-                      <td className="px-5 py-3.5">
-                        <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-xl overflow-hidden bg-muted border border-border shrink-0 shadow-xs">
+                      <td className="px-5 py-4">
+                        <div className="flex items-center gap-3.5">
+                          <div className="h-12 w-12 rounded-xl overflow-hidden bg-muted border border-border shrink-0 shadow-xs">
                             <img
                               src={displayImg}
                               alt={cat.name}
@@ -221,26 +221,26 @@ function AdminCategoriesPageContent() {
                             />
                           </div>
                           <div>
-                            <p className="font-medium text-foreground">{cat.name}</p>
+                            <p className="font-bold text-base text-foreground">{cat.name}</p>
                             {cat.description && (
-                              <p className="text-[11px] text-muted-foreground line-clamp-1">
+                              <p className="text-sm text-muted-foreground line-clamp-1 mt-0.5">
                                 {cat.description}
                               </p>
                             )}
                           </div>
                         </div>
                       </td>
-                      <td className="px-5 py-3.5 font-mono text-xs text-muted-foreground">
+                      <td className="px-5 py-4 font-mono text-sm text-muted-foreground">
                         /{cat.slug}
                       </td>
-                      <td className="px-5 py-3.5">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-muted text-foreground">
+                      <td className="px-5 py-4">
+                        <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs sm:text-sm font-semibold bg-muted text-foreground border border-border/50">
                           {cat.productCount} items
                         </span>
                       </td>
-                      <td className="px-5 py-3.5">
+                      <td className="px-5 py-4">
                         <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                          className={`inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-bold ${
                             cat.isActive
                               ? 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
                               : 'bg-muted text-muted-foreground'
@@ -249,19 +249,21 @@ function AdminCategoriesPageContent() {
                           {cat.isActive ? 'Active' : 'Disabled'}
                         </span>
                       </td>
-                      <td className="px-5 py-3.5 text-right">
-                        <div className="flex items-center justify-end gap-1">
+                      <td className="px-5 py-4 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
                           <Button
                             variant="ghost"
-                            size="icon-sm"
+                            size="icon-md"
+                            className="h-9 w-9 text-foreground hover:bg-muted"
                             onClick={() => handleOpenEdit(cat)}
                             aria-label="Edit category"
                           >
-                            <Edit2 className="h-3.5 w-3.5" />
+                            <Edit2 className="h-4 w-4" />
                           </Button>
                           <Button
                             variant="ghost"
-                            size="icon-sm"
+                            size="icon-md"
+                            className="h-9 w-9 text-muted-foreground hover:text-destructive hover:bg-muted"
                             aria-label="Delete category"
                             onClick={() => {
                               if (
@@ -273,7 +275,7 @@ function AdminCategoriesPageContent() {
                               }
                             }}
                           >
-                            <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
+                            <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
                       </td>
@@ -286,9 +288,9 @@ function AdminCategoriesPageContent() {
         </div>
       ) : (
         <div className="text-center py-16 bg-card rounded-2xl border border-border p-8">
-          <FolderTree className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-          <p className="font-semibold text-foreground">No categories created yet</p>
-          <p className="text-xs text-muted-foreground mt-1">
+          <FolderTree className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+          <p className="font-bold text-lg text-foreground">No categories created yet</p>
+          <p className="text-sm text-muted-foreground mt-1">
             Click &ldquo;Add Category&rdquo; to build your catalog tree.
           </p>
         </div>
@@ -297,16 +299,16 @@ function AdminCategoriesPageContent() {
       {/* Modal Dialog for Category Edit/Create */}
       {isModalOpen && (
         <Portal>
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 animate-fade-in overflow-y-auto">
-            <div className="bg-card rounded-2xl border border-border max-w-lg w-full p-6 sm:p-7 space-y-5 shadow-2xl my-8">
-              <div className="flex items-center justify-between pb-3 border-b border-border">
-                <h2 className="font-bold text-base text-foreground tracking-tight">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in overflow-y-auto">
+            <div className="bg-card rounded-2xl border border-border max-w-xl w-full p-6 sm:p-8 space-y-6 shadow-2xl my-8">
+              <div className="flex items-center justify-between pb-3.5 border-b border-border">
+                <h2 className="font-bold text-lg sm:text-xl text-foreground tracking-tight">
                   {editingCategory ? 'Edit Category' : 'Create Category'}
                 </h2>
               </div>
 
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Input
                     label="Category Name (English) *"
                     placeholder="e.g. Sparklers"
@@ -323,7 +325,7 @@ function AdminCategoriesPageContent() {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Textarea
                     label="Description (English)"
                     placeholder="Brief summary of items in this category..."
@@ -342,12 +344,12 @@ function AdminCategoriesPageContent() {
                 </div>
 
                 {/* Category Image Selector & Upload */}
-                <div className="space-y-2">
-                  <label className="text-xs font-semibold text-foreground">
+                <div className="space-y-3">
+                  <label className="text-sm font-semibold text-foreground block">
                     Category Live Image
                   </label>
                   <div className="flex items-start gap-4">
-                    <div className="h-16 w-16 rounded-xl overflow-hidden bg-muted border border-border shrink-0 shadow-xs flex items-center justify-center relative">
+                    <div className="h-18 w-18 rounded-xl overflow-hidden bg-muted border border-border shrink-0 shadow-xs flex items-center justify-center relative">
                       {image || name ? (
                         <img
                           src={image || getCategory3DImage(name)}
@@ -355,18 +357,18 @@ function AdminCategoriesPageContent() {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <ImageIcon className="h-6 w-6 text-muted-foreground" />
+                        <ImageIcon className="h-7 w-7 text-muted-foreground" />
                       )}
                     </div>
-                    <div className="flex-1 space-y-2">
+                    <div className="flex-1 space-y-2.5">
                       <Input
                         placeholder="Image URL or select preset below..."
                         value={image}
                         onChange={(e) => setImage(e.target.value)}
                       />
-                      <div className="flex items-center gap-2">
-                        <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted hover:bg-muted/80 text-xs font-medium text-foreground transition-colors">
-                          <Upload className="h-3.5 w-3.5" />
+                      <div className="flex items-center gap-2.5">
+                        <label className="cursor-pointer inline-flex items-center gap-2 h-10 px-4 rounded-xl bg-muted hover:bg-muted/80 text-xs sm:text-sm font-semibold text-foreground transition-colors border border-border">
+                          <Upload className="h-4 w-4" />
                           <span>{uploadingImage ? 'Uploading...' : 'Upload Image'}</span>
                           <input
                             type="file"
@@ -380,7 +382,7 @@ function AdminCategoriesPageContent() {
                           <button
                             type="button"
                             onClick={() => setImage('')}
-                            className="text-[11px] text-muted-foreground hover:text-destructive underline"
+                            className="text-xs text-muted-foreground hover:text-destructive underline"
                           >
                             Clear custom image
                           </button>
@@ -391,16 +393,16 @@ function AdminCategoriesPageContent() {
 
                   {/* Preset 3D Image Quick Chips */}
                   <div className="pt-1">
-                    <p className="text-[11px] text-muted-foreground mb-1.5">Quick Presets:</p>
-                    <div className="flex flex-wrap gap-1.5">
+                    <p className="text-xs font-semibold text-muted-foreground mb-2">Quick Presets:</p>
+                    <div className="flex flex-wrap gap-2">
                       {PRESET_IMAGES.map((preset) => (
                         <button
                           key={preset.path}
                           type="button"
                           onClick={() => setImage(preset.path)}
-                          className={`text-[11px] px-2 py-1 rounded-md border transition-colors ${
+                          className={`text-xs sm:text-sm px-3 py-1.5 rounded-lg border font-medium transition-colors ${
                             image === preset.path
-                              ? 'bg-brand/10 border-brand text-brand font-medium'
+                              ? 'bg-brand/10 border-brand text-brand font-bold'
                               : 'bg-muted/50 border-border text-muted-foreground hover:text-foreground'
                           }`}
                         >
@@ -419,26 +421,26 @@ function AdminCategoriesPageContent() {
                     onChange={(e) => setSortOrder(parseInt(e.target.value) || 0)}
                   />
 
-                  <label className="flex items-center gap-2 pt-4 cursor-pointer">
+                  <label className="flex items-center gap-2.5 pt-5 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={isActive}
                       onChange={(e) => setIsActive(e.target.checked)}
-                      className="rounded text-brand h-4 w-4"
+                      className="rounded text-brand h-4.5 w-4.5"
                     />
-                    <span className="text-xs font-medium text-foreground">Active in Store</span>
+                    <span className="text-sm font-semibold text-foreground">Active in Store</span>
                   </label>
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-border">
-                <Button variant="outline" size="md" onClick={() => setIsModalOpen(false)}>
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
+                <Button variant="outline" size="lg" className="h-12 px-6 font-bold text-sm" onClick={() => setIsModalOpen(false)}>
                   Cancel
                 </Button>
                 <Button
-                  size="md"
+                  size="lg"
                   variant="primary"
-                  className="font-medium"
+                  className="h-12 px-6 font-bold text-sm"
                   onClick={() => saveMutation.mutate()}
                   loading={saveMutation.isPending}
                   disabled={!name.trim() || uploadingImage}

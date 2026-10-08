@@ -140,19 +140,19 @@ function AdminCustomersPageContent() {
                 setSegment(tab.key);
                 setPage(1);
               }}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+              className={`flex items-center gap-3 px-5 py-3 rounded-2xl text-base font-semibold whitespace-nowrap transition-all cursor-pointer ${
                 isActive
-                  ? 'bg-foreground text-background shadow-xs'
-                  : 'bg-card text-muted-foreground hover:text-foreground border border-border hover:bg-muted/40'
+                  ? 'bg-foreground text-background shadow-xs font-bold'
+                  : 'bg-card text-muted-foreground hover:text-foreground border border-border hover:bg-secondary/70'
               }`}
             >
-              <Icon className="h-3.5 w-3.5" />
+              <Icon className="h-4.5 w-4.5" />
               <span>{tab.label}</span>
               <span
-                className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold ${
+                className={`px-2.5 py-1 rounded-xl text-xs sm:text-sm font-bold ${
                   isActive
-                    ? 'bg-background/20 text-background'
-                    : 'bg-muted text-foreground'
+                    ? 'bg-background/25 text-background'
+                    : 'bg-secondary text-foreground border border-border/80'
                 }`}
               >
                 {tab.count}
@@ -163,9 +163,9 @@ function AdminCustomersPageContent() {
       </div>
 
       {/* Search & Sort Toolbar */}
-      <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 p-3.5 rounded-2xl bg-card border border-border">
+      <div className="grid grid-cols-1 sm:grid-cols-12 gap-3.5 p-5 rounded-2xl bg-card border border-border shadow-xs">
         <div className="relative sm:col-span-8">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <input
             type="text"
             placeholder="Search customer name, mobile, or email..."
@@ -174,7 +174,7 @@ function AdminCustomersPageContent() {
               setSearch(e.target.value);
               setPage(1);
             }}
-            className="w-full h-10 pl-9 pr-3 rounded-xl border border-border bg-muted/30 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand transition-all"
+            className="w-full h-12 pl-12 pr-4 rounded-2xl border border-border bg-secondary/40 text-base font-medium text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand transition-all"
           />
         </div>
 
@@ -185,7 +185,7 @@ function AdminCustomersPageContent() {
               setSortBy(e.target.value);
               setPage(1);
             }}
-            className="w-full h-10 px-3 rounded-xl border border-border bg-card text-xs font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 cursor-pointer"
+            className="w-full h-12 px-4 rounded-2xl border border-border bg-card text-base font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 cursor-pointer"
           >
             <option value="spent_desc">Highest Lifetime Spend</option>
             <option value="spent_asc">Lowest Lifetime Spend</option>
@@ -198,24 +198,24 @@ function AdminCustomersPageContent() {
 
       {/* Customers Table */}
       {isLoading ? (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-14 rounded-2xl" />
+            <Skeleton key={i} className="h-16 rounded-2xl" />
           ))}
         </div>
       ) : customers.length > 0 ? (
         <div className="rounded-2xl bg-card border border-border overflow-hidden shadow-xs">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs sm:text-sm">
-              <thead className="bg-muted/40 text-muted-foreground border-b border-border text-[11px] uppercase tracking-wider font-semibold">
+            <table className="w-full text-left text-base">
+              <thead className="bg-muted/60 text-muted-foreground border-b border-border text-xs sm:text-sm uppercase tracking-wider font-bold">
                 <tr>
-                  <th className="px-5 py-3.5">Customer</th>
-                  <th className="px-5 py-3.5">Mobile Number</th>
-                  <th className="px-5 py-3.5">Buyer Tier</th>
-                  <th className="px-5 py-3.5">Total Orders</th>
-                  <th className="px-5 py-3.5">Lifetime Spend</th>
-                  <th className="px-5 py-3.5">Last Order</th>
-                  <th className="px-5 py-3.5 text-right">Profile</th>
+                  <th className="px-5 py-4">Customer</th>
+                  <th className="px-5 py-4">Mobile Number</th>
+                  <th className="px-5 py-4">Buyer Tier</th>
+                  <th className="px-5 py-4">Total Orders</th>
+                  <th className="px-5 py-4">Lifetime Spend</th>
+                  <th className="px-5 py-4">Last Order</th>
+                  <th className="px-5 py-4 text-right">Profile</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">

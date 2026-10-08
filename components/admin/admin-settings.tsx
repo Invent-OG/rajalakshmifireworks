@@ -6,14 +6,16 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input, Textarea } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Save, Truck, MessageSquare, Sparkles, UserCog, ArrowRight } from 'lucide-react';
+import { Save, Truck, MessageSquare, Sparkles, UserCog, ArrowRight, Sun, Moon } from 'lucide-react';
 import { toast } from 'sonner';
 import { Banner } from '@/components/ui/banner';
+import { useAdminTheme } from '@/hooks/use-admin-theme';
 
 import { withAdminShell } from './admin-shell';
 
 function AdminSettingsPageContent() {
   const queryClient = useQueryClient();
+  const { theme, setTheme } = useAdminTheme();
   const [minOrderValue, setMinOrderValue] = useState('');
   const [deliveryCharge, setDeliveryCharge] = useState('');
   const [freeDeliveryAbove, setFreeDeliveryAbove] = useState('');
@@ -101,87 +103,134 @@ function AdminSettingsPageContent() {
   }
 
   return (
-    <div className="max-w-3xl space-y-8 animate-fade-in">
+    <div className="max-w-4xl space-y-8 animate-fade-in pb-12">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-border">
         <div>
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
             Settings
           </h1>
-          <p className="text-xs text-muted-foreground mt-0.5">
+          <p className="text-sm sm:text-base text-muted-foreground mt-1">
             Configure order thresholds, dispatch charges, and contact desk details.
           </p>
         </div>
 
         <Button
           variant="primary"
-          size="md"
-          className="font-medium text-xs self-start sm:self-auto"
+          size="lg"
+          className="h-12 px-6 font-bold text-sm sm:text-base self-start sm:self-auto cursor-pointer shadow-xs"
           onClick={() => saveMutation.mutate()}
           loading={saveMutation.isPending}
         >
-          <Save className="h-4 w-4" /> Save Settings
+          <Save className="h-5 w-5 mr-1" /> Save Settings
         </Button>
       </div>
 
       <div className="space-y-6">
-        {/* Hero Carousel Visual Director Shortcut */}
-        <div className="p-5 rounded-2xl bg-brand/5 border border-brand/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-brand/10 text-brand flex items-center justify-center shrink-0">
-              <Sparkles className="h-5 w-5" />
+        {/* Admin Interface Theme Appearance Card */}
+        <div className="p-6 rounded-2xl bg-card border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
+          <div className="flex items-center gap-4">
+            <div className="h-12 w-12 rounded-xl bg-muted text-foreground flex items-center justify-center shrink-0 border border-border">
+              {theme === 'dark' ? (
+                <Moon className="h-6 w-6 text-indigo-400" />
+              ) : (
+                <Sun className="h-6 w-6 text-amber-500" />
+              )}
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-foreground">
+              <h3 className="text-base sm:text-lg font-bold text-foreground">
+                Admin Panel Theme Appearance
+              </h3>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                Switch between high-contrast dark operations mode and clean light mode.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center p-1.5 rounded-xl bg-muted/70 border border-border shrink-0 self-start sm:self-auto shadow-2xs">
+            <button
+              type="button"
+              onClick={() => setTheme('light')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all cursor-pointer ${
+                theme === 'light'
+                  ? 'bg-card text-foreground shadow-xs'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Sun className={`h-4 w-4 ${theme === 'light' ? 'text-amber-500' : 'text-muted-foreground'}`} />
+              <span>Light Mode</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setTheme('dark')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all cursor-pointer ${
+                theme === 'dark'
+                  ? 'bg-card text-foreground shadow-xs'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Moon className={`h-4 w-4 ${theme === 'dark' ? 'text-indigo-400' : 'text-muted-foreground'}`} />
+              <span>Dark Mode</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Hero Carousel Visual Director Shortcut */}
+        <div className="p-6 rounded-2xl bg-brand/5 border border-brand/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="h-12 w-12 rounded-xl bg-brand/10 text-brand flex items-center justify-center shrink-0">
+              <Sparkles className="h-6 w-6" />
+            </div>
+            <div>
+              <h3 className="text-base sm:text-lg font-bold text-foreground">
                 Hero Carousel & Visual Slides
               </h3>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-sm text-muted-foreground mt-0.5">
                 Configure slides, custom colors, titles, images, USP trust signals & category preview tiles.
               </p>
             </div>
           </div>
 
           <Link href="/admin/hero-slides">
-            <Button variant="outline" size="sm" className="font-medium text-xs whitespace-nowrap">
-              Open Hero Slides <ArrowRight className="h-3.5 w-3.5 ml-1" />
+            <Button variant="outline" size="md" className="h-11 px-5 font-bold text-sm whitespace-nowrap cursor-pointer">
+              Open Hero Slides <ArrowRight className="h-4 w-4 ml-1.5" />
             </Button>
           </Link>
         </div>
 
         {/* Admin Account & Security Shortcut */}
-        <div className="p-5 rounded-2xl bg-card border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-muted text-foreground flex items-center justify-center shrink-0">
-              <UserCog className="h-5 w-5" />
+        <div className="p-6 rounded-2xl bg-card border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="h-12 w-12 rounded-xl bg-muted text-foreground flex items-center justify-center shrink-0 border border-border">
+              <UserCog className="h-6 w-6" />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-foreground">
+              <h3 className="text-base sm:text-lg font-bold text-foreground">
                 Admin Profile & Password Security
               </h3>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-sm text-muted-foreground mt-0.5">
                 Update your login email address, staff display name, and manage account password.
               </p>
             </div>
           </div>
           <Link
             href="/admin/profile"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-brand text-white hover:bg-brand/90 text-xs font-semibold shrink-0 transition-colors shadow-xs self-start sm:self-auto"
+            className="inline-flex items-center gap-2 h-11 px-5 rounded-xl bg-brand text-white hover:bg-brand/90 text-sm font-bold shrink-0 transition-colors shadow-xs self-start sm:self-auto"
           >
             <span>Manage Password & Email</span>
-            <ArrowRight className="h-3.5 w-3.5" />
+            <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
 
         {/* Cart & Ordering Rules */}
-        <div className="p-6 rounded-2xl bg-card border border-border space-y-5">
-          <div className="flex items-center gap-2 pb-2 border-b border-border">
-            <Truck className="h-4 w-4 text-foreground" />
-            <h2 className="font-semibold text-xs uppercase tracking-wider text-muted-foreground">
+        <div className="p-6 sm:p-7 rounded-2xl bg-card border border-border space-y-6">
+          <div className="flex items-center gap-2.5 pb-3 border-b border-border">
+            <Truck className="h-5 w-5 text-foreground" />
+            <h2 className="font-bold text-sm uppercase tracking-wider text-foreground">
               01. Order & Fulfillment Parameters
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <Input
               label="Minimum Order Value (₹) *"
               type="number"
@@ -201,15 +250,15 @@ function AdminSettingsPageContent() {
         </div>
 
         {/* Store Contact & WhatsApp Details */}
-        <div className="p-6 rounded-2xl bg-card border border-border space-y-5">
-          <div className="flex items-center gap-2 pb-2 border-b border-border">
-            <MessageSquare className="h-4 w-4 text-foreground" />
-            <h2 className="font-semibold text-xs uppercase tracking-wider text-muted-foreground">
+        <div className="p-6 sm:p-7 rounded-2xl bg-card border border-border space-y-6">
+          <div className="flex items-center gap-2.5 pb-3 border-b border-border">
+            <MessageSquare className="h-5 w-5 text-foreground" />
+            <h2 className="font-bold text-sm uppercase tracking-wider text-foreground">
               02. Store Contact & WhatsApp Desk
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <Input
               label="Store Helpline Phone"
               value={storePhone}
@@ -235,26 +284,26 @@ function AdminSettingsPageContent() {
         </div>
 
         {/* Store Announcement & Rainbow Banner */}
-        <div className="p-6 rounded-2xl bg-card border border-border space-y-5">
-          <div className="flex items-center justify-between pb-2 border-b border-border">
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-brand" />
-              <h2 className="font-semibold text-xs uppercase tracking-wider text-muted-foreground">
+        <div className="p-6 sm:p-7 rounded-2xl bg-card border border-border space-y-6">
+          <div className="flex items-center justify-between pb-3 border-b border-border">
+            <div className="flex items-center gap-2.5">
+              <Sparkles className="h-5 w-5 text-brand" />
+              <h2 className="font-bold text-sm uppercase tracking-wider text-foreground">
                 03. Top Storefront Announcement Banner
               </h2>
             </div>
-            <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-foreground select-none">
+            <label className="flex items-center gap-2.5 cursor-pointer text-sm font-semibold text-foreground select-none">
               <input
                 type="checkbox"
                 checked={bannerEnabled}
                 onChange={(e) => setBannerEnabled(e.target.checked)}
-                className="rounded border-border text-brand focus:ring-brand h-4 w-4"
+                className="rounded border-border text-brand focus:ring-brand h-4.5 w-4.5"
               />
               <span>Banner Active</span>
             </label>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-5">
             <Input
               label="Banner Announcement Text *"
               value={bannerText}
@@ -263,7 +312,7 @@ function AdminSettingsPageContent() {
               hint="Appears prominently at the very top of the store across all customer pages"
             />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <Input
                 label="Target Link (Optional)"
                 value={bannerLink}
@@ -272,19 +321,19 @@ function AdminSettingsPageContent() {
                 hint="Relative path or URL for the explore link"
               />
 
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-foreground">
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-foreground block">
                   Animation Style / Variant
                 </label>
                 <select
                   value={bannerVariant}
                   onChange={(e) => setBannerVariant(e.target.value)}
-                  className="w-full h-10 px-3 rounded-xl bg-background border border-border text-xs sm:text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full h-12 px-4 rounded-xl bg-background border border-border text-base text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 >
                   <option value="rainbow">Animated Festive Rainbow (Moving Celebration Gradient)</option>
                   <option value="normal">Standard Solid Background</option>
                 </select>
-                <span className="text-[11px] text-muted-foreground block">
+                <span className="text-xs sm:text-sm text-muted-foreground block">
                   Rainbow uses dynamic festive colors with smooth CSS gradient flow
                 </span>
               </div>
@@ -292,7 +341,7 @@ function AdminSettingsPageContent() {
 
             {/* Live Preview */}
             <div className="pt-2">
-              <p className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground mb-2">
+              <p className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-2.5">
                 Live Storefront Preview:
               </p>
               <div className="rounded-xl overflow-hidden border border-border/80 shadow-xs">
@@ -306,22 +355,22 @@ function AdminSettingsPageContent() {
                       'rgba(56, 189, 248, 0.8)',
                       'rgba(52, 211, 153, 0.8)',
                     ]}
-                    height="2.5rem"
+                    height="2.75rem"
                     changeLayout={false}
-                    className="bg-neutral-950 text-white border-b border-white/10 text-xs sm:text-sm font-medium tracking-tight"
+                    className="bg-neutral-950 text-white border-b border-white/10 text-sm font-medium tracking-tight"
                   >
                     <div className="flex items-center justify-center gap-2 truncate px-4">
-                      <Sparkles className="h-3.5 w-3.5 text-amber-300 shrink-0 animate-pulse" />
+                      <Sparkles className="h-4 w-4 text-amber-300 shrink-0 animate-pulse" />
                       <span className="truncate">{bannerText || 'Your announcement message...'}</span>
                       {bannerLink && (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-300 underline underline-offset-2 ml-1 shrink-0">
+                        <span className="inline-flex items-center gap-1 text-xs font-bold text-amber-300 underline underline-offset-2 ml-1 shrink-0">
                           Explore →
                         </span>
                       )}
                     </div>
                   </Banner>
                 ) : (
-                  <div className="py-3 px-4 bg-muted/40 text-center text-xs text-muted-foreground">
+                  <div className="py-4 px-4 bg-muted/40 text-center text-sm text-muted-foreground">
                     Banner is currently disabled. Toggle &quot;Banner Active&quot; to display it on the store.
                   </div>
                 )}

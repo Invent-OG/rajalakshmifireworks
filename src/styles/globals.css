@@ -36,6 +36,10 @@
   --secondary-hover: #eaeae8;
   --secondary-foreground: #171717;
 
+  --dark-gray: #e5e5e5;
+  --dark-gray-hover: #d4d4d4;
+  --dark-gray-foreground: #171717;
+
   --amber: #d97706;
   --amber-hover: #b45309;
   --amber-light: #fffbeb;
@@ -67,6 +71,71 @@
   --shadow-level-1: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
   --shadow-level-2: 0 4px 16px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
   --shadow-level-3: 0 12px 32px -4px rgba(0, 0, 0, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.04);
+}
+
+.dark {
+  /* ── Deep True Black & Dark Gray Console Palette ─── */
+  --background: #000000;
+  --background-secondary: #0c0c0c;
+  --foreground: #ffffff;
+  --foreground-secondary: #e5e5e5;
+  --foreground-muted: #a3a3a3;
+
+  --card: #141414;
+  --card-foreground: #ffffff;
+  --card-muted: #1c1c1c;
+
+  --muted: #202020;
+  --muted-foreground: #a3a3a3;
+
+  --border: #2c2c2c;
+  --border-subtle: #1c1c1c;
+  --ring: #ffffff;
+
+  /* ── Strategic Brand & Dark Gray Secondary Tokens ─── */
+  --brand: #ffffff;
+  --brand-hover: #e5e5e5;
+  --brand-foreground: #000000;
+  --brand-light: #202020;
+  --brand-border: #333333;
+
+  --primary: #ffffff;
+  --primary-hover: #e5e5e5;
+  --primary-foreground: #000000;
+  --primary-light: #202020;
+
+  /* ── Secondary Color: Rich Dark Gray ─── */
+  --secondary: #242424;
+  --secondary-hover: #323232;
+  --secondary-foreground: #ffffff;
+
+  --dark-gray: #242424;
+  --dark-gray-hover: #323232;
+  --dark-gray-foreground: #ffffff;
+
+  --amber: #f59e0b;
+  --amber-hover: #d97706;
+  --amber-light: #261a05;
+  --amber-foreground: #fef3c7;
+  --amber-border: #78350f;
+
+  --gold: #eab308;
+  --gold-light: #241e06;
+  --gold-foreground: #fef9c3;
+
+  --destructive: #ef4444;
+  --destructive-hover: #dc2626;
+  --destructive-foreground: #ffffff;
+  --destructive-light: #2b0d0d;
+
+  --success: #22c55e;
+  --success-foreground: #ffffff;
+  --success-light: #082111;
+  --success-border: #14532d;
+
+  --shadow-level-1: 0 1px 3px 0 rgba(0, 0, 0, 0.7), 0 1px 2px -1px rgba(0, 0, 0, 0.6);
+  --shadow-level-2: 0 4px 16px -2px rgba(0, 0, 0, 0.8), 0 2px 6px -1px rgba(0, 0, 0, 0.7);
+  --shadow-level-3: 0 12px 32px -4px rgba(0, 0, 0, 0.9), 0 4px 12px -2px rgba(0, 0, 0, 0.8);
 }
 
 @theme inline {
@@ -101,6 +170,10 @@
   --color-secondary: var(--secondary);
   --color-secondary-hover: var(--secondary-hover);
   --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-dark-gray: var(--dark-gray);
+  --color-dark-gray-hover: var(--dark-gray-hover);
+  --color-dark-gray-foreground: var(--dark-gray-foreground);
 
   --color-amber: var(--amber);
   --color-amber-hover: var(--amber-hover);
@@ -249,11 +322,28 @@ p, span, input, select, textarea, button {
   box-shadow: var(--shadow-level-2);
 }
 
+.dark .premium-card:hover {
+  border-color: #404040;
+}
+
 .premium-header {
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
+}
+
+.dark .premium-header {
+  background: rgba(10, 10, 10, 0.92);
+}
+
+/* ── Select Dropdown Option Readability & Increased Component Sizing ─── */
+select option {
+  background-color: var(--card);
+  color: var(--foreground);
+  font-size: 16px;
+  font-weight: 500;
+  padding: 12px 16px;
 }
 
 /* ── Focus Ring ─── */
@@ -735,6 +825,89 @@ p, span, input, select, textarea, button {
 .scope.purchase-button:active,
 .product-card-purchase-btn:active {
   transform: scale(0.98);
+}
+
+/* ── Dark Mode Storefront Product Card Overrides (Pure Pitch Black & Dark Gray) ── */
+.dark ._card {
+  background-color: #141414;
+  color: #ffffff;
+  border: 1px solid #2c2c2c;
+  box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.7);
+}
+
+.dark ._card:hover {
+  box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.95);
+  border-color: #383838;
+}
+
+.dark ._thumbnail-stack {
+  background-color: #1c1c1c;
+}
+
+.dark ._card ._category {
+  background-color: #141414;
+  color: #ffffff;
+  filter: drop-shadow(4px 4px 3px rgba(0, 0, 0, 0.5));
+}
+
+.dark ._card ._heading {
+  color: #ffffff;
+}
+
+.dark ._card ._heading:hover,
+.dark ._card:hover ._heading {
+  color: #fbbf24;
+}
+
+.dark ._card ._price {
+  background-color: #242424;
+  color: #ffffff;
+  border: 1px solid #383838;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.dark ._card ._description {
+  color: #a3a3a3;
+}
+
+.dark ._card ._tag {
+  background-color: #242424;
+  color: #e5e5e5;
+  border: 1px solid #333333;
+}
+
+.dark .scope.purchase-button,
+.dark .product-card-purchase-btn {
+  background-color: #ffffff;
+  color: #000000;
+  box-shadow: 0 4px 14px -3px rgba(255, 255, 255, 0.15);
+}
+
+.dark .scope.purchase-button:hover,
+.dark .product-card-purchase-btn:hover {
+  background-color: #e5e5e5;
+  box-shadow: 0 6px 20px -3px rgba(255, 255, 255, 0.25);
+}
+
+.dark .festive-btn-secondary,
+.dark .festive-btn-outline {
+  --btn-bg: #202020;
+  --btn-text: #ffffff;
+  --btn-border: #383838;
+}
+
+.dark .festive-btn-primary,
+.dark .festive-btn-dark,
+.dark .festive-btn-brand {
+  --btn-bg: #ffffff;
+  --btn-text: #000000;
+  --btn-border: rgba(255, 255, 255, 0.4);
+}
+
+.dark .festive-btn-primary > div > span,
+.dark .festive-btn-dark > div > span,
+.dark .festive-btn-brand > div > span {
+  filter: none;
 }
 
 /* ── Astro React Islands Block Layout ── */

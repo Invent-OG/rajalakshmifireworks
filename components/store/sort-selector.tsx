@@ -67,7 +67,7 @@ export function SortSelector({ current }: { current: string }) {
         aria-expanded={isOpen}
         aria-haspopup="listbox"
         aria-label={`${t('sortBy')}: ${selectedOption.label}`}
-        className="h-12 px-5 rounded-full bg-neutral-950 hover:bg-neutral-800 text-white font-bold text-xs sm:text-sm flex items-center justify-between gap-2.5 shadow-xs active:scale-95 transition-all cursor-pointer select-none shrink-0"
+        className="h-12 px-5 rounded-full bg-neutral-950 dark:bg-[#1a1a1a] hover:bg-neutral-800 dark:hover:bg-[#282828] text-white font-bold text-xs sm:text-sm flex items-center justify-between gap-2.5 shadow-xs dark:border dark:border-[#333333] active:scale-95 transition-all cursor-pointer select-none shrink-0"
       >
         <ArrowUpDown className="h-4 w-4 text-neutral-300 shrink-0" />
         <span className="truncate max-w-[160px] sm:max-w-[200px]">
@@ -85,9 +85,9 @@ export function SortSelector({ current }: { current: string }) {
         <div
           role="listbox"
           aria-label={t('sortBy')}
-          className="absolute right-0 top-full mt-2 w-56 sm:w-60 bg-white rounded-2xl p-1.5 shadow-2xl border border-neutral-200/80 z-50 animate-in fade-in zoom-in-95 duration-150 origin-top-right overflow-hidden"
+          className="absolute right-0 top-full mt-2 w-56 sm:w-60 bg-white dark:bg-[#141414] rounded-2xl p-1.5 shadow-2xl border border-neutral-200/80 dark:border-[#282828] z-50 animate-in fade-in zoom-in-95 duration-150 origin-top-right overflow-hidden"
         >
-          <div className="px-3 py-2 text-[10px] font-bold tracking-wider text-neutral-400 uppercase border-b border-neutral-100">
+          <div className="px-3 py-2 text-[10px] font-bold tracking-wider text-neutral-400 uppercase border-b border-neutral-100 dark:border-[#282828]">
             {t('sortBy')}
           </div>
           <div className="py-1 space-y-0.5">
@@ -102,13 +102,13 @@ export function SortSelector({ current }: { current: string }) {
                   onClick={() => handleSortChange(option.value)}
                   className={`w-full px-3.5 py-2.5 rounded-xl text-left text-xs sm:text-sm font-semibold flex items-center justify-between transition-colors cursor-pointer ${
                     isSelected
-                      ? 'bg-neutral-100 text-neutral-950 font-bold'
-                      : 'text-neutral-700 hover:bg-neutral-50 hover:text-neutral-950'
+                      ? 'bg-neutral-100 text-neutral-950 dark:bg-[#242424] dark:text-white font-bold'
+                      : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-[#1c1c1c] hover:text-neutral-950 dark:hover:text-white'
                   }`}
                 >
                   <span>{option.label}</span>
                   {isSelected && (
-                    <Check className="h-4 w-4 text-neutral-950 shrink-0" />
+                    <Check className="h-4 w-4 text-neutral-950 dark:text-white shrink-0" />
                   )}
                 </button>
               );

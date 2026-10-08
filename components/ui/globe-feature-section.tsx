@@ -15,28 +15,28 @@ export default function Featured_05() {
   const locale = useLocale();
 
   return (
-    <section className="relative w-full max-w-[1280px] mx-auto overflow-hidden rounded-[36px] sm:rounded-[40px] bg-white border-none shadow-sm p-8 sm:p-10 md:p-14 font-sans">
+    <section className="relative w-full max-w-[1280px] mx-auto overflow-hidden rounded-[36px] sm:rounded-[40px] bg-white dark:bg-[#141414] border-none dark:border dark:border-[#282828] shadow-sm dark:shadow-none p-8 sm:p-10 md:p-14 font-sans">
       <div className="flex flex-col-reverse items-center justify-between gap-10 md:flex-row">
         <div className="z-10 max-w-xl text-left space-y-4">
           <div className="mb-5 sm:mb-8">
             <SectionTag label={locale === 'ta' ? 'சிவகாசி நேரடி விநியோக நெட்வொர்க்' : 'Sivakasi Supply Network'} />
           </div>
 
-          <h2 className="text-3xl sm:text-4xl md:text-[52px] font-medium text-[#111010] leading-[1.15] md:leading-[1.1] tracking-tight font-heading">
+          <h2 className="text-3xl sm:text-4xl md:text-[52px] font-medium text-[#111010] dark:text-white leading-[1.15] md:leading-[1.1] tracking-tight font-heading">
             {locale === 'ta' ? (
               <>
                 இந்தியா முழுவதும் உங்கள் கொண்டாட்டங்களை{' '}
-                <span className="text-black font-semibold">ஒளிரச் செய்கிறோம்</span>
+                <span className="text-black dark:text-white font-semibold">ஒளிரச் செய்கிறோம்</span>
               </>
             ) : (
               <>
                 Lighting up celebrations across{' '}
-                <span className="text-black font-semibold">every corner of India</span>
+                <span className="text-black dark:text-white font-semibold">every corner of India</span>
               </>
             )}
           </h2>
 
-          <p className="text-[14px] sm:text-[15px] text-[#555455] font-normal leading-relaxed pt-1">
+          <p className="text-[14px] sm:text-[15px] text-[#555455] dark:text-neutral-300 font-normal leading-relaxed pt-1">
             {locale === 'ta'
               ? 'சிவகாசியின் அரசு சான்றளிக்கப்பட்ட உற்பத்தி ஆலைகளிலிருந்து நேரடியாக உங்கள் இல்லத்திற்கு. கைவினை மத்தாப்புகள், வர்ண வானவேடிக்கைகள் மற்றும் பாதுகாப்பான நாடு தழுவிய பார்சல் சேவை.'
               : "Direct from Sivakasi's certified manufacturing facilities to your home. Premium handcrafted sparklers, vibrant sound crackers, and grand sky shots with secure nationwide transit."}

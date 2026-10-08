@@ -13,10 +13,13 @@ import {
   X,
   LayoutGrid,
   Truck,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { BrandLogo } from '@/components/ui/brand-logo';
 import { LanguageSelector } from '@/components/ui/language-selector';
 import { useCart, useIsHydrated } from '@/hooks/use-cart';
+import { useStoreTheme } from '@/hooks/use-store-theme';
 import { getCategory3DImage } from '@/components/ui/category-icon';
 import { formatCurrency, toNumber } from '@/lib/utils/format';
 import { useLocale, useTranslations } from '@/lib/i18n/context';
@@ -89,6 +92,7 @@ export function FloatingNavbar() {
   const { itemCount } = useCart();
   const isHydrated = useIsHydrated();
   const displayCount = isHydrated ? itemCount : 0;
+  const { theme, toggleTheme } = useStoreTheme();
 
   const getHref = (path: string) => {
     if (!path) return `/${locale}`;
@@ -390,8 +394,8 @@ export function FloatingNavbar() {
       style={{ fontFamily: "'DM Sans', sans-serif" }}
     >
       <div className="w-full relative">
-        {/* Floating Frosted Pill Bar with White Glassmorphism */}
-        <header className="relative h-16 sm:h-[72px] px-3.5 sm:px-6 rounded-full bg-white/95 backdrop-blur-md border border-neutral-200/90 text-neutral-900 shadow-sm grid grid-cols-[1fr_auto_1fr] items-center gap-2 sm:gap-4 transition-all duration-300">
+        {/* Floating Frosted Pill Bar with Glassmorphism */}
+        <header className="relative h-16 sm:h-[72px] px-3.5 sm:px-6 rounded-full bg-white/95 dark:bg-[#141414]/95 backdrop-blur-md border border-neutral-200/90 dark:border-[#2c2c2c] text-neutral-900 dark:text-white shadow-sm grid grid-cols-[1fr_auto_1fr] items-center gap-2 sm:gap-4 transition-all duration-300">
           {/* Left Column: Capsule Pill Navigation Links & Mobile Hamburger */}
           <div className="flex items-center justify-start min-w-0">
             {/* Mobile Menu Hamburger Button with GSAP Icon */}
@@ -402,7 +406,7 @@ export function FloatingNavbar() {
                   e.stopPropagation();
                   setMobileMenuOpen((prev) => !prev);
                 }}
-                className="h-12 w-12 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-900 transition-colors flex items-center justify-center cursor-pointer shadow-xs active:scale-95 touch-manipulation"
+                className="h-12 w-12 rounded-full bg-neutral-100 dark:bg-[#242424] hover:bg-neutral-200 dark:hover:bg-[#2e2e2e] text-neutral-900 dark:text-white transition-colors flex items-center justify-center cursor-pointer shadow-xs active:scale-95 touch-manipulation"
                 aria-label="Toggle menu"
                 aria-expanded={mobileMenuOpen}
               >
@@ -412,15 +416,16 @@ export function FloatingNavbar() {
               </button>
             </div>
 
-            {/* Desktop Capsule Pill Navigation (Light Sub-Capsule) */}
-            <nav className="hidden md:inline-flex items-center gap-1.5 bg-neutral-100/90 p-1.5 rounded-full border border-neutral-200/60 shadow-inner shrink-0">
+            {/* Desktop Capsule Pill Navigation */}
+            <nav className="hidden md:inline-flex items-center gap-1.5 bg-neutral-100/90 dark:bg-[#242424] p-1.5 rounded-full border border-neutral-200/60 dark:border-[#333333] shadow-inner shrink-0">
               <Link
                 href={getHref('/products')}
                 onMouseEnter={closeDropdown}
-                className={`px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 whitespace-nowrap ${isCurrentPath('/products') && !activeMenu
-                    ? 'bg-white text-neutral-950 shadow-xs'
-                    : 'text-neutral-600 hover:text-neutral-950 hover:bg-white/80'
-                  }`}
+                className={`px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 whitespace-nowrap ${
+                  isCurrentPath('/products') && !activeMenu
+                    ? 'bg-white dark:bg-[#141414] text-neutral-950 dark:text-white shadow-xs'
+                    : 'text-neutral-600 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white hover:bg-white/80 dark:hover:bg-[#2c2c2c]'
+                }`}
               >
                 {tNav('catalog')}
               </Link>
@@ -434,16 +439,18 @@ export function FloatingNavbar() {
                     type="button"
                     onMouseEnter={() => handleMouseEnter(key)}
                     onClick={() => setActiveMenu(activeMenu === key ? null : key)}
-                    className={`px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center gap-1.5 cursor-pointer select-none whitespace-nowrap ${isHovered
-                        ? 'bg-white text-neutral-950 shadow-xs'
-                        : 'text-neutral-600 hover:text-neutral-950 hover:bg-white/80'
-                      }`}
+                    className={`px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center gap-1.5 cursor-pointer select-none whitespace-nowrap ${
+                      isHovered
+                        ? 'bg-white dark:bg-[#141414] text-neutral-950 dark:text-white shadow-xs'
+                        : 'text-neutral-600 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white hover:bg-white/80 dark:hover:bg-[#2c2c2c]'
+                    }`}
                     aria-expanded={isHovered}
                   >
                     <span>{menu.label}</span>
                     <ChevronDown
-                      className={`h-4 w-4 transition-transform duration-200 ${isHovered ? 'rotate-180 text-neutral-950' : 'text-neutral-400'
-                        }`}
+                      className={`h-4 w-4 transition-transform duration-200 ${
+                        isHovered ? 'rotate-180 text-neutral-950 dark:text-white' : 'text-neutral-400 dark:text-neutral-400'
+                      }`}
                     />
                   </button>
                 );
@@ -452,10 +459,11 @@ export function FloatingNavbar() {
               <Link
                 href={getHref('/track-order')}
                 onMouseEnter={closeDropdown}
-                className={`px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 whitespace-nowrap ${isCurrentPath('/track-order') && !activeMenu
-                    ? 'bg-white text-neutral-950 shadow-xs'
-                    : 'text-neutral-600 hover:text-neutral-950 hover:bg-white/80'
-                  }`}
+                className={`px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 whitespace-nowrap ${
+                  isCurrentPath('/track-order') && !activeMenu
+                    ? 'bg-white dark:bg-[#141414] text-neutral-950 dark:text-white shadow-xs'
+                    : 'text-neutral-600 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white hover:bg-white/80 dark:hover:bg-[#2c2c2c]'
+                }`}
               >
                 {tNav('trackOrder')}
               </Link>
@@ -469,18 +477,33 @@ export function FloatingNavbar() {
             </Link>
           </div>
 
-          {/* Right Column: Action Buttons (Language Selector + Search + Download/Price List + Bag) */}
+          {/* Right Column: Action Buttons (Language Selector + Theme Toggle + Search + Download/Price List + Bag) */}
           <div className="flex items-center justify-end gap-2 sm:gap-2.5 shrink-0">
             {/* Language Selector - Hidden on mobile, shown on desktop */}
             <div className="hidden md:inline-flex items-center">
               <LanguageSelector />
             </div>
 
+            {/* Storefront Theme Toggle Button (Desktop & Tablet) */}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="h-12 w-12 rounded-full bg-neutral-100/90 dark:bg-[#242424] hover:bg-neutral-200/90 dark:hover:bg-[#303030] text-neutral-900 dark:text-white transition-all flex items-center justify-center cursor-pointer shadow-xs active:scale-95 shrink-0 border border-transparent dark:border-[#333333]"
+              aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+              title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+            >
+              {theme === 'dark' ? (
+                <Sun className="h-5 w-5 text-amber-400" />
+              ) : (
+                <Moon className="h-5 w-5 text-neutral-700" />
+              )}
+            </button>
+
             {/* Quick Search Button */}
             <Link
               href={getHref('/search')}
               onMouseEnter={closeDropdown}
-              className="hidden lg:inline-flex items-center gap-2 h-12 px-4 rounded-full bg-neutral-100/90 hover:bg-neutral-200/90 text-neutral-700 hover:text-neutral-950 text-xs sm:text-sm font-semibold transition-all shadow-xs whitespace-nowrap active:scale-95"
+              className="hidden lg:inline-flex items-center gap-2 h-12 px-4 rounded-full bg-neutral-100/90 dark:bg-[#242424] hover:bg-neutral-200/90 dark:hover:bg-[#303030] text-neutral-700 dark:text-neutral-200 hover:text-neutral-950 dark:hover:text-white text-xs sm:text-sm font-semibold transition-all shadow-xs whitespace-nowrap active:scale-95"
             >
               <Search className="h-4 w-4 text-neutral-400" />
               <span>{tCommon('search')}</span>
@@ -489,7 +512,7 @@ export function FloatingNavbar() {
             <Link
               href={getHref('/search')}
               onMouseEnter={closeDropdown}
-              className="lg:hidden h-12 w-12 flex items-center justify-center rounded-full bg-neutral-100 text-neutral-900 hover:bg-neutral-200 transition-colors shadow-xs active:scale-95"
+              className="lg:hidden h-12 w-12 flex items-center justify-center rounded-full bg-neutral-100 dark:bg-[#242424] text-neutral-900 dark:text-white hover:bg-neutral-200 dark:hover:bg-[#303030] transition-colors shadow-xs active:scale-95"
               aria-label={tCommon('search')}
             >
               <Search className="h-4.5 w-4.5" />
@@ -499,9 +522,9 @@ export function FloatingNavbar() {
             <Link
               href={getHref('/price-list')}
               onMouseEnter={closeDropdown}
-              className="hidden sm:inline-flex items-center gap-2 h-12 px-4 sm:px-5 rounded-full bg-neutral-100/90 hover:bg-neutral-200/90 text-neutral-900 text-xs sm:text-sm font-bold transition-all active:scale-95 shadow-xs whitespace-nowrap"
+              className="hidden sm:inline-flex items-center gap-2 h-12 px-4 sm:px-5 rounded-full bg-neutral-100/90 dark:bg-[#242424] hover:bg-neutral-200/90 dark:hover:bg-[#303030] text-neutral-900 dark:text-white text-xs sm:text-sm font-bold transition-all active:scale-95 shadow-xs whitespace-nowrap"
             >
-              <Download className="h-4 w-4 text-neutral-700" />
+              <Download className="h-4 w-4 text-neutral-700 dark:text-neutral-300" />
               <span>{tNav('priceList')}</span>
             </Link>
 
@@ -509,13 +532,13 @@ export function FloatingNavbar() {
             <Link
               href={getHref('/cart')}
               onMouseEnter={closeDropdown}
-              className="relative h-12 px-4 sm:px-5 rounded-full bg-neutral-950 text-white text-xs sm:text-sm font-bold hover:bg-neutral-800 active:scale-95 transition-all flex items-center gap-2 shadow-md whitespace-nowrap cursor-pointer justify-center"
+              className="relative h-12 px-4 sm:px-5 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-black text-xs sm:text-sm font-bold hover:bg-neutral-800 dark:hover:bg-neutral-200 active:scale-95 transition-all flex items-center gap-2 shadow-md whitespace-nowrap cursor-pointer justify-center"
               aria-label={`${tNav('bag')} with ${displayCount} items`}
             >
               <ShoppingBag className="h-4.5 w-4.5" />
               <span className="hidden sm:inline">{tNav('bag')}</span>
               {displayCount > 0 && (
-                <span className="h-5 min-w-5 px-1.5 rounded-full bg-white text-neutral-950 text-[11px] font-bold flex items-center justify-center shadow-xs">
+                <span className="h-5 min-w-5 px-1.5 rounded-full bg-white dark:bg-neutral-950 text-neutral-950 dark:text-white text-[11px] font-bold flex items-center justify-center shadow-xs">
                   {displayCount > 99 ? '99+' : displayCount}
                 </span>
               )}
@@ -534,34 +557,35 @@ export function FloatingNavbar() {
             }}
             onMouseLeave={handleMouseLeave}
           >
-            <div className="rounded-[32px] sm:rounded-[36px] bg-white text-neutral-900 shadow-2xl border border-neutral-200/90 p-6 sm:p-8 overflow-hidden backdrop-blur-xl">
+            <div className="rounded-[32px] sm:rounded-[36px] bg-white dark:bg-[#141414] text-neutral-900 dark:text-white shadow-2xl border border-neutral-200/90 dark:border-[#2c2c2c] p-6 sm:p-8 overflow-hidden backdrop-blur-xl">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                 {/* Left Column: List of Categories or Combos */}
                 <div className="lg:col-span-6 space-y-4">
                   <div
-                    className={`grid ${currentMegaMenu.items.length > 3
+                    className={`grid ${
+                      currentMegaMenu.items.length > 3
                         ? 'grid-cols-1 sm:grid-cols-2 gap-2.5'
                         : 'grid-cols-1 space-y-2'
-                      } max-h-[380px] overflow-y-auto pr-1`}
+                    } max-h-[380px] overflow-y-auto pr-1`}
                   >
                     {currentMegaMenu.items.map((item, idx) => (
                       <Link
                         key={idx}
                         href={item.href}
                         onClick={() => setActiveMenu(null)}
-                        className="group block space-y-1 transition-all p-3 rounded-[20px] hover:bg-neutral-50"
+                        className="group block space-y-1 transition-all p-3 rounded-[20px] hover:bg-neutral-50 dark:hover:bg-[#202020]"
                       >
                         <div className="flex items-center gap-2">
-                          <h3 className="font-bold text-sm text-neutral-900 group-hover:text-neutral-950 transition-colors line-clamp-1">
+                          <h3 className="font-bold text-sm text-neutral-900 dark:text-white group-hover:text-neutral-950 dark:group-hover:text-amber-400 transition-colors line-clamp-1">
                             {item.title}
                           </h3>
                           {item.badge && (
-                            <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-neutral-100 text-neutral-800 uppercase tracking-wider shrink-0 font-mono">
+                            <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-neutral-100 dark:bg-[#242424] text-neutral-800 dark:text-neutral-200 uppercase tracking-wider shrink-0 font-mono">
                               {item.badge}
                             </span>
                           )}
                         </div>
-                        <p className="text-xs text-neutral-500 group-hover:text-neutral-700 leading-relaxed transition-colors line-clamp-2">
+                        <p className="text-xs text-neutral-500 dark:text-neutral-400 group-hover:text-neutral-700 dark:group-hover:text-neutral-200 leading-relaxed transition-colors line-clamp-2">
                           {item.description}
                         </p>
                       </Link>
@@ -569,11 +593,11 @@ export function FloatingNavbar() {
                   </div>
 
                   {currentMegaMenu.id === 'categories' && (
-                    <div className="pt-2 border-t border-neutral-100">
+                    <div className="pt-2 border-t border-neutral-100 dark:border-[#242424]">
                       <Link
                         href={getHref('/products')}
                         onClick={() => setActiveMenu(null)}
-                        className="inline-flex items-center gap-1.5 text-xs font-bold text-neutral-950 hover:underline"
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-neutral-950 dark:text-white hover:underline"
                       >
                         <span>{tNav('browseAllCategories')}</span>
                         <span>→</span>
@@ -582,11 +606,11 @@ export function FloatingNavbar() {
                   )}
 
                   {currentMegaMenu.id === 'combos' && (
-                    <div className="pt-2 border-t border-neutral-100">
+                    <div className="pt-2 border-t border-neutral-100 dark:border-[#242424]">
                       <Link
                         href={getHref('/products?featured=true')}
                         onClick={() => setActiveMenu(null)}
-                        className="inline-flex items-center gap-1.5 text-xs font-bold text-neutral-950 hover:underline"
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-neutral-950 dark:text-white hover:underline"
                       >
                         <span>{tNav('viewAllCombos')}</span>
                         <span>→</span>
@@ -607,10 +631,10 @@ export function FloatingNavbar() {
                         key={idx}
                         href={card.href}
                         onClick={() => setActiveMenu(null)}
-                        className="group flex flex-col space-y-3 cursor-pointer p-3 -m-3 rounded-[24px] hover:bg-neutral-50 transition-all"
+                        className="group flex flex-col space-y-3 cursor-pointer p-3 -m-3 rounded-[24px] hover:bg-neutral-50 dark:hover:bg-[#202020] transition-all"
                       >
                         {/* Thumbnail Image Container */}
-                        <div className="relative aspect-[16/10] w-full rounded-[20px] sm:rounded-[22px] overflow-hidden bg-neutral-100 border border-neutral-200/80 shadow-xs">
+                        <div className="relative aspect-[16/10] w-full rounded-[20px] sm:rounded-[22px] overflow-hidden bg-neutral-100 dark:bg-[#202020] border border-neutral-200/80 dark:border-[#2c2c2c] shadow-xs">
                           <img
                             src={card.image}
                             alt={card.title}
@@ -626,10 +650,10 @@ export function FloatingNavbar() {
 
                         {/* Title & Description */}
                         <div>
-                          <h5 className="font-bold text-xs sm:text-sm text-neutral-900 group-hover:text-neutral-950 transition-colors line-clamp-2 leading-snug">
+                          <h5 className="font-bold text-xs sm:text-sm text-neutral-900 dark:text-white group-hover:text-neutral-950 dark:group-hover:text-amber-400 transition-colors line-clamp-2 leading-snug">
                             {card.title}
                           </h5>
-                          <p className="text-[11px] sm:text-xs text-neutral-500 mt-1 line-clamp-2">
+                          <p className="text-[11px] sm:text-xs text-neutral-500 dark:text-neutral-400 mt-1 line-clamp-2">
                             {card.description}
                           </p>
                         </div>
@@ -648,21 +672,31 @@ export function FloatingNavbar() {
             ref={mobileDropdownRef}
             className="md:hidden absolute top-full left-0 right-0 pt-2 z-50 origin-top pointer-events-auto"
           >
-            <div className="rounded-[28px] bg-white text-neutral-900 border border-neutral-200/90 shadow-2xl p-5 sm:p-6 space-y-4 max-h-[80vh] overflow-y-auto overscroll-contain no-scrollbar">
-              {/* Header: LANGUAGE / மொழி */}
-              <div className="mobile-nav-item flex items-center justify-between pb-3 border-b border-neutral-100">
-                <span className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
-                  {locale === 'ta' ? 'மொழி / LANGUAGE' : 'LANGUAGE / மொழி'}
-                </span>
+            <div className="rounded-[28px] bg-white dark:bg-[#141414] text-neutral-900 dark:text-white border border-neutral-200/90 dark:border-[#2c2c2c] shadow-2xl p-5 sm:p-6 space-y-4 max-h-[80vh] overflow-y-auto overscroll-contain no-scrollbar">
+              {/* Header: LANGUAGE / மொழி + Theme Toggle */}
+              <div className="mobile-nav-item flex items-center justify-between pb-3 border-b border-neutral-100 dark:border-[#242424]">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={toggleTheme}
+                    className="h-9 w-9 rounded-full bg-neutral-100 dark:bg-[#242424] text-neutral-900 dark:text-white flex items-center justify-center cursor-pointer shadow-xs active:scale-95 border border-transparent dark:border-[#333333]"
+                    aria-label="Toggle theme"
+                  >
+                    {theme === 'dark' ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4 text-neutral-700" />}
+                  </button>
+                  <span className="text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                    {theme === 'dark' ? 'Dark' : 'Light'}
+                  </span>
+                </div>
                 <LanguageSelector variant="inline" />
               </div>
 
               {/* Catalog Link */}
-              <div className="mobile-nav-item pb-3 border-b border-neutral-100">
+              <div className="mobile-nav-item pb-3 border-b border-neutral-100 dark:border-[#242424]">
                 <Link
                   href={getHref('/products')}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block text-sm font-bold text-neutral-900 hover:text-neutral-950 transition-colors py-1"
+                  className="block text-sm font-bold text-neutral-900 dark:text-white hover:text-neutral-950 dark:hover:text-amber-400 transition-colors py-1"
                 >
                   {tNav('catalog')}
                 </Link>
@@ -670,8 +704,8 @@ export function FloatingNavbar() {
 
               {/* CURATED COMBOS & GIFT PACKS */}
               {adminComboProducts.length > 0 && (
-                <div className="mobile-nav-item pb-3 border-b border-neutral-100 space-y-2">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 block">
+                <div className="mobile-nav-item pb-3 border-b border-neutral-100 dark:border-[#242424] space-y-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 block">
                     {tNav('curatedCombos')}
                   </span>
                   <div className="space-y-1.5">
@@ -680,10 +714,10 @@ export function FloatingNavbar() {
                         key={p.id}
                         href={getHref(`/product/${p.slug}`)}
                         onClick={() => setMobileMenuOpen(false)}
-                        className="flex items-center justify-between py-1 text-xs font-semibold text-neutral-800 hover:text-neutral-950 transition-colors"
+                        className="flex items-center justify-between py-1 text-xs font-semibold text-neutral-800 dark:text-neutral-200 hover:text-neutral-950 dark:hover:text-white transition-colors"
                       >
                         <span className="truncate">{getLocalizedName(p, locale)}</span>
-                        <span className="text-xs font-bold font-mono text-neutral-950 shrink-0 ml-2">
+                        <span className="text-xs font-bold font-mono text-neutral-950 dark:text-white shrink-0 ml-2">
                           {formatCurrency(toNumber(p.sellingPrice))}
                         </span>
                       </Link>
@@ -694,7 +728,7 @@ export function FloatingNavbar() {
 
               {/* CATEGORIES */}
               {activeCategories.length > 0 && (
-                <div className="mobile-nav-item pb-3 border-b border-neutral-100 space-y-2">
+                <div className="mobile-nav-item pb-3 border-b border-neutral-100 dark:border-[#242424] space-y-2">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 block">
                     {tNav('categories')}
                   </span>
@@ -704,7 +738,7 @@ export function FloatingNavbar() {
                         key={cat.id}
                         href={getHref(`/category/${cat.slug}`)}
                         onClick={() => setMobileMenuOpen(false)}
-                        className="text-xs font-medium text-neutral-800 hover:text-neutral-950 transition-colors truncate py-0.5"
+                        className="text-xs font-medium text-neutral-800 dark:text-neutral-200 hover:text-neutral-950 dark:hover:text-white transition-colors truncate py-0.5"
                       >
                         {getLocalizedName(cat, locale)}
                       </Link>
@@ -714,18 +748,18 @@ export function FloatingNavbar() {
               )}
 
               {/* Direct Links: Green Crackers & Track */}
-              <div className="mobile-nav-item pb-3 border-b border-neutral-100 space-y-2">
+              <div className="mobile-nav-item pb-3 border-b border-neutral-100 dark:border-[#242424] space-y-2">
                 <Link
                   href={getHref('/products?certified=green')}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block text-xs font-medium text-neutral-800 hover:text-neutral-950 transition-colors py-0.5"
+                  className="block text-xs font-medium text-neutral-800 dark:text-neutral-200 hover:text-neutral-950 dark:hover:text-white transition-colors py-0.5"
                 >
                   {locale === 'ta' ? 'பசுமை பட்டாசு சான்றிதழ்' : 'Green Certified Fireworks'}
                 </Link>
                 <Link
                   href={getHref('/track-order')}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block text-xs font-medium text-neutral-800 hover:text-neutral-950 transition-colors py-0.5"
+                  className="block text-xs font-medium text-neutral-800 dark:text-neutral-200 hover:text-neutral-950 dark:hover:text-white transition-colors py-0.5"
                 >
                   {locale === 'ta' ? 'ஆர்டர் கண்காணிப்பு' : 'Track'}
                 </Link>
@@ -736,16 +770,16 @@ export function FloatingNavbar() {
                 <Link
                   href={getHref('/price-list')}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="inline-flex items-center justify-center gap-2 h-12 px-4 rounded-full bg-neutral-100 hover:bg-neutral-200 text-xs sm:text-sm font-bold text-neutral-900 shadow-2xs transition-all active:scale-95 flex-1"
+                  className="inline-flex items-center justify-center gap-2 h-12 px-4 rounded-full bg-neutral-100 dark:bg-[#242424] hover:bg-neutral-200 dark:hover:bg-[#2e2e2e] text-xs sm:text-sm font-bold text-neutral-900 dark:text-white shadow-2xs transition-all active:scale-95 flex-1"
                 >
-                  <Download className="h-4 w-4 text-neutral-700" />
+                  <Download className="h-4 w-4 text-neutral-700 dark:text-neutral-300" />
                   <span>{tNav('priceList')}</span>
                 </Link>
 
                 <Link
                   href={getHref('/cart')}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="inline-flex items-center justify-center gap-2 h-12 px-4 rounded-full bg-neutral-950 hover:bg-neutral-800 text-xs sm:text-sm font-bold text-white shadow-md transition-all active:scale-95 flex-1"
+                  className="inline-flex items-center justify-center gap-2 h-12 px-4 rounded-full bg-neutral-950 dark:bg-white hover:bg-neutral-800 dark:hover:bg-neutral-200 text-xs sm:text-sm font-bold text-white dark:text-black shadow-md transition-all active:scale-95 flex-1"
                 >
                   <ShoppingBag className="h-4 w-4" />
                   <span>{tNav('bag')} ({displayCount})</span>

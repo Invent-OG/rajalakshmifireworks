@@ -4,9 +4,10 @@ import { useState } from 'react';
 import { useRouter } from '@/lib/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Lock, ShieldCheck } from 'lucide-react';
+import { Lock, ShieldCheck, Sun, Moon } from 'lucide-react';
 import { toast } from 'sonner';
 import { BrandLogo } from '@/components/ui/brand-logo';
+import { useAdminTheme } from '@/hooks/use-admin-theme';
 
 import { Providers } from '@/components/providers';
 
@@ -15,6 +16,7 @@ function AdminLoginPageContent() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const { theme, toggleTheme } = useAdminTheme();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -42,17 +44,39 @@ function AdminLoginPageContent() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background-secondary px-4 py-12">
+    <div className="min-h-screen flex items-center justify-center bg-background-secondary px-4 py-12 relative selection:bg-brand selection:text-brand-foreground">
+      {/* Top right theme toggle */}
+      <div className="absolute top-4 right-4">
+        <button
+          type="button"
+          onClick={toggleTheme}
+          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border border-border bg-card hover:bg-muted text-sm font-semibold text-foreground transition-all shadow-xs cursor-pointer"
+          title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} mode`}
+        >
+          {theme === 'dark' ? (
+            <>
+              <Sun className="h-4 w-4 text-amber-500" />
+              <span>Light Mode</span>
+            </>
+          ) : (
+            <>
+              <Moon className="h-4 w-4 text-indigo-400" />
+              <span>Dark Mode</span>
+            </>
+          )}
+        </button>
+      </div>
+
       <div className="w-full max-w-sm space-y-6">
         {/* Brand Console Header */}
         <div className="text-center space-y-2">
           <div className="flex justify-center mb-4">
             <BrandLogo className="h-24 w-auto" />
           </div>
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
             Store Operations
           </h1>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground font-medium">
             Sign in to manage catalog, orders, and fulfillment.
           </p>
         </div>

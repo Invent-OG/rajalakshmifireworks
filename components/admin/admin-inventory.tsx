@@ -638,19 +638,19 @@ function AdminInventoryPageContent() {
       </div>
 
       {/* Main View Tabs (Stock Balances vs Audit Trail) */}
-      <div className="flex items-center gap-2 border-b border-border/80">
+      <div className="flex items-center gap-3 border-b border-border/80">
         <button
           onClick={() => {
             setActiveTab('stock');
             setPage(1);
           }}
-          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-all ${
+          className={`flex items-center gap-3 px-6 py-3.5 text-base font-bold border-b-2 transition-all cursor-pointer ${
             activeTab === 'stock'
               ? 'border-brand text-brand'
               : 'border-transparent text-muted-foreground hover:text-foreground'
           }`}
         >
-          <Boxes className="h-4 w-4" /> Warehouse Stock Balances
+          <Boxes className="h-5 w-5" /> Warehouse Stock Balances
         </button>
 
         <button
@@ -658,22 +658,22 @@ function AdminInventoryPageContent() {
             setActiveTab('audit');
             setPage(1);
           }}
-          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-all ${
+          className={`flex items-center gap-3 px-6 py-3.5 text-base font-bold border-b-2 transition-all cursor-pointer ${
             activeTab === 'audit'
               ? 'border-brand text-brand'
               : 'border-transparent text-muted-foreground hover:text-foreground'
           }`}
         >
-          <History className="h-4 w-4" /> Movement Audit Trail
+          <History className="h-5 w-5" /> Movement Audit Trail
         </button>
       </div>
 
       {activeTab === 'stock' ? (
         <>
           {/* Filter & Search Bar */}
-          <div className="flex flex-wrap items-center gap-3 p-3.5 rounded-2xl bg-card border border-border">
-            <div className="relative flex-1 min-w-[220px]">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <div className="flex flex-wrap items-center gap-3.5 p-5 rounded-2xl bg-card border border-border shadow-xs">
+            <div className="relative flex-1 min-w-[260px]">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <input
                 type="text"
                 placeholder="Search product name or SKU..."
@@ -682,76 +682,76 @@ function AdminInventoryPageContent() {
                   setSearch(e.target.value);
                   setPage(1);
                 }}
-                className="w-full h-10 pl-9 pr-3 rounded-xl border border-border bg-muted/30 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand transition-all"
+                className="w-full h-12 pl-12 pr-4 rounded-2xl border border-border bg-secondary/40 text-base font-medium text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand transition-all"
               />
             </div>
 
-            <div className="flex items-center gap-1.5 flex-wrap">
+            <div className="flex items-center gap-2.5 flex-wrap">
               <Button
                 variant={filter === 'all' ? 'primary' : 'outline'}
-                size="sm"
+                size="md"
                 onClick={() => {
                   setFilter('all');
                   setPage(1);
                 }}
-                className="text-xs"
+                className="text-base font-bold h-12 px-5 rounded-2xl cursor-pointer"
               >
                 All ({stats.totalProducts})
               </Button>
               <Button
                 variant={filter === 'low' ? 'primary' : 'outline'}
-                size="sm"
+                size="md"
                 onClick={() => {
                   setFilter('low');
                   setPage(1);
                 }}
-                className="text-xs"
+                className="text-base font-bold h-12 px-5 rounded-2xl cursor-pointer"
               >
-                <AlertTriangle className="h-3.5 w-3.5 mr-1" /> Low Stock ({stats.lowStockCount})
+                <AlertTriangle className="h-4.5 w-4.5 mr-2 text-amber-500" /> Low Stock ({stats.lowStockCount})
               </Button>
               <Button
                 variant={filter === 'out' ? 'primary' : 'outline'}
-                size="sm"
+                size="md"
                 onClick={() => {
                   setFilter('out');
                   setPage(1);
                 }}
-                className="text-xs"
+                className="text-base font-bold h-12 px-5 rounded-2xl cursor-pointer"
               >
-                <TrendingDown className="h-3.5 w-3.5 mr-1" /> Out of Stock ({stats.outOfStockCount})
+                <TrendingDown className="h-4.5 w-4.5 mr-2 text-rose-500" /> Out of Stock ({stats.outOfStockCount})
               </Button>
             </div>
           </div>
 
           {/* Stock Table */}
           {isLoading ? (
-            <div className="space-y-3">
+            <div className="space-y-4">
               {Array.from({ length: 6 }).map((_, i) => (
-                <Skeleton key={i} className="h-14 rounded-2xl" />
+                <Skeleton key={i} className="h-16 rounded-2xl" />
               ))}
             </div>
           ) : inventory.length > 0 ? (
             <div className="rounded-2xl bg-card border border-border overflow-hidden shadow-xs">
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs sm:text-sm">
-                  <thead className="bg-muted/40 text-muted-foreground border-b border-border text-[11px] uppercase tracking-wider font-semibold">
+                <table className="w-full text-left text-base">
+                  <thead className="bg-muted/60 text-muted-foreground border-b border-border text-xs sm:text-sm uppercase tracking-wider font-bold">
                     <tr>
-                      <th className="w-10 px-4 py-3.5 text-center">
+                      <th className="w-12 px-5 py-4 text-center">
                         <input
                           type="checkbox"
                           checked={allOnPageSelected}
                           onChange={handleSelectAllOnPage}
-                          className="rounded border-border accent-brand cursor-pointer h-4 w-4"
+                          className="rounded border-border accent-brand cursor-pointer h-5 w-5"
                           title="Select all on this page"
                         />
                       </th>
-                      <th className="px-5 py-3.5">Product Name</th>
-                      <th className="px-5 py-3.5">Category</th>
-                      <th className="px-5 py-3.5 text-center">Warehouse Stock</th>
-                      <th className="px-5 py-3.5 text-center">Reorder Limit</th>
-                      <th className="px-5 py-3.5">Health</th>
-                      <th className="px-5 py-3.5 text-center">Quick Adjust</th>
-                      <th className="px-5 py-3.5 text-right">Actions</th>
+                      <th className="px-5 py-4">Product Name</th>
+                      <th className="px-5 py-4">Category</th>
+                      <th className="px-5 py-4 text-center">Warehouse Stock</th>
+                      <th className="px-5 py-4 text-center">Reorder Limit</th>
+                      <th className="px-5 py-4">Health</th>
+                      <th className="px-5 py-4 text-center">Quick Adjust</th>
+                      <th className="px-5 py-4 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">

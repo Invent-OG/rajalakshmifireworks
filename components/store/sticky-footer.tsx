@@ -69,7 +69,7 @@ export function StickyFooter() {
       {/* ── Main Red Rounded Footer Card Container ── */}
       <div
         ref={footerCardRef}
-        className="relative w-full rounded-[36px] sm:rounded-[48px] bg-gradient-to-br from-[#800000] via-[#730000] to-[#500000] text-white p-6 sm:p-10 lg:p-14 shadow-2xl overflow-hidden"
+        className="relative w-full rounded-[36px] sm:rounded-[48px] bg-gradient-to-br from-[#800000] via-[#730000] to-[#500000] dark:from-[#141414] dark:via-[#111111] dark:to-[#0a0a0a] dark:border dark:border-[#282828] text-white p-6 sm:p-10 lg:p-14 shadow-2xl overflow-hidden"
       >
         {/* Subtle Ambient Background Depth */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,255,255,0.08),transparent_60%)] pointer-events-none" />
@@ -77,7 +77,7 @@ export function StickyFooter() {
         {/* ── Top Trust Ribbon Inside Card ── */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pb-8 sm:pb-12 border-b border-white/15 relative z-10">
           <div className="flex items-center gap-3.5 bg-white/10 backdrop-blur-md p-3.5 sm:p-4 rounded-[22px]">
-            <div className="h-10 w-10 rounded-full bg-white text-[#800000] flex items-center justify-center shrink-0 shadow-sm font-bold">
+            <div className="h-10 w-10 rounded-full bg-white dark:bg-[#242424] text-[#800000] dark:text-white flex items-center justify-center shrink-0 shadow-sm font-bold">
               <ShieldCheck className="h-5 w-5" />
             </div>
             <div>
@@ -91,7 +91,7 @@ export function StickyFooter() {
           </div>
 
           <div className="flex items-center gap-3.5 bg-white/10 backdrop-blur-md p-3.5 sm:p-4 rounded-[22px]">
-            <div className="h-10 w-10 rounded-full bg-white text-[#800000] flex items-center justify-center shrink-0 shadow-sm font-bold">
+            <div className="h-10 w-10 rounded-full bg-white dark:bg-[#242424] text-[#800000] dark:text-white flex items-center justify-center shrink-0 shadow-sm font-bold">
               <Truck className="h-5 w-5" />
             </div>
             <div>
@@ -105,7 +105,7 @@ export function StickyFooter() {
           </div>
 
           <div className="flex items-center gap-3.5 bg-white/10 backdrop-blur-md p-3.5 sm:p-4 rounded-[22px]">
-            <div className="h-10 w-10 rounded-full bg-white text-[#800000] flex items-center justify-center shrink-0 shadow-sm font-bold">
+            <div className="h-10 w-10 rounded-full bg-white dark:bg-[#242424] text-[#800000] dark:text-white flex items-center justify-center shrink-0 shadow-sm font-bold">
               <MessageSquare className="h-5 w-5" />
             </div>
             <div>

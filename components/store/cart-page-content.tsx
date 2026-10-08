@@ -120,10 +120,10 @@ function CartPageContent() {
             return (
               <div
                 key={item.productId}
-                className="cart-page-item p-4 sm:p-5 rounded-[28px] sm:rounded-[32px] bg-white flex gap-4 sm:gap-6 items-center shadow-sm transition-all hover:shadow-md"
+                className="cart-page-item p-4 sm:p-5 rounded-[28px] sm:rounded-[32px] bg-white dark:bg-[#141414] dark:border dark:border-[#282828] flex gap-4 sm:gap-6 items-center shadow-sm dark:shadow-none transition-all hover:shadow-md"
               >
                 {/* Product Thumbnail */}
-                <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-[20px] sm:rounded-[22px] bg-neutral-100 flex items-center justify-center shrink-0 select-none overflow-hidden">
+                <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-[20px] sm:rounded-[22px] bg-neutral-100 dark:bg-[#202020] flex items-center justify-center shrink-0 select-none overflow-hidden">
                   {item.image ? (
                     <img src={item.image} alt={displayName} className="w-full h-full object-cover" />
                   ) : (
@@ -137,12 +137,12 @@ function CartPageContent() {
                     <div>
                       <Link
                         href={getHref(`/product/${item.slug}`)}
-                        className="font-bold text-sm sm:text-base text-foreground hover:text-neutral-900 transition-colors line-clamp-1"
+                        className="font-bold text-sm sm:text-base text-foreground dark:text-white hover:text-neutral-900 dark:hover:text-neutral-200 transition-colors line-clamp-1"
                       >
                         {displayName}
                       </Link>
                       <div className="flex items-baseline gap-2 mt-0.5">
-                        <span className="font-bold text-sm text-foreground font-mono">
+                        <span className="font-bold text-sm text-foreground dark:text-white font-mono">
                           {formatCurrency(item.sellingPrice)}
                         </span>
                         {item.mrp > item.sellingPrice && (
@@ -158,7 +158,7 @@ function CartPageContent() {
                         const card = e.currentTarget.closest('.cart-page-item') as HTMLElement | null;
                         handleRemoveWithAnim(item.productId, card);
                       }}
-                      className="text-muted-foreground hover:text-neutral-950 p-2 rounded-full hover:bg-neutral-100 transition-colors cursor-pointer"
+                      className="text-muted-foreground hover:text-neutral-950 dark:hover:text-white p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-[#282828] transition-colors cursor-pointer"
                       aria-label={`${tCommon('remove')} ${displayName}`}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -182,7 +182,7 @@ function CartPageContent() {
                       <span className="text-[11px] text-muted-foreground block font-medium">
                         {locale === 'ta' ? 'மொத்த விலை' : 'Item Total'}
                       </span>
-                      <span className="font-bold text-sm sm:text-base text-foreground font-mono">
+                      <span className="font-bold text-sm sm:text-base text-foreground dark:text-white font-mono">
                         {formatCurrency(item.sellingPrice * item.quantity)}
                       </span>
                     </div>
@@ -195,15 +195,15 @@ function CartPageContent() {
 
         {/* Right Column: Order Summary & Checkout Trigger */}
         <div className="lg:col-span-4">
-          <div className="p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white sticky top-24 space-y-6 shadow-sm">
-            <h2 className="font-bold text-base text-foreground tracking-tight pb-3 border-b border-neutral-100 font-heading">
+          <div className="p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white dark:bg-[#141414] dark:border dark:border-[#282828] sticky top-24 space-y-6 shadow-sm dark:shadow-none">
+            <h2 className="font-bold text-base text-foreground dark:text-white tracking-tight pb-3 border-b border-neutral-100 dark:border-[#282828] font-heading">
               {t('orderSummary')}
             </h2>
 
             {/* Minimum Order Value Progress Indicator */}
-            <div className="p-4 rounded-[22px] sm:rounded-[24px] bg-neutral-50 space-y-2">
+            <div className="p-4 rounded-[22px] sm:rounded-[24px] bg-neutral-50 dark:bg-[#1c1c1c] dark:border dark:border-[#282828] space-y-2">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-foreground">
+                <span className="font-semibold text-foreground dark:text-white">
                   {locale === 'ta' ? 'குறைந்தபட்ச முன்பதிவு' : 'Minimum Order'}
                 </span>
                 <span className="font-bold text-muted-foreground font-mono">
@@ -212,19 +212,19 @@ function CartPageContent() {
               </div>
 
               {/* Progress Bar */}
-              <div className="w-full h-1.5 bg-neutral-200 rounded-full overflow-hidden">
+              <div className="w-full h-1.5 bg-neutral-200 dark:bg-[#303030] rounded-full overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all duration-300 ${
                     meetsMinOrder
-                      ? 'bg-emerald-600'
-                      : 'bg-neutral-900'
+                      ? 'bg-emerald-600 dark:bg-emerald-500'
+                      : 'bg-neutral-900 dark:bg-white'
                   }`}
                   style={{ width: `${progressPercent}%` }}
                 />
               </div>
 
               {meetsMinOrder ? (
-                <p className="text-xs text-emerald-700 font-semibold flex items-center gap-1.5">
+                <p className="text-xs text-emerald-700 dark:text-emerald-400 font-semibold flex items-center gap-1.5">
                   <CheckCircle2 className="h-3.5 w-3.5" />
                   {locale === 'ta' ? 'குறைந்தபட்ச தொகை நிறைவடைந்தது. முன்பதிவு செய்யலாம்.' : 'Minimum order met. Ready for checkout.'}
                 </p>
@@ -239,13 +239,13 @@ function CartPageContent() {
             <div className="space-y-2.5 text-xs sm:text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">{locale === 'ta' ? 'பொருட்களின் உத்தேச விலை' : 'Items subtotal'}</span>
-                <span className="font-semibold font-mono">
+                <span className="font-semibold font-mono dark:text-white">
                   {formatCurrency(subtotal)}
                 </span>
               </div>
 
               {totalSavings > 0 && (
-                <div className="flex justify-between text-emerald-700 font-semibold">
+                <div className="flex justify-between text-emerald-700 dark:text-emerald-400 font-semibold">
                   <span>{t('totalSavings')}</span>
                   <span className="font-mono">
                     -{formatCurrency(totalSavings)}
@@ -260,8 +260,8 @@ function CartPageContent() {
             </div>
 
             {/* Final Total */}
-            <div className="pt-3 border-t border-neutral-100 space-y-1">
-              <div className="flex justify-between items-baseline font-bold text-lg text-foreground">
+            <div className="pt-3 border-t border-neutral-100 dark:border-[#282828] space-y-1">
+              <div className="flex justify-between items-baseline font-bold text-lg text-foreground dark:text-white">
                 <span>{t('estimatedTotal')}</span>
                 <span className="text-xl font-mono">
                   <NumberFlow

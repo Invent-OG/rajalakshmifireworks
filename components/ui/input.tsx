@@ -13,13 +13,13 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="space-y-1.5 w-full">
         {label && (
-          <label htmlFor={inputId} className="block text-xs font-medium text-muted-foreground">
+          <label htmlFor={inputId} className="block text-sm font-semibold text-foreground mb-1">
             {label}
           </label>
         )}
         <div className="relative">
           {icon && (
-            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
               {icon}
             </div>
           )}
@@ -27,8 +27,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             id={inputId}
             className={`
-              w-full h-11 px-4 rounded-full border border-border bg-card text-foreground
-              text-sm placeholder:text-muted-foreground/60 shadow-xs
+              w-full h-12 px-4 rounded-xl border border-border bg-card text-foreground
+              text-base placeholder:text-muted-foreground/60 shadow-xs
               transition-all duration-150
               focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand
               disabled:opacity-50 disabled:bg-muted disabled:cursor-not-allowed
@@ -42,7 +42,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           />
         </div>
         {error && (
-          <p id={`${inputId}-error`} className="text-xs font-medium text-destructive mt-1 animate-fade-in" role="alert">
+          <p id={`${inputId}-error`} className="text-xs font-semibold text-destructive mt-1 animate-fade-in" role="alert">
             {error}
           </p>
         )}
@@ -69,7 +69,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     return (
       <div className="space-y-1.5 w-full">
         {label && (
-          <label htmlFor={textareaId} className="block text-xs font-medium text-muted-foreground">
+          <label htmlFor={textareaId} className="block text-sm font-semibold text-foreground mb-1">
             {label}
           </label>
         )}
@@ -77,8 +77,8 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           ref={ref}
           id={textareaId}
           className={`
-            w-full px-4 py-3 rounded-[24px] border border-border bg-card text-foreground
-            text-sm placeholder:text-muted-foreground/60 resize-y min-h-[90px] shadow-xs
+            w-full px-4 py-3 rounded-xl border border-border bg-card text-foreground
+            text-base placeholder:text-muted-foreground/60 resize-y min-h-[95px] shadow-xs
             transition-all duration-150
             focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand
             disabled:opacity-50 disabled:bg-muted disabled:cursor-not-allowed
@@ -89,7 +89,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           {...props}
         />
         {error && (
-          <p className="text-xs font-medium text-destructive mt-1 animate-fade-in" role="alert">
+          <p className="text-xs font-semibold text-destructive mt-1 animate-fade-in" role="alert">
             {error}
           </p>
         )}

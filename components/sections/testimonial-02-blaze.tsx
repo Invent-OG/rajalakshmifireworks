@@ -48,7 +48,7 @@ export function Testimonial02Blaze() {
         }
       `}</style>
 
-      <section className="w-full bg-white py-12 md:py-[120px] px-4 sm:px-8 md:px-[80px] selection:bg-black selection:text-white font-sans">
+      <section className="w-full bg-white dark:bg-black py-12 md:py-[120px] px-4 sm:px-8 md:px-[80px] selection:bg-black selection:text-white font-sans">
         <div className="max-w-[1280px] mx-auto">
           {/* 1. Top Header Row */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 md:mb-[48px] gap-4 md:gap-6">
@@ -60,14 +60,14 @@ export function Testimonial02Blaze() {
               </div>
 
               {/* Heading */}
-              <h2 className="text-3xl sm:text-4xl md:text-[58px] font-medium text-[#111010] leading-[1.15] md:leading-[1.1] tracking-tight font-heading">
+              <h2 className="text-3xl sm:text-4xl md:text-[58px] font-medium text-[#111010] dark:text-white leading-[1.15] md:leading-[1.1] tracking-tight font-heading">
                 {t('title')}
               </h2>
             </div>
 
             {/* Right Block */}
             <div className="w-full md:w-auto md:max-w-[320px] text-left md:text-right pb-2">
-              <p className="text-[14px] sm:text-[15px] text-[#555455] font-normal leading-relaxed">
+              <p className="text-[14px] sm:text-[15px] text-[#555455] dark:text-neutral-400 font-normal leading-relaxed">
                 {t('subtitle')}
               </p>
             </div>
@@ -76,25 +76,25 @@ export function Testimonial02Blaze() {
           {/* 2. Three-Column Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[32px] items-stretch">
             {/* Left Column — Stats / CTA Card */}
-            <div className="flex flex-col bg-white p-8 sm:p-10 rounded-[36px] sm:rounded-[40px] min-h-[480px] lg:h-[560px] shadow-sm hover:shadow-xl transition-all duration-300">
+            <div className="flex flex-col bg-white dark:bg-[#141414] dark:border dark:border-[#282828] p-8 sm:p-10 rounded-[36px] sm:rounded-[40px] min-h-[480px] lg:h-[560px] shadow-sm dark:shadow-none hover:shadow-xl transition-all duration-300">
               {/* Rating Row */}
               <div className="flex items-start gap-[12px] mb-[28px]">
                 <div className="flex items-baseline gap-0.5">
-                  <span className="text-[48px] font-bold text-[#111010] leading-none tracking-tight font-mono">
+                  <span className="text-[48px] font-bold text-[#111010] dark:text-white leading-none tracking-tight font-mono">
                     4.9
                   </span>
-                  <span className="text-[16px] text-[#898988] font-normal font-mono">/5</span>
+                  <span className="text-[16px] text-[#898988] dark:text-neutral-400 font-normal font-mono">/5</span>
                 </div>
-                <div className="pt-1.5 text-[13px] text-[#555455] leading-[1.3] font-medium">
+                <div className="pt-1.5 text-[13px] text-[#555455] dark:text-neutral-300 leading-[1.3] font-medium">
                   {locale === 'ta' ? (
                     <>
-                      <strong className="font-bold text-[#111010]">2,500+ சரிபார்க்கப்பட்ட</strong>
+                      <strong className="font-bold text-[#111010] dark:text-white">2,500+ சரிபார்க்கப்பட்ட</strong>
                       <br />
                       வாடிக்கையாளர் மதிப்புரைகள்
                     </>
                   ) : (
                     <>
-                      Based on <strong className="font-bold text-[#111010]">2,500+ verified</strong>
+                      Based on <strong className="font-bold text-[#111010] dark:text-white">2,500+ verified</strong>
                       <br />
                       celebration reviews
                     </>
@@ -105,37 +105,37 @@ export function Testimonial02Blaze() {
               {/* Feature List */}
               <div className="space-y-[16px] mb-[32px]">
                 <div className="flex items-center gap-[12px]">
-                  <div className="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-neutral-100 dark:bg-[#202020] flex items-center justify-center shrink-0">
                     <MapPin size={16} className="text-amber-500 shrink-0" />
                   </div>
-                  <span className="text-[14px] text-[#454544] font-medium tracking-tight">
+                  <span className="text-[14px] text-[#454544] dark:text-neutral-300 font-medium tracking-tight">
                     {locale === 'ta' ? '10,000+ பாதுகாப்பான டெலிவரிகள்' : '10,000+ orders safely dispatched'}
                   </span>
                 </div>
                 <div className="flex items-center gap-[12px]">
-                  <div className="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-neutral-100 dark:bg-[#202020] flex items-center justify-center shrink-0">
                     <Shield size={16} className="text-emerald-500 shrink-0" />
                   </div>
-                  <span className="text-[14px] text-[#454544] font-medium tracking-tight">
+                  <span className="text-[14px] text-[#454544] dark:text-neutral-300 font-medium tracking-tight">
                     {locale === 'ta' ? '100% பாதுகாப்பான சிவகாசி பசுமை பட்டாசுகள்' : '100% safe & certified Sivakasi green crackers'}
                   </span>
                 </div>
                 <div className="flex items-center gap-[12px]">
-                  <div className="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-neutral-100 dark:bg-[#202020] flex items-center justify-center shrink-0">
                     <Clock size={16} className="text-sky-500 shrink-0" />
                   </div>
-                  <span className="text-[14px] text-[#454544] font-medium tracking-tight">
+                  <span className="text-[14px] text-[#454544] dark:text-neutral-300 font-medium tracking-tight">
                     {locale === 'ta' ? '30+ ஆண்டுகால சிவகாசி பாரம்பரிய நம்பிக்கை' : '30+ years of Diwali celebration trust'}
                   </span>
                 </div>
               </div>
 
               {/* CTA Block */}
-              <div className="mt-auto pt-6 border-t border-neutral-100">
-                <p className="text-[14px] text-[#676666] mb-0.5 font-normal">
+              <div className="mt-auto pt-6 border-t border-neutral-100 dark:border-[#282828]">
+                <p className="text-[14px] text-[#676666] dark:text-neutral-400 mb-0.5 font-normal">
                   {locale === 'ta' ? 'உங்கள் பண்டிகையைக் கொண்டாடத் தயாரா?' : 'Ready to plan your celebration?'}
                 </p>
-                <p className="text-[16px] font-bold text-[#111010] mb-[18px] tracking-tight">
+                <p className="text-[16px] font-bold text-[#111010] dark:text-white mb-[18px] tracking-tight">
                   {locale === 'ta' ? 'இப்போதே தேர்வு செய்யுங்கள்!' : "Let's get started!"}
                 </p>
 
@@ -143,14 +143,14 @@ export function Testimonial02Blaze() {
                 <div className="flex items-center gap-2 group">
                   <Link
                     href={locale === 'en' ? '/products' : `/${locale}/products`}
-                    className="h-12 px-6 sm:px-8 bg-neutral-950 text-white text-xs sm:text-sm font-bold rounded-full hover:bg-neutral-800 transition-all cursor-pointer whitespace-nowrap duration-300 active:scale-95 shadow-sm inline-flex items-center justify-center"
+                    className="h-12 px-6 sm:px-8 bg-neutral-950 dark:bg-white text-white dark:text-black text-xs sm:text-sm font-bold rounded-full hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-all cursor-pointer whitespace-nowrap duration-300 active:scale-95 shadow-sm inline-flex items-center justify-center"
                   >
                     {tNav('allProducts')}
                   </Link>
                   <Link
                     href={locale === 'en' ? '/products' : `/${locale}/products`}
                     aria-label="View fireworks catalog"
-                    className="h-12 w-12 bg-neutral-950 rounded-full flex items-center justify-center text-white hover:bg-neutral-800 transition-all cursor-pointer shadow-sm duration-300 group-hover:translate-x-1 active:scale-95 shrink-0"
+                    className="h-12 w-12 bg-neutral-950 dark:bg-white rounded-full flex items-center justify-center text-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-all cursor-pointer shadow-sm duration-300 group-hover:translate-x-1 active:scale-95 shrink-0"
                   >
                     <ArrowUpRight size={18} />
                   </Link>
@@ -182,7 +182,7 @@ export function Testimonial02Blaze() {
             </div>
 
             {/* Right Column — Vertical Marquee */}
-            <div className="md:col-span-2 lg:col-span-1 min-h-[480px] lg:h-[560px] relative overflow-hidden rounded-[36px] sm:rounded-[40px] bg-neutral-100/60 shadow-inner">
+            <div className="md:col-span-2 lg:col-span-1 min-h-[480px] lg:h-[560px] relative overflow-hidden rounded-[36px] sm:rounded-[40px] bg-neutral-100/60 dark:bg-[#101010] dark:border dark:border-[#282828] shadow-inner">
               <div
                 className="flex flex-col gap-4 p-3"
                 style={{ animation: 'marquee-up 30s linear infinite' }}
@@ -190,7 +190,7 @@ export function Testimonial02Blaze() {
                 {MARQUEE_ITEMS.map((item, idx) => (
                   <div
                     key={`${item.name}-${idx}`}
-                    className="bg-white p-6 rounded-[28px] shadow-sm hover:shadow-md transition-all flex flex-col shrink-0"
+                    className="bg-white dark:bg-[#1a1a1a] dark:border dark:border-[#282828] p-6 rounded-[28px] shadow-sm dark:shadow-none hover:shadow-md transition-all flex flex-col shrink-0"
                   >
                     {/* 5 Stars */}
                     <div className="flex gap-1 mb-3">
@@ -204,7 +204,7 @@ export function Testimonial02Blaze() {
                     </div>
 
                     {/* Quote */}
-                    <p className="text-[14px] text-[#454544] font-medium leading-[1.6] mb-4">
+                    <p className="text-[14px] text-[#454544] dark:text-neutral-200 font-medium leading-[1.6] mb-4">
                       “{item.quote}”
                     </p>
 
@@ -217,10 +217,10 @@ export function Testimonial02Blaze() {
                         className="w-10 h-10 rounded-full object-cover shadow-sm"
                       />
                       <div>
-                        <p className="text-[13px] font-bold text-[#111010]">
+                        <p className="text-[13px] font-bold text-[#111010] dark:text-white">
                           — {item.name}
                         </p>
-                        <p className="text-[12px] text-[#898988] font-medium">
+                        <p className="text-[12px] text-[#898988] dark:text-neutral-400 font-medium">
                           {item.tour}
                         </p>
                       </div>

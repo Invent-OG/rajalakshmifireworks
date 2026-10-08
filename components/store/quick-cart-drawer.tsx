@@ -124,21 +124,21 @@ export function QuickCartMobileFloating() {
         <div className="mx-auto max-w-md pointer-events-auto">
           <div
             ref={barRef}
-            className="bg-white/95 backdrop-blur-xl text-neutral-900 rounded-full p-2.5 shadow-2xl flex items-center justify-between gap-3 transform-gpu font-sans"
+            className="bg-white/95 dark:bg-[#141414]/95 backdrop-blur-xl text-neutral-900 dark:text-white rounded-full p-2.5 shadow-2xl dark:border dark:border-[#282828] flex items-center justify-between gap-3 transform-gpu font-sans"
           >
             <button
               type="button"
               onClick={openDrawer}
-              className="flex items-center gap-2.5 px-3 py-1.5 rounded-full hover:bg-neutral-100 transition-colors text-left cursor-pointer flex-1 min-w-0"
+              className="flex items-center gap-2.5 px-3 py-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-[#202020] transition-colors text-left cursor-pointer flex-1 min-w-0"
             >
-              <div className="relative h-9 w-9 rounded-full bg-neutral-100 flex items-center justify-center shrink-0 text-neutral-950">
+              <div className="relative h-9 w-9 rounded-full bg-neutral-100 dark:bg-[#202020] flex items-center justify-center shrink-0 text-neutral-950 dark:text-white">
                 <ShoppingBag className="h-4.5 w-4.5" />
-                <span className="absolute -top-1 -right-1 h-4 min-w-4 px-1 rounded-full bg-neutral-950 text-[10px] font-bold text-white flex items-center justify-center font-mono">
+                <span className="absolute -top-1 -right-1 h-4 min-w-4 px-1 rounded-full bg-neutral-950 dark:bg-white text-[10px] font-bold text-white dark:text-black flex items-center justify-center font-mono">
                   {itemCount}
                 </span>
               </div>
               <div className="min-w-0">
-                <div className="text-xs font-bold leading-tight text-neutral-900 font-mono truncate">
+                <div className="text-xs font-bold leading-tight text-neutral-900 dark:text-white font-mono truncate">
                   <NumberFlow
                     value={subtotal}
                     format={{
@@ -152,7 +152,7 @@ export function QuickCartMobileFloating() {
                     }}
                   />
                 </div>
-                <p className="text-[10px] text-neutral-500 font-medium flex items-center gap-0.5">
+                <p className="text-[10px] text-neutral-500 dark:text-neutral-400 font-medium flex items-center gap-0.5">
                   {tCart('orderSummary')} <ChevronUp className="h-2.5 w-2.5" />
                 </p>
               </div>
@@ -161,7 +161,7 @@ export function QuickCartMobileFloating() {
             <Link href={locale === 'en' ? '/checkout' : `/${locale}/checkout`} className="shrink-0">
               <button
                 type="button"
-                className="h-12 px-5 sm:px-6 rounded-full bg-neutral-950 hover:bg-neutral-800 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer justify-center"
+                className="h-12 px-5 sm:px-6 rounded-full bg-neutral-950 dark:bg-white hover:bg-neutral-800 dark:hover:bg-neutral-200 text-white dark:text-black font-bold text-xs sm:text-sm flex items-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer justify-center"
               >
                 <CreditCard className="h-4 w-4" />
                 <span>{tCart('proceedToCheckout')}</span>

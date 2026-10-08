@@ -184,17 +184,17 @@ export function ProductCard({ product }: ProductCardProps) {
               {tCommon('outOfStock')}
             </button>
           ) : quantity > 0 ? (
-            <div className="h-12 px-2.5 rounded-full bg-neutral-100 flex items-center justify-between shadow-xs border border-neutral-200/60">
+            <div className="h-12 px-2.5 rounded-full bg-neutral-100 dark:bg-[#242424] flex items-center justify-between shadow-xs border border-neutral-200/60 dark:border-[#383838]">
               <button
                 type="button"
                 onClick={() => (quantity === 1 ? removeItem(product.id) : updateQuantity(product.id, quantity - 1))}
                 aria-label="Decrease quantity"
-                className="w-8 h-8 rounded-full bg-neutral-950 text-white hover:bg-neutral-800 flex items-center justify-center transition-all active:scale-90 cursor-pointer shadow-2xs shrink-0"
+                className="w-8 h-8 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 flex items-center justify-center transition-all active:scale-90 cursor-pointer shadow-2xs shrink-0"
               >
                 <Minus size={13} />
               </button>
 
-              <span className="text-xs sm:text-sm font-bold text-neutral-900 select-none px-3 font-mono">
+              <span className="text-xs sm:text-sm font-bold text-neutral-900 dark:text-white select-none px-3 font-mono">
                 {quantity}
               </span>
 
@@ -203,7 +203,7 @@ export function ProductCard({ product }: ProductCardProps) {
                 onClick={() => updateQuantity(product.id, quantity + 1)}
                 disabled={quantity >= product.stockQuantity}
                 aria-label="Increase quantity"
-                className="w-8 h-8 rounded-full bg-neutral-950 text-white hover:bg-neutral-800 flex items-center justify-center transition-all active:scale-90 disabled:opacity-30 disabled:pointer-events-none cursor-pointer shadow-2xs shrink-0"
+                className="w-8 h-8 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 flex items-center justify-center transition-all active:scale-90 disabled:opacity-30 disabled:pointer-events-none cursor-pointer shadow-2xs shrink-0"
               >
                 <Plus size={13} />
               </button>

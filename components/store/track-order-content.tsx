@@ -106,7 +106,7 @@ function TrackOrderPageContent() {
         {/* Search Input Card */}
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white space-y-4 shadow-sm"
+          className="p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white dark:bg-[#141414] dark:border dark:border-[#282828] space-y-4 shadow-sm dark:shadow-none"
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
@@ -152,10 +152,10 @@ function TrackOrderPageContent() {
           {orders.map((order) => (
             <div
               key={order.invoiceNumber}
-              className="order-card-reveal p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white space-y-6 shadow-sm"
+              className="order-card-reveal p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white dark:bg-[#141414] dark:border dark:border-[#282828] space-y-6 shadow-sm dark:shadow-none"
             >
               {/* Top Order Title Bar */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-neutral-100 gap-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-neutral-100 dark:border-[#282828] gap-3">
                 <div>
                   <span className="text-xs uppercase font-bold text-neutral-400 tracking-wider">
                     {t('orderId')}

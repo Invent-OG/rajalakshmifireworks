@@ -161,16 +161,16 @@ function AdminProfilePageContent() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
         <div>
-          <div className="flex items-center gap-2.5">
-            <h1 className="text-2xl font-bold text-foreground tracking-tight">
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
               Profile & Security
             </h1>
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-brand/10 text-brand border border-brand/20 uppercase tracking-wider">
-              <ShieldCheck className="h-3 w-3" />
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-brand/10 text-brand border border-brand/20 uppercase tracking-wider">
+              <ShieldCheck className="h-3.5 w-3.5" />
               {user?.role || 'Admin'}
             </span>
           </div>
-          <p className="text-xs text-muted-foreground mt-1">
+          <p className="text-sm sm:text-base text-muted-foreground mt-1.5">
             Manage your personal admin account, update your email address, and change your login password.
           </p>
         </div>
@@ -182,15 +182,15 @@ function AdminProfilePageContent() {
           {/* Section 1: Manage Profile & Email */}
           <div className="p-6 rounded-2xl bg-card border border-border space-y-5 shadow-xs">
             <div className="flex items-center justify-between pb-3 border-b border-border">
-              <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center text-foreground">
-                  <User className="h-4 w-4" />
+              <div className="flex items-center gap-2.5">
+                <div className="h-10 w-10 rounded-xl bg-secondary dark:bg-[#242424] flex items-center justify-center text-foreground border border-border">
+                  <User className="h-5 w-5" />
                 </div>
                 <div>
-                  <h2 className="font-semibold text-sm text-foreground">
+                  <h2 className="font-bold text-base text-foreground">
                     Account Details
                   </h2>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     Update your display name and primary administrative email
                   </p>
                 </div>
@@ -202,15 +202,15 @@ function AdminProfilePageContent() {
                 e.preventDefault();
                 updateProfileMutation.mutate();
               }}
-              className="space-y-4"
+              className="space-y-4.5"
             >
               <div className="space-y-1.5">
-                <label className="block text-xs font-medium text-muted-foreground">
+                <label className="block text-sm font-semibold text-foreground">
                   Full Name *
                 </label>
                 <div className="relative">
-                  <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
-                    <User className="h-4 w-4" />
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
+                    <User className="h-5 w-5" />
                   </div>
                   <input
                     type="text"
@@ -218,18 +218,18 @@ function AdminProfilePageContent() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="e.g. Store Administrator"
-                    className="w-full h-11 pl-10 pr-3.5 rounded-xl border border-border bg-card text-foreground text-sm shadow-xs transition-all focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand"
+                    className="w-full h-12 pl-12 pr-4 rounded-xl border border-border bg-card text-foreground text-base font-medium shadow-xs transition-all focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand"
                   />
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <label className="block text-xs font-medium text-muted-foreground">
+                <label className="block text-sm font-semibold text-foreground">
                   Email Address *
                 </label>
                 <div className="relative">
-                  <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
-                    <Mail className="h-4 w-4" />
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
+                    <Mail className="h-5 w-5" />
                   </div>
                   <input
                     type="email"
@@ -237,10 +237,10 @@ function AdminProfilePageContent() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="admin@rajalakshmifireworks.com"
-                    className="w-full h-11 pl-10 pr-3.5 rounded-xl border border-border bg-card text-foreground text-sm shadow-xs transition-all focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand"
+                    className="w-full h-12 pl-12 pr-4 rounded-xl border border-border bg-card text-foreground text-base font-medium shadow-xs transition-all focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand"
                   />
                 </div>
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   This email is used to log in to the Store Operations portal.
                 </p>
               </div>
@@ -249,7 +249,7 @@ function AdminProfilePageContent() {
                 <Button
                   type="submit"
                   variant="primary"
-                  size="md"
+                  className="h-12 px-6 text-base font-semibold"
                   loading={updateProfileMutation.isPending}
                   disabled={!name.trim() || !email.trim() || (name === user?.name && email === user?.email)}
                 >
@@ -262,15 +262,15 @@ function AdminProfilePageContent() {
           {/* Section 2: Manage Password */}
           <div className="p-6 rounded-2xl bg-card border border-border space-y-5 shadow-xs">
             <div className="flex items-center justify-between pb-3 border-b border-border">
-              <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
-                  <KeyRound className="h-4 w-4" />
+              <div className="flex items-center gap-2.5">
+                <div className="h-10 w-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center border border-amber-500/20">
+                  <KeyRound className="h-5 w-5" />
                 </div>
                 <div>
-                  <h2 className="font-semibold text-sm text-foreground">
+                  <h2 className="font-bold text-base text-foreground">
                     Manage Password
                   </h2>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     Change your password to maintain account security
                   </p>
                 </div>
@@ -282,16 +282,16 @@ function AdminProfilePageContent() {
                 e.preventDefault();
                 changePasswordMutation.mutate();
               }}
-              className="space-y-4"
+              className="space-y-4.5"
             >
               {/* Current Password */}
               <div className="space-y-1.5">
-                <label className="block text-xs font-medium text-muted-foreground">
+                <label className="block text-sm font-semibold text-foreground">
                   Current Password *
                 </label>
                 <div className="relative">
-                  <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
-                    <Lock className="h-4 w-4" />
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
+                    <Lock className="h-5 w-5" />
                   </div>
                   <input
                     type={showCurrentPassword ? 'text' : 'password'}
@@ -299,18 +299,18 @@ function AdminProfilePageContent() {
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
                     placeholder="Enter your current password"
-                    className="w-full h-11 pl-10 pr-10 rounded-xl border border-border bg-card text-foreground text-sm shadow-xs transition-all focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand"
+                    className="w-full h-12 pl-12 pr-12 rounded-xl border border-border bg-card text-foreground text-base font-medium shadow-xs transition-all focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand"
                   />
                   <button
                     type="button"
                     onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1"
                     tabIndex={-1}
                   >
                     {showCurrentPassword ? (
-                      <EyeOff className="h-4 w-4" />
+                      <EyeOff className="h-5 w-5" />
                     ) : (
-                      <Eye className="h-4 w-4" />
+                      <Eye className="h-5 w-5" />
                     )}
                   </button>
                 </div>
@@ -318,12 +318,12 @@ function AdminProfilePageContent() {
 
               {/* New Password */}
               <div className="space-y-1.5">
-                <label className="block text-xs font-medium text-muted-foreground">
+                <label className="block text-sm font-semibold text-foreground">
                   New Password *
                 </label>
                 <div className="relative">
-                  <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
-                    <Lock className="h-4 w-4" />
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
+                    <Lock className="h-5 w-5" />
                   </div>
                   <input
                     type={showNewPassword ? 'text' : 'password'}
@@ -331,18 +331,18 @@ function AdminProfilePageContent() {
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     placeholder="Enter new password (min. 8 chars)"
-                    className="w-full h-11 pl-10 pr-10 rounded-xl border border-border bg-card text-foreground text-sm shadow-xs transition-all focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand"
+                    className="w-full h-12 pl-12 pr-12 rounded-xl border border-border bg-card text-foreground text-base font-medium shadow-xs transition-all focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand"
                   />
                   <button
                     type="button"
                     onClick={() => setShowNewPassword(!showNewPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1"
                     tabIndex={-1}
                   >
                     {showNewPassword ? (
-                      <EyeOff className="h-4 w-4" />
+                      <EyeOff className="h-5 w-5" />
                     ) : (
-                      <Eye className="h-4 w-4" />
+                      <Eye className="h-5 w-5" />
                     )}
                   </button>
                 </div>

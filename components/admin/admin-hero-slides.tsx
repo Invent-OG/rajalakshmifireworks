@@ -353,10 +353,10 @@ function AdminHeroSlidesPageContent() {
             <Sparkles className="h-3.5 w-3.5" />
             <span>Storefront Visual Director</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
             Hero Carousel Management
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-sm sm:text-base text-muted-foreground mt-1">
             Customize slide headlines, background themes & images, CTA buttons, and select products for the stacked explore cards.
           </p>
         </div>
@@ -365,16 +365,16 @@ function AdminHeroSlidesPageContent() {
           <Button
             variant="outline"
             onClick={resetToDefaults}
-            className="flex items-center gap-2 text-xs"
+            className="flex items-center gap-2 h-12 px-5 text-sm font-bold"
           >
-            <RotateCcw className="h-3.5 w-3.5" />
+            <RotateCcw className="h-4 w-4" />
             Reset Defaults
           </Button>
 
           <Button
             onClick={() => saveMutation.mutate(config)}
             disabled={saveMutation.isPending}
-            className="flex items-center gap-2 bg-brand hover:bg-brand/90 text-white font-bold"
+            className="flex items-center gap-2 h-12 px-6 bg-brand hover:bg-brand/90 text-white font-bold text-sm sm:text-base shadow-xs"
           >
             <Save className="h-4 w-4" />
             {saveMutation.isPending ? 'Saving...' : 'Save & Publish'}
@@ -389,7 +389,7 @@ function AdminHeroSlidesPageContent() {
             <Eye className="h-4 w-4 text-brand" />
             <span>Live Interactive Preview</span>
           </div>
-          <span className="text-xs text-muted-foreground">
+          <span className="text-sm text-muted-foreground">
             Reflects actual customer storefront appearance in real time
           </span>
         </div>
@@ -400,14 +400,14 @@ function AdminHeroSlidesPageContent() {
       </div>
 
       {/* ── Navigation Tabs ── */}
-      <div className="flex items-center gap-2 border-b border-border pb-3">
+      <div className="flex items-center gap-2.5 border-b border-border pb-3">
         <button
           type="button"
           onClick={() => setActiveTab('slides')}
-          className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+          className={`px-5 py-2.5 rounded-xl text-sm sm:text-base font-bold transition-all cursor-pointer ${
             activeTab === 'slides'
               ? 'bg-foreground text-background shadow-xs'
-              : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+              : 'text-muted-foreground hover:text-foreground hover:bg-secondary dark:hover:bg-[#242424]'
           }`}
         >
           Slides Manager ({config.slides.length})
@@ -415,10 +415,10 @@ function AdminHeroSlidesPageContent() {
         <button
           type="button"
           onClick={() => setActiveTab('settings')}
-          className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+          className={`px-5 py-2.5 rounded-xl text-sm sm:text-base font-bold transition-all cursor-pointer ${
             activeTab === 'settings'
               ? 'bg-foreground text-background shadow-xs'
-              : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+              : 'text-muted-foreground hover:text-foreground hover:bg-secondary dark:hover:bg-[#242424]'
           }`}
         >
           Carousel Timing & Controls
@@ -436,18 +436,18 @@ function AdminHeroSlidesPageContent() {
                   <button
                     type="button"
                     onClick={() => setActiveSlideIndex(idx)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-xs font-bold transition-all ${
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-bold transition-all cursor-pointer ${
                       activeSlideIndex === idx
                         ? 'border-brand bg-brand/10 text-brand shadow-xs'
                         : 'border-border bg-card text-foreground hover:border-neutral-400'
                     }`}
                   >
                     <span
-                      className="w-3 h-3 rounded-full border border-black/20"
+                      className="w-3.5 h-3.5 rounded-full border border-black/20"
                       style={{ backgroundColor: s.bgColor }}
                     />
                     <span>Slide {idx + 1}</span>
-                    <span className="text-muted-foreground font-normal truncate max-w-[90px]">
+                    <span className="text-muted-foreground font-normal truncate max-w-[110px]">
                       ({s.headlineLine1})
                     </span>
                   </button>
@@ -456,11 +456,10 @@ function AdminHeroSlidesPageContent() {
 
               <Button
                 variant="outline"
-                size="sm"
                 onClick={handleAddNewSlide}
-                className="flex items-center gap-1 text-xs"
+                className="flex items-center gap-1.5 h-11 px-4 text-sm font-bold"
               >
-                <Plus className="h-3.5 w-3.5" />
+                <Plus className="h-4 w-4" />
                 Add Slide
               </Button>
             </div>
@@ -470,49 +469,52 @@ function AdminHeroSlidesPageContent() {
               <Button
                 variant="outline"
                 size="sm"
+                className="h-10 w-10 p-0"
                 onClick={() => moveSlide(activeSlideIndex, activeSlideIndex - 1)}
                 disabled={activeSlideIndex === 0}
                 title="Move Slide Left"
               >
-                <MoveUp className="h-3.5 w-3.5 rotate-[-90deg]" />
+                <MoveUp className="h-4 w-4 rotate-[-90deg]" />
               </Button>
               <Button
                 variant="outline"
                 size="sm"
+                className="h-10 w-10 p-0"
                 onClick={() => moveSlide(activeSlideIndex, activeSlideIndex + 1)}
                 disabled={activeSlideIndex === config.slides.length - 1}
                 title="Move Slide Right"
               >
-                <MoveDown className="h-3.5 w-3.5 rotate-[-90deg]" />
+                <MoveDown className="h-4 w-4 rotate-[-90deg]" />
               </Button>
               <Button
                 variant="destructive"
                 size="sm"
+                className="h-10 w-10 p-0"
                 onClick={() => handleDeleteSlide(activeSlideIndex)}
                 disabled={config.slides.length <= 1}
                 title="Delete this slide"
               >
-                <Trash2 className="h-3.5 w-3.5" />
+                <Trash2 className="h-4 w-4" />
               </Button>
             </div>
           </div>
 
           {/* Active Slide Form Card */}
           {activeSlide && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 bg-card border border-border rounded-2xl p-5 sm:p-7 shadow-xs">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 bg-card border border-border rounded-2xl p-6 sm:p-8 shadow-xs">
               
               {/* Left Column: Background Theme & Typography */}
               <div className="lg:col-span-6 space-y-6">
                 
                 {/* Hero Background Image & Color */}
-                <div className="p-4 rounded-xl bg-background-secondary border border-border space-y-4">
+                <div className="p-5 rounded-xl bg-background-secondary border border-border space-y-4">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-sm text-foreground flex items-center gap-2">
-                      <ImageIcon className="h-4 w-4 text-brand" />
+                    <h3 className="font-bold text-base text-foreground flex items-center gap-2">
+                      <ImageIcon className="h-5 w-5 text-brand" />
                       Hero Background Image & Theme
                     </h3>
-                    <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full flex items-center gap-1">
-                      <CloudUpload className="h-3 w-3" /> Supabase Storage
+                    <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full flex items-center gap-1">
+                      <CloudUpload className="h-3.5 w-3.5" /> Supabase Storage
                     </span>
                   </div>
 
@@ -524,16 +526,16 @@ function AdminHeroSlidesPageContent() {
                       size="sm"
                       disabled={uploadingBg}
                       onClick={() => bgFileInputRef.current?.click()}
-                      className="flex items-center gap-1.5 text-xs font-bold"
+                      className="flex items-center gap-1.5 h-10 px-4 text-xs sm:text-sm font-bold"
                     >
                       {uploadingBg ? (
                         <>
-                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          <Loader2 className="h-4 w-4 animate-spin" />
                           Uploading to Supabase...
                         </>
                       ) : (
                         <>
-                          <Upload className="h-3.5 w-3.5" />
+                          <Upload className="h-4 w-4" />
                           Upload Background Image
                         </>
                       )}
@@ -543,7 +545,7 @@ function AdminHeroSlidesPageContent() {
                       <button
                         type="button"
                         onClick={() => updateActiveSlide({ backgroundImage: '' })}
-                        className="text-xs text-red-500 hover:underline"
+                        className="text-xs sm:text-sm text-red-500 hover:underline font-semibold"
                       >
                         Remove Image
                       </button>
@@ -554,12 +556,12 @@ function AdminHeroSlidesPageContent() {
                     value={activeSlide.backgroundImage || ''}
                     onChange={(e) => updateActiveSlide({ backgroundImage: e.target.value })}
                     placeholder="Background image URL (e.g. https://...)"
-                    className="text-xs font-mono"
+                    className="text-sm font-mono"
                   />
 
                   {/* Base Color Picker */}
                   <div className="pt-2 border-t border-border">
-                    <label className="text-[11px] font-bold text-muted-foreground uppercase block mb-2">
+                    <label className="text-xs font-bold text-muted-foreground uppercase block mb-2">
                       Base Background Color
                     </label>
                     <div className="flex items-center gap-3 mb-2.5">
@@ -567,13 +569,13 @@ function AdminHeroSlidesPageContent() {
                         type="color"
                         value={activeSlide.bgColor}
                         onChange={(e) => updateActiveSlide({ bgColor: e.target.value })}
-                        className="h-8 w-12 rounded-lg border border-border cursor-pointer p-0.5 bg-transparent"
+                        className="h-10 w-14 rounded-lg border border-border cursor-pointer p-0.5 bg-transparent"
                       />
                       <Input
                         value={activeSlide.bgColor}
                         onChange={(e) => updateActiveSlide({ bgColor: e.target.value })}
                         placeholder="#a6d7e7"
-                        className="max-w-[130px] font-mono text-xs"
+                        className="max-w-[140px] font-mono text-sm"
                       />
                     </div>
 
@@ -584,7 +586,7 @@ function AdminHeroSlidesPageContent() {
                           type="button"
                           onClick={() => updateActiveSlide({ bgColor: preset.hex })}
                           title={preset.label}
-                          className={`h-6 px-2 rounded-md border text-[10px] font-semibold flex items-center gap-1 transition-all ${
+                          className={`h-7 px-2.5 rounded-lg border text-xs font-semibold flex items-center gap-1 transition-all ${
                             activeSlide.bgColor.toLowerCase() === preset.hex.toLowerCase()
                               ? 'border-brand ring-2 ring-brand/30 scale-105'
                               : 'border-border hover:border-neutral-400'
@@ -600,49 +602,49 @@ function AdminHeroSlidesPageContent() {
 
                 {/* Typography */}
                 <div className="space-y-4">
-                  <h3 className="font-bold text-sm text-foreground">
+                  <h3 className="font-bold text-base text-foreground">
                     Headline (3 Stacked Bold Lines)
                   </h3>
 
                   <div className="grid grid-cols-3 gap-3">
                     <div>
-                      <label className="text-[11px] font-bold text-muted-foreground uppercase">
+                      <label className="text-xs font-bold text-foreground uppercase block mb-1">
                         Line 1
                       </label>
                       <Input
                         value={activeSlide.headlineLine1}
                         onChange={(e) => updateActiveSlide({ headlineLine1: e.target.value })}
                         placeholder="ORGANIC"
-                        className="font-bold text-sm uppercase mt-1"
+                        className="font-bold text-base uppercase"
                       />
                     </div>
                     <div>
-                      <label className="text-[11px] font-bold text-muted-foreground uppercase">
+                      <label className="text-xs font-bold text-foreground uppercase block mb-1">
                         Line 2
                       </label>
                       <Input
                         value={activeSlide.headlineLine2}
                         onChange={(e) => updateActiveSlide({ headlineLine2: e.target.value })}
                         placeholder="COMES"
-                        className="font-bold text-sm uppercase mt-1"
+                        className="font-bold text-base uppercase"
                       />
                     </div>
                     <div>
-                      <label className="text-[11px] font-bold text-muted-foreground uppercase">
+                      <label className="text-xs font-bold text-foreground uppercase block mb-1">
                         Line 3
                       </label>
                       <Input
                         value={activeSlide.headlineLine3}
                         onChange={(e) => updateActiveSlide({ headlineLine3: e.target.value })}
                         placeholder="KNOCKING"
-                        className="font-bold text-sm uppercase mt-1"
+                        className="font-bold text-base uppercase"
                       />
                     </div>
                   </div>
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-foreground">
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-foreground block">
                     Subtitle Paragraph
                   </label>
                   <Textarea
@@ -650,30 +652,31 @@ function AdminHeroSlidesPageContent() {
                     value={activeSlide.subtitle}
                     onChange={(e) => updateActiveSlide({ subtitle: e.target.value })}
                     placeholder="Our new nuts are the best food for your health. Choose your favourite!"
+                    className="text-base"
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 pt-1">
+                <div className="grid grid-cols-2 gap-4 pt-1">
                   <div>
-                    <label className="text-xs font-bold text-foreground">
+                    <label className="text-sm font-bold text-foreground block mb-1.5">
                       Primary CTA Button Text
                     </label>
                     <Input
                       value={activeSlide.ctaText}
                       onChange={(e) => updateActiveSlide({ ctaText: e.target.value })}
                       placeholder="SEE PRODUCTS"
-                      className="font-bold mt-1"
+                      className="font-bold text-base"
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-bold text-foreground">
+                    <label className="text-sm font-bold text-foreground block mb-1.5">
                       Primary CTA Link URL
                     </label>
                     <Input
                       value={activeSlide.ctaLink}
                       onChange={(e) => updateActiveSlide({ ctaLink: e.target.value })}
                       placeholder="/products"
-                      className="mt-1 font-mono text-xs"
+                      className="font-mono text-sm"
                     />
                   </div>
                 </div>
@@ -686,12 +689,12 @@ function AdminHeroSlidesPageContent() {
                 {/* ── Stacked Card 1 Editor with Product Selector ── */}
                 <div className="p-5 rounded-2xl bg-background-secondary border border-border space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase text-foreground flex items-center gap-1.5">
+                    <span className="text-sm font-bold uppercase text-foreground flex items-center gap-2">
                       <ShoppingBag className="h-4 w-4 text-brand" />
                       Stacked Card 1 (Top Product)
                     </span>
                     <div className="flex items-center gap-2">
-                      <span className="text-[11px] text-muted-foreground">Color:</span>
+                      <span className="text-xs text-muted-foreground font-semibold">Color:</span>
                       <input
                         type="color"
                         value={activeSlide.card1.bgColor}
@@ -700,18 +703,18 @@ function AdminHeroSlidesPageContent() {
                             card1: { ...activeSlide.card1, bgColor: e.target.value },
                           })
                         }
-                        className="h-6 w-8 rounded-sm cursor-pointer"
+                        className="h-7 w-9 rounded-sm cursor-pointer"
                       />
                     </div>
                   </div>
 
                   {/* Select from catalog dropdown */}
-                  <div className="space-y-1 bg-card p-3 rounded-xl border border-border">
-                    <label className="text-[11px] font-bold text-brand uppercase flex items-center gap-1">
+                  <div className="space-y-1.5 bg-card p-3.5 rounded-xl border border-border">
+                    <label className="text-xs font-bold text-brand uppercase flex items-center gap-1">
                       <span>⚡ 1-Click Select Product</span>
                     </label>
                     <select
-                      className="w-full h-9 rounded-lg border border-border bg-background px-2.5 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-brand"
+                      className="w-full h-11 rounded-xl border border-border bg-background px-3 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-brand"
                       value={activeSlide.card1.productId || ''}
                       onChange={(e) => handleSelectProduct(e.target.value, 'card1')}
                     >
@@ -725,9 +728,9 @@ function AdminHeroSlidesPageContent() {
                   </div>
 
                   {/* Card 1 Details */}
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="text-[10px] uppercase font-bold text-muted-foreground">Title</label>
+                      <label className="text-xs uppercase font-bold text-foreground block mb-1">Title</label>
                       <Input
                         value={activeSlide.card1.title}
                         onChange={(e) =>
@@ -736,11 +739,11 @@ function AdminHeroSlidesPageContent() {
                           })
                         }
                         placeholder="Product Name"
-                        className="text-xs font-bold"
+                        className="text-sm font-bold"
                       />
                     </div>
                     <div>
-                      <label className="text-[10px] uppercase font-bold text-muted-foreground">Subtitle / Action</label>
+                      <label className="text-xs uppercase font-bold text-foreground block mb-1">Subtitle / Action</label>
                       <Input
                         value={activeSlide.card1.subtitle}
                         onChange={(e) =>
@@ -749,14 +752,14 @@ function AdminHeroSlidesPageContent() {
                           })
                         }
                         placeholder="₹450 • Shop Now"
-                        className="text-xs"
+                        className="text-sm font-medium"
                       />
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="text-[10px] uppercase font-bold text-muted-foreground">Redirect Link URL</label>
+                      <label className="text-xs uppercase font-bold text-foreground block mb-1">Redirect Link URL</label>
                       <Input
                         value={activeSlide.card1.link}
                         onChange={(e) =>
@@ -765,12 +768,12 @@ function AdminHeroSlidesPageContent() {
                           })
                         }
                         placeholder="/product/my-product"
-                        className="text-xs font-mono"
+                        className="text-sm font-mono"
                       />
                     </div>
                     <div>
-                      <label className="text-[10px] uppercase font-bold text-muted-foreground">Image URL / Upload</label>
-                      <div className="flex items-center gap-1.5">
+                      <label className="text-xs uppercase font-bold text-foreground block mb-1">Image URL / Upload</label>
+                      <div className="flex items-center gap-2">
                         <Input
                           value={activeSlide.card1.image}
                           onChange={(e) =>
@@ -779,21 +782,21 @@ function AdminHeroSlidesPageContent() {
                             })
                           }
                           placeholder="Image URL"
-                          className="text-xs font-mono flex-1"
+                          className="text-sm font-mono flex-1"
                         />
                         <Button
                           type="button"
                           variant="outline"
-                          size="sm"
+                          size="md"
                           disabled={uploadingCard1}
                           onClick={() => card1FileInputRef.current?.click()}
                           title="Upload Image to Supabase"
-                          className="px-2 shrink-0"
+                          className="h-11 px-3 shrink-0"
                         >
                           {uploadingCard1 ? (
-                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            <Loader2 className="h-4 w-4 animate-spin" />
                           ) : (
-                            <Upload className="h-3.5 w-3.5" />
+                            <Upload className="h-4 w-4" />
                           )}
                         </Button>
                       </div>
@@ -804,12 +807,12 @@ function AdminHeroSlidesPageContent() {
                 {/* ── Stacked Card 2 Editor with Product Selector ── */}
                 <div className="p-5 rounded-2xl bg-background-secondary border border-border space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase text-foreground flex items-center gap-1.5">
+                    <span className="text-sm font-bold uppercase text-foreground flex items-center gap-2">
                       <ShoppingBag className="h-4 w-4 text-brand" />
                       Stacked Card 2 (Bottom Product)
                     </span>
                     <div className="flex items-center gap-2">
-                      <span className="text-[11px] text-muted-foreground">Color:</span>
+                      <span className="text-xs text-muted-foreground font-semibold">Color:</span>
                       <input
                         type="color"
                         value={activeSlide.card2.bgColor}
@@ -818,18 +821,18 @@ function AdminHeroSlidesPageContent() {
                             card2: { ...activeSlide.card2, bgColor: e.target.value },
                           })
                         }
-                        className="h-6 w-8 rounded-sm cursor-pointer"
+                        className="h-7 w-9 rounded-sm cursor-pointer"
                       />
                     </div>
                   </div>
 
                   {/* Select from catalog dropdown */}
-                  <div className="space-y-1 bg-card p-3 rounded-xl border border-border">
-                    <label className="text-[11px] font-bold text-brand uppercase flex items-center gap-1">
+                  <div className="space-y-1.5 bg-card p-3.5 rounded-xl border border-border">
+                    <label className="text-xs font-bold text-brand uppercase flex items-center gap-1">
                       <span>⚡ 1-Click Select Product</span>
                     </label>
                     <select
-                      className="w-full h-9 rounded-lg border border-border bg-background px-2.5 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-brand"
+                      className="w-full h-11 rounded-xl border border-border bg-background px-3 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-brand"
                       value={activeSlide.card2.productId || ''}
                       onChange={(e) => handleSelectProduct(e.target.value, 'card2')}
                     >
@@ -843,9 +846,9 @@ function AdminHeroSlidesPageContent() {
                   </div>
 
                   {/* Card 2 Details */}
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="text-[10px] uppercase font-bold text-muted-foreground">Title</label>
+                      <label className="text-xs uppercase font-bold text-foreground block mb-1">Title</label>
                       <Input
                         value={activeSlide.card2.title}
                         onChange={(e) =>
@@ -854,11 +857,11 @@ function AdminHeroSlidesPageContent() {
                           })
                         }
                         placeholder="Product Name"
-                        className="text-xs font-bold"
+                        className="text-sm font-bold"
                       />
                     </div>
                     <div>
-                      <label className="text-[10px] uppercase font-bold text-muted-foreground">Subtitle / Action</label>
+                      <label className="text-xs uppercase font-bold text-foreground block mb-1">Subtitle / Action</label>
                       <Input
                         value={activeSlide.card2.subtitle}
                         onChange={(e) =>
@@ -867,14 +870,14 @@ function AdminHeroSlidesPageContent() {
                           })
                         }
                         placeholder="₹450 • Shop Now"
-                        className="text-xs"
+                        className="text-sm font-medium"
                       />
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="text-[10px] uppercase font-bold text-muted-foreground">Redirect Link URL</label>
+                      <label className="text-xs uppercase font-bold text-foreground block mb-1">Redirect Link URL</label>
                       <Input
                         value={activeSlide.card2.link}
                         onChange={(e) =>
@@ -883,12 +886,12 @@ function AdminHeroSlidesPageContent() {
                           })
                         }
                         placeholder="/product/my-product"
-                        className="text-xs font-mono"
+                        className="text-sm font-mono"
                       />
                     </div>
                     <div>
-                      <label className="text-[10px] uppercase font-bold text-muted-foreground">Image URL / Upload</label>
-                      <div className="flex items-center gap-1.5">
+                      <label className="text-xs uppercase font-bold text-foreground block mb-1">Image URL / Upload</label>
+                      <div className="flex items-center gap-2">
                         <Input
                           value={activeSlide.card2.image}
                           onChange={(e) =>
@@ -897,21 +900,21 @@ function AdminHeroSlidesPageContent() {
                             })
                           }
                           placeholder="Image URL"
-                          className="text-xs font-mono flex-1"
+                          className="text-sm font-mono flex-1"
                         />
                         <Button
                           type="button"
                           variant="outline"
-                          size="sm"
+                          size="md"
                           disabled={uploadingCard2}
                           onClick={() => card2FileInputRef.current?.click()}
                           title="Upload Image to Supabase"
-                          className="px-2 shrink-0"
+                          className="h-11 px-3 shrink-0"
                         >
                           {uploadingCard2 ? (
-                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            <Loader2 className="h-4 w-4 animate-spin" />
                           ) : (
-                            <Upload className="h-3.5 w-3.5" />
+                            <Upload className="h-4 w-4" />
                           )}
                         </Button>
                       </div>
@@ -928,18 +931,18 @@ function AdminHeroSlidesPageContent() {
 
       {/* ── Tab Content: Carousel Timings & Controls ── */}
       {activeTab === 'settings' && (
-        <div className="bg-card border border-border rounded-2xl p-6 space-y-6 max-w-2xl">
-          <h3 className="font-bold text-base text-foreground flex items-center gap-2">
-            <Sliders className="h-4 w-4 text-brand" />
+        <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 space-y-6 max-w-2xl">
+          <h3 className="font-bold text-lg text-foreground flex items-center gap-2">
+            <Sliders className="h-5 w-5 text-brand" />
             Carousel Rotation Settings
           </h3>
 
           <div className="space-y-4">
             <div>
-              <label className="text-xs font-bold text-foreground">
+              <label className="text-sm font-bold text-foreground block mb-2">
                 Autoplay Rotation Speed (Seconds)
               </label>
-              <div className="flex items-center gap-3 mt-1.5">
+              <div className="flex items-center gap-3">
                 <Input
                   type="number"
                   min="2"
@@ -951,9 +954,9 @@ function AdminHeroSlidesPageContent() {
                       autoplayIntervalMs: (parseInt(e.target.value, 10) || 6) * 1000,
                     }))
                   }
-                  className="max-w-[120px] font-bold"
+                  className="max-w-[120px] font-bold text-base"
                 />
-                <span className="text-xs text-muted-foreground">
+                <span className="text-sm text-muted-foreground">
                   Default is 6 seconds. Automatically pauses on user hover.
                 </span>
               </div>

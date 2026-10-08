@@ -94,9 +94,9 @@ export function QuickCartWidget({ className = '', onClose }: QuickCartWidgetProp
   if (!isHydrated) {
     return (
       <div
-        className={`w-full bg-white text-neutral-900 rounded-[32px] sm:rounded-[36px] p-6 shadow-xl ${className}`}
+        className={`w-full bg-white dark:bg-[#141414] dark:border dark:border-[#282828] text-neutral-900 dark:text-white rounded-[32px] sm:rounded-[36px] p-6 shadow-xl dark:shadow-none ${className}`}
       >
-        <div className="flex items-center gap-2.5 pb-4 border-b border-neutral-100">
+        <div className="flex items-center gap-2.5 pb-4 border-b border-neutral-100 dark:border-[#282828]">
           <ShoppingCart className="h-5 w-5 text-neutral-400" />
           <span className="font-bold text-base tracking-tight">{t('title')}</span>
         </div>
@@ -110,25 +110,25 @@ export function QuickCartWidget({ className = '', onClose }: QuickCartWidgetProp
   return (
     <div
       ref={containerRef}
-      className={`w-full bg-white text-neutral-900 rounded-[32px] sm:rounded-[36px] p-5 sm:p-6 shadow-2xl flex flex-col font-sans select-none backdrop-blur-md transition-all ${className}`}
+      className={`w-full bg-white dark:bg-[#141414] dark:border dark:border-[#282828] text-neutral-900 dark:text-white rounded-[32px] sm:rounded-[36px] p-5 sm:p-6 shadow-2xl dark:shadow-none flex flex-col font-sans select-none backdrop-blur-md transition-all ${className}`}
     >
       {/* Mobile Bottom Sheet Grab Handle */}
       {onClose && (
-        <div className="w-10 h-1 rounded-full bg-neutral-300 mx-auto -mt-1 mb-3.5 sm:hidden" />
+        <div className="w-10 h-1 rounded-full bg-neutral-300 dark:bg-neutral-700 mx-auto -mt-1 mb-3.5 sm:hidden" />
       )}
 
       {/* ── 1. Header ─── */}
-      <div className="qcart-header flex items-center justify-between pb-3.5 sm:pb-4 border-b border-neutral-100">
+      <div className="qcart-header flex items-center justify-between pb-3.5 sm:pb-4 border-b border-neutral-100 dark:border-[#282828]">
         <div className="flex items-center gap-2.5">
-          <div className="h-9 w-9 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-900">
+          <div className="h-9 w-9 rounded-full bg-neutral-100 dark:bg-[#202020] flex items-center justify-center text-neutral-900 dark:text-white">
             <ShoppingCart className="h-4.5 w-4.5" />
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="font-bold text-base tracking-tight text-neutral-900">
+              <span className="font-bold text-base tracking-tight text-neutral-900 dark:text-white">
                 {t('title')}
               </span>
-              <span className="qcart-badge h-5 px-2 rounded-full bg-neutral-950 text-white text-[11px] font-bold flex items-center justify-center font-mono">
+              <span className="qcart-badge h-5 px-2 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-black text-[11px] font-bold flex items-center justify-center font-mono">
                 {itemCount}
               </span>
             </div>
@@ -139,7 +139,7 @@ export function QuickCartWidget({ className = '', onClose }: QuickCartWidgetProp
           {itemCount > 0 && (
             <Link
               href={locale === 'en' ? '/cart' : `/${locale}/cart`}
-              className="text-xs font-semibold text-neutral-500 hover:text-neutral-950 transition-colors flex items-center gap-1 py-1 px-3 rounded-full hover:bg-neutral-100"
+              className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 hover:text-neutral-950 dark:hover:text-white transition-colors flex items-center gap-1 py-1 px-3 rounded-full hover:bg-neutral-100 dark:hover:bg-[#202020]"
             >
               {t('orderSummary')} <ArrowRight className="h-3 w-3" />
             </Link>
@@ -148,7 +148,7 @@ export function QuickCartWidget({ className = '', onClose }: QuickCartWidgetProp
             <button
               type="button"
               onClick={onClose}
-              className="h-8 w-8 rounded-full bg-neutral-100 text-neutral-500 hover:text-neutral-900 hover:bg-neutral-200 flex items-center justify-center transition-colors cursor-pointer"
+              className="h-8 w-8 rounded-full bg-neutral-100 dark:bg-[#202020] text-neutral-500 dark:text-neutral-400 hover:text-neutral-950 dark:hover:text-white hover:bg-neutral-200 dark:hover:bg-[#2c2c2c] flex items-center justify-center transition-colors cursor-pointer"
               aria-label={tCommon('close')}
             >
               <X className="h-4 w-4" />
@@ -159,11 +159,11 @@ export function QuickCartWidget({ className = '', onClose }: QuickCartWidgetProp
 
       {/* ── 2. Direct Factory Savings Banner ─── */}
       {totalSavings > 0 && (
-        <div className="mt-3.5 bg-emerald-50 rounded-full px-4 py-2 flex items-center justify-between text-xs">
-          <span className="text-emerald-800 font-semibold flex items-center gap-1.5">
-            <Sparkles className="h-3.5 w-3.5 text-emerald-600" /> {t('totalSavings')}:
+        <div className="mt-3.5 bg-emerald-50 dark:bg-[#082111] dark:border dark:border-[#14532d] rounded-full px-4 py-2 flex items-center justify-between text-xs">
+          <span className="text-emerald-800 dark:text-emerald-300 font-semibold flex items-center gap-1.5">
+            <Sparkles className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" /> {t('totalSavings')}:
           </span>
-          <span className="text-emerald-700 font-mono font-bold">
+          <span className="text-emerald-700 dark:text-emerald-400 font-mono font-bold">
             {formatCurrency(totalSavings)} {locale === 'ta' ? 'சேமிப்பு' : 'off'}
           </span>
         </div>
@@ -172,12 +172,12 @@ export function QuickCartWidget({ className = '', onClose }: QuickCartWidgetProp
       {/* ── 3. Cart Items List / Stack ─── */}
       {items.length === 0 ? (
         <div className="py-12 px-4 text-center space-y-3">
-          <div className="h-12 w-12 rounded-full bg-neutral-100 flex items-center justify-center mx-auto text-neutral-400">
+          <div className="h-12 w-12 rounded-full bg-neutral-100 dark:bg-[#202020] flex items-center justify-center mx-auto text-neutral-400">
             <ShoppingBag className="h-6 w-6" />
           </div>
           <div className="space-y-1">
-            <p className="font-bold text-sm text-neutral-900">{t('emptyTitle')}</p>
-            <p className="text-xs text-neutral-500 leading-relaxed max-w-[220px] mx-auto">
+            <p className="font-bold text-sm text-neutral-900 dark:text-white">{t('emptyTitle')}</p>
+            <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed max-w-[220px] mx-auto">
               {t('emptyDesc')}
             </p>
           </div>
@@ -195,12 +195,12 @@ export function QuickCartWidget({ className = '', onClose }: QuickCartWidgetProp
               <div
                 key={item.productId}
                 id={`cart-item-${item.productId}`}
-                className="qcart-item group relative bg-neutral-50 hover:bg-neutral-100/80 rounded-[22px] p-3.5 transition-all shadow-xs"
+                className="qcart-item group relative bg-neutral-50 dark:bg-[#1a1a1a] hover:bg-neutral-100/80 dark:hover:bg-[#222222] dark:border dark:border-[#282828] rounded-[22px] p-3.5 transition-all shadow-xs dark:shadow-none"
               >
                 {/* Top Row: Item Details & Remove Button */}
                 <div className="flex items-start gap-2.5 justify-between">
                   {item.image ? (
-                    <div className="relative h-12 w-12 rounded-[14px] overflow-hidden bg-white shrink-0">
+                    <div className="relative h-12 w-12 rounded-[14px] overflow-hidden bg-white dark:bg-[#242424] shrink-0">
                       <Image
                         src={item.image}
                         alt={displayName}
@@ -210,16 +210,16 @@ export function QuickCartWidget({ className = '', onClose }: QuickCartWidgetProp
                       />
                     </div>
                   ) : (
-                    <div className="h-12 w-12 rounded-[14px] bg-white flex items-center justify-center shrink-0 text-neutral-400">
+                    <div className="h-12 w-12 rounded-[14px] bg-white dark:bg-[#242424] flex items-center justify-center shrink-0 text-neutral-400">
                       <Sparkles className="h-4 w-4 text-neutral-400" />
                     </div>
                   )}
 
                   <div className="flex-1 min-w-0">
-                    <span className="text-xs font-semibold text-neutral-900 line-clamp-1 leading-snug">
+                    <span className="text-xs font-semibold text-neutral-900 dark:text-white line-clamp-1 leading-snug">
                       {displayName}
                     </span>
-                    <span className="text-[11px] text-neutral-500 font-mono">
+                    <span className="text-[11px] text-neutral-500 dark:text-neutral-400 font-mono">
                       {formatCurrency(item.sellingPrice)} {locale === 'ta' ? 'ஒன்றுக்கு' : 'each'}
                     </span>
                   </div>
@@ -230,7 +230,7 @@ export function QuickCartWidget({ className = '', onClose }: QuickCartWidgetProp
                       const card = e.currentTarget.closest('.qcart-item') as HTMLElement | null;
                       handleRemoveWithAnim(item.productId, card);
                     }}
-                    className="h-6 w-6 -mr-1 -mt-0.5 rounded-full text-neutral-400 hover:text-destructive hover:bg-destructive-light flex items-center justify-center transition-colors cursor-pointer shrink-0"
+                    className="h-6 w-6 -mr-1 -mt-0.5 rounded-full text-neutral-400 hover:text-destructive hover:bg-destructive-light dark:hover:bg-destructive/20 flex items-center justify-center transition-colors cursor-pointer shrink-0"
                     aria-label={`${tCommon('remove')} ${displayName}`}
                   >
                     <X className="h-3.5 w-3.5" />
@@ -238,7 +238,7 @@ export function QuickCartWidget({ className = '', onClose }: QuickCartWidgetProp
                 </div>
 
                 {/* Bottom Row: Tactile Stepper & Line Total */}
-                <div className="flex items-center justify-between pt-2.5 mt-2 border-t border-neutral-200/60">
+                <div className="flex items-center justify-between pt-2.5 mt-2 border-t border-neutral-200/60 dark:border-[#282828]">
                   {/* Stepper */}
                   <QuantityStepper
                     quantity={item.quantity}
@@ -254,7 +254,7 @@ export function QuickCartWidget({ className = '', onClose }: QuickCartWidgetProp
 
                   {/* Line Total */}
                   <div className="text-right">
-                    <span className="text-xs sm:text-sm font-bold text-neutral-900 font-mono tracking-tight">
+                    <span className="text-xs sm:text-sm font-bold text-neutral-900 dark:text-white font-mono tracking-tight">
                       {formatCurrency(lineTotal)}
                     </span>
                   </div>
@@ -267,15 +267,15 @@ export function QuickCartWidget({ className = '', onClose }: QuickCartWidgetProp
 
       {/* ── 4. Footer / Subtotal & Tactile Pop Checkout ─── */}
       {items.length > 0 && (
-        <div className="qcart-footer pt-3.5 border-t border-neutral-100 space-y-3.5 mt-auto">
+        <div className="qcart-footer pt-3.5 border-t border-neutral-100 dark:border-[#282828] space-y-3.5 mt-auto">
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-xs font-semibold text-neutral-500 block">{t('estimatedTotal')}</span>
-              <span className="text-[10px] text-neutral-400">
+              <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 block">{t('estimatedTotal')}</span>
+              <span className="text-[10px] text-neutral-400 dark:text-neutral-500">
                 {locale === 'ta' ? 'வரி உள்ளடக்கம் • சிவகாசி நேரடி' : 'Taxes included • Ex-Sivakasi'}
               </span>
             </div>
-            <div className="font-extrabold text-lg sm:text-xl text-neutral-900 tracking-tight">
+            <div className="font-extrabold text-lg sm:text-xl text-neutral-900 dark:text-white tracking-tight">
               <NumberFlow
                 value={subtotal}
                 format={{
@@ -294,7 +294,7 @@ export function QuickCartWidget({ className = '', onClose }: QuickCartWidgetProp
           <Link href={locale === 'en' ? '/checkout' : `/${locale}/checkout`} className="block w-full">
             <button
               type="button"
-              className="w-full h-12 px-6 rounded-full bg-neutral-950 text-white font-bold text-xs sm:text-sm tracking-wide flex items-center justify-center gap-2 hover:bg-neutral-800 transition-all shadow-md active:scale-98 cursor-pointer"
+              className="w-full h-12 px-6 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-black font-bold text-xs sm:text-sm tracking-wide flex items-center justify-center gap-2 hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-all shadow-md active:scale-98 cursor-pointer"
             >
               <CreditCard className="h-4 w-4" />
               <span>{t('proceedToCheckout')}</span>

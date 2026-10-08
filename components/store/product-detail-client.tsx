@@ -65,10 +65,10 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
   return (
     <div className="space-y-4 pt-2 font-sans">
       {cartQuantity > 0 ? (
-        <div className="p-5 rounded-[24px] sm:rounded-[28px] bg-white shadow-sm space-y-3">
+        <div className="p-5 rounded-[24px] sm:rounded-[28px] bg-white dark:bg-[#141414] dark:border dark:border-[#282828] shadow-sm dark:shadow-none space-y-3">
           <div className="flex items-center justify-between text-xs font-semibold text-foreground">
             <span className="flex items-center gap-1.5">
-              <Check className="h-4 w-4 text-emerald-700" />
+              <Check className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />
               {locale === 'ta' ? `${cartQuantity} உங்கள் பையில் உள்ளது` : `${cartQuantity} in your shopping bag`}
             </span>
             <span className="text-muted-foreground font-normal">
