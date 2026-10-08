@@ -12,7 +12,8 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "lucide-react": ["./src/lib/hugeicons.tsx"]
     }
   },
   "include": [

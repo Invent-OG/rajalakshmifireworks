@@ -21,10 +21,11 @@ export default defineConfig({
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './'),
+        'lucide-react': path.resolve(__dirname, './src/lib/hugeicons.tsx'),
       },
     },
     ssr: {
-      noExternal: ['lucide-react', 'gsap', '@gsap/react'],
+      noExternal: ['lucide-react', 'hugeicons-react', 'gsap', '@gsap/react'],
     },
   },
 });
