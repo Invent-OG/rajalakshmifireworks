@@ -45,6 +45,7 @@ async function _GET(request: NextRequest) {
     const transformed = filtered.map((dp) => ({
       ...dp,
       fullName: dp.name,
+      serviceableAreas: Array.isArray(dp.serviceableAreas) ? dp.serviceableAreas : [],
     }));
 
     return Response.json(transformed);
@@ -96,6 +97,7 @@ async function _POST(request: NextRequest) {
         vehicleNumber: result.data.vehicleNumber || null,
         notes: result.data.notes || null,
         status: result.data.status,
+        serviceableAreas: result.data.serviceableAreas || [],
       })
       .returning();
 
@@ -103,6 +105,7 @@ async function _POST(request: NextRequest) {
       {
         ...created,
         fullName: created.name,
+        serviceableAreas: Array.isArray(created.serviceableAreas) ? created.serviceableAreas : [],
       },
       { status: 201 }
     );

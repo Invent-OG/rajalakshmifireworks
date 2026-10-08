@@ -56,6 +56,40 @@ describe('Delivery Partner Validation Schemas', () => {
       const result = deliveryPartnerSchema.safeParse(invalid);
       expect(result.success).toBe(false);
     });
+
+    it('parses and normalizes serviceableAreas array and strings', () => {
+      const withArray = {
+        name: 'Express Logistics',
+        mobileNumber: '9876543210',
+        serviceableAreas: ['Sivakasi Town', 'Virudhunagar', 'Madurai'],
+      };
+      const resArray = deliveryPartnerSchema.safeParse(withArray);
+      expect(resArray.success).toBe(true);
+      if (resArray.success) {
+        expect(resArray.data.serviceableAreas).toEqual(['Sivakasi Town', 'Virudhunagar', 'Madurai']);
+      }
+
+      const withCsvString = {
+        name: 'Express Logistics',
+        mobileNumber: '9876543210',
+        serviceableAreas: 'Chennai, Coimbatore, Salem',
+      };
+      const resCsv = deliveryPartnerSchema.safeParse(withCsvString);
+      expect(resCsv.success).toBe(true);
+      if (resCsv.success) {
+        expect(resCsv.data.serviceableAreas).toEqual(['Chennai', 'Coimbatore', 'Salem']);
+      }
+
+      const withoutAreas = {
+        name: 'Local Transporter',
+        mobileNumber: '9876543210',
+      };
+      const resEmpty = deliveryPartnerSchema.safeParse(withoutAreas);
+      expect(resEmpty.success).toBe(true);
+      if (resEmpty.success) {
+        expect(resEmpty.data.serviceableAreas).toEqual([]);
+      }
+    });
   });
 
   describe('assignDeliverySchema', () => {

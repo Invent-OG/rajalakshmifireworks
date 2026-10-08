@@ -11,7 +11,7 @@ import { Input, Textarea } from '@/components/ui/input';
 import { EmptyState } from '@/components/ui/empty-state';
 import { EnquiryNoticeModal } from '@/components/store/enquiry-notice-modal';
 import { formatCurrency } from '@/lib/utils/format';
-import { Truck, Store, ShoppingBag, ShieldCheck, MessageSquare, ArrowRight } from 'lucide-react';
+import { Truck, Store, ShoppingBag, ShieldCheck, MessageSquare, ArrowRight, MapPin } from 'lucide-react';
 import { toast } from 'sonner';
 import { nanoid } from 'nanoid';
 import { useTranslations, useLocale } from '@/lib/i18n/context';
@@ -37,6 +37,7 @@ const checkoutFormSchema = z
     fulfillmentType: z.enum(['DELIVERY', 'PICKUP']),
     stateId: z.string().optional(),
     cityId: z.string().optional(),
+    area: z.string().optional(),
     address: z.string().optional(),
     city: z.string().optional(),
     pincode: z.string().optional(),
@@ -90,6 +91,7 @@ function CheckoutPageContent() {
       fulfillmentType: 'DELIVERY',
       stateId: '',
       cityId: '',
+      area: '',
       address: '',
       city: '',
       pincode: '',
@@ -129,6 +131,21 @@ function CheckoutPageContent() {
     },
     enabled: !!selectedStateId,
   });
+
+  // Fetch Serviceable Delivery Areas configured by Admin
+  const { data: deliveryAreasData, isLoading: isAreasLoading } = useQuery<{
+    areas: string[];
+    uniqueAreas: string[];
+  }>({
+    queryKey: ['delivery-areas'],
+    queryFn: async () => {
+      const res = await fetch('/api/delivery-areas');
+      if (!res.ok) return { areas: [], uniqueAreas: [] };
+      return res.json();
+    },
+  });
+
+  const deliveryAreas: string[] = deliveryAreasData?.areas || deliveryAreasData?.uniqueAreas || [];
 
   // When state changes, reset cityId and city name in form
   useEffect(() => {
@@ -176,10 +193,11 @@ function CheckoutPageContent() {
           data.fulfillmentType === 'DELIVERY'
             ? {
                 address: data.address!.trim(),
-                stateId: Number(data.stateId),
-                cityId: Number(data.cityId),
+                stateId: data.stateId ? Number(data.stateId) : undefined,
+                cityId: data.cityId ? Number(data.cityId) : undefined,
                 state: selectedState?.name || '',
                 city: selectedCity?.name || data.city || '',
+                area: data.area?.trim() || undefined,
                 pincode: data.pincode!.trim(),
               }
             : undefined,
@@ -254,9 +272,9 @@ function CheckoutPageContent() {
           {/* Left: Input Details Form */}
           <div className="lg:col-span-7 space-y-6">
             {/* Step 01: Customer Details */}
-            <div className="p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white shadow-sm space-y-4">
-              <div className="flex items-center gap-3 pb-1 border-b border-neutral-100">
-                <span className="h-7 w-7 rounded-full bg-neutral-900 text-white text-xs font-bold flex items-center justify-center shadow-xs font-mono">
+            <div className="p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white dark:bg-[#141414] dark:border dark:border-[#282828] shadow-sm dark:shadow-none space-y-4">
+              <div className="flex items-center gap-3 pb-1 border-b border-neutral-100 dark:border-[#282828]">
+                <span className="h-7 w-7 rounded-full bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 text-xs font-bold flex items-center justify-center shadow-xs font-mono">
                   01
                 </span>
                 <h2 className="font-bold text-base text-foreground tracking-tight font-heading">
@@ -281,9 +299,9 @@ function CheckoutPageContent() {
             </div>
 
             {/* Step 02: Fulfillment Mode & Address Selection */}
-            <div className="p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white shadow-sm space-y-4">
-              <div className="flex items-center gap-3 pb-1 border-b border-neutral-100">
-                <span className="h-7 w-7 rounded-full bg-neutral-900 text-white text-xs font-bold flex items-center justify-center shadow-xs font-mono">
+            <div className="p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white dark:bg-[#141414] dark:border dark:border-[#282828] shadow-sm dark:shadow-none space-y-4">
+              <div className="flex items-center gap-3 pb-1 border-b border-neutral-100 dark:border-[#282828]">
+                <span className="h-7 w-7 rounded-full bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 text-xs font-bold flex items-center justify-center shadow-xs font-mono">
                   02
                 </span>
                 <h2 className="font-bold text-base text-foreground tracking-tight font-heading">
@@ -296,8 +314,8 @@ function CheckoutPageContent() {
                 <label
                   className={`flex items-start gap-3.5 p-4 rounded-2xl border-2 transition-all cursor-pointer ${
                     fulfillmentType === 'DELIVERY'
-                      ? 'border-neutral-900 bg-neutral-50/70 shadow-xs'
-                      : 'border-neutral-200 bg-white hover:border-neutral-300'
+                      ? 'border-neutral-900 bg-neutral-50/70 dark:border-white dark:bg-[#1f1f1f] shadow-xs'
+                      : 'border-neutral-200 bg-white hover:border-neutral-300 dark:border-[#282828] dark:bg-[#141414] dark:hover:border-[#383838]'
                   }`}
                 >
                   <input
@@ -309,8 +327,8 @@ function CheckoutPageContent() {
                   <div
                     className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
                       fulfillmentType === 'DELIVERY'
-                        ? 'bg-neutral-900 text-white'
-                        : 'bg-neutral-200 text-neutral-600'
+                        ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-950'
+                        : 'bg-neutral-200 text-neutral-600 dark:bg-[#282828] dark:text-neutral-400'
                     }`}
                   >
                     <Truck className="h-4.5 w-4.5" />
@@ -328,8 +346,8 @@ function CheckoutPageContent() {
                 <label
                   className={`flex items-start gap-3.5 p-4 rounded-2xl border-2 transition-all cursor-pointer ${
                     fulfillmentType === 'PICKUP'
-                      ? 'border-neutral-900 bg-neutral-50/70 shadow-xs'
-                      : 'border-neutral-200 bg-white hover:border-neutral-300'
+                      ? 'border-neutral-900 bg-neutral-50/70 dark:border-white dark:bg-[#1f1f1f] shadow-xs'
+                      : 'border-neutral-200 bg-white hover:border-neutral-300 dark:border-[#282828] dark:bg-[#141414] dark:hover:border-[#383838]'
                   }`}
                 >
                   <input
@@ -341,8 +359,8 @@ function CheckoutPageContent() {
                   <div
                     className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
                       fulfillmentType === 'PICKUP'
-                        ? 'bg-neutral-900 text-white'
-                        : 'bg-neutral-200 text-neutral-600'
+                        ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-950'
+                        : 'bg-neutral-200 text-neutral-600 dark:bg-[#282828] dark:text-neutral-400'
                     }`}
                   >
                     <Store className="h-4.5 w-4.5" />
@@ -375,11 +393,11 @@ function CheckoutPageContent() {
                           form.setValue('cityId', '', { shouldValidate: true });
                           form.setValue('city', '');
                         }}
-                        className="w-full h-11 px-3.5 rounded-xl border border-neutral-200 bg-white text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-neutral-900 cursor-pointer shadow-xs"
+                        className="w-full h-11 px-3.5 rounded-xl border border-neutral-200 dark:border-[#282828] bg-white dark:bg-[#181818] text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white focus:border-neutral-900 dark:focus:border-white cursor-pointer shadow-xs"
                       >
-                        <option value="">{isStatesLoading ? 'Loading states...' : 'Select State'}</option>
+                        <option value="" className="bg-white dark:bg-[#181818] text-foreground">{isStatesLoading ? 'Loading states...' : 'Select State'}</option>
                         {states.map((st) => (
-                          <option key={st.id} value={st.id}>
+                          <option key={st.id} value={st.id} className="bg-white dark:bg-[#181818] text-foreground">
                             {st.name}
                           </option>
                         ))}
@@ -399,9 +417,9 @@ function CheckoutPageContent() {
                           const found = cities.find((c) => c.id === Number(val));
                           if (found) form.setValue('city', found.name);
                         }}
-                        className="w-full h-11 px-3.5 rounded-xl border border-neutral-200 bg-white text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-neutral-900 cursor-pointer shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full h-11 px-3.5 rounded-xl border border-neutral-200 dark:border-[#282828] bg-white dark:bg-[#181818] text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white focus:border-neutral-900 dark:focus:border-white cursor-pointer shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        <option value="">
+                        <option value="" className="bg-white dark:bg-[#181818] text-foreground">
                           {!selectedStateId
                             ? 'Select State First'
                             : isCitiesLoading
@@ -409,13 +427,59 @@ function CheckoutPageContent() {
                             : 'Select City'}
                         </option>
                         {cities.map((ct) => (
-                          <option key={ct.id} value={ct.id}>
+                          <option key={ct.id} value={ct.id} className="bg-white dark:bg-[#181818] text-foreground">
                             {ct.name}
                           </option>
                         ))}
                       </select>
                     </div>
                   </div>
+
+                  {/* Delivery Area Dropdown */}
+                  {deliveryAreas.length > 0 && (
+                    <div className="p-3.5 rounded-2xl bg-neutral-50/80 dark:bg-[#181818] border border-neutral-200/90 dark:border-[#282828] space-y-2">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                          <MapPin className="h-3.5 w-3.5 text-neutral-900 dark:text-neutral-100" />
+                          <span>
+                            {locale === 'ta' ? 'டெலிவரி பகுதி (Delivery Area)' : 'Select Delivery Area / Locality'} *
+                          </span>
+                        </label>
+                        {form.watch('area') && (
+                          <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+                            ✓ Delivery Available
+                          </span>
+                        )}
+                      </div>
+
+                      <select
+                        value={form.watch('area') || ''}
+                        onChange={(e) => {
+                          form.setValue('area', e.target.value);
+                        }}
+                        className="w-full h-11 px-3.5 rounded-xl border border-neutral-200 dark:border-[#282828] bg-white dark:bg-[#121212] text-xs font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white focus:border-neutral-900 dark:focus:border-white cursor-pointer shadow-xs"
+                      >
+                        <option value="" className="bg-white dark:bg-[#121212] text-foreground">
+                          {isAreasLoading
+                            ? 'Loading delivery areas...'
+                            : locale === 'ta'
+                            ? '-- உங்கள் டெலிவரி பகுதியைத் தேர்ந்தெடுக்கவும் --'
+                            : '-- Select Available Delivery Area --'}
+                        </option>
+                        {deliveryAreas.map((areaName, idx) => (
+                          <option key={idx} value={areaName} className="bg-white dark:bg-[#121212] text-foreground">
+                            {areaName}
+                          </option>
+                        ))}
+                      </select>
+
+                      <p className="text-[11px] text-muted-foreground leading-normal">
+                        {locale === 'ta'
+                          ? 'எங்கள் பிரத்யேக லாரி சர்வீஸ் & டெலிவரி பார்ட்னர்கள் இப்பகுதிகளுக்கு நேரடியாக டெலிவரி செய்கின்றனர்.'
+                          : 'Our verified transport partners directly cover these delivery zones for safe doorstep dispatch.'}
+                      </p>
+                    </div>
+                  )}
 
                   {/* Street Address & Pincode */}
                   <Input
@@ -438,9 +502,9 @@ function CheckoutPageContent() {
             </div>
 
             {/* Step 03: Delivery Instructions */}
-            <div className="p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white shadow-sm space-y-4">
+            <div className="p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white dark:bg-[#141414] dark:border dark:border-[#282828] shadow-sm dark:shadow-none space-y-4">
               <div className="flex items-center gap-3">
-                <span className="h-7 w-7 rounded-full bg-neutral-900 text-white text-xs font-bold flex items-center justify-center shadow-xs font-mono">
+                <span className="h-7 w-7 rounded-full bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 text-xs font-bold flex items-center justify-center shadow-xs font-mono">
                   03
                 </span>
                 <h2 className="font-bold text-base text-foreground tracking-tight font-heading">
@@ -456,8 +520,8 @@ function CheckoutPageContent() {
 
           {/* Right: Order Summary Breakdown */}
           <div className="lg:col-span-5">
-            <div className="p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white sticky top-24 space-y-6 shadow-sm">
-              <h2 className="font-bold text-base text-foreground tracking-tight pb-3 border-b border-neutral-100 font-heading">
+            <div className="p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white dark:bg-[#141414] dark:border dark:border-[#282828] sticky top-24 space-y-6 shadow-sm dark:shadow-none">
+              <h2 className="font-bold text-base text-foreground tracking-tight pb-3 border-b border-neutral-100 dark:border-[#282828] font-heading">
                 {t('orderSummary')} ({itemCount} {itemCount === 1 ? tCart('item') : tCart('items')})
               </h2>
 
@@ -479,13 +543,13 @@ function CheckoutPageContent() {
               </div>
 
               {/* Price Calculation */}
-              <div className="border-t border-neutral-100 pt-4 space-y-2.5 text-xs sm:text-sm">
+              <div className="border-t border-neutral-100 dark:border-[#282828] pt-4 space-y-2.5 text-xs sm:text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">{tCart('estimatedTotal')}</span>
                   <span className="font-semibold font-mono">{formatCurrency(subtotal)}</span>
                 </div>
                 {totalSavings > 0 && (
-                  <div className="flex justify-between text-emerald-700 font-semibold">
+                  <div className="flex justify-between text-emerald-700 dark:text-emerald-400 font-semibold">
                     <span>{tCart('totalSavings')}</span>
                     <span className="font-mono">-{formatCurrency(totalSavings)}</span>
                   </div>
@@ -501,7 +565,7 @@ function CheckoutPageContent() {
               </div>
 
               {/* Total Box */}
-              <div className="border-t border-neutral-100 pt-4 flex items-baseline justify-between">
+              <div className="border-t border-neutral-100 dark:border-[#282828] pt-4 flex items-baseline justify-between">
                 <span className="font-bold text-base text-foreground">{tCart('estimatedTotal')}</span>
                 <span className="text-xl font-bold text-foreground font-mono">
                   {formatCurrency(subtotal)}
@@ -522,7 +586,7 @@ function CheckoutPageContent() {
               </StoreButton>
 
               {/* WhatsApp Notice Box */}
-              <div className="p-4 rounded-[20px] sm:rounded-[22px] bg-neutral-50 text-xs text-muted-foreground flex items-start gap-3">
+              <div className="p-4 rounded-[20px] sm:rounded-[22px] bg-neutral-50 dark:bg-[#181818] dark:border dark:border-[#282828] text-xs text-muted-foreground flex items-start gap-3">
                 <MessageSquare className="h-4 w-4 shrink-0 text-foreground mt-0.5" />
                 <p className="leading-relaxed">
                   <strong>{locale === 'ta' ? 'ஆன்லைன் கட்டணம் தேவையில்லை.' : 'No online payment required.'}</strong>{' '}
@@ -533,7 +597,7 @@ function CheckoutPageContent() {
               </div>
 
               <div className="flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
-                <ShieldCheck className="h-3.5 w-3.5 text-emerald-700" />
+                <ShieldCheck className="h-3.5 w-3.5 text-emerald-700 dark:text-emerald-400" />
                 <span>{locale === 'ta' ? '100% பாதுகாப்பான சிவகாசி நேரடி விநியோகம்' : '100% Secure Sivakasi Factory Direct'}</span>
               </div>
             </div>

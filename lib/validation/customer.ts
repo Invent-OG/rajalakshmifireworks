@@ -30,6 +30,8 @@ export const addressSchema = z.object({
     .min(2, 'City must be at least 2 characters')
     .max(100, 'City name is too long')
     .trim(),
+  area: z.string().max(255).optional().or(z.literal('')),
+  deliveryPartnerId: z.coerce.number().int().positive().optional(),
   pincode: z
     .string()
     .regex(/^\d{6}$/, 'Please enter a valid 6-digit pincode')

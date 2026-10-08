@@ -99,6 +99,7 @@ interface DeliveryPartnerItem {
   vehicleType: string | null;
   vehicleNumber: string | null;
   status: string;
+  serviceableAreas?: string[] | null;
 }
 
 import { withAdminShell } from './admin-shell';
@@ -263,9 +264,12 @@ function AdminOrderDetailPageContent({
     address?: string;
     city?: string;
     state?: string;
+    area?: string;
+    deliveryArea?: string;
     pincode?: string;
   } | null;
 
+  const orderArea = address?.deliveryArea || address?.area || null;
   const cityName = address?.deliveryCityName || address?.city || order.city?.name;
   const stateName = address?.deliveryStateName || address?.state || order.state?.name;
   const streetAddress = address?.deliveryAddress || address?.address;
@@ -499,6 +503,14 @@ function AdminOrderDetailPageContent({
                   <div className="space-y-1">
                     <p className="text-muted-foreground text-xs uppercase font-bold">Delivery Address (Historical Snapshot)</p>
                     <p className="font-semibold text-foreground text-base">{streetAddress}</p>
+                    {(address.area || address.deliveryArea) && (
+                      <p className="text-xs font-bold text-brand flex items-center gap-1.5 pt-0.5">
+                        <span className="text-muted-foreground">Delivery Area:</span>
+                        <span className="px-2 py-0.5 rounded-md bg-brand/10 text-brand border border-brand/20 font-bold">
+                          {address.area || address.deliveryArea}
+                        </span>
+                      </p>
+                    )}
                     <p className="text-sm text-foreground font-bold">
                       {[cityName, stateName].filter(Boolean).join(', ')} {address.pincode ? `- ${address.pincode}` : ''}
                     </p>
@@ -619,6 +631,17 @@ function AdminOrderDetailPageContent({
                 Select an active delivery personnel to fulfill this shipment across India:
               </p>
 
+              {orderArea && (
+                <div className="p-3 rounded-xl bg-neutral-100 dark:bg-[#1a1a1a] border border-border text-xs flex items-center justify-between">
+                  <span className="font-semibold text-foreground">
+                    📍 Customer Selected Area:
+                  </span>
+                  <span className="font-bold text-emerald-600 dark:text-emerald-400">
+                    {orderArea}
+                  </span>
+                </div>
+              )}
+
               {deliveryPartners.length > 0 ? (
                 <div className="space-y-3.5">
                   <select
@@ -627,11 +650,19 @@ function AdminOrderDetailPageContent({
                     className="w-full h-12 px-4 rounded-xl border border-border bg-card text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 cursor-pointer shadow-xs"
                   >
                     <option value="">-- Select Active Delivery Partner --</option>
-                    {deliveryPartners.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.name || p.fullName} ({p.mobileNumber}) {p.vehicleType ? `• ${p.vehicleType}` : ''}
-                      </option>
-                    ))}
+                    {deliveryPartners.map((p) => {
+                      const coversArea =
+                        orderArea &&
+                        Array.isArray(p.serviceableAreas) &&
+                        p.serviceableAreas.some(
+                          (a: string) => a.toLowerCase().trim() === orderArea.toLowerCase().trim()
+                        );
+                      return (
+                        <option key={p.id} value={p.id}>
+                          {p.name || p.fullName} ({p.mobileNumber}) {p.vehicleType ? `• ${p.vehicleType}` : ''} {coversArea ? '★ Covers Area' : ''}
+                        </option>
+                      );
+                    })}
                   </select>
 
                   <Button

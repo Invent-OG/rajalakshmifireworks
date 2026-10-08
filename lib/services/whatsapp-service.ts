@@ -25,6 +25,8 @@ export interface WhatsAppOrderData {
   fulfillmentType: 'DELIVERY' | 'PICKUP';
   address?: {
     address?: string;
+    area?: string;
+    deliveryArea?: string;
     city?: string;
     state?: string;
     pincode?: string;
@@ -65,10 +67,11 @@ export function buildWhatsAppShareUrl(recipientPhone: string, messageText: strin
 export function formatOrderAddress(address?: WhatsAppOrderData['address'] | any): string {
   if (!address) return '';
   const street = address.deliveryAddress || address.address || '';
+  const area = address.deliveryArea || address.area || '';
   const city = address.deliveryCityName || address.city || '';
   const state = address.deliveryStateName || address.state || '';
   const pin = address.pincode ? `PIN: ${address.pincode}` : '';
-  return [street, city, state, pin].filter(Boolean).join(', ');
+  return [street, area, city, state, pin].filter(Boolean).join(', ');
 }
 
 /**

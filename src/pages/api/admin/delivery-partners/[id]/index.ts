@@ -33,6 +33,7 @@ async function _GET(
     return Response.json({
       ...partner,
       fullName: partner.name,
+      serviceableAreas: Array.isArray(partner.serviceableAreas) ? partner.serviceableAreas : [],
     });
   } catch (error) {
     const { message, statusCode } = toErrorResponse(error);
@@ -76,6 +77,13 @@ async function _PUT(
     if ('vehicleNumber' in body) updateData.vehicleNumber = body.vehicleNumber ? body.vehicleNumber.trim() : null;
     if ('notes' in body) updateData.notes = body.notes ? body.notes.trim() : null;
     if ('status' in body) updateData.status = body.status;
+    if ('serviceableAreas' in body) {
+      updateData.serviceableAreas = Array.isArray(body.serviceableAreas)
+        ? body.serviceableAreas
+        : typeof body.serviceableAreas === 'string'
+        ? body.serviceableAreas.split(',').map((s: string) => s.trim()).filter(Boolean)
+        : [];
+    }
 
     const [updated] = await db
       .update(deliveryPartners)
@@ -86,6 +94,7 @@ async function _PUT(
     return Response.json({
       ...updated,
       fullName: updated.name,
+      serviceableAreas: Array.isArray(updated.serviceableAreas) ? updated.serviceableAreas : [],
     });
   } catch (error) {
     const { message, statusCode } = toErrorResponse(error);

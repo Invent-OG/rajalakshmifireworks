@@ -5,6 +5,7 @@ import {
   timestamp,
   serial,
   index,
+  jsonb,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { orders } from './orders';
@@ -25,6 +26,7 @@ export const deliveryPartners = pgTable(
     vehicleNumber: varchar('vehicle_number', { length: 30 }),
     notes: text('notes'),
     status: varchar('status', { length: 20 }).notNull().default('ACTIVE'), // 'ACTIVE' | 'INACTIVE'
+    serviceableAreas: jsonb('serviceable_areas').$type<string[]>().default([]),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },

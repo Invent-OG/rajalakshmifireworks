@@ -36,6 +36,18 @@ export const deliveryPartnerSchema = z
     vehicleNumber: z.string().max(30, 'Vehicle number is too long').optional().or(z.literal('')),
     notes: z.string().max(1000, 'Notes are too long').optional().or(z.literal('')),
     status: z.enum(['ACTIVE', 'INACTIVE']).default('ACTIVE'),
+    serviceableAreas: z
+      .union([
+        z.array(z.string().trim().min(1)),
+        z.string().transform((str) =>
+          str
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean)
+        ),
+      ])
+      .optional()
+      .default([]),
   })
   .refine((data) => !!(data.name || data.fullName), {
     message: 'Full name is required',

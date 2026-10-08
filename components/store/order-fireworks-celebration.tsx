@@ -32,7 +32,7 @@ export function OrderFireworksCelebration() {
   if (!enabled) return null;
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-30 overflow-hidden">
+    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
       <Fireworks
         ref={fireworksRef}
         className="w-full h-full"

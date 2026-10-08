@@ -83,23 +83,23 @@ export function EnquiryNoticeModal({
           role="dialog"
           aria-modal="true"
           aria-labelledby="notice-modal-title"
-          className="relative w-full max-w-2xl my-auto bg-white rounded-[28px] sm:rounded-[36px] shadow-2xl border border-neutral-200/80 p-6 sm:p-8 space-y-6 z-10 max-h-[90vh] flex flex-col font-sans"
+          className="relative w-full max-w-2xl my-auto bg-white dark:bg-[#141414] rounded-[28px] sm:rounded-[36px] shadow-2xl border border-neutral-200/80 dark:border-[#282828] p-6 sm:p-8 space-y-6 z-10 max-h-[90vh] flex flex-col font-sans"
         >
           {/* Header */}
-          <div className="flex items-start justify-between gap-4 pb-4 border-b border-neutral-100 shrink-0">
+          <div className="flex items-start justify-between gap-4 pb-4 border-b border-neutral-100 dark:border-[#282828] shrink-0">
             <div className="flex items-center gap-3">
-              <div className="h-11 w-11 rounded-2xl bg-amber-500/10 text-amber-700 flex items-center justify-center shrink-0 border border-amber-500/20">
+              <div className="h-11 w-11 rounded-2xl bg-amber-500/10 text-amber-700 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/20">
                 <Scale className="h-6 w-6" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-amber-800 bg-amber-100/70 px-2.5 py-0.5 rounded-full">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300 bg-amber-100/70 dark:bg-amber-950/40 px-2.5 py-0.5 rounded-full">
                     {t('modalTitle')}
                   </span>
                 </div>
                 <h2
                   id="notice-modal-title"
-                  className="text-xl sm:text-2xl font-black text-neutral-950 tracking-tight mt-1 font-heading"
+                  className="text-xl sm:text-2xl font-black text-neutral-950 dark:text-neutral-100 tracking-tight mt-1 font-heading"
                 >
                   {t('modalTitle')}
                 </h2>
@@ -110,7 +110,7 @@ export function EnquiryNoticeModal({
               type="button"
               onClick={onClose}
               disabled={isLoading}
-              className="p-2 rounded-full text-neutral-400 hover:text-neutral-950 hover:bg-neutral-100 transition-colors disabled:opacity-50 cursor-pointer"
+              className="p-2 rounded-full text-neutral-400 hover:text-foreground hover:bg-neutral-100 dark:hover:bg-[#282828] transition-colors disabled:opacity-50 cursor-pointer"
               aria-label={tCommon('close')}
             >
               <X className="h-5 w-5" />
@@ -118,10 +118,10 @@ export function EnquiryNoticeModal({
           </div>
 
           {/* Body Content - Scrollable if screen is small */}
-          <div className="space-y-4 overflow-y-auto pr-1 text-xs sm:text-sm text-neutral-700 leading-relaxed max-h-[50vh]">
+          <div className="space-y-4 overflow-y-auto pr-1 text-xs sm:text-sm text-neutral-700 dark:text-neutral-300 leading-relaxed max-h-[50vh]">
             {/* High Court Prohibition Highlight Box */}
-            <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200/90 flex gap-3 text-amber-950">
-              <ShieldAlert className="h-5 w-5 text-amber-700 shrink-0 mt-0.5" />
+            <div className="p-4 rounded-2xl bg-amber-50/80 dark:bg-amber-950/20 border border-amber-200/90 dark:border-amber-900/40 flex gap-3 text-amber-950 dark:text-amber-200">
+              <ShieldAlert className="h-5 w-5 text-amber-700 dark:text-amber-400 shrink-0 mt-0.5" />
               <p className="font-semibold leading-relaxed">
                 {t('courtOrderNotice')}
               </p>
@@ -133,13 +133,13 @@ export function EnquiryNoticeModal({
             <p>{t('point4')}</p>
 
             {/* Acknowledgment Agreement Box */}
-            <div className="p-3.5 rounded-2xl bg-neutral-100/90 border border-neutral-200 text-neutral-900 text-xs font-medium">
+            <div className="p-3.5 rounded-2xl bg-neutral-100/90 dark:bg-[#1e1e1e] border border-neutral-200 dark:border-[#282828] text-neutral-900 dark:text-neutral-200 text-xs font-medium">
               {t('point5')}
             </div>
           </div>
 
           {/* Footer Actions */}
-          <div className="pt-4 border-t border-neutral-100 flex flex-col-reverse sm:flex-row items-center justify-end gap-3 shrink-0">
+          <div className="pt-4 border-t border-neutral-100 dark:border-[#282828] flex flex-col-reverse sm:flex-row items-center justify-end gap-3 shrink-0">
             <StoreButton
               type="button"
               variant="outline"
@@ -158,7 +158,7 @@ export function EnquiryNoticeModal({
               onClick={onConfirm}
               loading={isLoading}
               disabled={isLoading}
-              className="w-full sm:w-auto bg-neutral-950 hover:bg-neutral-800 text-white min-w-[160px]"
+              className="w-full sm:w-auto min-w-[160px]"
             >
               <CheckCircle2 className="h-4 w-4" />
               {t('btnAccept')}

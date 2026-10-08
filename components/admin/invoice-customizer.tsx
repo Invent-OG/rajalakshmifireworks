@@ -154,6 +154,8 @@ export function InvoiceCustomizer({
     address?: string;
     city?: string;
     pincode?: string;
+    area?: string;
+    deliveryArea?: string;
   } | null;
 
   const [config, setConfig] = useState<InvoiceCustomizerConfig>(() => {
@@ -172,8 +174,9 @@ export function InvoiceCustomizer({
       }
     }
 
+    const areaName = address?.area || address?.deliveryArea;
     const cityState = address
-      ? [address.city, address.pincode].filter(Boolean).join(' - ')
+      ? [areaName, address.city, address.pincode].filter(Boolean).join(' · ')
       : 'Sivakasi, Tamil Nadu';
 
     const resolvedTerms =

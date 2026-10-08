@@ -151,6 +151,7 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
     let addressSnapshot: Record<string, unknown> | null = null;
     let resolvedStateId: number | null = null;
     let resolvedCityId: number | null = null;
+    let resolvedDeliveryPartnerId: number | null = null;
 
     if (input.fulfillmentType === 'DELIVERY' && input.address) {
       let stateName = input.address.state || '';
@@ -193,6 +194,8 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
         address: input.address.address,
         city: cityName,
         state: stateName,
+        area: input.address.area || null,
+        deliveryArea: input.address.area || null,
         pincode: input.address.pincode,
       };
 
@@ -229,6 +232,7 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
         customerId: customer.id,
         stateId: resolvedStateId,
         cityId: resolvedCityId,
+        deliveryPartnerId: resolvedDeliveryPartnerId,
         orderStatus: 'NEW' as OrderStatus,
         fulfillmentType: input.fulfillmentType,
         subtotal: String(totals.subtotal),

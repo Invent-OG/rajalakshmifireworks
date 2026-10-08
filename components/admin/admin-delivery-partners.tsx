@@ -38,6 +38,7 @@ interface DeliveryPartner {
   vehicleNumber: string | null;
   notes: string | null;
   status: 'ACTIVE' | 'INACTIVE';
+  serviceableAreas?: string[] | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -66,7 +67,32 @@ function AdminDeliveryPartnersPageContent() {
     vehicleNumber: '',
     notes: '',
     status: 'ACTIVE' as 'ACTIVE' | 'INACTIVE',
+    serviceableAreas: [] as string[],
   });
+
+  const [areaInput, setAreaInput] = useState('');
+
+  const handleAddArea = (areaName?: string) => {
+    const nameToAdd = (areaName || areaInput).trim();
+    if (!nameToAdd) return;
+    if (formData.serviceableAreas.some((a) => a.toLowerCase() === nameToAdd.toLowerCase())) {
+      toast.info(`"${nameToAdd}" is already in the list`);
+      setAreaInput('');
+      return;
+    }
+    setFormData((prev) => ({
+      ...prev,
+      serviceableAreas: [...prev.serviceableAreas, nameToAdd],
+    }));
+    setAreaInput('');
+  };
+
+  const handleRemoveArea = (indexToRemove: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      serviceableAreas: prev.serviceableAreas.filter((_, idx) => idx !== indexToRemove),
+    }));
+  };
 
   // Fetch Delivery Partners
   const { data: partners = [], isLoading } = useQuery<DeliveryPartner[]>({
@@ -94,7 +120,9 @@ function AdminDeliveryPartnersPageContent() {
       vehicleNumber: '',
       notes: '',
       status: 'ACTIVE',
+      serviceableAreas: [],
     });
+    setAreaInput('');
     setIsFormOpen(true);
   }
 
@@ -111,7 +139,9 @@ function AdminDeliveryPartnersPageContent() {
       vehicleNumber: partner.vehicleNumber || '',
       notes: partner.notes || '',
       status: partner.status,
+      serviceableAreas: Array.isArray(partner.serviceableAreas) ? partner.serviceableAreas : [],
     });
+    setAreaInput('');
     setIsFormOpen(true);
   }
 
@@ -128,6 +158,7 @@ function AdminDeliveryPartnersPageContent() {
         vehicleNumber: formData.vehicleNumber.trim() || undefined,
         notes: formData.notes.trim() || undefined,
         status: formData.status,
+        serviceableAreas: formData.serviceableAreas,
       };
 
       if (!payload.name) {
@@ -296,6 +327,7 @@ function AdminDeliveryPartnersPageContent() {
                   <th className="px-5 py-4">Name</th>
                   <th className="px-5 py-4">Mobile</th>
                   <th className="px-5 py-4">Vehicle</th>
+                  <th className="px-5 py-4">Serviceable Areas</th>
                   <th className="px-5 py-4">Status</th>
                   <th className="px-5 py-4 text-right">Actions</th>
                 </tr>
@@ -337,6 +369,29 @@ function AdminDeliveryPartnersPageContent() {
                           </div>
                         ) : (
                           <span className="text-muted-foreground">—</span>
+                        )}
+                      </td>
+
+                      {/* Serviceable Areas */}
+                      <td className="px-5 py-4">
+                        {partner.serviceableAreas && partner.serviceableAreas.length > 0 ? (
+                          <div className="flex flex-wrap gap-1 max-w-xs">
+                            {partner.serviceableAreas.slice(0, 3).map((area, idx) => (
+                              <span
+                                key={idx}
+                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-brand/10 text-brand border border-brand/20"
+                              >
+                                <MapPin className="h-2.5 w-2.5" /> {area}
+                              </span>
+                            ))}
+                            {partner.serviceableAreas.length > 3 && (
+                              <span className="px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-muted text-muted-foreground">
+                                +{partner.serviceableAreas.length - 3} more
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-xs text-muted-foreground italic">All areas / Not specified</span>
                         )}
                       </td>
 
@@ -518,6 +573,118 @@ function AdminDeliveryPartnersPageContent() {
                 />
               </div>
 
+              {/* Serviceable Delivery Areas */}
+              <div className="p-4 rounded-2xl bg-secondary/30 dark:bg-[#242424]/40 border border-border space-y-3">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-brand" />
+                    <label className="text-sm font-bold text-foreground">
+                      Serviceable Delivery Areas / Localities
+                    </label>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Specify the towns, cities, or areas this partner is available to deliver to. These areas will appear in the customer checkout dropdown.
+                  </p>
+                </div>
+
+                {/* Add Area Input Bar */}
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Type area (e.g. Sivakasi Town, Virudhunagar, Madurai, Anna Nagar)..."
+                    value={areaInput}
+                    onChange={(e) => setAreaInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddArea();
+                      }
+                    }}
+                    className="flex-1 h-11 px-3.5 rounded-xl border border-border bg-card text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand shadow-xs"
+                  />
+                  <Button
+                    type="button"
+                    onClick={() => handleAddArea()}
+                    className="h-11 px-4 text-xs font-bold gap-1 cursor-pointer shrink-0"
+                  >
+                    <Plus className="h-3.5 w-3.5" /> Add Area
+                  </Button>
+                </div>
+
+                {/* Quick Area Presets */}
+                <div className="space-y-1.5">
+                  <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block">
+                    Quick Tamil Nadu Suggestions:
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {[
+                      'Sivakasi Town',
+                      'Thiruthangal',
+                      'Virudhunagar',
+                      'Sattur',
+                      'Madurai City',
+                      'Coimbatore',
+                      'Chennai Central',
+                      'Tirunelveli',
+                      'Dindigul',
+                      'Salem',
+                      'Trichy',
+                    ].map((preset) => {
+                      const isAdded = formData.serviceableAreas.some(
+                        (a) => a.toLowerCase() === preset.toLowerCase()
+                      );
+                      return (
+                        <button
+                          key={preset}
+                          type="button"
+                          disabled={isAdded}
+                          onClick={() => handleAddArea(preset)}
+                          className={`text-xs px-2.5 py-1 rounded-lg border transition-all cursor-pointer ${
+                            isAdded
+                              ? 'bg-muted/50 text-muted-foreground/60 border-transparent cursor-not-allowed'
+                              : 'bg-card hover:bg-brand/10 hover:text-brand hover:border-brand/30 border-border text-foreground font-medium'
+                          }`}
+                        >
+                          + {preset}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Added Areas Tags List */}
+                {formData.serviceableAreas.length > 0 ? (
+                  <div className="pt-2 border-t border-border/60">
+                    <span className="text-[11px] font-bold text-foreground block mb-2">
+                      Assigned Areas ({formData.serviceableAreas.length}):
+                    </span>
+                    <div className="flex flex-wrap gap-2">
+                      {formData.serviceableAreas.map((area, idx) => (
+                        <span
+                          key={idx}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-brand text-brand-foreground shadow-2xs group"
+                        >
+                          <MapPin className="h-3 w-3 opacity-80" />
+                          <span>{area}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveArea(idx)}
+                            className="h-4 w-4 rounded-full hover:bg-black/20 flex items-center justify-center cursor-pointer ml-0.5"
+                            title={`Remove ${area}`}
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-xs text-amber-600 dark:text-amber-400 italic pt-1">
+                    No areas added yet. Please add at least one area so this partner displays on the customer checkout dropdown.
+                  </p>
+                )}
+              </div>
+
               {/* Notes */}
               <div>
                 <label className="block text-sm font-semibold text-foreground mb-1.5">Internal Notes (Optional)</label>
@@ -649,6 +816,27 @@ function AdminDeliveryPartnersPageContent() {
                   {detailsPartner.pincode && <p className="text-muted-foreground">PIN: {detailsPartner.pincode}</p>}
                 </div>
               )}
+
+              {/* Serviceable Areas in Details */}
+              <div className="p-2.5 rounded-xl bg-muted/20 border border-border space-y-1.5">
+                <span className="text-muted-foreground block text-[10px] uppercase font-semibold">
+                  Serviceable Delivery Areas ({detailsPartner.serviceableAreas?.length ?? 0})
+                </span>
+                {detailsPartner.serviceableAreas && detailsPartner.serviceableAreas.length > 0 ? (
+                  <div className="flex flex-wrap gap-1.5 pt-0.5">
+                    {detailsPartner.serviceableAreas.map((area, idx) => (
+                      <span
+                        key={idx}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-brand/10 text-brand border border-brand/20"
+                      >
+                        <MapPin className="h-3 w-3" /> {area}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground italic">No specific areas configured</p>
+                )}
+              </div>
 
               {detailsPartner.notes && (
                 <div className="p-2.5 rounded-xl bg-muted/20 border border-border space-y-1">
