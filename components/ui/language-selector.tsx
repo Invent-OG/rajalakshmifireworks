@@ -46,7 +46,7 @@ export function LanguageSelector({ variant = 'pill', className = '' }: LanguageS
 
   if (variant === 'inline') {
     return (
-      <div className={`inline-flex items-center gap-1 bg-neutral-100 p-1 rounded-full border border-neutral-200/70 text-xs font-semibold ${className}`}>
+      <div className={`inline-flex items-center gap-1 bg-neutral-100 dark:bg-[#1f1f1f] p-1 rounded-full border border-neutral-200/70 dark:border-[#2e2e2e] text-xs font-semibold ${className}`}>
         {LOCALES.map((loc) => {
           const isActive = currentLocale === loc;
           return (
@@ -56,8 +56,8 @@ export function LanguageSelector({ variant = 'pill', className = '' }: LanguageS
               onClick={() => handleSelect(loc)}
               className={`px-3 py-1.5 rounded-full transition-all duration-200 cursor-pointer ${
                 isActive
-                  ? 'bg-neutral-950 text-white shadow-xs'
-                  : 'text-neutral-600 hover:text-neutral-950 hover:bg-white/80'
+                  ? 'bg-neutral-950 text-white dark:bg-white dark:text-neutral-950 shadow-xs font-bold'
+                  : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-950 dark:hover:text-white hover:bg-white/80 dark:hover:bg-neutral-800'
               }`}
               aria-pressed={isActive}
               aria-label={`Switch to ${LOCALE_LABELS[loc].name}`}

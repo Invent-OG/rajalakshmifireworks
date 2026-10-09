@@ -92,7 +92,7 @@ export function FloatingNavbar() {
   const { itemCount } = useCart();
   const isHydrated = useIsHydrated();
   const displayCount = isHydrated ? itemCount : 0;
-  const { theme, toggleTheme } = useStoreTheme();
+  const { theme, setTheme, toggleTheme } = useStoreTheme();
 
   const getHref = (path: string) => {
     if (!path) return `/${locale}`;
@@ -477,14 +477,9 @@ export function FloatingNavbar() {
             </Link>
           </div>
 
-          {/* Right Column: Action Buttons (Language Selector + Theme Toggle + Search + Download/Price List + Bag) */}
+          {/* Right Column: Action Buttons (Theme Toggle + Language Selector + Search + Download/Price List + Bag) */}
           <div className="flex items-center justify-end gap-2 sm:gap-2.5 shrink-0">
-            {/* Language Selector - Hidden on mobile, shown on desktop */}
-            <div className="hidden md:inline-flex items-center">
-              <LanguageSelector />
-            </div>
-
-            {/* Storefront Theme Toggle Button (Desktop & Tablet only, hidden on mobile) */}
+            {/* Storefront Theme Toggle Button (Desktop & Tablet only, on left side of language switcher) */}
             <button
               type="button"
               onClick={toggleTheme}
@@ -498,6 +493,11 @@ export function FloatingNavbar() {
                 <Moon className="h-5 w-5 text-neutral-700" />
               )}
             </button>
+
+            {/* Language Selector - Hidden on mobile, shown on desktop */}
+            <div className="hidden md:inline-flex items-center">
+              <LanguageSelector />
+            </div>
 
             {/* Quick Search Button */}
             <Link
@@ -673,8 +673,41 @@ export function FloatingNavbar() {
             className="md:hidden absolute top-full left-0 right-0 pt-2 z-50 origin-top pointer-events-auto"
           >
             <div className="rounded-[28px] bg-white dark:bg-[#141414] text-neutral-900 dark:text-white border border-neutral-200/90 dark:border-[#2c2c2c] shadow-2xl p-5 sm:p-6 space-y-4 max-h-[80vh] overflow-y-auto overscroll-contain no-scrollbar">
-              {/* Header: LANGUAGE / மொழி */}
-              <div className="mobile-nav-item flex items-center justify-end pb-3 border-b border-neutral-100 dark:border-[#242424]">
+              {/* Header: Theme Switcher & Language Switcher */}
+              <div className="mobile-nav-item flex items-center justify-between pb-3 border-b border-neutral-100 dark:border-[#242424]">
+                {/* Theme Switch on the left side of language switcher */}
+                <div className="inline-flex items-center gap-1 bg-neutral-100 dark:bg-[#1f1f1f] p-1 rounded-full border border-neutral-200/70 dark:border-[#2e2e2e] text-xs font-semibold">
+                  <button
+                    type="button"
+                    onClick={() => setTheme('light')}
+                    className={`px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-all duration-200 cursor-pointer ${
+                      theme === 'light'
+                        ? 'bg-white text-neutral-950 shadow-xs font-bold'
+                        : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-950 dark:hover:text-white'
+                    }`}
+                    aria-label="Light mode"
+                    aria-pressed={theme === 'light'}
+                  >
+                    <Sun className="h-3.5 w-3.5 text-amber-500" />
+                    <span>{locale === 'ta' ? 'பகல்' : 'Light'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTheme('dark')}
+                    className={`px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-all duration-200 cursor-pointer ${
+                      theme === 'dark'
+                        ? 'bg-neutral-950 text-white shadow-xs font-bold'
+                        : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-950 dark:hover:text-white'
+                    }`}
+                    aria-label="Dark mode"
+                    aria-pressed={theme === 'dark'}
+                  >
+                    <Moon className="h-3.5 w-3.5 text-indigo-400" />
+                    <span>{locale === 'ta' ? 'இரவு' : 'Dark'}</span>
+                  </button>
+                </div>
+
+                {/* Language Switcher */}
                 <LanguageSelector variant="inline" />
               </div>
 
