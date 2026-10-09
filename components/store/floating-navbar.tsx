@@ -541,7 +541,7 @@ export function FloatingNavbar({ pathname: propPathname, locale: propLocale }: F
 
             {/* Quick Order Pill Button (Desktop View) */}
             <Link
-              href={getHref('/products')}
+              href={getHref('/quick-order')}
               onMouseEnter={closeDropdown}
               className="hidden sm:inline-flex items-center gap-2 h-12 px-4 sm:px-5 rounded-full bg-gradient-to-r from-[#b82e00] via-[#e24000] to-[#ff6d24] text-white text-xs sm:text-sm font-bold shadow-[0_4px_16px_rgba(226,64,0,0.35)] hover:shadow-[0_6px_22px_rgba(226,64,0,0.55)] hover:scale-[1.02] active:scale-95 transition-all whitespace-nowrap cursor-pointer shrink-0"
               title={tNav('quickOrder')}
@@ -810,7 +810,7 @@ export function FloatingNavbar({ pathname: propPathname, locale: propLocale }: F
               {/* Quick Order Highlight in Mobile Drawer */}
               <div className="mobile-nav-item pt-1">
                 <Link
-                  href={getHref('/products')}
+                  href={getHref('/quick-order')}
                   onClick={() => setMobileMenuOpen(false)}
                   className="w-full flex items-center justify-center gap-2 h-12 px-4 rounded-full bg-gradient-to-r from-[#b82e00] via-[#e24000] to-[#ff6d24] text-white text-xs sm:text-sm font-bold shadow-[0_4px_16px_rgba(226,64,0,0.35)] hover:shadow-[0_6px_22px_rgba(226,64,0,0.55)] transition-all active:scale-95 cursor-pointer"
                 >

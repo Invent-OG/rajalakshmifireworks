@@ -5,30 +5,20 @@ import Link from '@/components/ui/link';
 import Image from '@/components/ui/image';
 import {
   Download,
-  Printer,
-  FileSpreadsheet,
   Search,
-  Sparkles,
-  ShieldCheck,
   Truck,
-  Phone,
-  MessageSquare,
-  MapPin,
   CheckCircle2,
   Package,
   Layers,
   ArrowRight,
   ShoppingBag,
-  Share2,
 } from 'lucide-react';
-import { BrandLogo } from '@/components/ui/brand-logo';
 import { APP_CONFIG } from '@/lib/constants/config';
 import { formatCurrency, toNumber } from '@/lib/utils/format';
 import { useLocale, useTranslations } from '@/lib/i18n/context';
 import { getLocalizedName, getLocalizedDescription } from '@/lib/i18n/formatters';
 import { useCart } from '@/hooks/use-cart';
 import { toast } from 'sonner';
-import * as XLSX from 'xlsx';
 
 export interface PriceListProduct {
   id: number;
@@ -148,112 +138,7 @@ export function PriceListBrochure({ categories, combos }: PriceListBrochureProps
     return categories.reduce((acc, cat) => acc + cat.products.length, 0);
   }, [categories]);
 
-  // Direct Print / Save as PDF handler
-  const handlePrint = () => {
-    window.print();
-  };
 
-  // Export to Excel Sheet (.xlsx)
-  const handleExportExcel = () => {
-    try {
-      const wb = XLSX.utils.book_new();
-
-      // 1. Cracker Products Worksheet
-      const productRows: Array<Record<string, string | number>> = [];
-      let sNo = 1;
-
-      categories.forEach((cat) => {
-        cat.products.forEach((p) => {
-          const mrp = toNumber(p.mrp);
-          const price = toNumber(p.sellingPrice);
-          const savings = mrp > price ? mrp - price : 0;
-          const discountPercent = mrp > 0 ? Math.round((savings / mrp) * 100) : 0;
-
-          productRows.push({
-            'S.No': sNo++,
-            Category: cat.name,
-            'Category (Tamil)': cat.nameTa || '',
-            'Product Name': p.name,
-            'Product Name (Tamil)': p.nameTa || '',
-            SKU: p.sku || `RF-${p.id}`,
-            'Actual MRP (₹)': mrp,
-            'Wholesale Offer Price (₹)': price,
-            'Savings (₹)': savings,
-            'Discount (%)': `${discountPercent}%`,
-          });
-        });
-      });
-
-      const wsProducts = XLSX.utils.json_to_sheet(productRows);
-      XLSX.utils.book_append_sheet(wb, wsProducts, 'Cracker Price List');
-
-      // 2. Combos Worksheet
-      if (combos.length > 0) {
-        const comboRows: Array<Record<string, string | number>> = [];
-        let comboNo = 1;
-
-        combos.forEach((c) => {
-          const mrp = toNumber(c.mrp);
-          const price = toNumber(c.sellingPrice);
-          const itemsIncluded = (c.comboItems || [])
-            .map((ci) => `${ci.quantity}x ${ci.product.name}`)
-            .join(', ');
-
-          comboRows.push({
-            'S.No': comboNo++,
-            'Combo Package Name': c.name,
-            'Package Name (Tamil)': c.nameTa || '',
-            'Items Included': itemsIncluded || c.description || 'Assorted Crackers Collection',
-            'Total MRP (₹)': mrp,
-            'Combo Festival Price (₹)': price,
-            'Savings (₹)': mrp > price ? mrp - price : 0,
-          });
-        });
-
-        const wsCombos = XLSX.utils.json_to_sheet(comboRows);
-        XLSX.utils.book_append_sheet(wb, wsCombos, 'Diwali Combo Packs');
-      }
-
-      // 3. Depot Info Sheet
-      const infoRows = [
-        { Parameter: 'Store Name', Details: APP_CONFIG.STORE_NAME },
-        { Parameter: 'Location & Depot', Details: APP_CONFIG.STORE_ADDRESS },
-        { Parameter: 'Contact Phone', Details: APP_CONFIG.STORE_PHONE },
-        { Parameter: 'WhatsApp Hotline', Details: `+${APP_CONFIG.WHATSAPP_NUMBER}` },
-        { Parameter: 'Official Email', Details: APP_CONFIG.STORE_EMAIL },
-        { Parameter: 'Dispatch Terms', Details: 'Direct Factory Dispatch from Sivakasi with LR Transport Tracking' },
-        { Parameter: 'Pricing Note', Details: 'All prices are inclusive of GST and heavy-duty factory moisture-proof packaging' },
-        { Parameter: 'Statutory Disclaimer', Details: 'Online catalog for enquiry and estimation only. Commercial offline dispatch in accordance with Explosives Act.' },
-      ];
-      const wsInfo = XLSX.utils.json_to_sheet(infoRows);
-      XLSX.utils.book_append_sheet(wb, wsInfo, 'Depot & Booking Info');
-
-      // Generate and trigger download
-      const currentYear = new Date().getFullYear();
-      XLSX.writeFile(wb, `Rajalakshmi_Fireworks_Price_List_${currentYear}.xlsx`);
-      toast.success(
-        locale === 'ta'
-          ? 'விலைப் பட்டியல் எக்செல் கோப்பாக பதிவிறக்கப்பட்டது!'
-          : 'Price list Excel spreadsheet downloaded successfully!'
-      );
-    } catch (err) {
-      console.error(err);
-      toast.error(locale === 'ta' ? 'பதிவிறக்குவதில் பிழை ஏற்பட்டது' : 'Failed to export Excel file');
-    }
-  };
-
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: `${APP_CONFIG.STORE_NAME} - Diwali Price List & Brochure`,
-        text: `Download the latest Sivakasi fireworks price list and festival discounts from ${APP_CONFIG.STORE_NAME}!`,
-        url: window.location.href,
-      }).catch(() => {});
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      toast.success(locale === 'ta' ? 'இணைப்பு நகலெடுக்கப்பட்டது!' : 'Price list link copied to clipboard!');
-    }
-  };
 
   const handleQuickAdd = (p: PriceListProduct) => {
     addItem({
@@ -274,66 +159,11 @@ export function PriceListBrochure({ categories, combos }: PriceListBrochureProps
 
   return (
     <div className="w-full min-h-screen bg-[#f8f9fa] dark:bg-[#000000] text-neutral-900 dark:text-white select-none font-sans print:bg-white print:text-black">
-      {/* ── Screen-Only Hero & Action Bar ── */}
+      {/* ── Screen-Only Search & Filter Bar ── */}
       <div className="print:hidden border-b border-neutral-200 dark:border-[#242424] bg-white dark:bg-[#141414] sticky top-0 z-30 shadow-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
-          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-900 text-xs font-bold mb-2">
-                <Sparkles className="h-3.5 w-3.5 text-amber-600" />
-                <span>
-                  {locale === 'ta'
-                    ? 'அதிகாரப்பூர்வ சிவகாசி விலைப் பட்டியல் & பிரசுரம்'
-                    : 'Official Sivakasi Wholesale Price List & Brochure'}
-                </span>
-              </div>
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-neutral-950 tracking-tight">
-                {locale === 'ta' ? 'ராஜலக்ஷ்மி பட்டாசு தீபாவளி விலைப் பட்டியல்' : `${APP_CONFIG.STORE_NAME} Diwali Price Catalog`}
-              </h1>
-              <p className="text-xs sm:text-sm text-neutral-500 mt-1">
-                {locale === 'ta'
-                  ? 'நேரடி சிவகாசி பட்டாசுகள் • 80% வரை தள்ளுபடி • ஜிஎஸ்டி மற்றும் பேக்கிங் அடங்கும்'
-                  : '100% Genuine Sivakasi Crackers • Factory Wholesale Prices • GST Included'}
-              </p>
-            </div>
-
-            {/* Quick Action Buttons */}
-            <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
-              {/* Print / Save PDF */}
-              <button
-                type="button"
-                onClick={handlePrint}
-                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 h-11 px-5 rounded-full bg-neutral-950 hover:bg-neutral-800 text-white text-xs sm:text-sm font-bold transition-all active:scale-95 cursor-pointer shadow-md"
-              >
-                <Printer className="h-4 w-4" />
-                <span>{locale === 'ta' ? 'PDF பதிவிறக்கம் / பிரிண்ட்' : 'Print / Save PDF'}</span>
-              </button>
-
-              {/* Download Excel Sheet */}
-              <button
-                type="button"
-                onClick={handleExportExcel}
-                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 h-11 px-5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold transition-all active:scale-95 cursor-pointer shadow-md"
-              >
-                <FileSpreadsheet className="h-4 w-4" />
-                <span>{locale === 'ta' ? 'எக்செல் பட்டியல் (.xlsx)' : 'Download Excel'}</span>
-              </button>
-
-              {/* Share / WhatsApp */}
-              <button
-                type="button"
-                onClick={handleShare}
-                className="h-11 w-11 flex items-center justify-center rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-800 transition-all active:scale-95 cursor-pointer"
-                title="Share Price List"
-                aria-label="Share Price List"
-              >
-                <Share2 className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 sm:py-4">
           {/* Search Bar & Category Filter Pills */}
-          <div className="mt-6 flex flex-col md:flex-row items-center justify-between gap-4 pt-4 border-t border-neutral-100">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             {/* Search Input */}
             <div className="relative w-full md:w-80">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
@@ -403,67 +233,7 @@ export function PriceListBrochure({ categories, combos }: PriceListBrochureProps
         id="price-list-printable"
         className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 print:p-0 print:max-w-full"
       >
-        {/* ── 1. Document Header & Official Sivakasi Masthead ── */}
-        <div className="bg-white dark:bg-[#141414] rounded-3xl p-6 sm:p-10 shadow-sm border border-neutral-200/90 dark:border-[#242424] mb-8 print:border-b-2 print:border-black print:rounded-none print:shadow-none print:p-4">
-          <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6 pb-6 border-b border-neutral-100 dark:border-[#242424] print:border-black">
-            {/* Left: Brand Identity */}
-            <div className="flex flex-col items-center sm:items-start text-center sm:text-left space-y-2">
-              <BrandLogo className="h-14 sm:h-16 w-auto max-h-16 object-contain" />
-              <div>
-                <h2 className="text-xl sm:text-2xl font-black text-neutral-950 dark:text-white tracking-tight">
-                  {locale === 'ta' ? 'ராஜலக்ஷ்மி பட்டாசு' : APP_CONFIG.STORE_NAME}
-                </h2>
-                <p className="text-xs text-neutral-600 dark:text-neutral-400 font-medium">
-                  {locale === 'ta'
-                    ? 'அசல் சிவகாசி நேரடி பட்டாசு உற்பத்தியாளர் & மொத்த விநியோகம்'
-                    : 'Premier Sivakasi Fireworks Manufacturer & Direct Wholesale Outlet'}
-                </p>
-              </div>
-            </div>
 
-            {/* Right: Contact & Verification Badges */}
-            <div className="text-center sm:text-right space-y-1.5 text-xs text-neutral-600 dark:text-neutral-300">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-200 dark:border-emerald-800 print:border-black">
-                <ShieldCheck className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-                <span>100% Sivakasi Genuine • CSIR-NEERI Green Certified</span>
-              </div>
-              <p className="flex items-center justify-center sm:justify-end gap-1.5 font-medium">
-                <MapPin className="h-3.5 w-3.5 text-neutral-400 shrink-0" />
-                <span>{APP_CONFIG.STORE_ADDRESS}</span>
-              </p>
-              <p className="flex items-center justify-center sm:justify-end gap-1.5 font-bold text-neutral-900 dark:text-white">
-                <Phone className="h-3.5 w-3.5 text-neutral-400 shrink-0" />
-                <span>{APP_CONFIG.STORE_PHONE}</span>
-                <span className="text-neutral-300 dark:text-neutral-600">|</span>
-                <MessageSquare className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                <span>+{APP_CONFIG.WHATSAPP_NUMBER}</span>
-              </p>
-              <p className="text-[11px] text-neutral-500 dark:text-neutral-400">
-                <span>{APP_CONFIG.STORE_EMAIL}</span>
-              </p>
-            </div>
-          </div>
-
-          {/* Key Highlights Strip inside Document */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 text-center text-xs">
-            <div className="p-2.5 rounded-2xl bg-neutral-50 dark:bg-[#202020] border border-neutral-100 dark:border-[#2c2c2c] print:border-black">
-              <span className="block font-black text-sm text-neutral-950 dark:text-white">₹500</span>
-              <span className="text-[11px] text-neutral-500 dark:text-neutral-400">{locale === 'ta' ? 'குறைந்தபட்ச ஆர்டர்' : 'Min Order Value'}</span>
-            </div>
-            <div className="p-2.5 rounded-2xl bg-neutral-50 dark:bg-[#202020] border border-neutral-100 dark:border-[#2c2c2c] print:border-black">
-              <span className="block font-black text-sm text-emerald-600 dark:text-emerald-400">Up to 80% OFF</span>
-              <span className="text-[11px] text-neutral-500 dark:text-neutral-400">{locale === 'ta' ? 'தொழிற்சாலை தள்ளுபடி' : 'Factory Discount'}</span>
-            </div>
-            <div className="p-2.5 rounded-2xl bg-neutral-50 dark:bg-[#202020] border border-neutral-100 dark:border-[#2c2c2c] print:border-black">
-              <span className="block font-black text-sm text-neutral-950 dark:text-white">100% GST Included</span>
-              <span className="text-[11px] text-neutral-500 dark:text-neutral-400">{locale === 'ta' ? 'வரி அடங்கும்' : 'Taxes Included'}</span>
-            </div>
-            <div className="p-2.5 rounded-2xl bg-neutral-50 dark:bg-[#202020] border border-neutral-100 dark:border-[#2c2c2c] print:border-black">
-              <span className="block font-black text-sm text-neutral-950 dark:text-white">LR Tracking</span>
-              <span className="text-[11px] text-neutral-500 dark:text-neutral-400">{locale === 'ta' ? 'பாதுகாப்பான லாரி பார்சல்' : 'Licensed Transport'}</span>
-            </div>
-          </div>
-        </div>
 
         {/* ── 2. Curated Combos & Gift Packages Section ── */}
         {filteredCombos.length > 0 && (

@@ -23,6 +23,7 @@ export function MobileBottomNav({
   const { itemCount } = useCart();
   const isHydrated = useIsHydrated();
   const displayCount = isHydrated ? itemCount : 0;
+  const hasItems = displayCount > 0;
 
   const navRef = useRef<HTMLElement | null>(null);
   const [navWidth, setNavWidth] = useState(340);
@@ -103,6 +104,8 @@ export function MobileBottomNav({
   ].join(' ');
 
   const isQuickOrderActive =
+    activePath === '/quick-order' ||
+    activePath.startsWith('/quick-order') ||
     activePath === '/products' ||
     activePath.startsWith('/products/') ||
     activePath.startsWith('/product/') ||
@@ -155,11 +158,19 @@ export function MobileBottomNav({
   };
 
   return (
-    <div className="md:hidden fixed bottom-4 left-0 right-0 z-50 px-4 pointer-events-none transition-all">
+    <div
+      className={`md:hidden fixed bottom-4 left-0 right-0 z-50 px-4 pointer-events-none transition-all duration-300 ease-in-out ${
+        hasItems
+          ? 'translate-y-28 opacity-0 pointer-events-none'
+          : 'translate-y-0 opacity-100'
+      }`}
+    >
       <nav
         ref={navRef}
         aria-label="Mobile Navigation"
-        className="relative mx-auto max-w-[340px] w-full h-16 pointer-events-auto flex items-center justify-between px-3"
+        className={`relative mx-auto max-w-[340px] w-full h-16 flex items-center justify-between px-3 ${
+          hasItems ? 'pointer-events-none' : 'pointer-events-auto'
+        }`}
       >
         {/* Curved Border-Bending SVG Background with Center Scoop Notch */}
         <svg
@@ -182,7 +193,7 @@ export function MobileBottomNav({
 
         {/* Center Scooped Cradle: Elevated Floating Quick Order Button */}
         <Link
-          href={getHref('/products')}
+          href={getHref('/quick-order')}
           className="absolute -top-[25px] left-1/2 -translate-x-1/2 flex items-center justify-center group focus:outline-none z-20"
           aria-label={tNav('quickOrder')}
           title={tNav('quickOrder')}

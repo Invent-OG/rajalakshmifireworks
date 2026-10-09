@@ -1,0 +1,64 @@
+---
+import StoreLayout from '@/src/layouts/StoreLayout.astro';
+import { db } from '@/db';
+import { categories, products, settings } from '@/db/schema';
+import { eq, and, asc } from 'drizzle-orm';
+import { QuickOrderContent } from '@/components/store/quick-order-content';
+import { isValidLocale } from '@/lib/i18n/config';
+import { getTranslations } from '@/lib/i18n/server';
+import { APP_CONFIG } from '@/lib/constants/config';
+
+const { locale = 'en' } = Astro.params;
+if (!isValidLocale(locale)) {
+  return Astro.redirect('/en/quick-order');
+}
+
+// Fetch all active categories
+const categoriesData = await db.query.categories.findMany({
+  where: eq(categories.isActive, true),
+  orderBy: [asc(categories.sortOrder), asc(categories.name)],
+});
+
+// Fetch all active products including combos
+const productsData = await db.query.products.findMany({
+  where: eq(products.isActive, true),
+  orderBy: [asc(products.sellingPrice), asc(products.name)],
+  with: {
+    category: true,
+    media: {
+      orderBy: (m, { asc }) => [asc(m.sortOrder)],
+      limit: 1,
+    },
+  },
+});
+
+// Fetch store settings for min order value
+let minOrderValue = 2000;
+try {
+  const settingRows = await db.query.settings.findMany();
+  const minOrderRow = settingRows.find((s) => s.key === 'MIN_ORDER_VALUE');
+  if (minOrderRow?.value) {
+    const parsed = parseInt(minOrderRow.value, 10);
+    if (!isNaN(parsed) && parsed > 0) minOrderValue = parsed;
+  }
+} catch (err) {
+  console.warn('Could not load min order setting, using default 2000', err);
+}
+
+const tNav = getTranslations(locale, 'navigation');
+---
+
+<StoreLayout
+  title={`${tNav('quickOrder')} | ${APP_CONFIG.STORE_NAME}`}
+  description={`Instant Diwali fireworks wholesale table and bulk order catalog from ${APP_CONFIG.STORE_NAME}, Sivakasi. Add cracker quantities directly and checkout quickly.`}
+  locale={locale}
+>
+  <main class="w-full">
+    <QuickOrderContent
+      client:load
+      products={productsData as any}
+      categories={categoriesData as any}
+      minOrderValue={minOrderValue}
+    />
+  </main>
+</StoreLayout>
