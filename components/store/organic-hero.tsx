@@ -2,9 +2,63 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from '@/components/ui/link';
-import { ChevronLeft, ChevronRight, Pause, Play, ArrowRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Pause, Play, ArrowRight, Building2, Tags, Leaf, Package, Truck } from 'lucide-react';
+import { gsap, isReducedMotion } from '@/lib/motion';
 import { type HeroSettingsConfig, DEFAULT_HERO_CONFIG } from '@/lib/hero-config';
 import { useLocale, useTranslations } from '@/lib/i18n/context';
+
+const USP_ITEMS = [
+  {
+    id: 'sivakasi-direct',
+    icon: Building2,
+    gradient: 'bg-gradient-to-r from-orange-600 via-amber-600 to-orange-700',
+    border: 'border-orange-500/30',
+    en: '100% Direct from Sivakasi Factory',
+    ta: '100% நேரடி சிவகாசி பட்டாசு',
+    badgeEn: 'Factory Direct',
+    badgeTa: 'நேரடி தயாரிப்பு',
+  },
+  {
+    id: 'factory-prices',
+    icon: Tags,
+    gradient: 'bg-gradient-to-r from-rose-700 via-red-600 to-orange-600',
+    border: 'border-rose-500/30',
+    en: 'Wholesale Factory Prices',
+    ta: 'மலிவான மொத்த விலை',
+    badgeEn: 'Best Price Guaranteed',
+    badgeTa: 'மொத்த விலை',
+  },
+  {
+    id: 'green-fireworks',
+    icon: Leaf,
+    gradient: 'bg-gradient-to-r from-emerald-700 via-teal-600 to-emerald-600',
+    border: 'border-emerald-500/30',
+    en: 'Certified Green Fireworks',
+    ta: 'அங்கீகரிக்கப்பட்ட பசுமை பட்டாசு',
+    badgeEn: 'CSIR-NEERI Approved',
+    badgeTa: 'சுற்றுச்சூழல் நட்பு',
+  },
+  {
+    id: 'moisture-proof',
+    icon: Package,
+    gradient: 'bg-gradient-to-r from-blue-700 via-sky-600 to-indigo-700',
+    border: 'border-blue-500/30',
+    en: 'Moisture-proof Packaging',
+    ta: 'ஈரப்பதம் புகா பேக்கிங்',
+    badgeEn: 'Weather Protected',
+    badgeTa: 'பாதுகாப்பான பேக்',
+  },
+  {
+    id: 'safe-dispatch',
+    icon: Truck,
+    gradient: 'bg-gradient-to-r from-indigo-700 via-purple-700 to-violet-800',
+    border: 'border-purple-500/30',
+    en: 'Safe Transport Dispatch',
+    ta: 'பாதுகாப்பான லாரி பார்சல்',
+    badgeEn: 'All Over India',
+    badgeTa: 'இந்தியா முழுவதும்',
+  },
+];
 
 interface OrganicHeroCarouselProps {
   initialConfig?: HeroSettingsConfig;
@@ -20,6 +74,74 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
   const [currentIdx, setCurrentIdx] = useState(0);
   const [isUserInteracting, setIsUserInteracting] = useState(false);
   const autoPlayTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Single dynamic USP item state and animation refs
+  const [uspIndex, setUspIndex] = useState(0);
+  const [isUspHovered, setIsUspHovered] = useState(false);
+  const stripRef = useRef<HTMLDivElement>(null);
+  const uspContentRef = useRef<HTMLDivElement>(null);
+  const isFirstUspRender = useRef(true);
+
+  // Dynamic cycle timer (switches every 3.2s)
+  useEffect(() => {
+    if (isUspHovered) return;
+    const interval = setInterval(() => {
+      setUspIndex((prev) => (prev + 1) % USP_ITEMS.length);
+    }, 3200);
+    return () => clearInterval(interval);
+  }, [isUspHovered]);
+
+  // Spring animation: the whole ribbon div springs out from behind the hero section on each text change
+  useEffect(() => {
+    if (isFirstUspRender.current) {
+      isFirstUspRender.current = false;
+      return;
+    }
+    if (isReducedMotion()) return;
+    if (!stripRef.current) return;
+
+    gsap.killTweensOf(stripRef.current);
+    if (uspContentRef.current) gsap.killTweensOf(uspContentRef.current);
+
+    // Spring the entire ribbon div downwards out from behind the hero section
+    gsap.fromTo(
+      stripRef.current,
+      {
+        y: -44,
+        scaleY: 0.88,
+        opacity: 0.65,
+        transformOrigin: 'top center',
+      },
+      {
+        y: 0,
+        scaleY: 1,
+        opacity: 1,
+        duration: 0.65,
+        ease: 'back.out(2.2)',
+        clearProps: 'transform,opacity',
+      }
+    );
+
+    // Subtle synchronized bounce for the new content
+    if (uspContentRef.current) {
+      gsap.fromTo(
+        uspContentRef.current,
+        {
+          y: -14,
+          scale: 0.92,
+          opacity: 0.4,
+        },
+        {
+          y: 0,
+          scale: 1,
+          opacity: 1,
+          duration: 0.55,
+          ease: 'back.out(1.8)',
+          clearProps: 'transform,opacity',
+        }
+      );
+    }
+  }, [uspIndex]);
 
   // High-performance touch gesture tracking via ref to avoid render stutter
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
@@ -110,7 +232,7 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
           style={{
             backgroundColor: currentSlide.bgColor || '#a6d7e7',
           }}
-          className="relative rounded-[36px] sm:rounded-[40px] text-neutral-900 overflow-hidden shadow-sm p-6 sm:p-10 lg:p-14 min-h-[460px] lg:min-h-[500px] flex flex-col justify-between transition-colors duration-700 ease-in-out touch-pan-y select-none"
+          className="relative z-10 rounded-[36px] sm:rounded-[40px] text-neutral-900 overflow-hidden shadow-sm p-6 sm:p-10 lg:p-14 min-h-[460px] lg:min-h-[500px] flex flex-col justify-between transition-colors duration-700 ease-in-out touch-pan-y select-none"
         >
           {/* Background Image Layer if configured */}
           {currentSlide.backgroundImage && (
@@ -289,34 +411,44 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
 
         {/* ── USP Trust Ribbon Strip ── */}
         <div
+          ref={stripRef}
           data-lenis-prevent
-          className="bg-[#e24100] pt-[3rem] pb-[1rem] -mt-8 rounded-b-[36px] sm:rounded-b-[40px] px-4 sm:px-8 shadow-sm overflow-x-auto no-scrollbar touch-pan-x touch-pan-y"
-          style={{
-            WebkitOverflowScrolling: 'touch',
-            scrollbarWidth: 'none',
-            touchAction: 'pan-x pan-y',
-          }}
+          className={`${USP_ITEMS[uspIndex].gradient} text-white pt-[2.75rem] pb-[0.875rem] -mt-8 rounded-b-[36px] sm:rounded-b-[40px] px-4 sm:px-8 shadow-lg overflow-hidden relative z-0 origin-top border border-t-0 ${USP_ITEMS[uspIndex].border} transition-colors duration-500`}
+          onMouseEnter={() => setIsUspHovered(true)}
+          onMouseLeave={() => setIsUspHovered(false)}
         >
-          <div className="flex items-center justify-between min-w-[720px] lg:min-w-0 gap-6 sm:gap-8 text-xs sm:text-[13px] font-semibold text-neutral-950">
-            <div className="flex items-center gap-2.5 whitespace-nowrap select-none hover:text-white transition-colors">
-              <span className="text-lg sm:text-xl">🏭</span>
-              <span>{locale === 'ta' ? '100% நேரடி சிவகாசி' : '100% Direct from Sivakasi'}</span>
-            </div>
-            <div className="flex items-center gap-2.5 whitespace-nowrap select-none hover:text-white transition-colors">
-              <span className="text-lg sm:text-xl">🏷️</span>
-              <span>{locale === 'ta' ? 'மலிவான மொத்த விலை' : 'Wholesale Factory Prices'}</span>
-            </div>
-            <div className="flex items-center gap-2.5 whitespace-nowrap select-none hover:text-white transition-colors">
-              <span className="text-lg sm:text-xl">🌿</span>
-              <span>{locale === 'ta' ? 'அங்கீகரிக்கப்பட்ட பசுமை பட்டாசு' : 'Certified Green Fireworks'}</span>
-            </div>
-            <div className="flex items-center gap-2.5 whitespace-nowrap select-none hover:text-white transition-colors">
-              <span className="text-lg sm:text-xl">📦</span>
-              <span>{locale === 'ta' ? 'ஈரப்பதம் புகா பேக்கிங்' : 'Moisture-proof Packaging'}</span>
-            </div>
-            <div className="flex items-center gap-2.5 whitespace-nowrap select-none hover:text-white transition-colors">
-              <span className="text-lg sm:text-xl">🚚</span>
-              <span>{locale === 'ta' ? 'பாதுகாப்பான லாரி பார்சல்' : 'Safe Transport Dispatch'}</span>
+          <div className="flex items-center justify-center min-h-[38px] select-none max-w-xl mx-auto">
+            {/* Animated Single Content Item */}
+            <div
+              ref={uspContentRef}
+              onClick={() => setUspIndex((prev) => (prev + 1) % USP_ITEMS.length)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  setUspIndex((prev) => (prev + 1) % USP_ITEMS.length);
+                }
+              }}
+              aria-label={locale === 'ta' ? USP_ITEMS[uspIndex].ta : USP_ITEMS[uspIndex].en}
+              className="inline-flex items-center gap-2.5 sm:gap-3 text-xs sm:text-[13px] font-semibold tracking-wide text-white cursor-pointer active:scale-95 transition-transform"
+            >
+              {(() => {
+                const currentUsp = USP_ITEMS[uspIndex];
+                const IconComp = currentUsp.icon;
+                return (
+                  <>
+                    <span className="inline-flex items-center justify-center p-1.5 rounded-lg bg-black/20 ring-1 ring-white/25 text-white transition-colors shadow-xs backdrop-blur-xs">
+                      <IconComp className="h-4 w-4 sm:h-4.5 sm:w-4.5 stroke-[2.2]" />
+                    </span>
+                    <span className="text-white drop-shadow-sm font-semibold">
+                      {locale === 'ta' ? currentUsp.ta : currentUsp.en}
+                    </span>
+                    <span className="hidden sm:inline-flex items-center text-[11px] font-medium text-white/95 px-2.5 py-0.5 rounded-full bg-black/20 border border-white/20 backdrop-blur-xs">
+                      {locale === 'ta' ? currentUsp.badgeTa : currentUsp.badgeEn}
+                    </span>
+                  </>
+                );
+              })()}
             </div>
           </div>
         </div>

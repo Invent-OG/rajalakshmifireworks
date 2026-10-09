@@ -85,6 +85,7 @@ export const KeyRound: React.FC<IconProps> = createIcon(HugeIcons.Key01Icon);
 export const Layers: React.FC<IconProps> = createIcon(HugeIcons.Layers01Icon);
 export const LayoutDashboard: React.FC<IconProps> = createIcon(HugeIcons.DashboardSquare01Icon);
 export const LayoutGrid: React.FC<IconProps> = createIcon(HugeIcons.LayoutGridIcon);
+export const Leaf: React.FC<IconProps> = createIcon(HugeIcons.Leaf01Icon);
 export const Link: React.FC<IconProps> = createIcon(HugeIcons.Link01Icon);
 export const Loader2: React.FC<IconProps> = createIcon(HugeIcons.Loading01Icon);
 export const Lock: React.FC<IconProps> = createIcon(HugeIcons.LockIcon);
@@ -210,6 +211,7 @@ export default {
   Layers,
   LayoutDashboard,
   LayoutGrid,
+  Leaf,
   Link,
   Loader2,
   Lock,
