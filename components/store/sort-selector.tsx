@@ -15,8 +15,8 @@ export function SortSelector({ current }: { current: string }) {
 
   const SORT_OPTIONS = [
     { value: 'newest', label: t('sortNewest') },
-    { value: 'price_asc', label: t('sortPriceAsc') },
-    { value: 'price_desc', label: t('sortPriceDesc') },
+    { value: 'price_asc', label: t('sortPriceLowHigh') },
+    { value: 'price_desc', label: t('sortPriceHighLow') },
     { value: 'name_asc', label: t('sortNameAsc') },
   ];
 

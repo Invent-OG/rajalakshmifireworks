@@ -6,12 +6,17 @@ import { StickyFooter } from '@/components/store/sticky-footer';
 import { QuickCartMobileFloating } from '@/components/store/quick-cart-drawer';
 import { MobileBottomNav } from '@/components/store/mobile-bottom-nav';
 
-export function StoreFooter() {
+interface StoreFooterProps {
+  pathname?: string;
+  locale?: string;
+}
+
+export function StoreFooter({ pathname, locale }: StoreFooterProps = {}) {
   return (
     <Providers>
       <StickyFooter />
       <QuickCartMobileFloating />
-      <MobileBottomNav />
+      <MobileBottomNav pathname={pathname} locale={locale} />
     </Providers>
   );
 }

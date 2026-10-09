@@ -5,11 +5,16 @@ import { Providers } from '@/components/providers';
 import { StoreBanner } from '@/components/store/store-banner';
 import { FloatingNavbar } from '@/components/store/floating-navbar';
 
-export function StoreHeader() {
+interface StoreHeaderProps {
+  pathname?: string;
+  locale?: string;
+}
+
+export function StoreHeader({ pathname, locale }: StoreHeaderProps = {}) {
   return (
     <Providers>
       <StoreBanner />
-      <FloatingNavbar />
+      <FloatingNavbar pathname={pathname} locale={locale} />
     </Providers>
   );
 }

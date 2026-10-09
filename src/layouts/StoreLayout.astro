@@ -11,15 +11,16 @@ interface Props {
 }
 
 const { title, description, keywords, locale = 'en' } = Astro.props;
+const pathname = Astro.url.pathname;
 ---
 
 <RootLayout title={title} description={description} keywords={keywords} locale={locale}>
   <div class="min-h-screen flex flex-col bg-background text-foreground">
-    <StoreHeader client:load />
+    <StoreHeader client:load pathname={pathname} locale={locale} />
     <main class="flex-1 pb-12 md:pb-6">
       <slot />
     </main>
-    <StoreFooter client:load />
+    <StoreFooter client:load pathname={pathname} locale={locale} />
   </div>
 </RootLayout>
 

@@ -15,6 +15,7 @@ import {
   Truck,
   Sun,
   Moon,
+  Zap,
 } from 'lucide-react';
 import { BrandLogo } from '@/components/ui/brand-logo';
 import { LanguageSelector } from '@/components/ui/language-selector';
@@ -84,9 +85,16 @@ const DEFAULT_FALLBACK_CATEGORIES: CategoryItem[] = [
   { id: 8, name: 'Family Packs', nameTa: 'பேமிலி காம்போ பேக்', slug: 'family-packs', description: 'Mega value celebration packages with assorted cracker items', descriptionTa: 'அனைத்து வகை பட்டாசுகளும் அடங்கிய மெகா தீபாவளி தொகுப்பு', image: '/images/3d/cat-family-packs.jpg', sortOrder: 8, isActive: true },
 ];
 
-export function FloatingNavbar() {
-  const pathname = usePathname();
-  const locale = useLocale();
+interface FloatingNavbarProps {
+  pathname?: string;
+  locale?: string;
+}
+
+export function FloatingNavbar({ pathname: propPathname, locale: propLocale }: FloatingNavbarProps = {}) {
+  const hookPathname = usePathname();
+  const contextLocale = useLocale();
+  const pathname = propPathname || hookPathname;
+  const locale = (propLocale as any) || contextLocale;
   const tNav = useTranslations('navigation');
   const tCommon = useTranslations('common');
   const { itemCount } = useCart();
@@ -499,33 +507,47 @@ export function FloatingNavbar() {
               <LanguageSelector />
             </div>
 
-            {/* Quick Search Button */}
+            {/* Quick Search Button - Icon by default, smooth animated expanding pill on hover/focus */}
             <Link
               href={getHref('/search')}
               onMouseEnter={closeDropdown}
-              className="hidden lg:inline-flex items-center gap-2 h-12 px-4 rounded-full bg-neutral-100/90 dark:bg-[#242424] hover:bg-neutral-200/90 dark:hover:bg-[#303030] text-neutral-700 dark:text-neutral-200 hover:text-neutral-950 dark:hover:text-white text-xs sm:text-sm font-semibold transition-all shadow-xs whitespace-nowrap active:scale-95"
-            >
-              <Search className="h-4 w-4 text-neutral-400" />
-              <span>{tCommon('search')}</span>
-            </Link>
-
-            <Link
-              href={getHref('/search')}
-              onMouseEnter={closeDropdown}
-              className="lg:hidden h-12 w-12 flex items-center justify-center rounded-full bg-neutral-100 dark:bg-[#242424] text-neutral-900 dark:text-white hover:bg-neutral-200 dark:hover:bg-[#303030] transition-colors shadow-xs active:scale-95"
+              className="group relative h-12 rounded-full bg-neutral-100/90 dark:bg-[#242424] hover:bg-neutral-200/90 dark:hover:bg-[#303030] text-neutral-700 dark:text-neutral-200 hover:text-neutral-950 dark:hover:text-white transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] shadow-xs active:scale-95 flex items-center overflow-hidden border border-transparent dark:border-[#333333] shrink-0 cursor-pointer"
               aria-label={tCommon('search')}
+              title={tCommon('search')}
             >
-              <Search className="h-4.5 w-4.5" />
+              <div className="h-12 w-12 flex items-center justify-center shrink-0">
+                <Search className="h-4.5 w-4.5 text-neutral-500 dark:text-neutral-400 group-hover:text-neutral-950 dark:group-hover:text-white transition-colors" />
+              </div>
+              <div className="max-w-0 opacity-0 group-hover:max-w-[180px] group-focus-visible:max-w-[180px] group-hover:opacity-100 group-focus-visible:opacity-100 group-hover:pr-4 group-focus-visible:pr-4 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden whitespace-nowrap">
+                <span className="text-xs sm:text-sm font-semibold">{tCommon('search')}</span>
+              </div>
             </Link>
 
-            {/* Download Price List Pill Button */}
+            {/* Download Price List Button - Icon by default, smooth animated expanding pill on hover/focus */}
             <Link
               href={getHref('/price-list')}
               onMouseEnter={closeDropdown}
-              className="hidden sm:inline-flex items-center gap-2 h-12 px-4 sm:px-5 rounded-full bg-neutral-100/90 dark:bg-[#242424] hover:bg-neutral-200/90 dark:hover:bg-[#303030] text-neutral-900 dark:text-white text-xs sm:text-sm font-bold transition-all active:scale-95 shadow-xs whitespace-nowrap"
+              className="hidden sm:flex group relative h-12 rounded-full bg-neutral-100/90 dark:bg-[#242424] hover:bg-neutral-200/90 dark:hover:bg-[#303030] text-neutral-900 dark:text-white transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] shadow-xs active:scale-95 items-center overflow-hidden border border-transparent dark:border-[#333333] shrink-0 cursor-pointer"
+              aria-label={tNav('priceList')}
+              title={tNav('priceList')}
             >
-              <Download className="h-4 w-4 text-neutral-700 dark:text-neutral-300" />
-              <span>{tNav('priceList')}</span>
+              <div className="h-12 w-12 flex items-center justify-center shrink-0">
+                <Download className="h-4.5 w-4.5 text-neutral-700 dark:text-neutral-300 group-hover:text-neutral-950 dark:group-hover:text-white transition-colors" />
+              </div>
+              <div className="max-w-0 opacity-0 group-hover:max-w-[140px] group-focus-visible:max-w-[140px] group-hover:opacity-100 group-focus-visible:opacity-100 group-hover:pr-4 group-focus-visible:pr-4 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden whitespace-nowrap">
+                <span className="text-xs sm:text-sm font-bold">{tNav('priceList')}</span>
+              </div>
+            </Link>
+
+            {/* Quick Order Pill Button (Desktop View) */}
+            <Link
+              href={getHref('/products')}
+              onMouseEnter={closeDropdown}
+              className="hidden sm:inline-flex items-center gap-2 h-12 px-4 sm:px-5 rounded-full bg-gradient-to-r from-[#b82e00] via-[#e24000] to-[#ff6d24] text-white text-xs sm:text-sm font-bold shadow-[0_4px_16px_rgba(226,64,0,0.35)] hover:shadow-[0_6px_22px_rgba(226,64,0,0.55)] hover:scale-[1.02] active:scale-95 transition-all whitespace-nowrap cursor-pointer shrink-0"
+              title={tNav('quickOrder')}
+            >
+              <Zap className="h-4 w-4 fill-white text-white drop-shadow-xs shrink-0" />
+              <span>{tNav('quickOrder')}</span>
             </Link>
 
             {/* Shopping Bag Pill Button */}
@@ -782,6 +804,18 @@ export function FloatingNavbar() {
                   className="block text-xs font-medium text-neutral-800 dark:text-neutral-200 hover:text-neutral-950 dark:hover:text-white transition-colors py-0.5"
                 >
                   {locale === 'ta' ? 'ஆர்டர் கண்காணிப்பு' : 'Track'}
+                </Link>
+              </div>
+
+              {/* Quick Order Highlight in Mobile Drawer */}
+              <div className="mobile-nav-item pt-1">
+                <Link
+                  href={getHref('/products')}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full flex items-center justify-center gap-2 h-12 px-4 rounded-full bg-gradient-to-r from-[#b82e00] via-[#e24000] to-[#ff6d24] text-white text-xs sm:text-sm font-bold shadow-[0_4px_16px_rgba(226,64,0,0.35)] hover:shadow-[0_6px_22px_rgba(226,64,0,0.55)] transition-all active:scale-95 cursor-pointer"
+                >
+                  <Zap className="h-4 w-4 fill-white text-white drop-shadow-xs shrink-0" />
+                  <span>{tNav('quickOrder')}</span>
                 </Link>
               </div>
 

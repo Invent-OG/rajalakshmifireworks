@@ -150,6 +150,8 @@
     "sortNewest": "Newest Arrivals",
     "sortPriceLowHigh": "Price: Low to High",
     "sortPriceHighLow": "Price: High to Low",
+    "sortPriceAsc": "Price: Low to High",
+    "sortPriceDesc": "Price: High to Low",
     "sortNameAsc": "Name: A to Z",
     "sortNameDesc": "Name: Z to A",
     "filterBy": "Filter By",

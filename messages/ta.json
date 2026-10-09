@@ -150,6 +150,8 @@
     "sortNewest": "புதிய தயாரிப்புகள்",
     "sortPriceLowHigh": "விலை: குறைவிலிருந்து அதிகம்",
     "sortPriceHighLow": "விலை: அதிகத்திலிருந்து குறைவு",
+    "sortPriceAsc": "விலை: குறைவிலிருந்து அதிகம்",
+    "sortPriceDesc": "விலை: அதிகத்திலிருந்து குறைவு",
     "sortNameAsc": "பெயர்: அ முதல் ஔ வரை",
     "sortNameDesc": "பெயர்: ஔ முதல் அ வரை",
     "filterBy": "வடிகட்டி",
