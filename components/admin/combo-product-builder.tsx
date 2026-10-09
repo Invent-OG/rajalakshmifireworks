@@ -286,7 +286,7 @@ export function ComboProductBuilder({
 
                     {/* Quantity Stepper & Line Total */}
                     <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0 pl-7 sm:pl-0">
-                      <div className="flex items-center border border-border rounded-lg bg-card shadow-xs overflow-hidden">
+                      <div className="flex items-center border border-border rounded-full bg-card shadow-xs overflow-hidden">
                         <button
                           type="button"
                           onClick={() => handleUpdateQuantity(item.productId, item.quantity - 1)}
@@ -324,7 +324,7 @@ export function ComboProductBuilder({
                       <button
                         type="button"
                         onClick={() => handleRemoveItem(item.productId)}
-                        className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive-light transition-colors"
+                        className="p-1.5 rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive-light transition-colors"
                         aria-label="Remove item"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -411,7 +411,7 @@ export function ComboProductBuilder({
                   placeholder="Search by product name, SKU, or category..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full h-11 pl-10 pr-4 rounded-xl bg-neutral-50 border border-neutral-200 text-xs sm:text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-950"
+                  className="w-full h-11 pl-10 pr-4 rounded-full bg-neutral-50 border border-neutral-200 text-xs sm:text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-950"
                   autoFocus
                 />
               </div>

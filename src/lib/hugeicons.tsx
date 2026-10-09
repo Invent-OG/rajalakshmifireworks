@@ -38,6 +38,7 @@ export const ArrowUpDown: React.FC<IconProps> = createIcon(HugeIcons.Sorting01Ic
 export const ArrowUpRight: React.FC<IconProps> = createIcon(HugeIcons.ArrowUpRight01Icon);
 export const Award: React.FC<IconProps> = createIcon(HugeIcons.Award01Icon);
 export const BarChart3: React.FC<IconProps> = createIcon(HugeIcons.BarChartIcon);
+export const Bell: React.FC<IconProps> = createIcon(HugeIcons.Notification01Icon);
 export const Boxes: React.FC<IconProps> = createIcon(HugeIcons.Package01Icon);
 export const Building2: React.FC<IconProps> = createIcon(HugeIcons.Building01Icon);
 export const Calculator: React.FC<IconProps> = createIcon(HugeIcons.Calculator01Icon);
@@ -156,6 +157,7 @@ export default {
   ArrowUpRight,
   Award,
   BarChart3,
+  Bell,
   Boxes,
   Building2,
   Calculator,

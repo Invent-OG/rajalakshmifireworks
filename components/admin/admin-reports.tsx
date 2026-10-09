@@ -52,12 +52,12 @@ function AdminReportsPageContent() {
           </p>
         </div>
 
-        <div className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-card border border-border self-start sm:self-auto shadow-xs">
+        <div className="flex items-center gap-1.5 p-1 rounded-full bg-card border border-border self-start sm:self-auto shadow-xs">
           <button
             onClick={() => setRange('today')}
-            className={`px-4 py-2 rounded-xl text-sm font-bold transition-all cursor-pointer ${
+            className={`h-9 px-4 rounded-full text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
               range === 'today'
-                ? 'bg-foreground text-background shadow-xs'
+                ? 'bg-foreground text-background shadow-xs font-bold'
                 : 'text-muted-foreground hover:text-foreground hover:bg-secondary dark:hover:bg-[#242424]'
             }`}
           >
@@ -65,9 +65,9 @@ function AdminReportsPageContent() {
           </button>
           <button
             onClick={() => setRange('7days')}
-            className={`px-4 py-2 rounded-xl text-sm font-bold transition-all cursor-pointer ${
+            className={`h-9 px-4 rounded-full text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
               range === '7days'
-                ? 'bg-foreground text-background shadow-xs'
+                ? 'bg-foreground text-background shadow-xs font-bold'
                 : 'text-muted-foreground hover:text-foreground hover:bg-secondary dark:hover:bg-[#242424]'
             }`}
           >
@@ -75,9 +75,9 @@ function AdminReportsPageContent() {
           </button>
           <button
             onClick={() => setRange('30days')}
-            className={`px-4 py-2 rounded-xl text-sm font-bold transition-all cursor-pointer ${
+            className={`h-9 px-4 rounded-full text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
               range === '30days'
-                ? 'bg-foreground text-background shadow-xs'
+                ? 'bg-foreground text-background shadow-xs font-bold'
                 : 'text-muted-foreground hover:text-foreground hover:bg-secondary dark:hover:bg-[#242424]'
             }`}
           >

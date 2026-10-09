@@ -682,43 +682,43 @@ function AdminInventoryPageContent() {
                   setSearch(e.target.value);
                   setPage(1);
                 }}
-                className="w-full h-12 pl-12 pr-4 rounded-2xl border border-border bg-secondary/40 text-base font-medium text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand transition-all"
+                className="w-full h-10 pl-10 pr-4 rounded-full border border-border bg-secondary/40 text-xs sm:text-sm font-semibold text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand transition-all"
               />
             </div>
 
-            <div className="flex items-center gap-2.5 flex-wrap">
+            <div className="flex items-center gap-2 flex-wrap">
               <Button
                 variant={filter === 'all' ? 'primary' : 'outline'}
-                size="md"
+                size="default"
                 onClick={() => {
                   setFilter('all');
                   setPage(1);
                 }}
-                className="text-base font-bold h-12 px-5 rounded-2xl cursor-pointer"
+                className="cursor-pointer"
               >
                 All ({stats.totalProducts})
               </Button>
               <Button
                 variant={filter === 'low' ? 'primary' : 'outline'}
-                size="md"
+                size="default"
                 onClick={() => {
                   setFilter('low');
                   setPage(1);
                 }}
-                className="text-base font-bold h-12 px-5 rounded-2xl cursor-pointer"
+                className="cursor-pointer"
               >
-                <AlertTriangle className="h-4.5 w-4.5 mr-2 text-amber-500" /> Low Stock ({stats.lowStockCount})
+                <AlertTriangle className="h-4 w-4 mr-1.5 text-amber-500" /> Low Stock ({stats.lowStockCount})
               </Button>
               <Button
                 variant={filter === 'out' ? 'primary' : 'outline'}
-                size="md"
+                size="default"
                 onClick={() => {
                   setFilter('out');
                   setPage(1);
                 }}
-                className="text-base font-bold h-12 px-5 rounded-2xl cursor-pointer"
+                className="cursor-pointer"
               >
-                <TrendingDown className="h-4.5 w-4.5 mr-2 text-rose-500" /> Out of Stock ({stats.outOfStockCount})
+                <TrendingDown className="h-4 w-4 mr-1.5 text-rose-500" /> Out of Stock ({stats.outOfStockCount})
               </Button>
             </div>
           </div>

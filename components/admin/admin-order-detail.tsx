@@ -31,6 +31,7 @@ import {
   ExternalLink,
   Share2,
   Edit,
+  X,
 } from 'lucide-react';
 import Link from '@/components/ui/link';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -420,8 +421,8 @@ function AdminOrderDetailPageContent({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-border gap-4">
         <div className="flex items-center gap-3.5">
           <Link href="/admin/orders">
-            <Button variant="outline" size="icon" className="h-11 w-11 rounded-xl">
-              <ArrowLeft className="h-5 w-5" />
+            <Button variant="outline" size="icon" className="h-10 w-10 rounded-full">
+              <ArrowLeft className="h-4 w-4" />
             </Button>
           </Link>
           <div>
@@ -429,7 +430,7 @@ function AdminOrderDetailPageContent({
               <h1 className="text-2xl sm:text-3xl font-mono font-bold text-foreground tracking-tight">
                 {order.invoiceNumber}
               </h1>
-              <StatusBadge status={currentStatus} className="text-sm px-3 py-1 font-bold" />
+              <StatusBadge status={currentStatus} className="text-xs px-3 py-1 font-bold" />
             </div>
             <p className="text-sm text-muted-foreground mt-1">
               Placed on {formatDateTime(order.placedAt)}
@@ -437,13 +438,13 @@ function AdminOrderDetailPageContent({
           </div>
         </div>
 
-        <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex items-center gap-2.5 flex-wrap">
           {order?.customerMobileSnapshot && (
             <a
               href={getProcessShareUrl(currentStatusTemplate.type)}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 h-11 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold shadow-xs transition-colors cursor-pointer"
+              className="inline-flex items-center gap-2 h-10 px-4 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-semibold shadow-xs transition-colors cursor-pointer"
               title={`Open WhatsApp chat with ${currentStatusTemplate.label}`}
             >
               <MessageSquare className="h-4 w-4" /> Share {currentStatusTemplate.badge}
@@ -452,11 +453,11 @@ function AdminOrderDetailPageContent({
           <Button
             variant="outline"
             onClick={() => setIsPrintModalOpen(true)}
-            className="h-11 px-4 rounded-xl text-sm font-semibold cursor-pointer"
+            className="h-10 px-4 rounded-full text-xs sm:text-sm font-semibold cursor-pointer"
           >
             <Printer className="h-4 w-4 mr-1.5 text-muted-foreground" /> Print Slip
           </Button>
-          <span className="text-sm font-semibold px-4 py-2.5 rounded-xl bg-card border border-border text-foreground shadow-xs">
+          <span className="text-xs sm:text-sm font-semibold h-10 px-4 inline-flex items-center rounded-full bg-card border border-border text-foreground shadow-xs">
             {fulfillmentType === 'DELIVERY' ? 'Doorstep Delivery' : 'Sivakasi Counter Pickup'}
           </span>
         </div>
@@ -647,7 +648,7 @@ function AdminOrderDetailPageContent({
                   <select
                     value={selectedPartnerId}
                     onChange={(e) => setSelectedPartnerId(e.target.value)}
-                    className="w-full h-12 px-4 rounded-xl border border-border bg-card text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 cursor-pointer shadow-xs"
+                    className="w-full h-10 px-4 rounded-full border border-border bg-card text-xs sm:text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 cursor-pointer shadow-xs"
                   >
                     <option value="">-- Select Active Delivery Partner --</option>
                     {deliveryPartners.map((p) => {
@@ -666,7 +667,7 @@ function AdminOrderDetailPageContent({
                   </select>
 
                   <Button
-                    className="w-full h-12 justify-center font-bold text-base"
+                    className="w-full h-10 justify-center font-semibold text-xs sm:text-sm rounded-full"
                     disabled={!selectedPartnerId || assignDeliveryMutation.isPending}
                     onClick={() => {
                       if (!selectedPartnerId) return;
@@ -1101,7 +1102,7 @@ function AdminOrderDetailPageContent({
               <button
                 type="button"
                 onClick={() => setIsPrintModalOpen(false)}
-                className="h-8 w-8 rounded-lg hover:bg-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white transition-colors cursor-pointer"
+                className="h-8 w-8 rounded-full hover:bg-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white transition-colors cursor-pointer"
                 title="Close"
               >
                 <X className="h-5 w-5" />

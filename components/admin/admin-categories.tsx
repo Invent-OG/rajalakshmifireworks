@@ -177,11 +177,11 @@ function AdminCategoriesPageContent() {
 
         <Button
           variant="primary"
-          size="lg"
-          className="h-12 px-5 font-bold text-sm sm:text-base self-start sm:self-auto cursor-pointer shadow-xs"
+          size="default"
+          className="h-10 px-4.5 rounded-full self-start sm:self-auto cursor-pointer shadow-xs"
           onClick={handleOpenAdd}
         >
-          <Plus className="h-5 w-5 mr-1" /> Add Category
+          <Plus className="h-4 w-4 mr-1.5" /> Add Category
         </Button>
       </div>
 

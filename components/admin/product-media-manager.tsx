@@ -339,7 +339,7 @@ export function ProductMediaManager({
                     <button
                       type="button"
                       onClick={() => setPreviewMedia(item)}
-                      className="h-7 w-7 rounded-lg bg-card text-foreground flex items-center justify-center hover:scale-105 transition-transform shadow-xs cursor-pointer"
+                      className="h-7 w-7 rounded-full bg-card text-foreground flex items-center justify-center hover:scale-105 transition-transform shadow-xs cursor-pointer"
                       title="Preview Media"
                     >
                       <Eye className="h-3.5 w-3.5" />
@@ -347,7 +347,7 @@ export function ProductMediaManager({
                     <button
                       type="button"
                       onClick={() => handleDelete(index)}
-                      className="h-7 w-7 rounded-lg bg-destructive text-destructive-foreground flex items-center justify-center hover:scale-105 transition-transform shadow-xs cursor-pointer"
+                      className="h-7 w-7 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center hover:scale-105 transition-transform shadow-xs cursor-pointer"
                       title="Delete Media"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
@@ -378,7 +378,7 @@ export function ProductMediaManager({
                 <button
                   type="button"
                   onClick={() => setShowVideoModal(false)}
-                  className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground"
+                  className="p-1.5 rounded-full hover:bg-muted text-muted-foreground transition-colors"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -454,7 +454,7 @@ export function ProductMediaManager({
                 <button
                   type="button"
                   onClick={() => setPreviewMedia(null)}
-                  className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground cursor-pointer"
+                  className="p-1.5 rounded-full hover:bg-muted text-muted-foreground cursor-pointer transition-colors"
                 >
                   <X className="h-4 w-4" />
                 </button>

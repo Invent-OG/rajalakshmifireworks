@@ -590,10 +590,10 @@ function BulkProductUploadPageContent() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-card border border-border">
                 {/* Filters */}
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center bg-muted/60 p-1 rounded-xl border border-border">
+                  <div className="flex items-center bg-muted/60 p-1 rounded-full border border-border">
                     <button
                       onClick={() => setPreviewFilter('all')}
-                      className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                      className={`px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-all ${
                         previewFilter === 'all'
                           ? 'bg-card text-foreground shadow-xs'
                           : 'text-muted-foreground hover:text-foreground'
@@ -603,7 +603,7 @@ function BulkProductUploadPageContent() {
                     </button>
                     <button
                       onClick={() => setPreviewFilter('valid')}
-                      className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                      className={`px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-all ${
                         previewFilter === 'valid'
                           ? 'bg-card text-emerald-600 shadow-xs'
                           : 'text-muted-foreground hover:text-foreground'
@@ -613,7 +613,7 @@ function BulkProductUploadPageContent() {
                     </button>
                     <button
                       onClick={() => setPreviewFilter('error')}
-                      className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                      className={`px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-all ${
                         previewFilter === 'error'
                           ? 'bg-card text-rose-600 shadow-xs'
                           : 'text-muted-foreground hover:text-foreground'
@@ -631,7 +631,7 @@ function BulkProductUploadPageContent() {
                       placeholder="Search preview..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-8 pr-3 py-1.5 text-xs bg-muted/40 border border-border rounded-xl focus:outline-none focus:ring-1 focus:ring-primary w-44 sm:w-56"
+                      className="pl-8 pr-3 py-1.5 text-xs sm:text-sm font-semibold bg-muted/40 border border-border rounded-full focus:outline-none focus:ring-1 focus:ring-primary w-44 sm:w-56"
                     />
                   </div>
                 </div>

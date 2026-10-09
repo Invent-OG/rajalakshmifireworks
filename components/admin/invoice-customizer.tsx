@@ -414,14 +414,14 @@ function InvoiceCustomizerContent({
               <button
                 type="button"
                 onClick={onClose}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-xs font-bold text-gray-700 dark:text-gray-200 hover:text-black dark:hover:text-white transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-xs font-semibold text-gray-700 dark:text-gray-200 hover:text-black dark:hover:text-white transition-colors cursor-pointer"
               >
                 <ArrowLeft className="h-3.5 w-3.5" /> Back to Order
               </button>
             ) : (
               <a
                 href={`/admin/orders/${order.id}`}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-xs font-bold text-gray-700 dark:text-gray-200 hover:text-black dark:hover:text-white transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-xs font-semibold text-gray-700 dark:text-gray-200 hover:text-black dark:hover:text-white transition-colors cursor-pointer"
               >
                 <ArrowLeft className="h-3.5 w-3.5" /> Back to Order #{order.invoiceNumber}
               </a>
@@ -436,7 +436,7 @@ function InvoiceCustomizerContent({
             <button
               type="button"
               onClick={() => logoInputRef.current?.click()}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-neutral-700 transition-colors cursor-pointer shadow-2xs"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-neutral-700 transition-colors cursor-pointer shadow-2xs"
               title="Upload your custom store logo image"
             >
               <ImageIcon className="h-3.5 w-3.5 text-indigo-500" />
@@ -447,7 +447,7 @@ function InvoiceCustomizerContent({
             <button
               type="button"
               onClick={() => signatureInputRef.current?.click()}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-neutral-700 transition-colors cursor-pointer shadow-2xs"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-neutral-700 transition-colors cursor-pointer shadow-2xs"
               title="Upload your handwritten signature image (PNG/JPG)"
             >
               <PenTool className="h-3.5 w-3.5 text-emerald-500" />
@@ -461,7 +461,7 @@ function InvoiceCustomizerContent({
                 setActiveTab('terms');
                 setIsDrawerOpen(true);
               }}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-neutral-700 transition-colors cursor-pointer shadow-2xs"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-neutral-700 transition-colors cursor-pointer shadow-2xs"
               title="Edit Terms & Conditions"
             >
               <FileText className="h-3.5 w-3.5 text-amber-500" />
@@ -472,7 +472,7 @@ function InvoiceCustomizerContent({
             <button
               type="button"
               onClick={() => setIsDrawerOpen(!isDrawerOpen)}
-              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
                 isDrawerOpen
                   ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 shadow-sm'
                   : 'bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 text-gray-800 dark:text-gray-200 hover:bg-gray-50 shadow-2xs'
@@ -486,7 +486,7 @@ function InvoiceCustomizerContent({
             <button
               type="button"
               onClick={handleSaveDefaults}
-              className="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-semibold bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 transition-colors cursor-pointer"
               title="Save current layout & logos as default for future orders"
             >
               <Save className="h-3.5 w-3.5" />
@@ -497,7 +497,7 @@ function InvoiceCustomizerContent({
             <button
               type="button"
               onClick={() => window.print()}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-neutral-900 hover:bg-black text-white dark:bg-emerald-600 dark:hover:bg-emerald-700 shadow-sm transition-all cursor-pointer"
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold bg-neutral-900 hover:bg-black text-white dark:bg-emerald-600 dark:hover:bg-emerald-700 shadow-sm transition-all cursor-pointer"
             >
               <Printer className="h-4 w-4" />
               <span>Print / Save PDF</span>
@@ -522,7 +522,7 @@ function InvoiceCustomizerContent({
             <button
               type="button"
               onClick={() => setIsDrawerOpen(false)}
-              className="h-8 w-8 rounded-lg hover:bg-gray-200 dark:hover:bg-neutral-800 flex items-center justify-center text-muted-foreground cursor-pointer"
+              className="h-8 w-8 rounded-full hover:bg-gray-200 dark:hover:bg-neutral-800 flex items-center justify-center text-muted-foreground cursor-pointer transition-colors"
             >
               <X className="h-4 w-4" />
             </button>
@@ -935,7 +935,7 @@ function InvoiceCustomizerContent({
             <button
               type="button"
               onClick={handleReset}
-              className="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full text-xs font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
             >
               <RotateCcw className="h-3.5 w-3.5" /> Reset
             </button>
@@ -943,14 +943,14 @@ function InvoiceCustomizerContent({
               <button
                 type="button"
                 onClick={handleSaveDefaults}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-neutral-900 hover:bg-black text-white dark:bg-white dark:text-neutral-900 shadow-xs cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-neutral-900 hover:bg-black text-white dark:bg-white dark:text-neutral-900 shadow-xs cursor-pointer transition-colors"
               >
                 <Save className="h-3.5 w-3.5" /> Save Default
               </button>
               <button
                 type="button"
                 onClick={() => setIsDrawerOpen(false)}
-                className="px-3 py-2 rounded-xl text-xs font-semibold bg-gray-200 dark:bg-neutral-700 text-foreground cursor-pointer"
+                className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-gray-200 dark:bg-neutral-700 text-foreground cursor-pointer hover:bg-gray-300 dark:hover:bg-neutral-600 transition-colors"
               >
                 Done
               </button>

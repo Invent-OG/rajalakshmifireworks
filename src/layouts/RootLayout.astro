@@ -1,28 +1,30 @@
 ---
-import '@/src/styles/globals.css';
+import "@/src/styles/globals.css";
 
 interface Props {
   title?: string;
   description?: string;
   keywords?: string[];
   locale?: string;
+  bodyClass?: string;
 }
 
 const {
-  title = 'Rajalakshmi Fireworks | Premium Crackers & Fireworks',
-  description = 'Shop premium quality fireworks and crackers online. Wide selection of sparklers, flower pots, rockets, chakras, fountains, and gift boxes. Direct from Sivakasi.',
+  title = "Rajalakshmi Fireworks | Premium Crackers & Fireworks",
+  description = "Shop premium quality fireworks and crackers online. Wide selection of sparklers, flower pots, rockets, chakras, fountains, and gift boxes. Direct from Sivakasi.",
   keywords = [
-    'fireworks',
-    'crackers',
-    'sparklers',
-    'Diwali crackers',
-    'Sivakasi fireworks',
-    'buy crackers online',
-    'flower pots',
-    'rockets',
-    'gift boxes',
+    "fireworks",
+    "crackers",
+    "sparklers",
+    "Diwali crackers",
+    "Sivakasi fireworks",
+    "buy crackers online",
+    "flower pots",
+    "rockets",
+    "gift boxes",
   ],
-  locale = 'en',
+  locale = "en",
+  bodyClass = "bg-background",
 } = Astro.props;
 ---
 
@@ -30,28 +32,28 @@ const {
 <html lang={locale}>
   <head>
     <script is:inline>
-      (function() {
+      (function () {
         try {
           var pathname = window.location.pathname;
-          var isAdmin = pathname.indexOf('/admin') !== -1;
+          var isAdmin = pathname.indexOf("/admin") !== -1;
           if (isAdmin) {
-            var adminTheme = localStorage.getItem('admin_theme');
+            var adminTheme = localStorage.getItem("admin_theme");
             // Default to dark mode for admin console if not specified
-            if (adminTheme === 'light') {
-              document.documentElement.classList.remove('dark');
-              document.documentElement.setAttribute('data-theme', 'light');
+            if (adminTheme === "light") {
+              document.documentElement.classList.remove("dark");
+              document.documentElement.setAttribute("data-theme", "light");
             } else {
-              document.documentElement.classList.add('dark');
-              document.documentElement.setAttribute('data-theme', 'dark');
+              document.documentElement.classList.add("dark");
+              document.documentElement.setAttribute("data-theme", "dark");
             }
           } else {
-            var siteTheme = localStorage.getItem('theme');
-            if (siteTheme === 'dark') {
-              document.documentElement.classList.add('dark');
-              document.documentElement.setAttribute('data-theme', 'dark');
+            var siteTheme = localStorage.getItem("theme");
+            if (siteTheme === "dark") {
+              document.documentElement.classList.add("dark");
+              document.documentElement.setAttribute("data-theme", "dark");
             } else {
-              document.documentElement.classList.remove('dark');
-              document.documentElement.setAttribute('data-theme', 'light');
+              document.documentElement.classList.remove("dark");
+              document.documentElement.setAttribute("data-theme", "light");
             }
           }
         } catch (e) {}
@@ -62,7 +64,7 @@ const {
     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <meta name="keywords" content={keywords.join(', ')} />
+    <meta name="keywords" content={keywords.join(", ")} />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="en_IN" />
     <meta property="og:site_name" content="Rajalakshmi Fireworks" />
@@ -77,7 +79,9 @@ const {
       rel="stylesheet"
     />
   </head>
-  <body class="bg-background text-foreground min-h-screen flex flex-col font-sans antialiased selection:bg-brand selection:text-brand-foreground">
+  <body
+    class={`${bodyClass} text-foreground min-h-screen flex flex-col font-sans antialiased selection:bg-brand selection:text-brand-foreground`}
+  >
     <slot />
   </body>
 </html>

@@ -21,62 +21,44 @@ import {
   Sun,
   Moon,
   FileText,
+  Search,
+  Bell,
+  ChevronDown,
+  Plus,
+  Download,
 } from 'lucide-react';
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { BrandLogo } from '@/components/ui/brand-logo';
 import { useAdminTheme } from '@/hooks/use-admin-theme';
 
-const navGroups = [
-  {
-    group: 'OVERVIEW',
-    items: [{ href: '/admin', icon: LayoutDashboard, label: 'Dashboard' }],
-  },
-  {
-    group: 'COMMERCE',
-    items: [
-      { href: '/admin/orders', icon: ShoppingCart, label: 'Orders' },
-      { href: '/admin/products', icon: Package, label: 'Products' },
-      { href: '/admin/categories', icon: Tags, label: 'Categories' },
-      { href: '/admin/inventory', icon: Warehouse, label: 'Inventory' },
-    ],
-  },
-  {
-    group: 'FULFILLMENT',
-    items: [
-      { href: '/admin/delivery-partners', icon: Truck, label: 'Delivery Partners' },
-    ],
-  },
-  {
-    group: 'CONTENT',
-    items: [
-      { href: '/admin/hero-slides', icon: Sparkles, label: 'Hero Carousel' },
-    ],
-  },
-  {
-    group: 'CUSTOMERS',
-    items: [{ href: '/admin/customers', icon: Users, label: 'Customers' }],
-  },
-  {
-    group: 'ANALYTICS',
-    items: [{ href: '/admin/reports', icon: BarChart3, label: 'Reports' }],
-  },
-  {
-    group: 'SYSTEM',
-    items: [
-      { href: '/admin/invoice-editor', icon: FileText, label: 'Invoice Editor' },
-      { href: '/admin/profile', icon: UserCog, label: 'Profile & Security' },
-      { href: '/admin/settings', icon: Settings, label: 'Settings' },
-    ],
-  },
+interface NavItem {
+  href: string;
+  icon: typeof LayoutDashboard;
+  label: string;
+  badge?: string | number;
+}
+
+const navItems: NavItem[] = [
+  { href: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
+  { href: '/admin/products', icon: Package, label: 'Products' },
+  { href: '/admin/customers', icon: Users, label: 'Customers' },
+  { href: '/admin/categories', icon: Tags, label: 'Category' },
+  { href: '/admin/orders', icon: ShoppingCart, label: 'Orders', badge: 3 },
+  { href: '/admin/delivery-partners', icon: Truck, label: 'Delivery' },
+  { href: '/admin/inventory', icon: Warehouse, label: 'Inventory' },
+  { href: '/admin/hero-slides', icon: Sparkles, label: 'Carousel' },
+  { href: '/admin/reports', icon: BarChart3, label: 'Analytics' },
+  { href: '/admin/invoice-editor', icon: FileText, label: 'Invoice' },
+  { href: '/admin/settings', icon: Settings, label: 'Settings' },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { theme, setTheme, toggleTheme } = useAdminTheme();
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const { theme, toggleTheme } = useAdminTheme();
 
   if (pathname === '/admin/login') {
     return <>{children}</>;
@@ -102,47 +84,65 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     logoutMutation.mutate();
   }
 
+  // Derive human-readable page title
+  const activeNavItem = navItems.find((item) =>
+    item.href === '/admin' ? pathname === '/admin' : pathname.startsWith(item.href)
+  );
+  const pageTitle =
+    pathname === '/admin/profile'
+      ? 'Profile & Security'
+      : activeNavItem?.label || 'Dashboard';
+
   return (
-    <div className="min-h-screen bg-background-secondary flex selection:bg-brand selection:text-brand-foreground">
+    <div className="min-h-screen lg:h-screen lg:max-h-screen lg:overflow-hidden p-2.5 sm:p-4 flex flex-col font-sans text-neutral-900 selection:text-white bg-[#F4F6FA] dark:bg-[#10121A]">
       {/* Mobile Drawer Backdrop */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-xs z-40 lg:hidden"
+          className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* Professional Operations Sidebar */}
-      <aside
-        className={`
-        fixed lg:sticky top-0 left-0 z-50 h-screen w-80 bg-card border-r border-border
-        flex flex-col transition-transform duration-200 shadow-sm lg:shadow-none
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-      `}
-      >
-        {/* Brand Console Logo Header */}
-        <div className="h-22 flex items-center justify-between px-6 border-b border-border shrink-0">
-          <Link href="/admin" className="flex items-center gap-2.5 py-1">
-            <BrandLogo className="h-14 w-auto" />
-          </Link>
+      {/* Main Unified Cockpit App Frame */}
+      <div className="w-full max-w-[1720px] mx-auto gap-5  overflow-hidden bg-[#F4F6FA] dark:bg-[#10121A]   flex flex-col lg:flex-row flex-1 min-h-[calc(100vh-2.5rem)] lg:h-[calc(100vh-2.5rem)] lg:max-h-[calc(100vh-2.5rem)]">
+        {/* Left Dark Sidebar - Fixed to cockpit viewport so it never scrolls away */}
+        <aside
+          className={`
+            fixed lg:static top-0 left-0 z-50 h-full lg:h-full w-68 bg-[#0D0E15] text-white
+            flex flex-col justify-between shrink-0 p-5 lg:rounded-[32px] border-r border-white/5
+            overflow-y-auto scrollbar-none transition-transform duration-200 shadow-2xl 
+            ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+          `}
+        >
+          {/* Top Brand Logo */}
+          <div className="space-y-6">
+            <div className="flex items-center justify-between px-2 pt-1">
+              <Link href="/admin" className="flex items-center gap-2.5 group">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#e24000] to-indigo-500 flex items-center justify-center text-white shadow-md shadow-blue-500/30 group-hover:scale-105 transition-transform">
+                  <ShoppingCart className="h-5 w-5 stroke-[2.5]" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="font-extrabold text-lg text-white tracking-tight leading-none">
+                    Rajalakshmi
+                  </span>
+                  <span className="text-[10px] text-neutral-400 font-bold uppercase tracking-wider mt-0.5">
+                    Fireworks Desk
+                  </span>
+                </div>
+              </Link>
 
-          <button
-            className="lg:hidden p-2.5 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer"
-            onClick={() => setSidebarOpen(false)}
-            aria-label="Close Sidebar"
-          >
-            <X className="h-6 w-6" />
-          </button>
-        </div>
+              <button
+                className="lg:hidden p-2 rounded-xl text-neutral-400 hover:text-white hover:bg-white/10 cursor-pointer"
+                onClick={() => setSidebarOpen(false)}
+                aria-label="Close Sidebar"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
 
-        {/* Grouped Navigation */}
-        <nav className="flex-1 overflow-y-auto py-6 px-4 space-y-7">
-          {navGroups.map((group) => (
-            <div key={group.group} className="space-y-2">
-              <span className="px-4 py-1.5 text-xs uppercase font-bold tracking-wider text-muted-foreground/80 block">
-                {group.group}
-              </span>
-              {group.items.map((item) => {
+            {/* Navigation Pill List */}
+            <nav className="space-y-1.5 pt-2">
+              {navItems.map((item) => {
                 const isActive =
                   item.href === '/admin'
                     ? pathname === '/admin'
@@ -154,161 +154,214 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     href={item.href}
                     onClick={() => setSidebarOpen(false)}
                     className={`
-                      flex items-center gap-3.5 px-4 py-3 rounded-2xl text-[15px] sm:text-base font-semibold transition-all
-                      ${
-                        isActive
-                          ? 'bg-secondary text-foreground shadow-xs font-bold border border-border/80'
-                          : 'text-muted-foreground hover:bg-secondary/70 hover:text-foreground'
+                      group flex items-center gap-3 px-3.5 py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all
+                      ${isActive
+                        ? 'bg-[#e24000] text-white shadow-md shadow-[#e24000]/30 font-bold'
+                        : 'text-[#82889A] hover:text-white hover:bg-white/5 font-medium'
                       }
                     `}
                   >
-                    <item.icon
-                      className={`h-5.5 w-5.5 shrink-0 transition-colors ${
-                        isActive ? 'text-foreground' : 'text-muted-foreground'
-                      }`}
-                    />
+                    {/* Circular Icon Container matching the mockup design pattern */}
+                    <div
+                      className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition-colors ${isActive
+                        ? 'border-white/25 bg-white/15 text-white'
+                        : 'border-neutral-800/90 bg-neutral-900/60 text-[#8E95A5] group-hover:border-neutral-700 group-hover:text-white'
+                        }`}
+                    >
+                      <item.icon
+                        className={`h-4.5 w-4.5 ${isActive ? 'text-white' : 'text-[#8E95A5] group-hover:text-white'
+                          }`}
+                      />
+                    </div>
+
                     <span className="truncate">{item.label}</span>
-                    {isActive && (
-                      <span className="ml-auto h-2.5 w-2.5 rounded-full bg-brand shrink-0" />
+
+                    {/* Notification Badge */}
+                    {item.badge !== undefined && (
+                      <span
+                        className={`ml-auto text-[11px] font-bold px-2 py-0.5 rounded-full shrink-0 ${isActive
+                          ? 'bg-white text-[#e24000]'
+                          : 'bg-[#e24000] text-white shadow-xs'
+                          }`}
+                      >
+                        {item.badge}
+                      </span>
                     )}
                   </Link>
                 );
               })}
-            </div>
-          ))}
-        </nav>
+            </nav>
+          </div>
 
-        {/* Sidebar Bottom Controls: Theme, Profile, Sign Out */}
-        <div className="p-4 border-t border-border space-y-2 bg-card shrink-0">
-          {/* Quick Theme Switch in Sidebar */}
-          <button
-            type="button"
-            onClick={toggleTheme}
-            className="flex items-center justify-between w-full px-4 py-3 rounded-2xl text-[15px] sm:text-base font-semibold text-muted-foreground hover:text-foreground hover:bg-secondary/70 transition-colors cursor-pointer"
-            title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
-          >
+          {/* Sidebar Bottom Profile Card */}
+          <div className="pt-6 relative">
+            <div className="bg-[#161824] border border-white/5 rounded-2xl p-2.5 flex items-center justify-between gap-3 shadow-inner">
+              <Link
+                href="/admin/profile"
+                className="flex items-center gap-3 flex-1 min-w-0"
+              >
+                <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-600 ring-2 ring-white/10 flex items-center justify-center font-bold text-xs text-white shrink-0">
+                  AD
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <span className="text-white text-xs font-bold truncate leading-tight">
+                    Admin Manager
+                  </span>
+                  <span className="text-[#7E8494] text-[10px] truncate mt-0.5">
+                    Store Operations
+                  </span>
+                </div>
+              </Link>
+
+              <button
+                type="button"
+                onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                className="p-1.5 rounded-xl hover:bg-white/10 text-[#7E8494] hover:text-white transition-colors cursor-pointer"
+                title="Account Options"
+              >
+                <ChevronDown className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Quick Profile Dropdown Menu */}
+            {userDropdownOpen && (
+              <div className="absolute bottom-16 left-0 right-0 p-2 rounded-2xl bg-[#1A1C28] border border-white/10 shadow-xl space-y-1 z-50 text-xs">
+                <Link
+                  href="/admin/profile"
+                  onClick={() => setUserDropdownOpen(false)}
+                  className="flex items-center gap-2 px-3 py-2 rounded-full text-xs sm:text-sm font-semibold text-neutral-300 hover:text-white hover:bg-white/10 transition-colors"
+                >
+                  <UserCog className="h-4 w-4" />
+                  <span>Profile & Security</span>
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setUserDropdownOpen(false);
+                    handleLogout();
+                  }}
+                  className="w-full flex items-center gap-2 px-3 py-2 rounded-full text-xs sm:text-sm font-semibold text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-colors cursor-pointer"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Sign out</span>
+                </button>
+              </div>
+            )}
+          </div>
+        </aside>
+
+        {/* Right Main Operations Workspace */}
+        <div className="flex-1 flex flex-col min-w-0 lg:h-full lg:overflow-y-auto overflow-x-hidden  dark:bg-[#0E1017]">
+          {/* Top Header Bar */}
+          <header className=" flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0 sticky py-5 top-0 z-20  dark:bg-[#0E1017]/90 backdrop-blur-md">
+            {/* Title & Mobile Hamburger */}
             <div className="flex items-center gap-3.5">
-              {theme === 'dark' ? (
-                <Moon className="h-5.5 w-5.5 text-indigo-400 shrink-0" />
+              <button
+                className="lg:hidden w-10 h-10 rounded-full border border-neutral-300 dark:border-white/10 bg-white dark:bg-[#161824] text-neutral-800 dark:text-neutral-200 cursor-pointer shadow-xs flex items-center justify-center shrink-0"
+                onClick={() => setSidebarOpen(true)}
+                aria-label="Open sidebar"
+              >
+                <Menu className="h-5 w-5" />
+              </button>
+
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 dark:text-white tracking-tight">
+                  {pageTitle}
+                </h1>
+              </div>
+            </div>
+
+            {/* Header Right Controls */}
+            <div className="flex items-center gap-2.5 sm:gap-3">
+              {pathname === '/admin/products' ? (
+                <>
+                  {/* Circular Notification Bell Button with Red Badge */}
+                  <button
+                    type="button"
+                    className="w-10 h-10 rounded-full bg-white dark:bg-[#161824] border border-neutral-200/80 dark:border-white/10 flex items-center justify-center text-neutral-600 dark:text-neutral-300 relative shadow-xs hover:bg-neutral-50 dark:hover:bg-white/5 transition-colors cursor-pointer shrink-0"
+                    title="Notifications (3 unread)"
+                  >
+                    <Bell className="h-4.5 w-4.5" />
+                    <span className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-[#EF4444] text-white text-[10px] font-extrabold rounded-full flex items-center justify-center border-2 border-white dark:border-[#161824] shadow-xs">
+                      3
+                    </span>
+                  </button>
+
+                  {/* Import Button */}
+                  <Link
+                    href="/admin/products/bulk-upload"
+                    className="inline-flex items-center gap-1.5 h-10 px-4 py-2 rounded-full border border-neutral-200/80 dark:border-white/10 bg-white dark:bg-[#161824] hover:bg-neutral-50 dark:hover:bg-white/5 text-xs sm:text-sm font-semibold text-neutral-700 dark:text-neutral-200 shadow-xs transition-colors shrink-0"
+                  >
+                    <Download className="h-4 w-4 text-neutral-400" />
+                    <span>Import</span>
+                  </Link>
+
+                  {/* Add Product Button */}
+                  <Link
+                    href="/admin/products/new"
+                    className="inline-flex items-center gap-1.5 h-10 px-4.5 sm:px-5 py-2 rounded-full bg-[#4F75FF] hover:bg-[#3D64F0] text-white text-xs sm:text-sm font-semibold shadow-md shadow-blue-500/25 transition-all shrink-0"
+                  >
+                    <Plus className="h-4 w-4 stroke-[2.5]" />
+                    <span>Add Product</span>
+                  </Link>
+                </>
               ) : (
-                <Sun className="h-5.5 w-5.5 text-amber-500 shrink-0" />
+                <>
+                  {/* Pill Search Input */}
+                  <div className="relative hidden md:block">
+                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
+                    <input
+                      type="text"
+                      placeholder="Search"
+                      className="w-60 lg:w-72 h-10 pl-10 pr-4 bg-white dark:bg-[#161824] rounded-full border border-neutral-200/80 dark:border-white/10 text-xs sm:text-sm font-semibold text-neutral-800 dark:text-neutral-200 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-[#4F75FF]/30 transition-all shadow-xs"
+                    />
+                  </div>
+
+                  {/* Circular Notification Bell Button with Red Badge */}
+                  <button
+                    type="button"
+                    className="w-10 h-10 rounded-full bg-white dark:bg-[#161824] border border-neutral-200/80 dark:border-white/10 flex items-center justify-center text-neutral-600 dark:text-neutral-300 relative shadow-xs hover:bg-neutral-50 dark:hover:bg-white/5 transition-colors cursor-pointer shrink-0"
+                    title="Notifications (3 unread)"
+                  >
+                    <Bell className="h-4.5 w-4.5" />
+                    <span className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-[#EF4444] text-white text-[10px] font-extrabold rounded-full flex items-center justify-center border-2 border-white dark:border-[#161824] shadow-xs">
+                      3
+                    </span>
+                  </button>
+                </>
               )}
-              <span>Theme Appearance</span>
+
+              {/* Dark / Light Pill Switch */}
+              <button
+                type="button"
+                onClick={toggleTheme}
+                className="w-10 h-10 rounded-full bg-white dark:bg-[#161824] border border-neutral-200/80 dark:border-white/10 flex items-center justify-center text-neutral-600 dark:text-neutral-300 shadow-xs hover:bg-neutral-50 dark:hover:bg-white/5 transition-colors cursor-pointer shrink-0"
+                title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} mode`}
+              >
+                {theme === 'dark' ? (
+                  <Sun className="h-4.5 w-4.5 text-amber-400" />
+                ) : (
+                  <Moon className="h-4.5 w-4.5 text-indigo-500" />
+                )}
+              </button>
+
+              {/* Storefront Link Pill */}
+              <Link
+                href="/"
+                target="_blank"
+                className="hidden sm:inline-flex items-center gap-1.5 h-10 px-4 py-2 rounded-full border border-neutral-200/80 dark:border-white/10 bg-white dark:bg-[#161824] hover:bg-neutral-50 dark:hover:bg-white/5 text-xs sm:text-sm font-semibold text-neutral-700 dark:text-neutral-300 shadow-xs transition-colors shrink-0"
+              >
+                <span>Store</span>
+                <ExternalLink className="h-3.5 w-3.5 text-neutral-400" />
+              </Link>
             </div>
-            <span className="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-secondary text-foreground border border-border">
-              {theme === 'dark' ? 'Dark' : 'Light'}
-            </span>
-          </button>
+          </header>
 
-          <Link
-            href="/admin/profile"
-            onClick={() => setSidebarOpen(false)}
-            className={`
-              flex items-center gap-3.5 w-full px-4 py-3 rounded-2xl text-[15px] sm:text-base font-semibold transition-colors
-              ${
-                pathname === '/admin/profile'
-                  ? 'bg-secondary text-foreground font-bold shadow-xs border border-border/80'
-                  : 'text-muted-foreground hover:bg-secondary/70 hover:text-foreground'
-              }
-            `}
-          >
-            <UserCog className="h-5.5 w-5.5 shrink-0" />
-            <span>Profile & Security</span>
-          </Link>
-
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-3.5 w-full px-4 py-3 rounded-2xl text-[15px] sm:text-base font-semibold text-muted-foreground hover:text-destructive hover:bg-secondary/70 transition-colors cursor-pointer"
-          >
-            <LogOut className="h-5.5 w-5.5 shrink-0" />
-            <span>Sign out</span>
-          </button>
+          {/* Main Dashboard / Page Body */}
+          <main className="flex-1  overflow-x-hidden">
+            {children}
+          </main>
         </div>
-      </aside>
-
-      {/* Main Operations Content */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Top Header Bar */}
-        <header className="h-20 border-b border-border bg-card/90 backdrop-blur-md flex items-center justify-between px-6 lg:px-10 sticky top-0 z-30">
-          <div className="flex items-center gap-4">
-            <button
-              className="lg:hidden p-3 rounded-2xl border border-border bg-card text-foreground hover:bg-muted cursor-pointer"
-              onClick={() => setSidebarOpen(true)}
-              aria-label="Open sidebar"
-            >
-              <Menu className="h-6 w-6" />
-            </button>
-            <div className="flex items-center gap-2.5">
-              <span className="text-base sm:text-lg font-bold text-foreground">
-                Store Operations Desk
-              </span>
-              <span className="hidden md:inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-brand/10 text-brand border border-brand/20">
-                Console
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3.5">
-            {/* Prominent Dark/Light Segmented Mode Switcher */}
-            <div className="flex items-center p-1.5 rounded-2xl bg-secondary/80 border border-border shadow-xs">
-              <button
-                type="button"
-                onClick={() => setTheme('light')}
-                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
-                  theme === 'light'
-                    ? 'bg-card text-foreground shadow-xs font-bold'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-                aria-pressed={theme === 'light'}
-                title="Switch to Light Mode"
-              >
-                <Sun className={`h-4.5 w-4.5 ${theme === 'light' ? 'text-amber-500' : 'text-muted-foreground'}`} />
-                <span className="hidden sm:inline">Light</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setTheme('dark')}
-                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
-                  theme === 'dark'
-                    ? 'bg-card text-foreground shadow-xs font-bold'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-                aria-pressed={theme === 'dark'}
-                title="Switch to Dark Mode"
-              >
-                <Moon className={`h-4.5 w-4.5 ${theme === 'dark' ? 'text-indigo-400' : 'text-muted-foreground'}`} />
-                <span className="hidden sm:inline">Dark</span>
-              </button>
-            </div>
-
-            <Link
-              href="/admin/profile"
-              className={`
-                inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border text-sm sm:text-base font-semibold transition-colors
-                ${
-                  pathname === '/admin/profile'
-                    ? 'border-brand/40 bg-brand/10 text-brand'
-                    : 'border-border bg-card hover:bg-secondary text-foreground'
-                }
-              `}
-            >
-              <UserCog className="h-4.5 w-4.5" />
-              <span className="hidden sm:inline">Profile</span>
-            </Link>
-
-            <Link
-              href="/"
-              target="_blank"
-              className="inline-flex items-center gap-2 px-4.5 py-2.5 rounded-2xl border border-border bg-card hover:bg-secondary text-sm sm:text-base font-semibold text-foreground transition-colors"
-            >
-              <span>Storefront</span>
-              <ExternalLink className="h-4.5 w-4.5 text-muted-foreground" />
-            </Link>
-          </div>
-        </header>
-
-        {/* Page Content Viewport */}
-        <main className="flex-1 p-6 sm:p-8 lg:p-10 overflow-x-hidden">{children}</main>
       </div>
     </div>
   );

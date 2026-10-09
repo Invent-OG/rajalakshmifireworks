@@ -55,7 +55,7 @@ function AdminLoginPageContent() {
         <button
           type="button"
           onClick={toggleTheme}
-          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border border-border bg-card hover:bg-muted text-sm font-semibold text-foreground transition-all shadow-xs cursor-pointer"
+          className="inline-flex items-center gap-2 h-9 px-3.5 py-1.5 rounded-full border border-border bg-card hover:bg-muted text-xs sm:text-sm font-semibold text-foreground transition-all shadow-xs cursor-pointer"
           title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} mode`}
         >
           {theme === 'dark' ? (

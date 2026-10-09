@@ -186,12 +186,12 @@ function AdminSettingsPageContent() {
 
         <Button
           variant="primary"
-          size="lg"
-          className="h-12 px-6 font-bold text-sm sm:text-base self-start sm:self-auto cursor-pointer shadow-xs"
+          size="default"
+          className="h-10 px-5 font-semibold text-xs sm:text-sm self-start sm:self-auto cursor-pointer shadow-xs rounded-full"
           onClick={() => saveMutation.mutate()}
           loading={saveMutation.isPending}
         >
-          <Save className="h-5 w-5 mr-1" /> Save Settings
+          <Save className="h-4 w-4 mr-1.5" /> Save Settings
         </Button>
       </div>
 
@@ -215,13 +215,13 @@ function AdminSettingsPageContent() {
               </p>
             </div>
           </div>
-          <div className="flex items-center p-1.5 rounded-xl bg-muted/70 border border-border shrink-0 self-start sm:self-auto shadow-2xs">
+          <div className="flex items-center p-1 rounded-full bg-muted/70 border border-border shrink-0 self-start sm:self-auto shadow-2xs">
             <button
               type="button"
               onClick={() => setTheme('light')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all cursor-pointer ${
+              className={`flex items-center gap-2 h-9 px-4 rounded-full text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
                 theme === 'light'
-                  ? 'bg-card text-foreground shadow-xs'
+                  ? 'bg-card text-foreground shadow-xs font-bold'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
@@ -231,9 +231,9 @@ function AdminSettingsPageContent() {
             <button
               type="button"
               onClick={() => setTheme('dark')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all cursor-pointer ${
+              className={`flex items-center gap-2 h-9 px-4 rounded-full text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
                 theme === 'dark'
-                  ? 'bg-card text-foreground shadow-xs'
+                  ? 'bg-card text-foreground shadow-xs font-bold'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >

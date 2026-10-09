@@ -286,7 +286,7 @@ function AdminProductsPageContent() {
                 setStockFilter(tab.key);
                 setPage(1);
               }}
-              className={`flex items-center gap-3 px-5 py-3 rounded-2xl text-base font-semibold whitespace-nowrap transition-all cursor-pointer ${
+              className={`flex items-center gap-2.5 h-10 px-4.5 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all cursor-pointer ${
                 isActive
                   ? 'bg-foreground text-background shadow-xs font-bold'
                   : 'bg-card text-muted-foreground hover:text-foreground border border-border hover:bg-secondary/70'
@@ -294,7 +294,7 @@ function AdminProductsPageContent() {
             >
               <span>{tab.label}</span>
               <span
-                className={`px-2.5 py-1 rounded-xl text-xs sm:text-sm font-bold ${
+                className={`px-2 py-0.5 rounded-full text-xs font-bold ${
                   isActive
                     ? 'bg-background/25 text-background'
                     : 'bg-secondary text-foreground border border-border/80'
@@ -308,10 +308,10 @@ function AdminProductsPageContent() {
       </div>
 
       {/* Multi-Filter Toolbar */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3.5 p-5 rounded-2xl bg-card border border-border shadow-xs">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 p-4 rounded-2xl bg-card border border-border shadow-xs">
         {/* Search */}
         <div className="relative sm:col-span-2 lg:col-span-3">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
             type="text"
             placeholder="Search by product name or SKU..."
@@ -320,7 +320,7 @@ function AdminProductsPageContent() {
               setSearch(e.target.value);
               setPage(1);
             }}
-            className="w-full h-12 pl-12 pr-4 rounded-2xl border border-border bg-secondary/40 text-base font-medium text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand transition-all"
+            className="w-full h-10 pl-10 pr-4 rounded-full border border-border bg-secondary/40 text-xs sm:text-sm font-semibold text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand transition-all"
           />
         </div>
 
@@ -332,7 +332,7 @@ function AdminProductsPageContent() {
               setCategoryId(e.target.value);
               setPage(1);
             }}
-            className="w-full h-12 px-4 rounded-2xl border border-border bg-card text-base font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 cursor-pointer"
+            className="w-full h-10 px-4 rounded-full border border-border bg-card text-xs sm:text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 cursor-pointer"
           >
             <option value="ALL">All Categories</option>
             {categories.map((c) => (
@@ -351,7 +351,7 @@ function AdminProductsPageContent() {
               setComboFilter(e.target.value);
               setPage(1);
             }}
-            className="w-full h-12 px-4 rounded-2xl border border-border bg-card text-base font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 cursor-pointer"
+            className="w-full h-10 px-4 rounded-full border border-border bg-card text-xs sm:text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 cursor-pointer"
           >
             <option value="all">All Types</option>
             <option value="combos">Combos Only ({stats.combos || 0})</option>
@@ -367,7 +367,7 @@ function AdminProductsPageContent() {
               setStatusFilter(e.target.value);
               setPage(1);
             }}
-            className="w-full h-12 px-4 rounded-2xl border border-border bg-card text-base font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 cursor-pointer"
+            className="w-full h-10 px-4 rounded-full border border-border bg-card text-xs sm:text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 cursor-pointer"
           >
             <option value="all">Active & Archived</option>
             <option value="active">Active Only ({stats.active})</option>
@@ -383,7 +383,7 @@ function AdminProductsPageContent() {
               setSortBy(e.target.value);
               setPage(1);
             }}
-            className="w-full h-12 px-4 rounded-2xl border border-border bg-card text-base font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 cursor-pointer"
+            className="w-full h-10 px-4 rounded-full border border-border bg-card text-xs sm:text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 cursor-pointer"
           >
             <option value="newest">Newest First</option>
             <option value="oldest">Oldest First</option>

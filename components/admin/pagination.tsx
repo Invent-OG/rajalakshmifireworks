@@ -113,7 +113,7 @@ export function Pagination({
         <Button
           variant="outline"
           size="icon-sm"
-          className="h-8 w-8 rounded-lg"
+          className="h-9 w-9 rounded-full"
           onClick={() => onPageChange(1)}
           disabled={currentPage <= 1}
           aria-label="First page"
@@ -126,7 +126,7 @@ export function Pagination({
         <Button
           variant="outline"
           size="sm"
-          className="h-8 px-2.5 rounded-lg text-xs font-medium"
+          className="h-9 px-3 rounded-full text-xs sm:text-sm font-semibold"
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage <= 1}
           aria-label="Previous page"
@@ -156,9 +156,9 @@ export function Pagination({
               <button
                 key={`page-${pageNum}`}
                 onClick={() => onPageChange(pageNum)}
-                className={`h-8 min-w-[32px] px-2 rounded-lg text-xs font-semibold transition-colors ${
+                className={`h-9 min-w-[36px] px-2.5 rounded-full text-xs sm:text-sm font-semibold transition-colors ${
                   isCurrent
-                    ? 'bg-foreground text-background shadow-xs'
+                    ? 'bg-foreground text-background shadow-xs font-bold'
                     : 'text-muted-foreground hover:text-foreground hover:bg-muted/50 border border-transparent'
                 }`}
               >
@@ -172,7 +172,7 @@ export function Pagination({
         <Button
           variant="outline"
           size="sm"
-          className="h-8 px-2.5 rounded-lg text-xs font-medium"
+          className="h-9 px-3 rounded-full text-xs sm:text-sm font-semibold"
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage >= totalPages}
           aria-label="Next page"
@@ -185,7 +185,7 @@ export function Pagination({
         <Button
           variant="outline"
           size="icon-sm"
-          className="h-8 w-8 rounded-lg"
+          className="h-9 w-9 rounded-full"
           onClick={() => onPageChange(totalPages)}
           disabled={currentPage >= totalPages}
           aria-label="Last page"

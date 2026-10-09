@@ -114,7 +114,7 @@ function AdminInvoicePageContent() {
           <select
             value={selectedOrderId}
             onChange={(e) => setSelectedOrderId(e.target.value)}
-            className="h-10 px-3.5 rounded-xl border border-border bg-card text-xs font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-neutral-900/20 cursor-pointer shadow-2xs"
+            className="h-10 px-4 rounded-full border border-border bg-card text-xs sm:text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-neutral-900/20 cursor-pointer shadow-2xs"
           >
             <option value="demo">Demo Template Order (#01234)</option>
             {recentOrders.map((o: any) => (

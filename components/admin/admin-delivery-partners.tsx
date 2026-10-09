@@ -282,15 +282,15 @@ function AdminDeliveryPartnersPageContent() {
       </div>
 
       {/* Filter & Search Bar */}
-      <div className="p-5 rounded-2xl bg-card border border-border space-y-4 shadow-xs">
-        <div className="flex flex-wrap items-center gap-2.5">
+      <div className="p-4 rounded-2xl bg-card border border-border space-y-3 shadow-xs">
+        <div className="flex flex-wrap items-center gap-2">
           {(['ALL', 'ACTIVE', 'INACTIVE'] as const).map((st) => (
             <button
               key={st}
               onClick={() => setStatusFilter(st)}
-              className={`px-4 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer ${
+              className={`h-9 px-4 rounded-full text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
                 statusFilter === st
-                  ? 'bg-foreground text-background shadow-xs'
+                  ? 'bg-foreground text-background shadow-xs font-bold'
                   : 'bg-secondary/60 dark:bg-[#242424]/60 text-muted-foreground hover:text-foreground border border-border hover:bg-secondary'
               }`}
             >
@@ -300,13 +300,13 @@ function AdminDeliveryPartnersPageContent() {
         </div>
 
         <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
             type="text"
             placeholder="Search by name, mobile number, or vehicle number..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full h-12 pl-12 pr-4 rounded-xl border border-border bg-card text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand transition-all shadow-xs"
+            className="w-full h-10 pl-10 pr-4 rounded-full border border-border bg-card text-xs sm:text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 focus:border-brand transition-all shadow-xs"
           />
         </div>
       </div>

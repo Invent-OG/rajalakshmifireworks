@@ -5,7 +5,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors outline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 select-none cursor-pointer",
+  "inline-flex items-center justify-center whitespace-nowrap rounded-full text-xs sm:text-sm font-semibold transition-colors outline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 select-none cursor-pointer",
   {
     variants: {
       variant: {
@@ -22,12 +22,13 @@ const buttonVariants = cva(
         brand: "bg-brand text-brand-foreground shadow-sm shadow-black/5 hover:bg-brand/90",
       },
       size: {
-        default: "h-9 px-4 py-2",
-        sm: "h-8 rounded-lg px-3 text-xs",
-        md: "h-11 px-4.5 text-sm rounded-xl gap-2",
-        lg: "h-12 px-6 text-sm sm:text-base rounded-xl gap-2.5 font-semibold",
-        icon: "h-9 w-9",
-        "icon-sm": "h-8 w-8 rounded-lg p-0",
+        default: "h-10 px-4 py-2 rounded-full text-xs sm:text-sm font-semibold",
+        sm: "h-9 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold",
+        md: "h-10 px-4.5 rounded-full gap-2 text-xs sm:text-sm font-semibold",
+        lg: "h-10 sm:h-11 px-5 rounded-full gap-2 text-xs sm:text-sm font-semibold",
+        icon: "h-10 w-10 rounded-full p-0",
+        "icon-sm": "h-8.5 w-8.5 rounded-full p-0",
+        "icon-md": "h-9 w-9 rounded-full p-0",
       },
     },
     defaultVariants: {

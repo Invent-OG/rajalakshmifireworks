@@ -91,7 +91,7 @@ function CustomerDetailPageContent({
       {/* Header */}
       <div className="flex items-center gap-3 pb-4 border-b border-border">
         <Link href="/admin/customers">
-          <Button variant="outline" size="icon" className="rounded-xl">
+          <Button variant="outline" size="icon" className="rounded-full">
             <ArrowLeft className="h-4 w-4" />
           </Button>
         </Link>

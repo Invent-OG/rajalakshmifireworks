@@ -154,27 +154,6 @@ function CheckoutPageContent() {
     }
   }, [selectedStateId, form]);
 
-  const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`);
-
-  if (items.length === 0 && !submitting && !isOrderPlaced) {
-    return (
-      <div className="w-full px-4 sm:px-8 lg:px-12 py-16 font-sans">
-        <EmptyState
-          icon={ShoppingBag}
-          title={tCart('emptyTitle')}
-          description={tCart('emptyDesc')}
-          actionLabel={tCart('browseProducts')}
-          actionHref={getHref('/products')}
-        />
-      </div>
-    );
-  }
-
-  function handleFormSubmit(data: CheckoutFormData) {
-    setPendingFormData(data);
-    setShowNoticeModal(true);
-  }
-
   const placeOrderMutation = useMutation({
     mutationFn: async (payload: any) => {
       const res = await fetch('/api/orders', {
@@ -226,6 +205,27 @@ function CheckoutPageContent() {
   });
 
   const submitting = placeOrderMutation.isPending;
+
+  const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`);
+
+  if (items.length === 0 && !submitting && !isOrderPlaced) {
+    return (
+      <div className="w-full px-4 sm:px-8 lg:px-12 py-16 font-sans">
+        <EmptyState
+          icon={ShoppingBag}
+          title={tCart('emptyTitle')}
+          description={tCart('emptyDesc')}
+          actionLabel={tCart('browseProducts')}
+          actionHref={getHref('/products')}
+        />
+      </div>
+    );
+  }
+
+  function handleFormSubmit(data: CheckoutFormData) {
+    setPendingFormData(data);
+    setShowNoticeModal(true);
+  }
 
   function executeBooking(data: CheckoutFormData) {
     const idempotencyKey = nanoid();

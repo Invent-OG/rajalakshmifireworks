@@ -361,11 +361,11 @@ function AdminHeroSlidesPageContent() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           <Button
             variant="outline"
             onClick={resetToDefaults}
-            className="flex items-center gap-2 h-12 px-5 text-sm font-bold"
+            className="flex items-center gap-2 h-10 px-4 text-xs sm:text-sm font-semibold rounded-full"
           >
             <RotateCcw className="h-4 w-4" />
             Reset Defaults
@@ -374,7 +374,7 @@ function AdminHeroSlidesPageContent() {
           <Button
             onClick={() => saveMutation.mutate(config)}
             disabled={saveMutation.isPending}
-            className="flex items-center gap-2 h-12 px-6 bg-brand hover:bg-brand/90 text-white font-bold text-sm sm:text-base shadow-xs"
+            className="flex items-center gap-2 h-10 px-5 bg-brand hover:bg-brand/90 text-white font-semibold text-xs sm:text-sm rounded-full shadow-xs"
           >
             <Save className="h-4 w-4" />
             {saveMutation.isPending ? 'Saving...' : 'Save & Publish'}
@@ -400,13 +400,13 @@ function AdminHeroSlidesPageContent() {
       </div>
 
       {/* ── Navigation Tabs ── */}
-      <div className="flex items-center gap-2.5 border-b border-border pb-3">
+      <div className="flex items-center gap-2 border-b border-border pb-3">
         <button
           type="button"
           onClick={() => setActiveTab('slides')}
-          className={`px-5 py-2.5 rounded-xl text-sm sm:text-base font-bold transition-all cursor-pointer ${
+          className={`h-10 px-4.5 rounded-full text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
             activeTab === 'slides'
-              ? 'bg-foreground text-background shadow-xs'
+              ? 'bg-foreground text-background shadow-xs font-bold'
               : 'text-muted-foreground hover:text-foreground hover:bg-secondary dark:hover:bg-[#242424]'
           }`}
         >
@@ -415,9 +415,9 @@ function AdminHeroSlidesPageContent() {
         <button
           type="button"
           onClick={() => setActiveTab('settings')}
-          className={`px-5 py-2.5 rounded-xl text-sm sm:text-base font-bold transition-all cursor-pointer ${
+          className={`h-10 px-4.5 rounded-full text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
             activeTab === 'settings'
-              ? 'bg-foreground text-background shadow-xs'
+              ? 'bg-foreground text-background shadow-xs font-bold'
               : 'text-muted-foreground hover:text-foreground hover:bg-secondary dark:hover:bg-[#242424]'
           }`}
         >
@@ -436,7 +436,7 @@ function AdminHeroSlidesPageContent() {
                   <button
                     type="button"
                     onClick={() => setActiveSlideIndex(idx)}
-                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-bold transition-all cursor-pointer ${
+                    className={`flex items-center gap-2 h-10 px-4 rounded-full border text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
                       activeSlideIndex === idx
                         ? 'border-brand bg-brand/10 text-brand shadow-xs'
                         : 'border-border bg-card text-foreground hover:border-neutral-400'
