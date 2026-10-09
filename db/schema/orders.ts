@@ -29,6 +29,7 @@ export type OrderStatus =
   | 'CANCELLED';
 
 export type FulfillmentType = 'DELIVERY' | 'PICKUP';
+export type PaymentStatus = 'PENDING' | 'PAID' | 'FAILED' | 'REFUNDED';
 
 export const orders = pgTable(
   'orders',
@@ -54,6 +55,11 @@ export const orders = pgTable(
     customerMobileSnapshot: varchar('customer_mobile_snapshot', { length: 15 }).notNull(),
     addressSnapshot: jsonb('address_snapshot'), // { stateId, cityId, deliveryStateName, deliveryCityName, deliveryAddress, pincode }
     notes: text('notes'),
+    paymentStatus: varchar('payment_status', { length: 30 }).notNull().default('PENDING'),
+    paymentMethod: varchar('payment_method', { length: 50 }),
+    paymentReference: varchar('payment_reference', { length: 100 }),
+    paidAt: timestamp('paid_at', { withTimezone: true }),
+    paidBy: varchar('paid_by', { length: 255 }),
     idempotencyKey: varchar('idempotency_key', { length: 100 }),
     placedAt: timestamp('placed_at', { withTimezone: true }).notNull().defaultNow(),
     confirmedAt: timestamp('confirmed_at', { withTimezone: true }),
@@ -70,6 +76,7 @@ export const orders = pgTable(
     index('orders_city_id_idx').on(table.cityId),
     index('orders_delivery_partner_id_idx').on(table.deliveryPartnerId),
     index('orders_order_status_idx').on(table.orderStatus),
+    index('orders_payment_status_idx').on(table.paymentStatus),
     index('orders_customer_mobile_snapshot_idx').on(table.customerMobileSnapshot),
     index('orders_fulfillment_type_idx').on(table.fulfillmentType),
     index('orders_placed_at_idx').on(table.placedAt),

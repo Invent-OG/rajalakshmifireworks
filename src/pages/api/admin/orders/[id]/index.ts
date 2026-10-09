@@ -90,60 +90,100 @@ async function _PATCH(
       return Response.json({ message: 'Order not found' }, { status: 404 });
     }
 
-    // If newStatus is provided, proceed with status transition
-    if (body.newStatus) {
-      const { newStatus, note } = body;
-      const currentStatus = order.orderStatus as OrderStatus;
-      const fulfillmentType = order.fulfillmentType as FulfillmentType;
+    const now = new Date();
+    const updateData: Record<string, unknown> = {
+      updatedAt: now,
+    };
 
-      // Idempotent: If status is already current, return success
-      if (currentStatus === newStatus) {
-        return Response.json({ success: true, newStatus, message: 'Status already up to date' });
-      }
+    let statusChanged = false;
+    let paymentChanged = false;
+    const currentStatus = order.orderStatus as OrderStatus;
+    const fulfillmentType = order.fulfillmentType as FulfillmentType;
+    const newStatus = body.newStatus as OrderStatus | undefined;
 
-      // Validate transition using state machine
-      const error = validateTransition(currentStatus, newStatus as OrderStatus, fulfillmentType);
+    // Handle order status transition
+    if (newStatus && newStatus !== currentStatus) {
+      const error = validateTransition(currentStatus, newStatus, fulfillmentType);
       if (error) {
         return Response.json({ message: error }, { status: 400 });
       }
 
-      const now = new Date();
-
-      // Build update object
-      const updateData: Record<string, unknown> = {
-        orderStatus: newStatus,
-        updatedAt: now,
-      };
-
-      // Set timestamp fields
-      const tsField = getStatusTimestampField(newStatus as OrderStatus);
+      updateData.orderStatus = newStatus;
+      const tsField = getStatusTimestampField(newStatus);
       if (tsField) {
         updateData[tsField] = now;
       }
+      statusChanged = true;
+    }
 
-      await db.transaction(async (tx) => {
-        // Update order
-        await tx
-          .update(orders)
-          .set(updateData)
-          .where(eq(orders.id, orderId));
+    // Handle payment status update
+    if (body.paymentStatus !== undefined && body.paymentStatus !== order.paymentStatus) {
+      paymentChanged = true;
+      updateData.paymentStatus = body.paymentStatus;
 
-        // Record status history
+      if (body.paymentStatus === 'PAID') {
+        updateData.paidAt = now;
+        updateData.paidBy = session.email;
+        updateData.paymentMethod = body.paymentMethod || order.paymentMethod || 'UPI';
+        updateData.paymentReference = body.paymentReference !== undefined ? body.paymentReference : (order.paymentReference || null);
+      } else if (body.paymentStatus === 'PENDING') {
+        updateData.paidAt = null;
+        updateData.paidBy = null;
+        updateData.paymentReference = null;
+      }
+    } else {
+      if (body.paymentMethod !== undefined) updateData.paymentMethod = body.paymentMethod;
+      if (body.paymentReference !== undefined) updateData.paymentReference = body.paymentReference;
+    }
+
+    if (!statusChanged && !paymentChanged && Object.keys(updateData).length <= 1) {
+      return Response.json({ success: true, message: 'No changes required' });
+    }
+
+    await db.transaction(async (tx) => {
+      // Update order
+      await tx
+        .update(orders)
+        .set(updateData)
+        .where(eq(orders.id, orderId));
+
+      // Record status change in history
+      if (statusChanged && newStatus) {
         await tx.insert(orderStatusHistory).values({
           orderId,
           oldStatus: currentStatus,
           newStatus,
           changedBy: session.email,
-          note: note || null,
+          note: body.note || null,
         });
-      });
-
-      // Restore inventory if cancelled
-      if (newStatus === 'CANCELLED') {
-        await restoreInventoryForOrder(orderId, session.email);
       }
 
-      // Map status transition to WhatsApp notification type
+      // Record payment status change in history
+      if (paymentChanged) {
+        const payMethod = updateData.paymentMethod || body.paymentMethod || 'UPI';
+        const payRef = updateData.paymentReference || body.paymentReference;
+        const paymentNote =
+          body.paymentStatus === 'PAID'
+            ? `Payment Recorded: Marked as PAID via ${payMethod}${payRef ? ` (Ref: ${payRef})` : ''}`
+            : 'Payment status updated to PENDING';
+
+        await tx.insert(orderStatusHistory).values({
+          orderId,
+          oldStatus: newStatus || currentStatus,
+          newStatus: newStatus || currentStatus,
+          changedBy: session.email,
+          note: paymentNote,
+        });
+      }
+    });
+
+    // Restore inventory if cancelled
+    if (statusChanged && newStatus === 'CANCELLED') {
+      await restoreInventoryForOrder(orderId, session.email);
+    }
+
+    // Map status transition to WhatsApp notification type
+    if (statusChanged && newStatus) {
       let notificationType: WhatsAppMessageType | null = null;
       switch (newStatus) {
         case 'CONFIRMED':
@@ -179,11 +219,21 @@ async function _PATCH(
         newStatus,
         changedBy: session.email,
       });
-
-      return Response.json({ success: true, newStatus });
     }
 
-    return Response.json({ success: true });
+    if (paymentChanged) {
+      logger.info('order.payment', 'Order payment status updated', {
+        orderId,
+        paymentStatus: body.paymentStatus,
+        changedBy: session.email,
+      });
+    }
+
+    return Response.json({
+      success: true,
+      newStatus: newStatus || currentStatus,
+      paymentStatus: (updateData.paymentStatus as string) || order.paymentStatus,
+    });
   } catch (error) {
     console.error('Error updating order:', error);
     return Response.json({ message: 'Failed to update order' }, { status: 500 });

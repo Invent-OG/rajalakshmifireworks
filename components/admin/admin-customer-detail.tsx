@@ -22,7 +22,10 @@ interface CustomerOrderItem {
   fulfillmentType: string;
   totalAmount: string | number;
   orderStatus: string;
+  paymentStatus?: string;
+  paymentMethod?: string | null;
   placedAt: string;
+  notes?: string | null;
 }
 
 import { withAdminShell } from './admin-shell';
@@ -198,6 +201,11 @@ function CustomerDetailPageContent({
                       >
                         {o.invoiceNumber}
                       </Link>
+                      {o.notes && (
+                        <p className="text-[10px] font-sans text-amber-600 dark:text-amber-400 truncate max-w-[160px]" title={o.notes}>
+                          📝 {o.notes}
+                        </p>
+                      )}
                     </td>
                     <td className="px-5 py-3.5 text-muted-foreground">
                       {o.items?.length || 0} items
@@ -215,8 +223,17 @@ function CustomerDetailPageContent({
                         )}
                       </span>
                     </td>
-                    <td className="px-5 py-3.5 font-semibold text-foreground text-right">
-                      {formatCurrency(o.totalAmount)}
+                    <td className="px-5 py-3.5 text-right whitespace-nowrap">
+                      <p className="font-semibold text-foreground">{formatCurrency(o.totalAmount)}</p>
+                      {o.paymentStatus === 'PAID' ? (
+                        <span className="mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
+                          ✓ Paid {o.paymentMethod ? `• ${o.paymentMethod}` : ''}
+                        </span>
+                      ) : (
+                        <span className="mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20">
+                          Unpaid
+                        </span>
+                      )}
                     </td>
                     <td className="px-5 py-3.5">
                       <StatusBadge status={o.orderStatus} />

@@ -46,7 +46,10 @@ interface DashboardData {
     customerNameSnapshot: string;
     totalAmount: string;
     orderStatus: string;
+    paymentStatus?: string;
+    paymentMethod?: string | null;
     placedAt: string;
+    notes?: string | null;
     items: Array<{ id: number; productNameSnapshot?: string }>;
   }>;
 }
@@ -808,8 +811,18 @@ function AdminDashboardPageContent() {
                       </td>
 
                       {/* Customer */}
-                      <td className="py-4 font-semibold text-neutral-900 dark:text-white">
-                        {order.customerNameSnapshot || 'Walk-in Customer'}
+                      <td className="py-4">
+                        <p className="font-semibold text-neutral-900 dark:text-white">
+                          {order.customerNameSnapshot || 'Walk-in Customer'}
+                        </p>
+                        {order.notes && (
+                          <span
+                            className="inline-flex items-center gap-1 mt-0.5 px-2 py-0.5 text-[10px] font-semibold rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 max-w-[150px] truncate"
+                            title={`Customer Note: ${order.notes}`}
+                          >
+                            <span className="truncate">📝 {order.notes}</span>
+                          </span>
+                        )}
                       </td>
 
                       {/* Category */}
@@ -829,7 +842,16 @@ function AdminDashboardPageContent() {
 
                       {/* Total */}
                       <td className="py-4 font-extrabold text-neutral-900 dark:text-white text-right">
-                        {formatCurrency(order.totalAmount)}
+                        <p>{formatCurrency(order.totalAmount)}</p>
+                        {order.paymentStatus === 'PAID' ? (
+                          <span className="inline-block mt-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
+                            ✓ Paid
+                          </span>
+                        ) : (
+                          <span className="inline-block mt-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20">
+                            Pending
+                          </span>
+                        )}
                       </td>
 
                       {/* Action */}

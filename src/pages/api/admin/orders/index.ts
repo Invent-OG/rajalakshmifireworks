@@ -17,6 +17,7 @@ async function _GET(request: NextRequest) {
     const limit = Math.min(100, Math.max(5, parseInt(searchParams.get('limit') || '25', 10)));
     const offset = (page - 1) * limit;
     const status = searchParams.get('status');
+    const paymentStatus = searchParams.get('paymentStatus');
     const fulfillment = searchParams.get('fulfillment');
     const search = searchParams.get('search')?.trim();
     const datePreset = searchParams.get('datePreset');
@@ -28,6 +29,9 @@ async function _GET(request: NextRequest) {
 
     if (status && status !== 'ALL') {
       conditions.push(eq(orders.orderStatus, status));
+    }
+    if (paymentStatus && paymentStatus !== 'ALL') {
+      conditions.push(eq(orders.paymentStatus, paymentStatus));
     }
     if (fulfillment && fulfillment !== 'ALL') {
       conditions.push(eq(orders.fulfillmentType, fulfillment));

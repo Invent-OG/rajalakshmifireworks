@@ -22,6 +22,8 @@ import {
   Printer,
   X,
   FileText,
+  CheckCircle2,
+  Clock,
 } from 'lucide-react';
 import Link from '@/components/ui/link';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -38,7 +40,12 @@ interface AdminOrderListItem {
   totalAmount: string | number;
   fulfillmentType: string;
   orderStatus: string;
+  paymentStatus?: string;
+  paymentMethod?: string | null;
+  paymentReference?: string | null;
+  paidAt?: string | null;
   placedAt: string;
+  notes?: string | null;
 }
 
 import { withAdminShell } from './admin-shell';
@@ -52,6 +59,7 @@ function AdminOrdersPageContent() {
   const [pageSize, setPageSize] = useState(25);
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('ALL');
+  const [paymentStatus, setPaymentStatus] = useState('ALL');
   const [fulfillment, setFulfillment] = useState('ALL');
   const [datePreset, setDatePreset] = useState('all');
   const [sortBy, setSortBy] = useState('placedAt_desc');
@@ -67,6 +75,7 @@ function AdminOrdersPageContent() {
     limit: pageSize,
     search: search || undefined,
     status: status !== 'ALL' ? status : undefined,
+    paymentStatus: paymentStatus !== 'ALL' ? paymentStatus : undefined,
     fulfillment: fulfillment !== 'ALL' ? fulfillment : undefined,
     datePreset: datePreset !== 'all' ? datePreset : undefined,
     sortBy,
@@ -80,6 +89,7 @@ function AdminOrdersPageContent() {
       params.set('limit', String(pageSize));
       if (search) params.set('search', search);
       if (status && status !== 'ALL') params.set('status', status);
+      if (paymentStatus && paymentStatus !== 'ALL') params.set('paymentStatus', paymentStatus);
       if (fulfillment && fulfillment !== 'ALL') params.set('fulfillment', fulfillment);
       if (datePreset && datePreset !== 'all') params.set('datePreset', datePreset);
       if (sortBy) params.set('sortBy', sortBy);
@@ -91,6 +101,7 @@ function AdminOrdersPageContent() {
   const orders: AdminOrderListItem[] = data?.orders ?? [];
   const pagination = data?.pagination ?? { page: 1, totalPages: 1, total: 0, limit: 25 };
   const statusCounts = data?.statusCounts ?? {};
+
 
   // Bulk Status Update Mutation
   const bulkStatusMutation = useMutation({
@@ -330,7 +341,7 @@ function AdminOrdersPageContent() {
       {/* Multi-Dimensional Filter Toolbar */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 p-4 rounded-2xl bg-card border border-border shadow-xs">
         {/* Search Field */}
-        <div className="relative sm:col-span-2 lg:col-span-4">
+        <div className="relative sm:col-span-2 lg:col-span-3">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
             type="text"
@@ -345,7 +356,7 @@ function AdminOrdersPageContent() {
         </div>
 
         {/* Fulfillment Filter */}
-        <div className="lg:col-span-3">
+        <div className="lg:col-span-2.5">
           <select
             value={fulfillment}
             onChange={(e) => {
@@ -360,8 +371,24 @@ function AdminOrdersPageContent() {
           </select>
         </div>
 
-        {/* Date Presets Filter */}
+        {/* Payment Status Filter */}
         <div className="lg:col-span-2.5">
+          <select
+            value={paymentStatus}
+            onChange={(e) => {
+              setPaymentStatus(e.target.value);
+              setPage(1);
+            }}
+            className="w-full h-10 px-4 rounded-full border border-border bg-card text-xs sm:text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 cursor-pointer"
+          >
+            <option value="ALL">All Payments</option>
+            <option value="PAID">Paid Only</option>
+            <option value="PENDING">Payment Pending</option>
+          </select>
+        </div>
+
+        {/* Date Presets Filter */}
+        <div className="lg:col-span-2">
           <select
             value={datePreset}
             onChange={(e) => {
@@ -379,7 +406,7 @@ function AdminOrdersPageContent() {
         </div>
 
         {/* Sort Dropdown */}
-        <div className="lg:col-span-2.5">
+        <div className="lg:col-span-2">
           <select
             value={sortBy}
             onChange={(e) => {
@@ -472,12 +499,30 @@ function AdminOrdersPageContent() {
                         <p className="text-[11px] font-mono text-muted-foreground">
                           {order.customerMobileSnapshot}
                         </p>
+                        {order.notes && (
+                          <div
+                            className="mt-1 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 max-w-[190px]"
+                            title={`Customer Note: ${order.notes}`}
+                          >
+                            <FileText className="h-3 w-3 shrink-0" />
+                            <span className="truncate">{order.notes}</span>
+                          </div>
+                        )}
                       </td>
                       <td className="px-4 py-3.5 text-muted-foreground">
                         {order.items?.length ?? 0} items
                       </td>
-                      <td className="px-4 py-3.5 font-semibold text-foreground text-right">
-                        {formatCurrency(order.totalAmount)}
+                      <td className="px-4 py-3.5 text-right whitespace-nowrap">
+                        <p className="font-semibold text-foreground">{formatCurrency(order.totalAmount)}</p>
+                        {order.paymentStatus === 'PAID' ? (
+                          <span className="mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
+                            <CheckCircle2 className="h-2.5 w-2.5" /> Paid {order.paymentMethod ? `• ${order.paymentMethod}` : ''}
+                          </span>
+                        ) : (
+                          <span className="mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20">
+                            <Clock className="h-2.5 w-2.5" /> Unpaid
+                          </span>
+                        )}
                       </td>
                       <td className="px-4 py-3.5">
                         <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-0.5 rounded-md bg-muted text-foreground">

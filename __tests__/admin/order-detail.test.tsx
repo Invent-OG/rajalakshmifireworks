@@ -59,4 +59,69 @@ describe('AdminOrderDetailPage Component', () => {
     expect(html).toContain('Order Not Found');
     expect(html).toContain('Back to Orders');
   });
+
+  it('enforces payment gating: shows Check & Mark as Paid and locked partner card when unpaid', () => {
+    const unpaidOrder = {
+      id: 1001,
+      invoiceNumber: 'FW-20261002-1001',
+      orderStatus: 'CONFIRMED',
+      paymentStatus: 'PENDING',
+      fulfillmentType: 'DELIVERY',
+      subtotal: '2000.00',
+      discountAmount: '0.00',
+      deliveryCharge: '100.00',
+      totalAmount: '2100.00',
+      customerNameSnapshot: 'Ramesh',
+      customerMobileSnapshot: '9876543210',
+      addressSnapshot: null,
+      placedAt: '2026-10-02T10:00:00.000Z',
+      items: [],
+      statusHistory: [],
+      whatsappMessages: [],
+    };
+
+    sharedQueryClient.setQueryData(queryKeys.admin.orders.detail(1001), { order: unpaidOrder });
+
+    const html = renderToString(<AdminOrderDetailPage params={{ id: '1001' }} />);
+    // Stepper has Review, Confirm, and Check payment
+    expect(html).toContain('Review order');
+    expect(html).toContain('Confirm order');
+    expect(html).toContain('Check payment');
+    // Gated next action button
+    expect(html).toContain('Check &amp; Mark as Paid');
+    // Delivery partner assignment section must NOT be shown during check payment step
+    expect(html).not.toContain('delivery-partner-section');
+    expect(html).not.toContain('Select Active Delivery Partner');
+  });
+
+  it('unlocks delivery assignment once payment is marked as PAID', () => {
+    const paidOrder = {
+      id: 1002,
+      invoiceNumber: 'FW-20261002-1002',
+      orderStatus: 'CONFIRMED',
+      paymentStatus: 'PAID',
+      fulfillmentType: 'DELIVERY',
+      subtotal: '2000.00',
+      discountAmount: '0.00',
+      deliveryCharge: '100.00',
+      totalAmount: '2100.00',
+      customerNameSnapshot: 'Suresh',
+      customerMobileSnapshot: '9876543211',
+      addressSnapshot: null,
+      placedAt: '2026-10-02T10:00:00.000Z',
+      items: [],
+      statusHistory: [],
+      whatsappMessages: [],
+    };
+
+    sharedQueryClient.setQueryData(queryKeys.admin.orders.detail(1002), { order: paidOrder });
+
+    const html = renderToString(<AdminOrderDetailPage params={{ id: '1002' }} />);
+    // Next action unlocked to Assign Delivery Partner
+    expect(html).toContain('Assign Delivery Partner');
+    // Delivery partner assignment section is now visible
+    expect(html).toContain('delivery-partner-section');
+    expect(html).toContain('Select Active Delivery Partner');
+  });
 });
+

@@ -67,3 +67,31 @@ export const CANCELLABLE_STATUSES: OrderStatus[] = [
   'CONFIRMED',
   'ASSIGNED',
 ];
+
+export const PAYMENT_STATUS = {
+  PENDING: 'PENDING',
+  PAID: 'PAID',
+  FAILED: 'FAILED',
+  REFUNDED: 'REFUNDED',
+} as const;
+
+export const PAYMENT_STATUS_LABELS: Record<string, string> = {
+  PENDING: 'Payment Pending',
+  PAID: 'Paid',
+  FAILED: 'Payment Failed',
+  REFUNDED: 'Refunded',
+};
+
+export const PAYMENT_STATUS_COLORS: Record<string, string> = {
+  PENDING: 'bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800',
+  PAID: 'bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800',
+  FAILED: 'bg-red-50 text-red-800 border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-800',
+  REFUNDED: 'bg-zinc-100 text-zinc-800 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:border-zinc-700',
+};
+
+export const PAYMENT_METHODS = [
+  { id: 'UPI', label: 'UPI / GPay / PhonePe' },
+  { id: 'BANK_TRANSFER', label: 'Bank Transfer (NEFT/IMPS)' },
+  { id: 'CASH', label: 'Cash on Counter / Delivery' },
+  { id: 'OTHER', label: 'Other / Cheque' },
+] as const;

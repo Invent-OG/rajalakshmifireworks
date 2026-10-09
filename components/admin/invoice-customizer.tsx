@@ -1022,6 +1022,14 @@ function InvoiceCustomizerContent({
               {config.showCustomerPhone && config.customerMobile && (
                 <p className={`text-neutral-600 font-mono ${fontSizes.body}`}>{config.customerMobile}</p>
               )}
+              {order?.notes && (
+                <div className="mt-2 p-2 rounded-lg bg-amber-50 dark:bg-neutral-800/80 border border-amber-200 dark:border-neutral-700 text-neutral-900 dark:text-neutral-100 text-xs leading-snug max-w-full overflow-hidden">
+                  <span className="font-bold uppercase tracking-wider text-[10px] block text-amber-800 dark:text-amber-400">
+                    Customer Instructions:
+                  </span>
+                  <span className="font-medium whitespace-pre-wrap break-words [overflow-wrap:anywhere] break-all">{order.notes}</span>
+                </div>
+              )}
             </div>
 
             {/* INVOICE NO & DATE */}
@@ -1149,6 +1157,20 @@ function InvoiceCustomizerContent({
                 <span className={`font-mono font-bold text-neutral-900 ${fontSizes.total}`}>
                   {formatCurrency(order.finalAmount || order.totalAmount)}
                 </span>
+              </div>
+              <div className="flex justify-between items-center pt-1.5 text-xs">
+                <span className="font-semibold text-neutral-500 uppercase tracking-wider text-[10px]">
+                  PAYMENT STATUS:
+                </span>
+                {order.paymentStatus === 'PAID' ? (
+                  <span className="font-bold text-[11px] text-emerald-800 bg-emerald-100/90 px-2 py-0.5 rounded">
+                    ✓ PAID {order.paymentMethod ? `(${order.paymentMethod})` : ''}
+                  </span>
+                ) : (
+                  <span className="font-bold text-[11px] text-amber-800 bg-amber-100/90 px-2 py-0.5 rounded">
+                    PENDING
+                  </span>
+                )}
               </div>
             </div>
           </div>
