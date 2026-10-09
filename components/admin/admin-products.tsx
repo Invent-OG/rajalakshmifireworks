@@ -237,8 +237,7 @@ function AdminProductsPageContent() {
       {/* Header with CTAs */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
         <div>
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">Products</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">
+          <p className="text-xs text-muted-foreground">
             Manage your firework catalog, stock thresholds, wholesale pricing, and media assets.
           </p>
         </div>

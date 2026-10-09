@@ -28,8 +28,7 @@ function AdminBackupPageContent() {
   return (
     <div className="max-w-3xl space-y-6 animate-fade-in">
       <div className="pb-4 border-b border-border">
-        <h1 className="text-2xl font-bold text-foreground tracking-tight">Data Backup</h1>
-        <p className="text-xs text-muted-foreground mt-0.5">
+        <p className="text-xs text-muted-foreground">
           Safeguard your catalog, order history, and customer database.
         </p>
       </div>

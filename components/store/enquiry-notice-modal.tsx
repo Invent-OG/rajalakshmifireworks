@@ -29,7 +29,7 @@ export function EnquiryNoticeModal({
     if (!isOpen) return;
 
     // Prevent background scrolling when modal is active
-    const originalStyle = window.getComputedStyle(document.body).overflow;
+    const originalStyle = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
 
     // Handle Escape key
@@ -55,7 +55,12 @@ export function EnquiryNoticeModal({
     }
 
     return () => {
-      document.body.style.overflow = originalStyle;
+      if (originalStyle) {
+        document.body.style.overflow = originalStyle;
+      } else {
+        document.body.style.removeProperty('overflow');
+      }
+      document.body.style.removeProperty('touch-action');
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [isOpen, isLoading, onClose]);

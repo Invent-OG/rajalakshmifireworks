@@ -53,6 +53,18 @@ const CARD_COLOR_PRESETS = [
   { label: 'Obsidian Black', hex: '#18181b' },
 ];
 
+const HEADING_COLOR_PRESETS = [
+  { label: 'Deep Charcoal', hex: '#0a0a0a' },
+  { label: 'Pure Black', hex: '#000000' },
+  { label: 'Pure White', hex: '#ffffff' },
+  { label: 'Sivakasi Orange', hex: '#e24000' },
+  { label: 'Amber Gold', hex: '#d97706' },
+  { label: 'Deep Crimson', hex: '#991b1b' },
+  { label: 'Forest Pine', hex: '#064e3b' },
+  { label: 'Royal Sapphire', hex: '#1e3a8a' },
+  { label: 'Berry Plum', hex: '#701a75' },
+];
+
 interface ProductItem {
   id: number;
   name: string;
@@ -245,6 +257,7 @@ function AdminHeroSlidesPageContent() {
       ctaLink: '/products',
       backgroundImage: '',
       bgColor: '#bfe5da',
+      headingColor: config.defaultHeadingColor || '#0a0a0a',
       card1: {
         id: `card-${Date.now()}-1`,
         title: 'Featured Product',
@@ -602,9 +615,77 @@ function AdminHeroSlidesPageContent() {
 
                 {/* Typography */}
                 <div className="space-y-4">
-                  <h3 className="font-bold text-base text-foreground">
-                    Headline (3 Stacked Bold Lines)
-                  </h3>
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-bold text-base text-foreground">
+                      Headline (3 Stacked Bold Lines)
+                    </h3>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground font-semibold">Heading Color:</span>
+                      <input
+                        type="color"
+                        value={activeSlide.headingColor || config.defaultHeadingColor || '#0a0a0a'}
+                        onChange={(e) => updateActiveSlide({ headingColor: e.target.value })}
+                        className="h-7 w-9 rounded-sm cursor-pointer"
+                        title="Pick heading color"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Heading Color Bar with Hex Input and Presets */}
+                  <div className="p-3 bg-background-secondary rounded-xl border border-border space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-bold text-muted-foreground uppercase">
+                        Headline Text Color
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          value={activeSlide.headingColor || config.defaultHeadingColor || '#0a0a0a'}
+                          onChange={(e) => updateActiveSlide({ headingColor: e.target.value })}
+                          placeholder="#0a0a0a"
+                          className="w-28 h-8 font-mono text-xs uppercase"
+                        />
+                        {activeSlide.headingColor && (
+                          <button
+                            type="button"
+                            onClick={() => updateActiveSlide({ headingColor: undefined })}
+                            className="text-[11px] text-muted-foreground hover:text-foreground underline"
+                            title="Reset to default heading color"
+                          >
+                            Reset
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5 flex-wrap pt-1">
+                      {HEADING_COLOR_PRESETS.map((preset) => {
+                        const currentHeadingColor = (activeSlide.headingColor || config.defaultHeadingColor || '#0a0a0a').toLowerCase();
+                        const isSelected = currentHeadingColor === preset.hex.toLowerCase();
+                        return (
+                          <button
+                            key={preset.hex}
+                            type="button"
+                            onClick={() => updateActiveSlide({ headingColor: preset.hex })}
+                            title={preset.label}
+                            className={`h-6 px-2 rounded-md border text-[11px] font-semibold flex items-center gap-1.5 transition-all ${
+                              isSelected
+                                ? 'border-brand ring-2 ring-brand/30 scale-105'
+                                : 'border-border hover:border-neutral-400'
+                            }`}
+                            style={{
+                              backgroundColor: preset.hex === '#ffffff' ? '#ffffff' : preset.hex,
+                              color: preset.hex === '#ffffff' || preset.hex === '#fef08a' ? '#0a0a0a' : '#ffffff',
+                            }}
+                          >
+                            <span
+                              className="w-2 h-2 rounded-full border border-black/20"
+                              style={{ backgroundColor: preset.hex }}
+                            />
+                            <span>{preset.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
 
                   <div className="grid grid-cols-3 gap-3">
                     <div>
@@ -934,10 +1015,10 @@ function AdminHeroSlidesPageContent() {
         <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 space-y-6 max-w-2xl">
           <h3 className="font-bold text-lg text-foreground flex items-center gap-2">
             <Sliders className="h-5 w-5 text-brand" />
-            Carousel Rotation Settings
+            Carousel Rotation & Default Styles
           </h3>
 
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div>
               <label className="text-sm font-bold text-foreground block mb-2">
                 Autoplay Rotation Speed (Seconds)
@@ -959,6 +1040,74 @@ function AdminHeroSlidesPageContent() {
                 <span className="text-sm text-muted-foreground">
                   Default is 6 seconds. Automatically pauses on user hover.
                 </span>
+              </div>
+            </div>
+
+            {/* Global Default Headline Color */}
+            <div className="pt-4 border-t border-border">
+              <label className="text-sm font-bold text-foreground block mb-1">
+                Default Headline Text Color
+              </label>
+              <p className="text-xs text-muted-foreground mb-3">
+                Applies to all slides that do not specify an individual custom heading color.
+              </p>
+              <div className="flex items-center gap-3 mb-3">
+                <input
+                  type="color"
+                  value={config.defaultHeadingColor || '#0a0a0a'}
+                  onChange={(e) =>
+                    setConfig((prev) => ({
+                      ...prev,
+                      defaultHeadingColor: e.target.value,
+                    }))
+                  }
+                  className="h-10 w-14 rounded-lg border border-border cursor-pointer p-0.5 bg-transparent"
+                />
+                <Input
+                  value={config.defaultHeadingColor || '#0a0a0a'}
+                  onChange={(e) =>
+                    setConfig((prev) => ({
+                      ...prev,
+                      defaultHeadingColor: e.target.value,
+                    }))
+                  }
+                  placeholder="#0a0a0a"
+                  className="max-w-[140px] font-mono text-sm uppercase"
+                />
+              </div>
+
+              <div className="flex items-center gap-2 flex-wrap">
+                {HEADING_COLOR_PRESETS.map((preset) => {
+                  const isSelected = (config.defaultHeadingColor || '#0a0a0a').toLowerCase() === preset.hex.toLowerCase();
+                  return (
+                    <button
+                      key={preset.hex}
+                      type="button"
+                      onClick={() =>
+                        setConfig((prev) => ({
+                          ...prev,
+                          defaultHeadingColor: preset.hex,
+                        }))
+                      }
+                      title={preset.label}
+                      className={`h-7 px-2.5 rounded-lg border text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                        isSelected
+                          ? 'border-brand ring-2 ring-brand/30 scale-105'
+                          : 'border-border hover:border-neutral-400'
+                      }`}
+                      style={{
+                        backgroundColor: preset.hex === '#ffffff' ? '#ffffff' : preset.hex,
+                        color: preset.hex === '#ffffff' || preset.hex === '#fef08a' ? '#0a0a0a' : '#ffffff',
+                      }}
+                    >
+                      <span
+                        className="w-2 h-2 rounded-full border border-black/20"
+                        style={{ backgroundColor: preset.hex }}
+                      />
+                      <span>{preset.label}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </div>

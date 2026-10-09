@@ -211,6 +211,7 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
   };
 
   const currentSlide = slides[currentIdx] || slides[0];
+  const headingColor = currentSlide?.headingColor || config.defaultHeadingColor || '#0a0a0a';
 
   // Dynamic localized text per active slide
   const headline1 = locale === 'ta' ? (currentSlide.headlineLine1Ta || currentSlide.headlineLine1) : currentSlide.headlineLine1;
@@ -252,7 +253,10 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
 
             {/* Left Column: Typography & Action */}
             <div key={`hero-left-${currentIdx}`} className="lg:col-span-8 flex flex-col justify-center text-left space-y-5 sm:space-y-6 z-20 transition-all duration-500">
-              <h1 className="hero-heading text-4xl sm:text-6xl lg:text-[4.5rem] font-black tracking-tight uppercase leading-[0.92] text-neutral-950 select-none">
+              <h1
+                className="hero-heading text-4xl sm:text-6xl lg:text-[4.5rem] font-black tracking-tight uppercase leading-[0.92] select-none"
+                style={{ color: headingColor }}
+              >
                 <span>{headline1}</span>
                 <br />
                 <span>{headline2}</span>

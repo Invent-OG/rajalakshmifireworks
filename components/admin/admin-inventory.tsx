@@ -581,8 +581,7 @@ function AdminInventoryPageContent() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-border">
         <div>
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">Inventory</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">
+          <p className="text-xs text-muted-foreground">
             Monitor live warehouse stock, perform batch replenishments, and audit movement logs.
           </p>
         </div>

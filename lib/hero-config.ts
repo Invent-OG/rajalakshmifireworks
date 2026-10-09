@@ -26,6 +26,7 @@ export interface HeroSlide {
   backgroundImage?: string;
   bgImageOpacity?: number;
   bgColor: string;
+  headingColor?: string;
   card1: HeroExploreCard;
   card2: HeroExploreCard;
 }
@@ -33,10 +34,12 @@ export interface HeroSlide {
 export interface HeroSettingsConfig {
   slides: HeroSlide[];
   autoplayIntervalMs: number;
+  defaultHeadingColor?: string;
 }
 
 export const DEFAULT_HERO_CONFIG: HeroSettingsConfig = {
   autoplayIntervalMs: 5000,
+  defaultHeadingColor: '#0a0a0a',
   slides: [
     {
       id: 'slide-1',
@@ -159,9 +162,16 @@ export function parseHeroConfig(rawJson?: string | null): HeroSettingsConfig {
         typeof parsed.autoplayIntervalMs === 'number'
           ? parsed.autoplayIntervalMs
           : DEFAULT_HERO_CONFIG.autoplayIntervalMs,
+      defaultHeadingColor:
+        typeof parsed.defaultHeadingColor === 'string'
+          ? parsed.defaultHeadingColor
+          : undefined,
       slides:
         Array.isArray(parsed.slides) && parsed.slides.length > 0
-          ? parsed.slides
+          ? parsed.slides.map((s: any) => ({
+              ...s,
+              headingColor: typeof s.headingColor === 'string' && s.headingColor ? s.headingColor : undefined,
+            }))
           : DEFAULT_HERO_CONFIG.slides,
     };
   } catch (err) {

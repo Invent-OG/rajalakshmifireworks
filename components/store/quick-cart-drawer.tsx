@@ -32,44 +32,93 @@ export function QuickCartMobileFloating() {
   const drawerRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
 
-  // Prevent background body scroll when mobile drawer modal is open
+  const isClosingRef = useRef(false);
+
+  // Prevent background body scroll only while mobile drawer modal is actively open
   useEffect(() => {
-    if (isRendered) {
-      const originalOverflow = document.body.style.overflow;
-      const originalTouchAction = document.body.style.touchAction;
-      document.body.style.overflow = 'hidden';
-      document.body.style.touchAction = 'none';
-      return () => {
-        document.body.style.overflow = originalOverflow;
-        document.body.style.touchAction = originalTouchAction;
-      };
+    if (!isOpen) {
+      document.body.style.removeProperty('overflow');
+      document.body.style.removeProperty('touch-action');
+      return;
     }
-  }, [isRendered]);
+
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      if (prevOverflow) {
+        document.body.style.overflow = prevOverflow;
+      } else {
+        document.body.style.removeProperty('overflow');
+      }
+      document.body.style.removeProperty('touch-action');
+    };
+  }, [isOpen]);
+
+  // Ensure body scroll is always restored on unmount or route change
+  useEffect(() => {
+    return () => {
+      document.body.style.removeProperty('overflow');
+      document.body.style.removeProperty('touch-action');
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isOpen || isRendered) {
+      setIsOpen(false);
+      setIsRendered(false);
+      document.body.style.removeProperty('overflow');
+      document.body.style.removeProperty('touch-action');
+    }
+  }, [pathname]);
 
   const openDrawer = () => {
+    isClosingRef.current = false;
     setIsRendered(true);
     setIsOpen(true);
   };
 
   const closeDrawer = () => {
-    if (!drawerRef.current || !modalRef.current || isReducedMotion()) {
-      setIsOpen(false);
+    if (isClosingRef.current) return;
+    isClosingRef.current = true;
+    setIsOpen(false);
+
+    // Immediately stop intercepting touches so underlying page is interactive right away
+    if (modalRef.current) {
+      modalRef.current.style.pointerEvents = 'none';
+    }
+    document.body.style.removeProperty('overflow');
+    document.body.style.removeProperty('touch-action');
+
+    const finishClosing = () => {
       setIsRendered(false);
+      isClosingRef.current = false;
+      document.body.style.removeProperty('overflow');
+      document.body.style.removeProperty('touch-action');
+    };
+
+    if (!drawerRef.current || !modalRef.current || isReducedMotion()) {
+      finishClosing();
       return;
     }
 
+    // Safety fallback timer ensuring modal unmounts even if GSAP tween is interrupted
+    const safetyTimer = setTimeout(finishClosing, 300);
+
+    gsap.killTweensOf([drawerRef.current, modalRef.current]);
+
     gsap.to(drawerRef.current, {
       y: '100%',
-      duration: 0.25,
+      duration: 0.22,
       ease: 'power2.in',
     });
     gsap.to(modalRef.current, {
       opacity: 0,
-      duration: 0.25,
+      duration: 0.22,
       ease: 'power2.in',
       onComplete: () => {
-        setIsOpen(false);
-        setIsRendered(false);
+        clearTimeout(safetyTimer);
+        finishClosing();
       },
     });
   };
