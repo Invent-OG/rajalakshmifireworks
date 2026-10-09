@@ -484,11 +484,11 @@ export function FloatingNavbar() {
               <LanguageSelector />
             </div>
 
-            {/* Storefront Theme Toggle Button (Desktop & Tablet) */}
+            {/* Storefront Theme Toggle Button (Desktop & Tablet only, hidden on mobile) */}
             <button
               type="button"
               onClick={toggleTheme}
-              className="h-12 w-12 rounded-full bg-neutral-100/90 dark:bg-[#242424] hover:bg-neutral-200/90 dark:hover:bg-[#303030] text-neutral-900 dark:text-white transition-all flex items-center justify-center cursor-pointer shadow-xs active:scale-95 shrink-0 border border-transparent dark:border-[#333333]"
+              className="hidden md:flex h-12 w-12 rounded-full bg-neutral-100/90 dark:bg-[#242424] hover:bg-neutral-200/90 dark:hover:bg-[#303030] text-neutral-900 dark:text-white transition-all items-center justify-center cursor-pointer shadow-xs active:scale-95 shrink-0 border border-transparent dark:border-[#333333]"
               aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
               title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
             >
@@ -673,21 +673,8 @@ export function FloatingNavbar() {
             className="md:hidden absolute top-full left-0 right-0 pt-2 z-50 origin-top pointer-events-auto"
           >
             <div className="rounded-[28px] bg-white dark:bg-[#141414] text-neutral-900 dark:text-white border border-neutral-200/90 dark:border-[#2c2c2c] shadow-2xl p-5 sm:p-6 space-y-4 max-h-[80vh] overflow-y-auto overscroll-contain no-scrollbar">
-              {/* Header: LANGUAGE / மொழி + Theme Toggle */}
-              <div className="mobile-nav-item flex items-center justify-between pb-3 border-b border-neutral-100 dark:border-[#242424]">
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={toggleTheme}
-                    className="h-9 w-9 rounded-full bg-neutral-100 dark:bg-[#242424] text-neutral-900 dark:text-white flex items-center justify-center cursor-pointer shadow-xs active:scale-95 border border-transparent dark:border-[#333333]"
-                    aria-label="Toggle theme"
-                  >
-                    {theme === 'dark' ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4 text-neutral-700" />}
-                  </button>
-                  <span className="text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
-                    {theme === 'dark' ? 'Dark' : 'Light'}
-                  </span>
-                </div>
+              {/* Header: LANGUAGE / மொழி */}
+              <div className="mobile-nav-item flex items-center justify-end pb-3 border-b border-neutral-100 dark:border-[#242424]">
                 <LanguageSelector variant="inline" />
               </div>
 

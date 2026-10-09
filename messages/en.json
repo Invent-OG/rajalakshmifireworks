@@ -171,7 +171,7 @@
     "orderSummary": "Enquiry Summary",
     "estimatedTotal": "Estimated Total",
     "totalSavings": "Total Estimated Savings",
-    "proceedToCheckout": "Proceed to Booking Enquiry",
+    "proceedToCheckout": "Checkout",
     "minOrderNotice": "Minimum enquiry booking value is ₹{min}.",
     "minOrderRemaining": "Add ₹{amount} more to reach the minimum order requirement."
   },

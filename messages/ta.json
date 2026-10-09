@@ -171,7 +171,7 @@
     "orderSummary": "விசாரணை சுருக்கம்",
     "estimatedTotal": "தோராய மொத்த விலை",
     "totalSavings": "உங்கள் மொத்த சேமிப்பு",
-    "proceedToCheckout": "முன்பதிவு விசாரணைக்கு செல்லவும்",
+    "proceedToCheckout": "செக்அவுட் செய்யவும்",
     "minOrderNotice": "குறைந்தபட்ச முன்பதிவு தொகை ₹{min}.",
     "minOrderRemaining": "குறைந்தபட்ச முன்பதிவுக்கு இன்னும் ₹{amount} மதிப்புள்ள பட்டாசுகளை சேர்க்கவும்."
   },
