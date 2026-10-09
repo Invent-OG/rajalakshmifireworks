@@ -52,6 +52,10 @@ describe('Pricing Service & Calculation Engine', () => {
 
     // Delivery above threshold gets free delivery
     expect(getDeliveryCharge(2500, 50, 2000, 'DELIVERY')).toBe(0);
+
+    // Disabled threshold (0) means all delivery orders pay delivery charge
+    expect(getDeliveryCharge(2500, 50, 0, 'DELIVERY')).toBe(50);
+    expect(getDeliveryCharge(5000, 50, 0, 'DELIVERY')).toBe(50);
   });
 
   describe('Bulk Price Updates', () => {

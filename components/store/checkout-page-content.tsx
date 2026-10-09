@@ -11,7 +11,8 @@ import { Input, Textarea } from '@/components/ui/input';
 import { EmptyState } from '@/components/ui/empty-state';
 import { EnquiryNoticeModal } from '@/components/store/enquiry-notice-modal';
 import { formatCurrency } from '@/lib/utils/format';
-import { Truck, Store, ShoppingBag, ShieldCheck, MessageSquare, ArrowRight, MapPin } from 'lucide-react';
+import { Truck, Store, ShoppingBag, ShieldCheck, MessageSquare, ArrowRight, MapPin, CheckCircle2, AlertCircle, UserCheck } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { nanoid } from 'nanoid';
 import { useTranslations, useLocale } from '@/lib/i18n/context';
@@ -42,6 +43,7 @@ const checkoutFormSchema = z
     city: z.string().optional(),
     pincode: z.string().optional(),
     notes: z.string().optional(),
+    referralCode: z.string().max(40).optional(),
   })
   .refine(
     (data) => {
@@ -95,8 +97,62 @@ function CheckoutPageContent() {
       city: '',
       pincode: '',
       notes: '',
+      referralCode: '',
     },
   });
+
+  const [attributionSource, setAttributionSource] = useState<'CODE' | 'LINK'>('CODE');
+  const [refValidation, setRefValidation] = useState<{
+    status: 'idle' | 'checking' | 'valid' | 'invalid';
+    agentName?: string;
+    message?: string;
+  }>({ status: 'idle' });
+
+  const validateCode = async (code: string) => {
+    if (!code || !code.trim()) {
+      setRefValidation({ status: 'idle' });
+      return;
+    }
+    setRefValidation({ status: 'checking' });
+    try {
+      const res = await fetch(`/api/referral/validate?code=${encodeURIComponent(code.trim().toUpperCase())}`);
+      const data = await res.json();
+      if (res.ok && data.valid && data.agent) {
+        setRefValidation({
+          status: 'valid',
+          agentName: data.agent.name,
+          message: `Attributed to agent: ${data.agent.name} (${data.agent.agentCode})`,
+        });
+      } else {
+        setRefValidation({
+          status: 'invalid',
+          message: data.message || 'Invalid or inactive referral code',
+        });
+      }
+    } catch {
+      setRefValidation({
+        status: 'invalid',
+        message: 'Could not verify referral code',
+      });
+    }
+  };
+
+  useEffect(() => {
+    try {
+      let code = '';
+      const match = document.cookie.match(/(^| )rf_agent_ref=([^;]+)/);
+      if (match) {
+        code = decodeURIComponent(match[2]);
+      } else {
+        code = localStorage.getItem('rf_agent_ref') || '';
+      }
+      if (code && !form.getValues('referralCode')) {
+        form.setValue('referralCode', code.toUpperCase());
+        setAttributionSource('LINK');
+        validateCode(code.toUpperCase());
+      }
+    } catch (e) {}
+  }, []);
 
   const fulfillmentType = useWatch({
     control: form.control,
@@ -145,6 +201,27 @@ function CheckoutPageContent() {
   });
 
   const deliveryAreas: string[] = deliveryAreasData?.areas || deliveryAreasData?.uniqueAreas || [];
+
+  // Fetch Store Settings (delivery charge, min order value, free delivery threshold)
+  const { data: settingsData } = useQuery<{ settings: Record<string, string> }>({
+    queryKey: ['settings'],
+    queryFn: async () => {
+      const res = await fetch('/api/settings');
+      if (!res.ok) return { settings: {} };
+      return res.json();
+    },
+  });
+
+  const deliveryChargeRate = Number(settingsData?.settings?.DELIVERY_CHARGE || 50);
+  const freeDeliveryAbove = Number(settingsData?.settings?.FREE_DELIVERY_ABOVE || 0);
+  const minOrderValue = Number(settingsData?.settings?.MIN_ORDER_VALUE || 500);
+
+  const deliveryCharge =
+    fulfillmentType === 'DELIVERY'
+      ? (freeDeliveryAbove > 0 && subtotal >= freeDeliveryAbove ? 0 : deliveryChargeRate)
+      : 0;
+
+  const grandTotal = subtotal + deliveryCharge;
 
   // When state changes, reset cityId and city name in form
   useEffect(() => {
@@ -228,6 +305,15 @@ function CheckoutPageContent() {
   }
 
   function executeBooking(data: CheckoutFormData) {
+    if (minOrderValue > 0 && subtotal < minOrderValue) {
+      toast.error(
+        locale === 'ta'
+          ? `குறைந்தபட்ச ஆர்டர் மதிப்பு ${formatCurrency(minOrderValue)} ஆகும்.`
+          : `Minimum order value is ${formatCurrency(minOrderValue)}. Please add more crackers to proceed.`
+      );
+      return;
+    }
+
     const idempotencyKey = nanoid();
     const selectedState = states.find((s) => s.id === Number(data.stateId));
     const selectedCity = cities.find((c) => c.id === Number(data.cityId));
@@ -251,6 +337,8 @@ function CheckoutPageContent() {
             }
           : undefined,
       notes: data.notes?.trim() || undefined,
+      referralCode: data.referralCode?.trim() ? data.referralCode.trim().toUpperCase() : undefined,
+      attributionSource: data.referralCode?.trim() ? attributionSource : undefined,
       items: items.map((item) => ({
         productId: item.productId,
         quantity: item.quantity,
@@ -522,6 +610,81 @@ function CheckoutPageContent() {
                 {...form.register('notes')}
               />
             </div>
+
+            {/* Step 04: Sales Agent Referral Code */}
+            <div className="p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white dark:bg-[#141414] dark:border dark:border-[#282828] shadow-sm dark:shadow-none space-y-4">
+              <div className="flex items-center justify-between pb-1 border-b border-neutral-100 dark:border-[#282828]">
+                <div className="flex items-center gap-3">
+                  <span className="h-7 w-7 rounded-full bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 text-xs font-bold flex items-center justify-center shadow-xs font-mono">
+                    04
+                  </span>
+                  <h2 className="font-bold text-base text-foreground tracking-tight font-heading flex items-center gap-2">
+                    <UserCheck className="h-4 w-4 text-primary" />
+                    {locale === 'ta' ? 'விற்பனை முகவர் பரிந்துரை குறியீடு (விருப்பத்தேர்வு)' : 'Sales Agent Referral Code (Optional)'}
+                  </h2>
+                </div>
+                <span className="text-xs text-muted-foreground font-medium">
+                  {locale === 'ta' ? 'விருப்பத்தேர்வு' : 'Optional'}
+                </span>
+              </div>
+
+              <p className="text-xs text-muted-foreground">
+                {locale === 'ta'
+                  ? 'உங்களுக்கு பரிந்துரைத்த விற்பனை முகவரின் குறியீட்டை உள்ளிடவும். இது முகவர் கண்காணிப்பிற்கு மட்டுமே பயன்படுத்தப்படும் (விலையில் மாற்றம் இருக்காது).'
+                  : 'Enter your sales agent referral code if you were introduced by one. Used strictly for sales tracking; prices remain unchanged.'}
+              </p>
+
+              <div className="flex gap-2 items-start">
+                <div className="flex-1">
+                  <Input
+                    placeholder="e.g. GUNA01, RAJ01"
+                    maxLength={30}
+                    autoCapitalize="characters"
+                    value={form.watch('referralCode') || ''}
+                    onChange={(e) => {
+                      const val = e.target.value.toUpperCase();
+                      form.setValue('referralCode', val);
+                      setAttributionSource('CODE');
+                      if (!val.trim()) {
+                        setRefValidation({ status: 'idle' });
+                      }
+                    }}
+                    className="font-mono uppercase tracking-wider"
+                  />
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="default"
+                  disabled={!form.watch('referralCode')?.trim() || refValidation.status === 'checking'}
+                  onClick={() => validateCode(form.watch('referralCode') || '')}
+                  className="shrink-0 text-xs h-10 px-4"
+                >
+                  {refValidation.status === 'checking'
+                    ? (locale === 'ta' ? 'சரிபார்க்கிறது...' : 'Verifying...')
+                    : (locale === 'ta' ? 'சரிபார்' : 'Verify')}
+                </Button>
+              </div>
+
+              {refValidation.status === 'valid' && (
+                <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+                  <div>
+                    <span className="font-semibold">{refValidation.message}</span>
+                    <div className="text-[11px] text-emerald-700 dark:text-emerald-400 mt-0.5">
+                      Order will be attributed to this sales agent. Pricing remains standard.
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {refValidation.status === 'invalid' && (
+                <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-xl text-xs text-destructive flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4 shrink-0" />
+                  <span>{refValidation.message}</span>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Right: Order Summary Breakdown */}
@@ -568,13 +731,29 @@ function CheckoutPageContent() {
                       : (locale === 'ta' ? 'சிவகாசி கவுண்டர் (இலவசம்)' : 'Store pickup (Free)')}
                   </span>
                 </div>
+                {fulfillmentType === 'DELIVERY' && (
+                  <div className="flex justify-between items-center text-muted-foreground">
+                    <span>{locale === 'ta' ? 'டெலிவரி கட்டணம்' : 'Delivery Charge'}</span>
+                    <span className="font-semibold font-mono text-foreground">
+                      {deliveryCharge > 0 ? (
+                        formatCurrency(deliveryCharge)
+                      ) : (
+                        <span className="text-emerald-600 dark:text-emerald-400 font-bold">
+                          {locale === 'ta' ? 'இலவசம் (Free)' : 'FREE'}
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* Total Box */}
               <div className="border-t border-neutral-100 dark:border-[#282828] pt-4 flex items-baseline justify-between">
-                <span className="font-bold text-base text-foreground">{tCart('estimatedTotal')}</span>
+                <span className="font-bold text-base text-foreground">
+                  {locale === 'ta' ? 'மொத்த தொகை' : 'Final Payable Amount'}
+                </span>
                 <span className="text-xl font-bold text-foreground font-mono">
-                  {formatCurrency(subtotal)}
+                  {formatCurrency(grandTotal)}
                 </span>
               </div>
 
@@ -635,4 +814,3 @@ export default function CheckoutPage() {
     </Providers>
   );
 }
-

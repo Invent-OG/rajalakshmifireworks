@@ -81,7 +81,7 @@ function AdminSettingsPageContent() {
         const s = json.settings;
         setMinOrderValue(s.MIN_ORDER_VALUE ?? '500');
         setDeliveryCharge(s.DELIVERY_CHARGE ?? '50');
-        setFreeDeliveryAbove(s.FREE_DELIVERY_ABOVE ?? '2000');
+        setFreeDeliveryAbove(s.FREE_DELIVERY_ABOVE ?? '0');
         setMaxQuantityPerItem(s.MAX_QUANTITY_PER_ITEM ?? '50');
         setStorePhone(s.STORE_PHONE ?? '+91 98765 43210');
         setWhatsappNumber(s.WHATSAPP_NUMBER ?? '919876543210');
@@ -299,7 +299,7 @@ function AdminSettingsPageContent() {
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             <Input
               label="Minimum Order Value (₹) *"
               type="number"
@@ -314,6 +314,15 @@ function AdminSettingsPageContent() {
               value={deliveryCharge}
               onChange={(e) => setDeliveryCharge(e.target.value)}
               hint="Flat courier / transport fee for doorstep dispatch"
+            />
+
+            <Input
+              label="Free Delivery Above (₹)"
+              type="number"
+              value={freeDeliveryAbove}
+              onChange={(e) => setFreeDeliveryAbove(e.target.value)}
+              placeholder="0 (Disabled)"
+              hint="Set 0 to charge delivery fee on all orders"
             />
           </div>
         </div>

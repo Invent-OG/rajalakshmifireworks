@@ -1,0 +1,8 @@
+---
+import AdminLayout from '@/src/layouts/AdminLayout.astro';
+import AdminAgentDashboard from '@/components/admin/sales/admin-agent-dashboard';
+---
+
+<AdminLayout title="Sales Agent Tracking | Rajalakshmi Fireworks">
+  <AdminAgentDashboard client:only="react" />
+</AdminLayout>

@@ -8,7 +8,7 @@ import { Pagination } from '@/components/admin/pagination';
 import { BulkActionsBar } from '@/components/admin/bulk-actions-bar';
 import { Portal } from '@/components/ui/portal';
 import { Select, Textarea } from '@/components/ui/input';
-import { formatCurrency, formatDateTime } from '@/lib/utils/format';
+import { formatCurrency, formatDateTime, toNumber } from '@/lib/utils/format';
 import { ORDER_STATUS_LABELS } from '@/lib/constants/order-status';
 import {
   Search,
@@ -37,6 +37,8 @@ interface AdminOrderListItem {
   customerNameSnapshot: string;
   customerMobileSnapshot: string;
   items?: Array<{ id: number; productNameSnapshot?: string; quantity?: number }>;
+  subtotal?: string | number;
+  deliveryCharge?: string | number;
   totalAmount: string | number;
   fulfillmentType: string;
   orderStatus: string;
@@ -525,17 +527,24 @@ function AdminOrdersPageContent() {
                         )}
                       </td>
                       <td className="px-4 py-3.5">
-                        <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-0.5 rounded-md bg-muted text-foreground">
-                          {order.fulfillmentType === 'DELIVERY' ? (
-                            <>
-                              <Truck className="h-3 w-3 text-muted-foreground" /> Delivery
-                            </>
-                          ) : (
-                            <>
-                              <Store className="h-3 w-3 text-muted-foreground" /> Pickup
-                            </>
+                        <div className="flex flex-col gap-0.5">
+                          <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-0.5 rounded-md bg-muted text-foreground w-fit">
+                            {order.fulfillmentType === 'DELIVERY' ? (
+                              <>
+                                <Truck className="h-3 w-3 text-muted-foreground" /> Delivery
+                              </>
+                            ) : (
+                              <>
+                                <Store className="h-3 w-3 text-muted-foreground" /> Pickup
+                              </>
+                            )}
+                          </span>
+                          {order.fulfillmentType === 'DELIVERY' && (
+                            <span className="text-[11px] text-muted-foreground font-mono pl-0.5">
+                              Fee: {toNumber(order.deliveryCharge) > 0 ? formatCurrency(toNumber(order.deliveryCharge)) : '₹0.00 (Free)'}
+                            </span>
                           )}
-                        </span>
+                        </div>
                       </td>
                       <td className="px-4 py-3.5">
                         <StatusBadge status={order.orderStatus} />

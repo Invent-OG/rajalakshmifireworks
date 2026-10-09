@@ -1,0 +1,14 @@
+---
+import AdminLayout from '@/src/layouts/AdminLayout.astro';
+import AdminAgentDetail from '@/components/admin/sales/admin-agent-detail';
+
+const { id } = Astro.params;
+const agentId = parseInt(id as string, 10);
+if (isNaN(agentId) || agentId <= 0) {
+  return Astro.redirect('/admin/sales/agents');
+}
+---
+
+<AdminLayout title={`Agent Profile #${id} | Rajalakshmi Fireworks`}>
+  <AdminAgentDetail client:only="react" id={agentId} />
+</AdminLayout>

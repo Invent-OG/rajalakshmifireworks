@@ -59,6 +59,25 @@ const {
         } catch (e) {}
       })();
     </script>
+    <script is:inline>
+      (function () {
+        try {
+          var params = new URLSearchParams(window.location.search);
+          var ref = params.get('ref') || params.get('agent');
+          if (ref && ref.trim()) {
+            var code = ref.trim().toUpperCase();
+            var d = new Date();
+            // 30 days attribution window
+            d.setTime(d.getTime() + (30 * 24 * 60 * 60 * 1000));
+            document.cookie = 'rf_agent_ref=' + encodeURIComponent(code) + '; expires=' + d.toUTCString() + '; path=/; SameSite=Lax';
+            try {
+              localStorage.setItem('rf_agent_ref', code);
+              localStorage.setItem('rf_agent_ref_time', String(Date.now()));
+            } catch (e) {}
+          }
+        } catch (e) {}
+      })();
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/logo.svg" />

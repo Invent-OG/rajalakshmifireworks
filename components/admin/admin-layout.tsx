@@ -22,10 +22,14 @@ import {
   Moon,
   FileText,
   Search,
-  Bell,
-  ChevronDown,
   Plus,
   Download,
+  Gift,
+  Target,
+  UserCheck,
+  Trophy,
+  ChevronDown,
+  Bell,
 } from 'lucide-react';
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -41,17 +45,25 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { href: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
+  { href: '/admin/orders', icon: ShoppingCart, label: 'Orders', badge: 3 },
   { href: '/admin/products', icon: Package, label: 'Products' },
   { href: '/admin/customers', icon: Users, label: 'Customers' },
-  { href: '/admin/categories', icon: Tags, label: 'Category' },
-  { href: '/admin/orders', icon: ShoppingCart, label: 'Orders', badge: 3 },
   { href: '/admin/delivery-partners', icon: Truck, label: 'Delivery' },
   { href: '/admin/inventory', icon: Warehouse, label: 'Inventory' },
+  { href: '/admin/categories', icon: Tags, label: 'Category' },
   { href: '/admin/hero-slides', icon: Sparkles, label: 'Carousel' },
   { href: '/admin/reports', icon: BarChart3, label: 'Analytics' },
   { href: '/admin/invoice-editor', icon: FileText, label: 'Invoice' },
   { href: '/admin/settings', icon: Settings, label: 'Settings' },
 ];
+
+const salesNavItems: NavItem[] = [
+  { href: '/admin/sales/tracking', icon: Target, label: 'Agent Tracking' },
+  { href: '/admin/sales/agents', icon: UserCheck, label: 'Agents' },
+  { href: '/admin/sales/reports', icon: Trophy, label: 'Agent Reports' },
+];
+
+const allNavItems = [...navItems, ...salesNavItems];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -85,7 +97,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   // Derive human-readable page title
-  const activeNavItem = navItems.find((item) =>
+  const activeNavItem = allNavItems.find((item) =>
     item.href === '/admin' ? pathname === '/admin' : pathname.startsWith(item.href)
   );
   const pageTitle =
@@ -187,6 +199,46 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         {item.badge}
                       </span>
                     )}
+                  </Link>
+                );
+              })}
+
+              {/* Sales Management Section */}
+              <div className="pt-4 pb-1.5 px-3">
+                <p className="text-[10.5px] font-bold uppercase tracking-wider text-[#82889A]/80 select-none">
+                  Sales Management
+                </p>
+              </div>
+
+              {salesNavItems.map((item) => {
+                const isActive = pathname.startsWith(item.href);
+
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setSidebarOpen(false)}
+                    className={`
+                      group flex items-center gap-3 px-3.5 py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all
+                      ${isActive
+                        ? 'bg-[#e24000] text-white shadow-md shadow-[#e24000]/30 font-bold'
+                        : 'text-[#82889A] hover:text-white hover:bg-white/5 font-medium'
+                      }
+                    `}
+                  >
+                    <div
+                      className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition-colors ${isActive
+                        ? 'border-white/25 bg-white/15 text-white'
+                        : 'border-neutral-800/90 bg-neutral-900/60 text-[#8E95A5] group-hover:border-neutral-700 group-hover:text-white'
+                        }`}
+                    >
+                      <item.icon
+                        className={`h-4.5 w-4.5 ${isActive ? 'text-white' : 'text-[#8E95A5] group-hover:text-white'
+                          }`}
+                      />
+                    </div>
+
+                    <span className="truncate">{item.label}</span>
                   </Link>
                 );
               })}

@@ -11,6 +11,7 @@ import {
   states,
   cities,
   deliveryPartners,
+  settings,
 } from './schema';
 import { eq } from 'drizzle-orm';
 import { format } from 'date-fns';
@@ -291,6 +292,11 @@ async function seedSampleOrders() {
   const primaryPartner = partners[0] || null;
   const secondaryPartner = partners[1] || partners[0] || null;
 
+  const settingsRows = await db.select().from(settings);
+  const settingsMap = new Map(settingsRows.map((s) => [s.key, s.value]));
+  const standardDeliveryCharge = Number(settingsMap.get('DELIVERY_CHARGE') ?? '50') || 50;
+  const freeDeliveryThreshold = Number(settingsMap.get('FREE_DELIVERY_ABOVE') ?? '0') || 0;
+
   const now = new Date();
   const dateStr = format(now, 'yyyyMMdd');
 
@@ -404,7 +410,11 @@ async function seedSampleOrders() {
     });
 
     const deliveryChargeNum =
-      custData.fulfillment === 'PICKUP' || subtotalNum >= 2000 ? 0 : 50;
+      custData.fulfillment === 'PICKUP'
+        ? 0
+        : freeDeliveryThreshold > 0 && subtotalNum >= freeDeliveryThreshold
+          ? 0
+          : standardDeliveryCharge;
     const totalAmountNum = subtotalNum + deliveryChargeNum;
 
     const invoiceNumber = `FW-${dateStr}-${String(i + 1).padStart(4, '0')}`;

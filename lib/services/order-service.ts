@@ -10,10 +10,11 @@ import {
   settings,
   states,
   cities,
+  salesAgents,
   type OrderStatus,
   type FulfillmentType,
 } from '@/db/schema';
-import { eq, and, inArray } from 'drizzle-orm';
+import { eq, and, inArray, sql } from 'drizzle-orm';
 import { generateInvoiceNumber } from '@/lib/services/invoice-service';
 import {
   calculateOrderTotals,
@@ -50,6 +51,9 @@ export interface CreateOrderResult {
   customerName: string;
   fulfillmentType: FulfillmentType;
   address?: Record<string, unknown> | null;
+  agentId?: number | null;
+  referralCode?: string | null;
+  attributionSource?: string | null;
 }
 
 /**
@@ -67,7 +71,7 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
 
     const settingsMap = new Map(settingsRows.map((s) => [s.key, s.value]));
     const deliveryChargeRate = toNumber(settingsMap.get('DELIVERY_CHARGE') ?? '50');
-    const freeDeliveryAbove = toNumber(settingsMap.get('FREE_DELIVERY_ABOVE') ?? '2000');
+    const freeDeliveryAbove = toNumber(settingsMap.get('FREE_DELIVERY_ABOVE') ?? '0');
     const minOrderValue = toNumber(settingsMap.get('MIN_ORDER_VALUE') ?? '500');
 
     // 2. Fetch all products in cart with a FOR UPDATE lock
@@ -117,7 +121,39 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
     );
     const totals = calculateOrderTotals(pricingItems, deliveryCharge);
 
-    // 5. Validate minimum order value
+    // 5. Agent Referral Attribution
+    // Referral codes identify sales agents for order tracking and attribution.
+    // They must NEVER automatically apply discounts or alter product prices.
+    let attributedAgentId: number | null = null;
+    let attributedReferralCode: string | null = null;
+    let attributionSource: 'CODE' | 'LINK' | null = null;
+
+    if (input.referralCode?.trim()) {
+      const normalizedCode = input.referralCode.trim().toUpperCase();
+      const [agent] = await tx
+        .select()
+        .from(salesAgents)
+        .where(sql`UPPER(${salesAgents.referralCode}) = ${normalizedCode}`)
+        .limit(1);
+
+      if (agent && agent.isActive) {
+        attributedAgentId = agent.id;
+        attributedReferralCode = agent.referralCode;
+        attributionSource = input.attributionSource === 'LINK' ? 'LINK' : 'CODE';
+      } else {
+        // If the customer explicitly typed the referral code (Method A), return a clear error
+        if (input.attributionSource !== 'LINK') {
+          if (!agent) {
+            throw new ValidationError('Invalid agent referral code. Please check and try again.');
+          } else if (!agent.isActive) {
+            throw new ValidationError('This sales agent referral code is currently inactive.');
+          }
+        }
+        // If from a referral link cookie (Method B) that is no longer active, silently proceed without attribution
+      }
+    }
+
+    // 6. Validate minimum order value
     if (totals.subtotal < minOrderValue) {
       throw new MinimumOrderError(minOrderValue, totals.subtotal);
     }
@@ -233,6 +269,9 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
         stateId: resolvedStateId,
         cityId: resolvedCityId,
         deliveryPartnerId: resolvedDeliveryPartnerId,
+        agentId: attributedAgentId,
+        referralCode: attributedReferralCode,
+        attributionSource: attributionSource,
         orderStatus: 'NEW' as OrderStatus,
         fulfillmentType: input.fulfillmentType,
         subtotal: String(totals.subtotal),
@@ -311,6 +350,9 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
       invoiceNumber,
       customerId: customer.id,
       totalAmount: totals.grandTotal,
+      agentId: attributedAgentId,
+      referralCode: attributedReferralCode,
+      attributionSource,
       itemCount: input.items.length,
     });
 
@@ -332,6 +374,9 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
       customerName: input.customer.name,
       fulfillmentType: input.fulfillmentType as FulfillmentType,
       address: addressSnapshot,
+      agentId: attributedAgentId,
+      referralCode: attributedReferralCode,
+      attributionSource,
     };
   });
 }

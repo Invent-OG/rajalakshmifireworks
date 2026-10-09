@@ -86,10 +86,10 @@ export function applyBulkPriceUpdate(
 export function getDeliveryCharge(
   subtotal: number,
   deliveryChargeRate: number,
-  freeDeliveryAbove: number,
+  freeDeliveryAbove: number = 0,
   fulfillmentType: 'DELIVERY' | 'PICKUP'
 ): number {
   if (fulfillmentType === 'PICKUP') return 0;
-  if (subtotal >= freeDeliveryAbove) return 0;
+  if (freeDeliveryAbove > 0 && subtotal >= freeDeliveryAbove) return 0;
   return deliveryChargeRate;
 }

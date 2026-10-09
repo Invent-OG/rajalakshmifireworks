@@ -11,6 +11,8 @@ export const checkoutSchema = z.object({
   address: addressSchema.optional(),
   fulfillmentType: z.enum(['DELIVERY', 'PICKUP']),
   notes: z.string().max(500).optional(),
+  referralCode: z.string().max(50).optional().or(z.literal('')),
+  attributionSource: z.enum(['CODE', 'LINK']).optional(),
   items: z.array(cartItemSchema).min(1, 'Cart cannot be empty'),
   idempotencyKey: z.string().min(1).max(100),
 });

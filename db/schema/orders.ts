@@ -19,6 +19,7 @@ import { states } from './states';
 import { cities } from './cities';
 import { deliveryPartners } from './delivery-partners';
 import { orderDeliveryAssignments } from './order-delivery-assignments';
+import { salesAgents } from './sales-agents';
 
 export type OrderStatus =
   | 'NEW'
@@ -48,6 +49,9 @@ export const orders = pgTable(
     fulfillmentType: varchar('fulfillment_type', { length: 20 }).notNull(), // 'DELIVERY' | 'PICKUP'
     subtotal: numeric('subtotal', { precision: 12, scale: 2 }).notNull(),
     discountAmount: numeric('discount_amount', { precision: 12, scale: 2 }).notNull().default('0'),
+    agentId: integer('agent_id').references(() => salesAgents.id),
+    referralCode: varchar('referral_code', { length: 50 }),
+    attributionSource: varchar('attribution_source', { length: 20 }), // 'CODE' | 'LINK'
     deliveryCharge: numeric('delivery_charge', { precision: 10, scale: 2 }).notNull().default('0'),
     totalAmount: numeric('total_amount', { precision: 12, scale: 2 }).notNull(),
     // Customer snapshots — never change after order creation
@@ -81,6 +85,9 @@ export const orders = pgTable(
     index('orders_fulfillment_type_idx').on(table.fulfillmentType),
     index('orders_placed_at_idx').on(table.placedAt),
     index('orders_created_at_idx').on(table.createdAt),
+    index('orders_agent_id_idx').on(table.agentId),
+    index('orders_referral_code_idx').on(table.referralCode),
+    index('orders_attribution_source_idx').on(table.attributionSource),
   ]
 );
 
@@ -88,6 +95,10 @@ export const ordersRelations = relations(orders, ({ one, many }) => ({
   customer: one(customers, {
     fields: [orders.customerId],
     references: [customers.id],
+  }),
+  agent: one(salesAgents, {
+    fields: [orders.agentId],
+    references: [salesAgents.id],
   }),
   state: one(states, {
     fields: [orders.stateId],
