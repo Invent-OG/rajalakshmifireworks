@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { useQuery, QueryClientProvider } from '@tanstack/react-query';
 import { sharedQueryClient } from '@/components/providers';
 import { queryKeys } from '@/lib/query/keys';
@@ -384,6 +385,28 @@ function InvoiceCustomizerContent({
   }, [storeSettingsData]);
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Lock body scroll and listen for Escape key when drawer is open
+  useEffect(() => {
+    if (!isDrawerOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsDrawerOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [isDrawerOpen]);
   const [activeTab, setActiveTab] = useState<'style' | 'media' | 'details' | 'payment' | 'terms'>('style');
 
   const handleUpdate = <K extends keyof InvoiceCustomizerConfig>(
@@ -582,10 +605,10 @@ function InvoiceCustomizerContent({
       `}} />
 
       {/* ================= TOP ACTION BAR (HIDDEN IN PRINT) ================= */}
-      <div className="invoice-no-print sticky top-0 z-40 bg-white/95 dark:bg-[#1a1a1a]/95 backdrop-blur-md border-b border-gray-200 dark:border-neutral-800 shadow-xs px-4 py-3">
+      <div className={`invoice-no-print ${isModal ? 'sticky top-0 z-40' : 'relative z-10'} bg-white/95 dark:bg-[#1a1a1a]/95 backdrop-blur-md border-b border-gray-200 dark:border-neutral-800 shadow-xs px-4 py-3`}>
         <div className="max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            {isModal && onClose ? (
+            {isModal && onClose && (
               <button
                 type="button"
                 onClick={onClose}
@@ -593,13 +616,6 @@ function InvoiceCustomizerContent({
               >
                 <ArrowLeft className="h-3.5 w-3.5" /> Back to Order
               </button>
-            ) : (
-              <a
-                href={`/admin/orders/${order.id}`}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-xs font-semibold text-gray-700 dark:text-gray-200 hover:text-black dark:hover:text-white transition-colors cursor-pointer"
-              >
-                <ArrowLeft className="h-3.5 w-3.5" /> Back to Order #{order.invoiceNumber}
-              </a>
             )}
             <span className="text-xs font-mono font-semibold px-2.5 py-0.5 rounded-full bg-neutral-900 text-white dark:bg-white dark:text-neutral-900">
               {config.documentTitle}
@@ -646,15 +662,12 @@ function InvoiceCustomizerContent({
             {/* Customize Drawer Toggle Button */}
             <button
               type="button"
-              onClick={() => setIsDrawerOpen(!isDrawerOpen)}
-              className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-                isDrawerOpen
-                  ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 shadow-sm'
-                  : 'bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 text-gray-800 dark:text-gray-200 hover:bg-gray-50 shadow-2xs'
-              }`}
+              onClick={() => setIsDrawerOpen(true)}
+              className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold bg-neutral-900 hover:bg-black text-white dark:bg-white dark:hover:bg-neutral-100 dark:text-neutral-950 shadow-sm transition-all cursor-pointer"
+              title="Open Customize Invoice Slip side drawer"
             >
               <Sliders className="h-3.5 w-3.5" />
-              <span>Customize</span>
+              <span>Customize Slip</span>
             </button>
 
             {/* Save Default Button */}
@@ -672,7 +685,7 @@ function InvoiceCustomizerContent({
             <button
               type="button"
               onClick={handlePrint}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold bg-neutral-900 hover:bg-black text-white dark:bg-emerald-600 dark:hover:bg-emerald-700 shadow-sm transition-all cursor-pointer"
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-all cursor-pointer"
             >
               <Printer className="h-4 w-4" />
               <span>Print / Save PDF</span>
@@ -682,50 +695,71 @@ function InvoiceCustomizerContent({
       </div>
 
       {/* ================= CUSTOMIZE CONTROL DRAWER ================= */}
-      {isDrawerOpen && (
-        <aside className="invoice-no-print fixed inset-y-0 right-0 z-50 w-full sm:w-[420px] bg-white dark:bg-[#181818] border-l border-gray-200 dark:border-neutral-800 shadow-2xl flex flex-col animate-fade-in">
-          <div className="p-4 border-b border-gray-200 dark:border-neutral-800 flex items-center justify-between bg-gray-50/70 dark:bg-neutral-900">
-            <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-lg bg-neutral-900 text-white dark:bg-white dark:text-black flex items-center justify-center font-bold">
-                <Sliders className="h-4 w-4" />
-              </div>
-              <div>
-                <h3 className="text-sm font-bold text-foreground">Customize Invoice Slip</h3>
-                <p className="text-[11px] text-muted-foreground">Adjust text, upload logo & signature</p>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => setIsDrawerOpen(false)}
-              className="h-8 w-8 rounded-full hover:bg-gray-200 dark:hover:bg-neutral-800 flex items-center justify-center text-muted-foreground cursor-pointer transition-colors"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
+      {isDrawerOpen && mounted && typeof document !== 'undefined' && createPortal(
+        <>
+          {/* Backdrop */}
+          <div
+            className="invoice-no-print fixed inset-0 bg-black/60 backdrop-blur-xs z-[90] transition-opacity animate-fade-in cursor-pointer"
+            onClick={() => setIsDrawerOpen(false)}
+          />
 
-          {/* Drawer Tabs */}
-          <div className="flex border-b border-gray-200 dark:border-neutral-800 bg-white dark:bg-[#181818] px-2 pt-2 gap-1 overflow-x-auto text-xs font-semibold">
-            {[
-              { id: 'style', label: 'Layout & Text' },
-              { id: 'media', label: 'Logo & Sign' },
-              { id: 'details', label: 'Issued To' },
-              { id: 'payment', label: 'Payment Info' },
-              { id: 'terms', label: 'Terms & Conditions' },
-            ].map((tab) => (
+          {/* Side Drawer Panel */}
+          <aside
+            className="invoice-no-print fixed top-0 right-0 bottom-0 z-[100] w-full sm:w-[480px] md:w-[500px] max-w-full bg-white dark:bg-[#12131A] border-l border-gray-200 dark:border-neutral-800 shadow-2xl flex flex-col animate-slide-in-right text-foreground"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Customize Invoice Slip"
+          >
+            {/* Drawer Header */}
+            <div className="px-5 py-4.5 border-b border-gray-200 dark:border-neutral-800 flex items-center justify-between bg-gray-50/80 dark:bg-neutral-900/80 backdrop-blur-md shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-2xl bg-gradient-to-tr from-neutral-900 to-neutral-700 text-white dark:from-white dark:to-neutral-200 dark:text-neutral-950 flex items-center justify-center font-bold shadow-md shrink-0">
+                  <Sliders className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-extrabold text-foreground tracking-tight leading-tight">Customize Invoice Slip</h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">Adjust text, upload logo & signature</p>
+                </div>
+              </div>
               <button
-                key={tab.id}
                 type="button"
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`px-3 py-2 border-b-2 transition-all cursor-pointer whitespace-nowrap ${
-                  activeTab === tab.id
-                    ? 'border-neutral-900 dark:border-white text-foreground font-bold'
-                    : 'border-transparent text-muted-foreground hover:text-foreground'
-                }`}
+                onClick={() => setIsDrawerOpen(false)}
+                className="h-9 w-9 rounded-full bg-neutral-200/60 dark:bg-neutral-800/80 hover:bg-neutral-300 dark:hover:bg-neutral-700 flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer transition-colors shadow-2xs"
+                aria-label="Close drawer"
+                title="Close drawer (Esc)"
               >
-                {tab.label}
+                <X className="h-4.5 w-4.5" />
               </button>
-            ))}
-          </div>
+            </div>
+
+            {/* Drawer Tabs */}
+            <div className="flex border-b border-gray-200 dark:border-neutral-800 bg-white dark:bg-[#12131A] px-3 pt-2 gap-1 overflow-x-auto text-xs font-semibold shrink-0 scrollbar-none">
+              {[
+                { id: 'style', label: 'Layout & Text', icon: Sparkles },
+                { id: 'media', label: 'Logo & Sign', icon: ImageIcon },
+                { id: 'details', label: 'Issued To', icon: Building2 },
+                { id: 'payment', label: 'Payment Info', icon: CreditCard },
+                { id: 'terms', label: 'Terms & Conditions', icon: FileText },
+              ].map((tab) => {
+                const TabIcon = tab.icon;
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setActiveTab(tab.id as any)}
+                    className={`inline-flex items-center gap-1.5 px-3 py-2.5 border-b-2 text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+                      isActive
+                        ? 'border-neutral-900 dark:border-white text-foreground'
+                        : 'border-transparent text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    <TabIcon className={`h-3.5 w-3.5 ${isActive ? 'text-foreground' : 'text-muted-foreground'}`} />
+                    <span>{tab.label}</span>
+                  </button>
+                );
+              })}
+            </div>
 
           {/* Drawer Body */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4 text-xs">
@@ -1106,32 +1140,34 @@ function InvoiceCustomizerContent({
           </div>
 
           {/* Drawer Footer */}
-          <div className="p-4 border-t border-gray-200 dark:border-neutral-800 bg-gray-50 dark:bg-neutral-900 flex items-center justify-between gap-2">
+          <div className="px-5 py-4 border-t border-gray-200 dark:border-neutral-800 bg-gray-50/90 dark:bg-neutral-900/90 backdrop-blur-md flex items-center justify-between gap-3 shrink-0">
             <button
               type="button"
               onClick={handleReset}
-              className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full text-xs font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
             >
-              <RotateCcw className="h-3.5 w-3.5" /> Reset
+              <RotateCcw className="h-3.5 w-3.5" /> Reset Defaults
             </button>
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={handleSaveDefaults}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-neutral-900 hover:bg-black text-white dark:bg-white dark:text-neutral-900 shadow-xs cursor-pointer transition-colors"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold bg-neutral-900 hover:bg-black text-white dark:bg-white dark:hover:bg-neutral-100 dark:text-neutral-950 shadow-sm cursor-pointer transition-colors"
               >
                 <Save className="h-3.5 w-3.5" /> Save Default
               </button>
               <button
                 type="button"
                 onClick={() => setIsDrawerOpen(false)}
-                className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-gray-200 dark:bg-neutral-700 text-foreground cursor-pointer hover:bg-gray-300 dark:hover:bg-neutral-600 transition-colors"
+                className="px-4 py-2 rounded-full text-xs font-bold bg-neutral-200 dark:bg-neutral-800 text-foreground cursor-pointer hover:bg-neutral-300 dark:hover:bg-neutral-700 transition-colors shadow-2xs"
               >
                 Done
               </button>
             </div>
           </div>
         </aside>
+        </>,
+        document.body
       )}
 
       {/* ================= INVOICE CANVAS (MATCHES IMAGE 2 EXACTLY) ================= */}

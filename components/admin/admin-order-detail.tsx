@@ -49,7 +49,6 @@ import {
 import Link from '@/components/ui/link';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Portal } from '@/components/ui/portal';
-import { InvoiceCustomizer } from '@/components/admin/invoice-customizer';
 import {
   getOrderWhatsAppTemplates,
   generateCustomerWhatsAppQuotationUrl,
@@ -269,12 +268,6 @@ function AdminOrderDetailPageContent({
   const [selectedWhatsAppProcess, setSelectedWhatsAppProcess] = useState<WhatsAppProcessType>('ORDER_CONFIRMED');
   const [isCopied, setIsCopied] = useState(false);
   const [customMessages, setCustomMessages] = useState<Record<string, string>>({});
-  const [isPrintModalOpen, setIsPrintModalOpen] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return window.location.search.includes('print=true');
-    }
-    return false;
-  });
 
   // Customer Edit Modal State & Mutation
   const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
@@ -756,13 +749,13 @@ function AdminOrderDetailPageContent({
 
         {/* Quick Header Actions */}
         <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-          <Button
-            variant="outline"
-            onClick={() => setIsPrintModalOpen(true)}
-            className="h-10 px-4 rounded-full text-xs sm:text-sm font-semibold cursor-pointer shadow-xs"
+          <a
+            href={`/admin/invoice-editor?orderId=${order.id}&print=true`}
+            className="inline-flex items-center gap-1.5 h-10 px-4 rounded-full border border-border bg-card hover:bg-muted text-xs sm:text-sm font-semibold text-foreground transition-all cursor-pointer shadow-xs"
+            title="Open Invoice & Print in Dedicated Page"
           >
-            <Printer className="h-4 w-4 mr-1.5 text-muted-foreground" /> Print Slip
-          </Button>
+            <Printer className="h-4 w-4 mr-1.5 text-muted-foreground" /> Print / Edit Slip
+          </a>
 
           <a
             href={getProcessShareUrl(
@@ -1755,38 +1748,7 @@ function AdminOrderDetailPageContent({
         </div>
       </div>
 
-      {/* Invoice Customizer Modal */}
-      {isPrintModalOpen && (
-        <Portal>
-          <div className="fixed inset-0 z-[100] overflow-y-auto bg-black/75 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 md:p-6 animate-fade-in print:p-0 print:bg-white print:static print:overflow-visible">
-            <div className="relative w-full max-w-5xl bg-white dark:bg-[#121212] rounded-2xl shadow-2xl border border-neutral-300 dark:border-neutral-800 overflow-hidden print:border-none print:shadow-none print:rounded-none print:bg-white print:overflow-visible z-[101]">
-              <div className="invoice-no-print px-5 py-3.5 bg-neutral-900 text-white flex items-center justify-between border-b border-neutral-800 print:hidden">
-                <div className="flex items-center gap-2.5">
-                  <Printer className="h-4 w-4 text-emerald-400" />
-                  <span className="font-bold text-sm">Invoice Slip Preview & Customizer</span>
-                  <span className="text-xs text-neutral-400 font-mono">#{order.invoiceNumber}</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setIsPrintModalOpen(false)}
-                  className="h-8 w-8 rounded-full hover:bg-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white transition-colors cursor-pointer"
-                  title="Close"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
 
-              <div className="max-h-[85vh] overflow-y-auto print:max-h-none print:overflow-visible">
-                <InvoiceCustomizer
-                  order={order}
-                  isModal={true}
-                  onClose={() => setIsPrintModalOpen(false)}
-                />
-              </div>
-            </div>
-          </div>
-        </Portal>
-      )}
 
       {/* Record / Edit Payment Modal */}
       {isPaymentModalOpen && (

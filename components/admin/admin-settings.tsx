@@ -10,7 +10,6 @@ import { Save, Truck, MessageSquare, Sparkles, UserCog, ArrowRight, Sun, Moon, P
 import { toast } from 'sonner';
 import { Banner } from '@/components/ui/banner';
 import { useAdminTheme } from '@/hooks/use-admin-theme';
-import { InvoiceCustomizer } from '@/components/admin/invoice-customizer';
 
 import { withAdminShell } from './admin-shell';
 
@@ -38,7 +37,6 @@ function AdminSettingsPageContent() {
   const [invoiceUpiId, setInvoiceUpiId] = useState('');
   const [invoiceTerms, setInvoiceTerms] = useState('');
   const [invoiceSafetyNotice, setInvoiceSafetyNotice] = useState('');
-  const [isInvoiceEditorOpen, setIsInvoiceEditorOpen] = useState(false);
   const [initialized, setInitialized] = useState(false);
 
   const demoOrder = {
@@ -283,7 +281,7 @@ function AdminSettingsPageContent() {
           </div>
           <Link
             href="/admin/profile"
-            className="inline-flex items-center gap-2 h-11 px-5 rounded-xl bg-brand text-white hover:bg-brand/90 text-sm font-bold shrink-0 transition-colors shadow-xs self-start sm:self-auto"
+            className="inline-flex items-center gap-2 h-11 px-5 rounded-xl bg-brand text-brand-foreground hover:bg-brand/90 text-sm font-bold shrink-0 transition-colors shadow-xs self-start sm:self-auto cursor-pointer"
           >
             <span>Manage Password & Email</span>
             <ArrowRight className="h-4 w-4" />
@@ -471,14 +469,13 @@ function AdminSettingsPageContent() {
                 </p>
               </div>
             </div>
-            <Button
-              type="button"
-              onClick={() => setIsInvoiceEditorOpen(true)}
-              className="text-xs h-9 px-3.5 font-bold bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 hover:bg-black cursor-pointer shadow-xs flex items-center gap-1.5"
+            <a
+              href="/admin/invoice-editor"
+              className="text-xs h-9 px-4 font-bold bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 hover:bg-black cursor-pointer shadow-xs inline-flex items-center gap-1.5 rounded-full transition-all"
             >
               <Sliders className="h-3.5 w-3.5" />
-              <span>Open Template Editor & Live Preview</span>
-            </Button>
+              <span>Open Dedicated Invoice Editor</span>
+            </a>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
@@ -569,36 +566,7 @@ function AdminSettingsPageContent() {
         </div>
       </div>
 
-      {/* Invoice Customizer Modal inside Admin Settings */}
-      {isInvoiceEditorOpen && (
-        <div className="invoice-no-print fixed inset-0 z-50 overflow-y-auto bg-black/75 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 md:p-6 animate-fade-in print:p-0 print:bg-white print:static print:overflow-visible">
-          <div className="relative w-full max-w-5xl bg-white dark:bg-[#121212] rounded-2xl shadow-2xl border border-neutral-300 dark:border-neutral-800 overflow-hidden print:border-none print:shadow-none print:rounded-none">
-            <div className="invoice-no-print px-5 py-3.5 bg-neutral-900 text-white flex items-center justify-between border-b border-neutral-800 print:hidden">
-              <div className="flex items-center gap-2.5">
-                <Printer className="h-4 w-4 text-emerald-400" />
-                <span className="font-bold text-sm">Invoice Slip Template Editor & Live Preview</span>
-                <span className="text-xs text-neutral-400">Settings Mode</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsInvoiceEditorOpen(false)}
-                className="h-8 w-8 rounded-lg hover:bg-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white transition-colors cursor-pointer"
-                title="Close"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
 
-            <div className="max-h-[85vh] overflow-y-auto print:max-h-none print:overflow-visible">
-              <InvoiceCustomizer
-                order={demoOrder}
-                isModal={true}
-                onClose={() => setIsInvoiceEditorOpen(false)}
-              />
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

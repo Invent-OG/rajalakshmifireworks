@@ -6,6 +6,5 @@ if (isNaN(orderId)) {
   return Astro.redirect('/admin/orders');
 }
 
-// Seamlessly redirect to the separate dedicated invoice page
-return Astro.redirect(`/admin/invoice-editor?orderId=${orderId}&print=true`);
+return Astro.redirect(`/admin/invoice-editor?orderId=${orderId}`);
 ---

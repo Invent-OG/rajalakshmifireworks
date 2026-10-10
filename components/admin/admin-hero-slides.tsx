@@ -400,7 +400,7 @@ function AdminHeroSlidesPageContent() {
           <Button
             onClick={() => saveMutation.mutate(config)}
             disabled={saveMutation.isPending}
-            className="flex items-center gap-2 h-10 px-5 bg-brand hover:bg-brand/90 text-white font-semibold text-xs sm:text-sm rounded-full shadow-xs"
+            className="flex items-center gap-2 h-10 px-5 bg-brand hover:bg-brand/90 text-brand-foreground font-semibold text-xs sm:text-sm rounded-full shadow-xs cursor-pointer"
           >
             <Save className="h-4 w-4" />
             {saveMutation.isPending ? 'Saving...' : 'Save & Publish'}
@@ -1270,7 +1270,7 @@ function AdminHeroSlidesPageContent() {
           onClick={() => saveMutation.mutate(config)}
           disabled={saveMutation.isPending}
           size="lg"
-          className="flex items-center gap-2 bg-brand hover:bg-brand/90 text-white font-bold shadow-xl rounded-full px-6"
+          className="flex items-center gap-2 bg-brand hover:bg-brand/90 text-brand-foreground font-bold shadow-xl rounded-full px-6 cursor-pointer"
         >
           <Save className="h-4 w-4" />
           {saveMutation.isPending ? 'Publishing Changes...' : 'Save & Publish Live'}

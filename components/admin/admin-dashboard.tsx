@@ -20,7 +20,6 @@ import {
 import Link from '@/components/ui/link';
 import { useGSAP } from '@gsap/react';
 import { gsap, isReducedMotion } from '@/lib/motion';
-import { InvoiceCustomizer } from './invoice-customizer';
 import { withAdminShell } from './admin-shell';
 
 interface DashboardData {
@@ -346,7 +345,6 @@ function OrderStatusPill({ status }: { status: string }) {
 
 function AdminDashboardPageContent() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [selectedPrintOrder, setSelectedPrintOrder] = useState<any | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'PENDING' | 'COMPLETE' | 'CANCEL'>('ALL');
   const [sortBy, setSortBy] = useState<'date' | 'amount' | 'items'>('date');
@@ -360,18 +358,8 @@ function AdminDashboardPageContent() {
 
   const d = data?.dashboard;
 
-  const handlePrintOrder = async (orderSummary: any) => {
-    try {
-      const res = await fetch(`/api/admin/orders/${orderSummary.id}`);
-      const resData = await res.json();
-      if (resData?.order) {
-        setSelectedPrintOrder(resData.order);
-      } else {
-        setSelectedPrintOrder(orderSummary);
-      }
-    } catch {
-      setSelectedPrintOrder(orderSummary);
-    }
+  const handlePrintOrder = (orderSummary: any) => {
+    window.location.href = `/admin/invoice-editor?orderId=${orderSummary.id}&print=true`;
   };
 
   useGSAP(
@@ -895,38 +883,7 @@ function AdminDashboardPageContent() {
         </div>
       </div>
 
-      {/* In-page Invoice Customizer Modal inside Admin Dashboard */}
-      {selectedPrintOrder && (
-        <div className="invoice-no-print fixed inset-0 z-50 overflow-y-auto bg-black/75 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 md:p-6 animate-fade-in print:p-0 print:bg-white print:static print:overflow-visible">
-          <div className="relative w-full max-w-5xl bg-white dark:bg-[#121212] rounded-2xl shadow-2xl border border-neutral-300 dark:border-neutral-800 overflow-hidden print:border-none print:shadow-none print:rounded-none">
-            <div className="invoice-no-print px-5 py-3.5 bg-neutral-900 text-white flex items-center justify-between border-b border-neutral-800 print:hidden">
-              <div className="flex items-center gap-2.5">
-                <PrinterIcon className="h-4 w-4 text-emerald-400" />
-                <span className="font-bold text-sm">Invoice Slip Preview & Customizer</span>
-                <span className="text-xs text-neutral-400 font-mono">
-                  #{selectedPrintOrder.invoiceNumber}
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setSelectedPrintOrder(null)}
-                className="h-8 w-8 rounded-full hover:bg-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white transition-colors cursor-pointer"
-                title="Close"
-              >
-                <Cancel01Icon className="h-5 w-5" />
-              </button>
-            </div>
 
-            <div className="max-h-[85vh] overflow-y-auto print:max-h-none print:overflow-visible">
-              <InvoiceCustomizer
-                order={selectedPrintOrder}
-                isModal={true}
-                onClose={() => setSelectedPrintOrder(null)}
-              />
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

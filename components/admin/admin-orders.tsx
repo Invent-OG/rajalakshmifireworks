@@ -29,7 +29,6 @@ import Link from '@/components/ui/link';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import type { OrderStatus } from '@/db/schema';
-import { InvoiceCustomizer } from '@/components/admin/invoice-customizer';
 
 interface AdminOrderListItem {
   id: number;
@@ -54,7 +53,6 @@ import { withAdminShell } from './admin-shell';
 
 function AdminOrdersPageContent() {
   const queryClient = useQueryClient();
-  const [selectedPrintOrder, setSelectedPrintOrder] = useState<any | null>(null);
 
   // Filters and Pagination State
   const [page, setPage] = useState(1);
@@ -231,71 +229,13 @@ function AdminOrdersPageContent() {
         </div>
 
         <div className="flex items-center gap-2.5">
-          <Button
-            variant="outline"
-            size="md"
-            className="text-xs font-semibold cursor-pointer"
-            onClick={() => {
-              const demo = {
-                id: 0,
-                invoiceNumber: '01234',
-                customerNameSnapshot: 'Helene Paquet',
-                customerMobileSnapshot: '9842100001',
-                orderStatus: 'CONFIRMED',
-                placedAt: new Date().toISOString(),
-                addressSnapshot: {
-                  address: '123 Anywhere St., Sivakasi Depot',
-                  city: 'Sivakasi',
-                  pincode: '626123',
-                },
-                subtotal: '900.00',
-                discountAmount: '0.00',
-                deliveryCharge: '0.00',
-                totalAmount: '990.00',
-                finalAmount: '990.00',
-                items: [
-                  {
-                    id: 1,
-                    productNameSnapshot: 'Social Media Strategy Plan',
-                    quantity: 1,
-                    sellingPriceSnapshot: '100.00',
-                    lineTotal: '100.00',
-                  },
-                  {
-                    id: 2,
-                    productNameSnapshot: 'Content Creation (5 posts)',
-                    quantity: 5,
-                    sellingPriceSnapshot: '100.00',
-                    lineTotal: '500.00',
-                  },
-                  {
-                    id: 3,
-                    productNameSnapshot: 'Scheduling & Reporting',
-                    quantity: 1,
-                    sellingPriceSnapshot: '100.00',
-                    lineTotal: '100.00',
-                  },
-                  {
-                    id: 4,
-                    productNameSnapshot: 'Instagram Story Design (3 slides)',
-                    quantity: 3,
-                    sellingPriceSnapshot: '50.00',
-                    lineTotal: '150.00',
-                  },
-                  {
-                    id: 5,
-                    productNameSnapshot: 'Hashtag Research',
-                    quantity: 1,
-                    sellingPriceSnapshot: '50.00',
-                    lineTotal: '50.00',
-                  },
-                ],
-              };
-              setSelectedPrintOrder(orders[0] || demo);
-            }}
+          <Link
+            href="/admin/invoice-editor"
+            className="inline-flex items-center gap-1.5 h-9 px-4 rounded-xl border border-border bg-card hover:bg-muted text-xs font-semibold text-foreground transition-all cursor-pointer shadow-2xs"
           >
-            <FileText className="h-4 w-4 mr-1 text-muted-foreground" /> Invoice Template Editor
-          </Button>
+            <FileText className="h-4 w-4 mr-1 text-muted-foreground" />
+            <span>Invoice Template Editor</span>
+          </Link>
           <Button
             variant="outline"
             size="md"
@@ -555,15 +495,14 @@ function AdminOrdersPageContent() {
                       </td>
                       <td className="px-4 py-3.5 text-right whitespace-nowrap">
                         <div className="flex items-center justify-end gap-2">
-                          <button
-                            type="button"
-                            onClick={() => setSelectedPrintOrder(order)}
+                          <Link
+                            href={`/admin/invoice-editor?orderId=${order.id}&print=true`}
                             className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg border border-border bg-card dark:bg-[#1a1a1a] hover:bg-muted dark:hover:bg-[#262626] text-foreground text-xs font-semibold shadow-xs transition-all active:scale-95 cursor-pointer"
-                            title="Print Dispatch Slip"
+                            title="Open Invoice & Print in Dedicated Page"
                           >
                             <Printer className="h-3.5 w-3.5 text-muted-foreground" />
                             <span>Print Slip</span>
-                          </button>
+                          </Link>
                           <Link
                             href={`/admin/orders/${order.id}`}
                             className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 text-xs font-semibold shadow-xs transition-all active:scale-95 cursor-pointer"
@@ -690,37 +629,6 @@ function AdminOrdersPageContent() {
             </div>
           </div>
         </Portal>
-      )}
-
-      {/* Invoice Customizer Modal inside Orders list */}
-      {selectedPrintOrder && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/75 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 md:p-6 animate-fade-in print:p-0 print:bg-white print:static print:overflow-visible">
-          <div className="relative w-full max-w-5xl bg-white dark:bg-[#121212] rounded-2xl shadow-2xl border border-neutral-300 dark:border-neutral-800 overflow-hidden print:border-none print:shadow-none print:rounded-none print:bg-white print:overflow-visible">
-            <div className="invoice-no-print px-5 py-3.5 bg-neutral-900 text-white flex items-center justify-between border-b border-neutral-800 print:hidden">
-              <div className="flex items-center gap-2.5">
-                <Printer className="h-4 w-4 text-emerald-400" />
-                <span className="font-bold text-sm">Invoice Slip Preview & Customizer</span>
-                <span className="text-xs text-neutral-400 font-mono">#{selectedPrintOrder.invoiceNumber}</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setSelectedPrintOrder(null)}
-                className="h-8 w-8 rounded-lg hover:bg-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white transition-colors cursor-pointer"
-                title="Close"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            <div className="max-h-[85vh] overflow-y-auto print:max-h-none print:overflow-visible">
-              <InvoiceCustomizer
-                order={selectedPrintOrder}
-                isModal={true}
-                onClose={() => setSelectedPrintOrder(null)}
-              />
-            </div>
-          </div>
-        </div>
       )}
     </div>
   );

@@ -264,7 +264,7 @@ function AdminProductsPageContent() {
             </Button>
           </Link>
           <Link href="/admin/products/new">
-            <Button variant="outline" size="md" className="font-semibold text-xs bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100">
+            <Button variant="outline" size="md" className="font-semibold text-xs bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-700 dark:hover:bg-amber-950/60">
               <Layers className="h-4 w-4 mr-1 text-amber-700" /> Create Combo Pack
             </Button>
           </Link>

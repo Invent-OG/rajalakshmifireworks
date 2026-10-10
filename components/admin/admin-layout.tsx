@@ -228,7 +228,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       : activeNavItem?.label || 'Dashboard';
 
   return (
-    <div className="min-h-screen lg:h-screen lg:max-h-screen lg:overflow-hidden p-2.5 sm:p-4 flex flex-col font-sans text-neutral-900 selection:text-white bg-[#F4F6FA] dark:bg-[#10121A] print:h-auto print:max-h-none print:min-h-0 print:overflow-visible print:bg-white print:p-0">
+    <div className="min-h-screen lg:h-screen lg:max-h-screen lg:overflow-hidden p-2.5 sm:p-4 flex flex-col font-sans text-neutral-900 dark:text-neutral-100 selection:text-white bg-[#F4F6FA] dark:bg-[#10121A] print:h-auto print:max-h-none print:min-h-0 print:overflow-visible print:bg-white print:p-0">
       {/* Mobile Drawer Backdrop */}
       {sidebarOpen && (
         <div
@@ -427,7 +427,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Right Main Operations Workspace */}
         <div className="flex-1 flex flex-col min-w-0 lg:h-full lg:overflow-y-auto overflow-x-hidden dark:bg-[#0E1017] print:overflow-visible print:h-auto print:max-h-none print:bg-white print:p-0">
           {/* Top Header Bar */}
-          <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0 sticky py-5 top-0 z-20 dark:bg-[#0E1017]/90 backdrop-blur-md print:hidden invoice-no-print">
+          <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0 sticky py-5 top-0 z-20 bg-[#F4F6FA]/90 dark:bg-[#0E1017]/90 backdrop-blur-md print:hidden invoice-no-print">
             {/* Title & Mobile Hamburger */}
             <div className="flex items-center gap-3.5">
               <button
