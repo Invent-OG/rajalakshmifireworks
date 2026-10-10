@@ -105,15 +105,11 @@ export function MobileBottomNav({
 
   const isQuickOrderActive =
     activePath === '/quick-order' ||
-    activePath.startsWith('/quick-order') ||
-    activePath === '/products' ||
-    activePath.startsWith('/products/') ||
-    activePath.startsWith('/product/') ||
-    activePath.startsWith('/category/');
+    activePath.startsWith('/quick-order');
 
   const leftItems = [
     { href: '/', icon: Home, label: tNav('home') },
-    { href: '/price-list', icon: LayoutGrid, label: tNav('priceList') },
+    { href: '/products', icon: LayoutGrid, label: tNav('catalog') },
   ];
 
   const rightItems = [
@@ -122,9 +118,15 @@ export function MobileBottomNav({
   ];
 
   const renderNavItem = (item: { href: string; icon: any; label: string; badge?: number }) => {
+    const isProductsItem = item.href === '/products';
     const isActive =
       item.href === '/'
         ? activePath === '/'
+        : isProductsItem
+        ? activePath === '/products' ||
+          activePath.startsWith('/products/') ||
+          activePath.startsWith('/product/') ||
+          activePath.startsWith('/category/')
         : activePath === item.href || activePath.startsWith(item.href + '/');
 
     return (

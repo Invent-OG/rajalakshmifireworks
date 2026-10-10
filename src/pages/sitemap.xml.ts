@@ -33,7 +33,7 @@ export const GET: APIRoute = async () => {
   const staticUrls = [
     { url: `${baseUrl}`, priority: 1.0 },
     { url: `${baseUrl}/products`, priority: 0.9 },
-    { url: `${baseUrl}/price-list`, priority: 0.8 },
+    { url: `${baseUrl}/quick-order`, priority: 0.8 },
     { url: `${baseUrl}/track-order`, priority: 0.5 },
   ];
 

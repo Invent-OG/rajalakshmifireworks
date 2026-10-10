@@ -523,22 +523,6 @@ export function FloatingNavbar({ pathname: propPathname, locale: propLocale }: F
               </div>
             </Link>
 
-            {/* Download Price List Button - Icon by default, smooth animated expanding pill on hover/focus */}
-            <Link
-              href={getHref('/price-list')}
-              onMouseEnter={closeDropdown}
-              className="hidden sm:flex group relative h-12 rounded-full bg-neutral-100/90 dark:bg-[#242424] hover:bg-neutral-200/90 dark:hover:bg-[#303030] text-neutral-900 dark:text-white transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] shadow-xs active:scale-95 items-center overflow-hidden border border-transparent dark:border-[#333333] shrink-0 cursor-pointer"
-              aria-label={tNav('priceList')}
-              title={tNav('priceList')}
-            >
-              <div className="h-12 w-12 flex items-center justify-center shrink-0">
-                <Download className="h-4.5 w-4.5 text-neutral-700 dark:text-neutral-300 group-hover:text-neutral-950 dark:group-hover:text-white transition-colors" />
-              </div>
-              <div className="max-w-0 opacity-0 group-hover:max-w-[140px] group-focus-visible:max-w-[140px] group-hover:opacity-100 group-focus-visible:opacity-100 group-hover:pr-4 group-focus-visible:pr-4 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden whitespace-nowrap">
-                <span className="text-xs sm:text-sm font-bold">{tNav('priceList')}</span>
-              </div>
-            </Link>
-
             {/* Quick Order Pill Button (Desktop View) */}
             <Link
               href={getHref('/quick-order')}
@@ -822,12 +806,12 @@ export function FloatingNavbar({ pathname: propPathname, locale: propLocale }: F
               {/* Bottom Quick Action Buttons */}
               <div className="mobile-nav-item pt-1 flex items-center justify-between gap-3">
                 <Link
-                  href={getHref('/price-list')}
+                  href={getHref('/products')}
                   onClick={() => setMobileMenuOpen(false)}
                   className="inline-flex items-center justify-center gap-2 h-12 px-4 rounded-full bg-neutral-100 dark:bg-[#242424] hover:bg-neutral-200 dark:hover:bg-[#2e2e2e] text-xs sm:text-sm font-bold text-neutral-900 dark:text-white shadow-2xs transition-all active:scale-95 flex-1"
                 >
-                  <Download className="h-4 w-4 text-neutral-700 dark:text-neutral-300" />
-                  <span>{tNav('priceList')}</span>
+                  <LayoutGrid className="h-4 w-4 text-neutral-700 dark:text-neutral-300" />
+                  <span>{tNav('allProducts')}</span>
                 </Link>
 
                 <Link
