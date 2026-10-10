@@ -8,12 +8,13 @@
 :root{--bg1:#1b0f12;--bg2:#050304;--fg:#f3e3c8;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 html,body{margin:0;height:100%;overflow:hidden;background:radial-gradient(ellipse at 50% 80%,var(--bg1),var(--bg2));color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
 canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
-.ui{display:none !important;}
+.ui{position:fixed;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 12px);display:flex;justify-content:space-between;align-items:center;gap:8px;padding:0 16px;pointer-events:none;font-size:13px;opacity:.9}
 button{pointer-events:auto;background:#ffffff14;color:var(--fg);border:1px solid #ffffff30;border-radius:999px;padding:8px 14px;font:inherit;cursor:pointer}
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
+<div class="ui"><span>Tap to light · drag the rope</span><span><button id="mode">Drag: rope</button> <button id="reset">Reset</button> <button id="spin">Auto spin: on</button></span></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 (function(){
@@ -24,7 +25,7 @@ try{renderer=new THREE.WebGLRenderer({canvas,antialias:devicePixelRatio<2,powerP
 catch(err){document.body.insertAdjacentHTML('beforeend','<p style="padding:20px">3D is not supported on this device.</p>');return;}
 canvas.addEventListener('webglcontextlost',e=>e.preventDefault());
 const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(40,1,0.1,100);
-let camDist=15,cw=1,ch=1,q=matchMedia('(pointer:coarse)').matches?1:2,ITER=10;
+let camDist=16,cw=1,ch=1,q=matchMedia('(pointer:coarse)').matches?1:2,ITER=10;
 function resize(){cw=canvas.clientWidth||innerWidth;ch=canvas.clientHeight||innerHeight;renderer.setSize(cw,ch,false);camera.aspect=cw/ch;camera.updateProjectionMatrix();}
 function applyQ(){renderer.setPixelRatio(q===2?Math.min(devicePixelRatio,1.75):q===1?Math.min(devicePixelRatio,1.25):1);ITER=q===2?12:q===1?8:6;resize();}
 scene.add(new THREE.HemisphereLight(0xffe2d0,0x2a0f10,0.7));
@@ -34,7 +35,7 @@ const rnd=(a,b)=>a+Math.random()*(b-a),cl=(x,m)=>Math.max(-m,Math.min(m,x));
 const dm=new THREE.Object3D(),ZERO=new THREE.Matrix4().makeScale(0,0,0);
 
 // ---------- rope (verlet chain) ----------
-const rows=24,SEG=0.16,CORD=16,M=CORD+2*rows+3,PIVOT=4.1+CORD*SEG,G=-14,DAMP=0.994;
+const rows=12,SEG=0.16,CORD=30,M=CORD+2*rows+3,PIVOT=4.1+CORD*SEG,G=-14,DAMP=0.994;
 const P=[],Q=[];let anchorY=PIVOT+12,held=-1;
 for(let j=0;j<M;j++){P.push(new THREE.Vector3(0,anchorY-j*SEG,0));Q.push(P[j].clone());}
 const target=new THREE.Vector3(),dv=new THREE.Vector3(),tmp=new THREE.Vector3();
@@ -141,7 +142,7 @@ const boomLight=new THREE.PointLight(0xffa040,0,12,2);scene.add(boomLight);
 let boomT=0,enext=0,actx=null,abuf=null,lastBang=0,eUntil=0,fireBoost=0;
 let frontRow=0,burning=false,fireOn=false,fireNode=M-1,cool=0,leaving=false;
 const wp=new THREE.Vector3(),wd=new THREE.Vector3(),ax=new THREE.Vector3();
-function bang(vol,big){const now=performance.now();if(now-lastBang<18)return;lastBang=now;if(navigator.vibrate)navigator.vibrate(big?[45,25,65]:22);
+function bang(vol){const now=performance.now();if(now-lastBang<40)return;lastBang=now;if(navigator.vibrate)navigator.vibrate(vol>0.5?70:28);
   try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();
     if(!abuf){const n=actx.sampleRate*0.4|0;abuf=actx.createBuffer(1,n,actx.sampleRate);const d=abuf.getChannelData(0);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,3);}
     const s=actx.createBufferSource();s.buffer=abuf;s.playbackRate.value=rnd(0.8,1.3);const f=actx.createBiquadFilter();f.type='lowpass';f.frequency.value=rnd(1200,2400);
@@ -156,20 +157,12 @@ function explode(c,big){
   boomLight.position.copy(wp);boomT=1;eUntil=performance.now()+1400;
   for(const o of crackers){if(o===c||o.dead)continue;const d=o.g.position.distanceTo(wp);if(d<2.4){const f=1-d/2.4;kick(o,(big?9:4)*f,rnd(-5,5)*f);}}
   for(let j=1;j<M;j++){if(j===held)continue;const d=P[j].distanceTo(wp);if(d<2.2){const f=1-d/2.2;wd.subVectors(P[j],wp).normalize();Q[j].addScaledVector(wd,-(big?0.05:0.015)*f);}}
-  c.dead=true;bang(big?0.8:0.35,big);
+  c.dead=true;bang(big?0.8:0.35);
 }
 const chainQ=[];
 function startChain(){if(burning||cool>0||leaving||!landed||!crackers.some(c=>!c.dead))return;burning=true;fireOn=true;fireNode=M-1;fireBoost=1;frontRow=rows-1;
-  for(const o of crackers){if(o.dead)continue;const r=o.k>>2;chainQ.push({o,t:0.6+(rows-1-r)*0.28+rnd(0,0.12),big:r===rows-1});}
-  if(navigator.vibrate){
-    try{
-      const sorted=[...chainQ].sort((a,b)=>a.t-b.t);const pattern=[30];let prev=30;
-      for(const it of sorted){const ms=Math.round(it.t*1000),dur=it.big?80:28,pause=Math.max(12,ms-prev);pattern.push(pause);pattern.push(dur);prev=ms+dur;}
-      navigator.vibrate(pattern);
-    }catch(e){}
-  }
-}
-function resetCrackers(){if(navigator.vibrate)try{navigator.vibrate(0);}catch(e){}chainQ.length=0;burning=false;fireOn=false;cool=0;leaving=false;for(const c of crackers){c.dead=false;c.a=c.a0;c.y=c.y0;c.va=c.vy=0;c.init=false;}}
+  for(const o of crackers){if(o.dead)continue;const r=o.k>>2;chainQ.push({o,t:0.6+(rows-1-r)*0.28+rnd(0,0.12),big:r===rows-1});}}
+function resetCrackers(){chainQ.length=0;burning=false;fireOn=false;cool=0;leaving=false;for(const c of crackers){c.dead=false;c.a=c.a0;c.y=c.y0;c.va=c.vy=0;c.init=false;}}
 function newString(){resetCrackers();held=-1;dropY=12;dropV=0;landed=false;spinW=0;for(let j=0;j<M;j++){P[j].set(0,PIVOT+12-j*SEG,0);Q[j].copy(P[j]);}}
 
 // ---------- interaction ----------
@@ -185,7 +178,6 @@ function pick(x,y){setRay(x,y);let best=null,bd=1e9;
 function nearestNode(x,y){let best=-1,bd=1e9;for(let j=1;j<M-1;j++){pv.copy(P[j]).project(camera);const d=Math.hypot((pv.x+1)/2*cw-x,(1-pv.y)/2*ch-y);if(d<bd){bd=d;best=j;}}return bd<130?best:-1;}
 function hit(c,vx,vy){ax.setFromMatrixColumn(c.g.matrix,0).normalize();const dp=-vy*0.004,dyw=vx*0.004*ax.z;kick(c,dp,dyw);[c.k-4,c.k+4].forEach(j=>{const o=crackers[j];if(o)kick(o,dp*0.35,dyw*0.35);});}
 canvas.addEventListener('pointerdown',e=>{
-  if(navigator.vibrate)try{navigator.vibrate(20);}catch(err){}
   const [x,y]=loc(e);sx=px=x;sy=py=y;pt=downT=performance.now();moved=0;canvas.setPointerCapture(e.pointerId);
   tapC=pick(x,y);
   if(dragMode==='crackers'&&tapC){swipe=true;}
@@ -201,8 +193,8 @@ canvas.addEventListener('pointermove',e=>{
   px=x;py=y;pt=now;
 });
 function release(e,cancel){
-  const [x,y]=loc(e),tap=!cancel&&moved<10&&performance.now()-downT<350;
-  if(tap){if(tapC||nearestNode(x,y)>0||(cw>0&&Math.abs(x-cw/2)<cw*0.45))startChain();else{const s=x<cw/2?1:-1;for(let j=1;j<M;j++)Q[j].x-=s*0.02*(j/M);spinW+=s*1.5;fireBoost=1;}}
+  const [x]=loc(e),tap=!cancel&&moved<8&&performance.now()-downT<300;
+  if(tap){if(tapC)startChain();else{const s=x<cw/2?1:-1;for(let j=1;j<M;j++)Q[j].x-=s*0.02*(j/M);spinW+=s*1.5;fireBoost=1;}}
   held=-1;swipe=false;
 }
 canvas.addEventListener('pointerup',e=>release(e,false));
@@ -291,7 +283,7 @@ function tick(){
   }
   for(const s of flashes){if(!s.userData.on)continue;const u=s.userData;u.t+=dt/0.45;if(u.t>=1){u.on=false;s.visible=false;continue;}s.scale.setScalar(u.s0+u.t*u.s1);s.material.opacity=(1-u.t)*(1-u.t);}
   boomLight.intensity=boomT*16;boomT*=Math.pow(0.002,dt);
-  camera.position.set(0,0.3,camDist);camera.lookAt(0,0,0);
+  camera.position.set(0,2.3,camDist);camera.lookAt(0,2,0);
   renderer.render(scene,camera);
   requestAnimationFrame(tick);
 }

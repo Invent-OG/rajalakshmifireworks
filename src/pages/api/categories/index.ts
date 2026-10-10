@@ -10,7 +10,14 @@ async function _GET() {
       orderBy: [asc(categories.sortOrder), asc(categories.name)],
     });
 
-    return Response.json({ categories: categoryList });
+    return Response.json(
+      { categories: categoryList },
+      {
+        headers: {
+          'Cache-Control': 'public, max-age=60, s-maxage=300, stale-while-revalidate=600',
+        },
+      }
+    );
   } catch (error) {
     console.error('Error fetching categories:', error);
     return Response.json({ message: 'Failed to load categories' }, { status: 500 });

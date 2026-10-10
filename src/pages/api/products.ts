@@ -106,15 +106,22 @@ async function _GET(request: any) {
 
     const total = Number(countResult[0]?.count ?? 0);
 
-    return Response.json({
-      products: productList,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
+    return Response.json(
+      {
+        products: productList,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit),
+        },
       },
-    });
+      {
+        headers: {
+          'Cache-Control': 'public, max-age=30, s-maxage=120, stale-while-revalidate=300',
+        },
+      }
+    );
   } catch (error) {
     console.error('Error fetching products:', error);
     return Response.json(

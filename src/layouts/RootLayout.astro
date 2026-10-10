@@ -1,5 +1,6 @@
 ---
 import "@/src/styles/globals.css";
+import { ClientRouter } from 'astro:transitions';
 
 interface Props {
   title?: string;
@@ -31,8 +32,9 @@ const {
 <!doctype html>
 <html lang={locale}>
   <head>
+    <ClientRouter />
     <script is:inline>
-      (function () {
+      function applyTheme() {
         try {
           var pathname = window.location.pathname;
           var isAdmin = pathname.indexOf("/admin") !== -1;
@@ -57,10 +59,12 @@ const {
             }
           }
         } catch (e) {}
-      })();
+      }
+      applyTheme();
+      document.addEventListener("astro:after-swap", applyTheme);
     </script>
     <script is:inline>
-      (function () {
+      function captureRef() {
         try {
           var params = new URLSearchParams(window.location.search);
           var ref = params.get('ref') || params.get('agent');
@@ -76,7 +80,9 @@ const {
             } catch (e) {}
           }
         } catch (e) {}
-      })();
+      }
+      captureRef();
+      document.addEventListener("astro:page-load", captureRef);
     </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

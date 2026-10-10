@@ -8,10 +8,10 @@ const connectionString = process.env.DATABASE_URL!;
 // Connection pool for queries configured for Supabase PgBouncer transaction pooler
 const queryClient = postgres(connectionString, {
   prepare: false, // Required for PgBouncer transaction pooler (port 6543)
-  max: 10,
-  idle_timeout: 15,
+  max: 20,
+  idle_timeout: 20,
   connect_timeout: 10,
-  max_lifetime: 60 * 5, // 5 minutes max connection lifetime to prevent stale sockets
+  max_lifetime: 60 * 10, // 10 minutes max connection lifetime to prevent stale sockets
 });
 
 export const db = drizzle(queryClient, { schema });

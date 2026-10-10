@@ -99,6 +99,8 @@ function AdminProductsPageContent() {
 
       return fetch(`/api/admin/products?${params}`).then((r) => r.json());
     },
+    staleTime: 60 * 1000,
+    placeholderData: (prev) => prev,
   });
 
   const products: ProductListItem[] = data?.products ?? [];

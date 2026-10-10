@@ -49,7 +49,7 @@ export function HangingSaravedi3D({
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
 
-    let camDist = 15;
+    let camDist = 16;
     let cw = 1;
     let ch = 1;
     let q = window.matchMedia('(pointer:coarse)').matches ? 1 : 2;
@@ -87,9 +87,9 @@ export function HangingSaravedi3D({
     const ZERO = new THREE.Matrix4().makeScale(0, 0, 0);
 
     // ---------- rope (verlet chain) ----------
-    const rows = 24;
+    const rows = 12;
     const SEG = 0.16;
-    const CORD = 16;
+    const CORD = 30;
     const M = CORD + 2 * rows + 3;
     const PIVOT = 4.1 + CORD * SEG;
     const G = -14;
@@ -1193,8 +1193,8 @@ export function HangingSaravedi3D({
       boomLight.intensity = boomT * 16;
       boomT *= Math.pow(0.002, dt);
 
-      camera.position.set(0, 0.3, camDist);
-      camera.lookAt(0, 0, 0);
+      camera.position.set(0, 2.3, camDist);
+      camera.lookAt(0, 2, 0);
 
       renderer.render(scene, camera);
       animId = requestAnimationFrame(tick);

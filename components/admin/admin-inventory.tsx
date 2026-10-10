@@ -117,6 +117,8 @@ function AdminInventoryPageContent() {
       }
       return fetch(`/api/admin/inventory?${params}`).then((r) => r.json());
     },
+    staleTime: 60 * 1000,
+    placeholderData: (prev) => prev,
   });
 
   const inventory: InventoryItem[] = data?.inventory || [];

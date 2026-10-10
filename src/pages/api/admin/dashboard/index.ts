@@ -1,7 +1,7 @@
 import { wrapHandler } from '@/src/lib/astro-api';
 import { db } from '@/db';
 import { orders, products, customers, deliveryPartners, orderItems } from '@/db/schema';
-import { eq, sql, gte, and, inArray } from 'drizzle-orm';
+import { eq, sql, and } from 'drizzle-orm';
 import { getSession } from '@/lib/auth/session';
 
 async function _GET() {
@@ -15,67 +15,31 @@ async function _GET() {
     today.setHours(0, 0, 0, 0);
 
     const [
-      allOrdersCountResult,
-      allTimeRevenueResult,
+      ordersAggResult,
       allProductsSoldResult,
-      todayOrdersResult,
-      todaySalesResult,
-      newOrdersResult,
-      confirmedResult,
-      assignedResult,
-      outForDeliveryResult,
-      deliveredTodayResult,
       totalCustomersResult,
       activePartnersResult,
       lowStockResult,
       recentOrders,
     ] = await Promise.all([
-      // Total orders count across all time
-      db.select({ count: sql<number>`count(*)` }).from(orders),
-
-      // Total revenue across all non-cancelled orders
-      db.select({ total: sql<string>`COALESCE(SUM(total_amount::numeric), 0)` })
-        .from(orders)
-        .where(sql`${orders.orderStatus} != 'CANCELLED'`),
+      // Combined orders aggregation query in a single roundtrip
+      db
+        .select({
+          totalOrders: sql<number>`count(*)`,
+          totalRevenue: sql<string>`COALESCE(SUM(CASE WHEN ${orders.orderStatus} != 'CANCELLED' THEN total_amount::numeric ELSE 0 END), 0)`,
+          todayOrders: sql<number>`count(*) filter (where ${orders.placedAt} >= ${today})`,
+          todaySales: sql<string>`COALESCE(SUM(CASE WHEN ${orders.placedAt} >= ${today} AND ${orders.orderStatus} != 'CANCELLED' THEN total_amount::numeric ELSE 0 END), 0)`,
+          newOrders: sql<number>`count(*) filter (where ${orders.orderStatus} in ('NEW', 'PENDING'))`,
+          confirmedOrders: sql<number>`count(*) filter (where ${orders.orderStatus} = 'CONFIRMED')`,
+          assignedOrders: sql<number>`count(*) filter (where ${orders.orderStatus} = 'ASSIGNED')`,
+          outForDelivery: sql<number>`count(*) filter (where ${orders.orderStatus} = 'OUT_FOR_DELIVERY')`,
+          deliveredToday: sql<number>`count(*) filter (where ${orders.deliveredAt} >= ${today} and ${orders.orderStatus} in ('DELIVERED', 'COMPLETED'))`,
+        })
+        .from(orders),
 
       // Total products / crackers quantity sold
       db.select({ total: sql<number>`COALESCE(SUM(quantity), 0)` })
         .from(orderItems),
-
-      // Today's order count
-      db.select({ count: sql<number>`count(*)` })
-        .from(orders)
-        .where(gte(orders.placedAt, today)),
-
-      // Today's sales total
-      db.select({ total: sql<string>`COALESCE(SUM(total_amount::numeric), 0)` })
-        .from(orders)
-        .where(and(gte(orders.placedAt, today), sql`${orders.orderStatus} != 'CANCELLED'`)),
-
-      // New / Pending orders
-      db.select({ count: sql<number>`count(*)` })
-        .from(orders)
-        .where(inArray(orders.orderStatus, ['NEW', 'PENDING'])),
-
-      // Confirmed orders
-      db.select({ count: sql<number>`count(*)` })
-        .from(orders)
-        .where(eq(orders.orderStatus, 'CONFIRMED')),
-
-      // Assigned orders
-      db.select({ count: sql<number>`count(*)` })
-        .from(orders)
-        .where(eq(orders.orderStatus, 'ASSIGNED')),
-
-      // Out for delivery
-      db.select({ count: sql<number>`count(*)` })
-        .from(orders)
-        .where(eq(orders.orderStatus, 'OUT_FOR_DELIVERY')),
-
-      // Delivered / Completed today
-      db.select({ count: sql<number>`count(*)` })
-        .from(orders)
-        .where(and(gte(orders.deliveredAt, today), inArray(orders.orderStatus, ['DELIVERED', 'COMPLETED']))),
 
       // Total customers
       db.select({ count: sql<number>`count(*)` }).from(customers),
@@ -101,8 +65,9 @@ async function _GET() {
       }),
     ]);
 
-    const totalOrders = Number(allOrdersCountResult[0]?.count ?? 0);
-    const totalRevenue = parseFloat(allTimeRevenueResult[0]?.total ?? '0') || 0;
+    const orderStats = ordersAggResult[0];
+    const totalOrders = Number(orderStats?.totalOrders ?? 0);
+    const totalRevenue = parseFloat(orderStats?.totalRevenue ?? '0') || 0;
     const totalProductsSold = Number(allProductsSoldResult[0]?.total ?? 0);
     const totalCustomers = Number(totalCustomersResult[0]?.count ?? 0);
 
@@ -126,15 +91,15 @@ async function _GET() {
       dashboard: {
         totalOrders,
         totalRevenue,
-        todayOrders: Number(todayOrdersResult[0]?.count ?? 0),
-        todaySales: Number(todaySalesResult[0]?.total ?? 0),
-        newOrders: Number(newOrdersResult[0]?.count ?? 0),
-        pendingOrders: Number(newOrdersResult[0]?.count ?? 0),
-        confirmedOrders: Number(confirmedResult[0]?.count ?? 0),
-        assignedOrders: Number(assignedResult[0]?.count ?? 0),
-        outForDelivery: Number(outForDeliveryResult[0]?.count ?? 0),
-        completedToday: Number(deliveredTodayResult[0]?.count ?? 0),
-        deliveredToday: Number(deliveredTodayResult[0]?.count ?? 0),
+        todayOrders: Number(orderStats?.todayOrders ?? 0),
+        todaySales: Number(orderStats?.todaySales ?? 0),
+        newOrders: Number(orderStats?.newOrders ?? 0),
+        pendingOrders: Number(orderStats?.newOrders ?? 0),
+        confirmedOrders: Number(orderStats?.confirmedOrders ?? 0),
+        assignedOrders: Number(orderStats?.assignedOrders ?? 0),
+        outForDelivery: Number(orderStats?.outForDelivery ?? 0),
+        completedToday: Number(orderStats?.deliveredToday ?? 0),
+        deliveredToday: Number(orderStats?.deliveredToday ?? 0),
         totalCustomers,
         activeDeliveryPartners: Number(activePartnersResult[0]?.count ?? 0),
         lowStockProducts: Number(lowStockResult[0]?.count ?? 0),

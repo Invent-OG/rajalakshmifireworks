@@ -171,7 +171,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       if (!res.ok) return null;
       return res.json();
     },
-    refetchInterval: 15000,
+    staleTime: 60000,
+    refetchInterval: 60000,
   });
 
   const dashboard = dashboardData?.dashboard;

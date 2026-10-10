@@ -98,6 +98,8 @@ function AdminOrdersPageContent() {
 
       return fetch(`/api/admin/orders?${params}`).then((r) => r.json());
     },
+    staleTime: 60 * 1000,
+    placeholderData: (prev) => prev,
   });
 
   const orders: AdminOrderListItem[] = data?.orders ?? [];
