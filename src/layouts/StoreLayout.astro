@@ -8,14 +8,22 @@ interface Props {
   description?: string;
   keywords?: string[];
   locale?: string;
+  containerClass?: string;
+  bodyClass?: string;
 }
 
-const { title, description, keywords, locale = 'en' } = Astro.props;
+const { title, description, keywords, locale = 'en', containerClass, bodyClass } = Astro.props;
 const pathname = Astro.url.pathname;
 ---
 
-<RootLayout title={title} description={description} keywords={keywords} locale={locale}>
-  <div class="min-h-screen flex flex-col bg-background text-foreground">
+<RootLayout
+  title={title}
+  description={description}
+  keywords={keywords}
+  locale={locale}
+  bodyClass={bodyClass || (containerClass ? containerClass : 'bg-background')}
+>
+  <div class:list={['min-h-screen flex flex-col text-foreground', containerClass || 'bg-background']}>
     <StoreHeader client:load pathname={pathname} locale={locale} />
     <main class="flex-1 pb-12 md:pb-6">
       <slot />

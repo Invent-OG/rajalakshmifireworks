@@ -346,6 +346,152 @@ p, span, input, select, textarea, button {
   background: rgba(10, 10, 10, 0.92);
 }
 
+/* ── Rajalakshmi Sivakasi Fireworks Home Page Seamless Gradient Background ── */
+.home-page-gradient {
+  background:
+    radial-gradient(ellipse 90% 45% at 50% 0%, rgba(226, 64, 0, 0.12), transparent 70%),
+    radial-gradient(ellipse 70% 35% at 100% 22%, rgba(251, 191, 36, 0.14), transparent 60%),
+    radial-gradient(ellipse 70% 35% at 90% 40%, rgba(220, 38, 38, 0.13), transparent 60%),
+    radial-gradient(ellipse 70% 40% at 0% 65%, rgba(226, 64, 0, 0.15), transparent 65%),
+    radial-gradient(ellipse 85% 40% at 85% 85%, rgba(185, 28, 28, 0.13), transparent 70%),
+    linear-gradient(
+      180deg,
+      #ffffff 0%,
+      #fffbf0 4%,
+      #fef3c7 10%,
+      #ffe8dc 18%,
+      #ffd0bf 28%,
+      #ffa88a 40%,
+      #f26b52 50%,
+      #e24000 60%,
+      #d92929 70%,
+      #f6806d 80%,
+      #ffd3c5 90%,
+      #fff2ec 96%,
+      #ffffff 100%
+    );
+  background-color: #ffffff;
+}
+
+.dark .home-page-gradient {
+  background:
+    radial-gradient(ellipse 90% 45% at 50% 0%, rgba(226, 64, 0, 0.22), transparent 70%),
+    radial-gradient(ellipse 70% 35% at 100% 22%, rgba(251, 191, 36, 0.18), transparent 60%),
+    radial-gradient(ellipse 70% 35% at 90% 40%, rgba(220, 38, 38, 0.22), transparent 60%),
+    radial-gradient(ellipse 70% 40% at 0% 65%, rgba(226, 64, 0, 0.25), transparent 65%),
+    radial-gradient(ellipse 85% 40% at 85% 85%, rgba(185, 28, 28, 0.22), transparent 70%),
+    linear-gradient(
+      180deg,
+      #050505 0%,
+      #180802 8%,
+      #2b0c03 18%,
+      #441205 32%,
+      #591605 48%,
+      #6e1205 60%,
+      #4d0d04 74%,
+      #2a0902 86%,
+      #140501 94%,
+      #050505 100%
+    );
+  background-color: #050505;
+}
+
+/* ── Floating Animated Gradient Orbs Keyframes ── */
+@keyframes floatSlow1 {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
+  }
+  33% {
+    transform: translate3d(60px, 80px, 0) scale(1.12) rotate(25deg);
+  }
+  66% {
+    transform: translate3d(-40px, 45px, 0) scale(0.92) rotate(-18deg);
+  }
+}
+
+@keyframes floatSlow2 {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
+  }
+  33% {
+    transform: translate3d(-70px, -50px, 0) scale(1.15) rotate(-30deg);
+  }
+  66% {
+    transform: translate3d(45px, 60px, 0) scale(0.95) rotate(20deg);
+  }
+}
+
+@keyframes floatSlow3 {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(50px, -60px, 0) scale(1.2);
+  }
+}
+
+@keyframes floatSlow4 {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(-55px, 75px, 0) scale(1.14) rotate(35deg);
+  }
+}
+
+@keyframes floatSlow5 {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(65px, -55px, 0) scale(1.16) rotate(-25deg);
+  }
+}
+
+@keyframes floatSlow6 {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-45px, -45px, 0) scale(1.18);
+  }
+}
+
+.animate-float-slow-1 {
+  animation: floatSlow1 22s ease-in-out infinite;
+}
+
+.animate-float-slow-2 {
+  animation: floatSlow2 26s ease-in-out infinite;
+}
+
+.animate-float-slow-3 {
+  animation: floatSlow3 18s ease-in-out infinite;
+}
+
+.animate-float-slow-4 {
+  animation: floatSlow4 28s ease-in-out infinite;
+}
+
+.animate-float-slow-5 {
+  animation: floatSlow5 24s ease-in-out infinite;
+}
+
+.animate-float-slow-6 {
+  animation: floatSlow6 20s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-float-slow-1,
+  .animate-float-slow-2,
+  .animate-float-slow-3,
+  .animate-float-slow-4,
+  .animate-float-slow-5,
+  .animate-float-slow-6 {
+    animation: none !important;
+  }
+}
+
 /* ── Select Dropdown Option Readability & Increased Component Sizing ─── */
 select option {
   background-color: var(--card);

@@ -32,7 +32,7 @@ export function Testimonial02Blaze() {
     },
   ];
 
-  const MARQUEE_ITEMS = [...REVIEWS, ...REVIEWS];
+  const MARQUEE_ITEMS = [...REVIEWS, ...REVIEWS, ...REVIEWS, ...REVIEWS];
 
   return (
     <>
@@ -48,44 +48,44 @@ export function Testimonial02Blaze() {
         }
       `}</style>
 
-      <section className="w-full bg-white dark:bg-black py-12 md:py-[120px] px-4 sm:px-8 md:px-[80px] selection:bg-black selection:text-white font-sans">
+      <section className="w-full bg-transparent py-6 sm:py-10 md:py-[100px] px-4 sm:px-8 md:px-[80px] selection:bg-black selection:text-white font-sans">
         <div className="max-w-[1280px] mx-auto">
           {/* 1. Top Header Row */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 md:mb-[48px] gap-4 md:gap-6">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 sm:mb-8 md:mb-[48px] gap-4 md:gap-6">
             {/* Left Block */}
             <div className="max-w-[600px]">
               {/* Section Tag Row */}
-              <div className="mb-5 sm:mb-8">
+              <div className="mb-4 sm:mb-6 md:mb-8">
                 <SectionTag label={t('badge')} />
               </div>
 
               {/* Heading */}
-              <h2 className="text-3xl sm:text-4xl md:text-[58px] font-medium text-[#111010] dark:text-white leading-[1.15] md:leading-[1.1] tracking-tight font-heading">
+              <h2 className="text-2xl sm:text-4xl md:text-[58px] font-medium text-[#111010] dark:text-white leading-[1.15] md:leading-[1.1] tracking-tight font-heading">
                 {t('title')}
               </h2>
             </div>
 
             {/* Right Block */}
-            <div className="w-full md:w-auto md:max-w-[320px] text-left md:text-right pb-2">
-              <p className="text-[14px] sm:text-[15px] text-[#555455] dark:text-neutral-400 font-normal leading-relaxed">
+            <div className="w-full md:w-auto md:max-w-[320px] text-left md:text-right pb-1 md:pb-2">
+              <p className="text-[13px] sm:text-[15px] text-[#555455] dark:text-neutral-400 font-normal leading-relaxed">
                 {t('subtitle')}
               </p>
             </div>
           </div>
 
           {/* 2. Three-Column Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[32px] items-stretch">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 lg:gap-[32px] items-stretch">
             {/* Left Column — Stats / CTA Card */}
-            <div className="flex flex-col bg-white dark:bg-[#141414] dark:border dark:border-[#282828] p-8 sm:p-10 rounded-[36px] sm:rounded-[40px] min-h-[480px] lg:h-[560px] shadow-sm dark:shadow-none hover:shadow-xl transition-all duration-300">
+            <div className="flex flex-col bg-white dark:bg-[#141414] dark:border dark:border-[#282828] p-6 sm:p-8 lg:p-10 rounded-[28px] sm:rounded-[36px] lg:rounded-[40px] min-h-0 lg:h-[560px] shadow-sm dark:shadow-none hover:shadow-xl transition-all duration-300">
               {/* Rating Row */}
-              <div className="flex items-start gap-[12px] mb-[28px]">
+              <div className="flex items-start gap-[12px] mb-5 sm:mb-[28px]">
                 <div className="flex items-baseline gap-0.5">
-                  <span className="text-[48px] font-bold text-[#111010] dark:text-white leading-none tracking-tight font-mono">
+                  <span className="text-[40px] sm:text-[48px] font-bold text-[#111010] dark:text-white leading-none tracking-tight font-mono">
                     4.9
                   </span>
-                  <span className="text-[16px] text-[#898988] dark:text-neutral-400 font-normal font-mono">/5</span>
+                  <span className="text-[15px] sm:text-[16px] text-[#898988] dark:text-neutral-400 font-normal font-mono">/5</span>
                 </div>
-                <div className="pt-1.5 text-[13px] text-[#555455] dark:text-neutral-300 leading-[1.3] font-medium">
+                <div className="pt-1 text-[12px] sm:text-[13px] text-[#555455] dark:text-neutral-300 leading-[1.3] font-medium">
                   {locale === 'ta' ? (
                     <>
                       <strong className="font-bold text-[#111010] dark:text-white">2,500+ சரிபார்க்கப்பட்ட</strong>
@@ -159,8 +159,8 @@ export function Testimonial02Blaze() {
             </div>
 
             {/* Center Column — Photo Card with Quote Overlay */}
-            <div className="flex min-h-[480px] lg:h-[560px]">
-              <div className="relative w-full h-full rounded-[36px] sm:rounded-[40px] overflow-hidden group shadow-sm hover:shadow-xl transition-all duration-300 flex">
+            <div className="flex h-[320px] sm:h-[420px] lg:h-[560px]">
+              <div className="relative w-full h-full rounded-[28px] sm:rounded-[36px] lg:rounded-[40px] overflow-hidden group shadow-sm hover:shadow-xl transition-all duration-300 flex">
                 <img
                   src="https://images.unsplash.com/photo-1514565131-fce0801e5785?auto=format&fit=crop&q=80&w=1200"
                   alt="Diwali family celebration with fireworks"
@@ -168,13 +168,13 @@ export function Testimonial02Blaze() {
                   className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
-                <div className="absolute bottom-[32px] left-[32px] right-[32px] text-white">
-                  <p className="text-[18px] md:text-[20px] font-medium leading-[1.4] mb-[12px]">
+                <div className="absolute bottom-[24px] sm:bottom-[32px] left-[20px] sm:left-[32px] right-[20px] sm:right-[32px] text-white">
+                  <p className="text-[16px] sm:text-[18px] md:text-[20px] font-medium leading-[1.4] mb-[8px] sm:mb-[12px]">
                     {locale === 'ta'
                       ? '“ஒளிமயமான மகிழ்ச்சி, முழு பாதுகாப்பு மற்றும் எங்கள் குடும்பம் என்றும் நினைவில் வைத்துப் போற்றும் தீபாவளிக் கொண்டாட்டம்!”'
                       : '“We expected bright lights and joy — we found pure magic, safety, and a celebration our family will cherish forever.”'}
                   </p>
-                  <p className="text-[14px] text-white/75 font-normal tracking-wide">
+                  <p className="text-[13px] sm:text-[14px] text-white/75 font-normal tracking-wide">
                     {locale === 'ta' ? '— ராஜேஷ் & பிரியா, சென்னை' : '— Rajesh & Priya, Chennai'}
                   </p>
                 </div>
@@ -182,18 +182,18 @@ export function Testimonial02Blaze() {
             </div>
 
             {/* Right Column — Vertical Marquee */}
-            <div className="md:col-span-2 lg:col-span-1 min-h-[480px] lg:h-[560px] relative overflow-hidden rounded-[36px] sm:rounded-[40px] bg-neutral-100/60 dark:bg-[#101010] dark:border dark:border-[#282828] shadow-inner">
+            <div className="md:col-span-2 lg:col-span-1 h-[380px] sm:h-[460px] lg:h-[560px] relative overflow-hidden rounded-[28px] sm:rounded-[36px] lg:rounded-[40px] bg-neutral-100/60 dark:bg-[#101010] dark:border dark:border-[#282828] shadow-inner [mask-image:linear-gradient(to_bottom,transparent,black_4%,black_96%,transparent)] [-webkit-mask-image:linear-gradient(to_bottom,transparent,black_4%,black_96%,transparent)]">
               <div
-                className="flex flex-col gap-4 p-3"
-                style={{ animation: 'marquee-up 30s linear infinite' }}
+                className="flex flex-col gap-3.5 sm:gap-4 p-2.5 sm:p-3 hover:[animation-play-state:paused] active:[animation-play-state:paused]"
+                style={{ animation: 'marquee-up 38s linear infinite' }}
               >
                 {MARQUEE_ITEMS.map((item, idx) => (
                   <div
                     key={`${item.name}-${idx}`}
-                    className="bg-white dark:bg-[#1a1a1a] dark:border dark:border-[#282828] p-6 rounded-[28px] shadow-sm dark:shadow-none hover:shadow-md transition-all flex flex-col shrink-0"
+                    className="bg-white dark:bg-[#1a1a1a] dark:border dark:border-[#282828] p-5 sm:p-6 rounded-[24px] sm:rounded-[28px] shadow-sm dark:shadow-none hover:shadow-md transition-all flex flex-col shrink-0"
                   >
                     {/* 5 Stars */}
-                    <div className="flex gap-1 mb-3">
+                    <div className="flex gap-1 mb-2.5 sm:mb-3">
                       {[...Array(5)].map((_, starIdx) => (
                         <Star
                           key={starIdx}

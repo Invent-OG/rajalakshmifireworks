@@ -201,15 +201,14 @@ export function OrganicCategoriesGrid({
               {/* Card 1 */}
               <Link
                 href={resolvedTopMiddle1.link}
-                className="group relative w-full h-full min-h-[190px] sm:min-h-[220px] rounded-[28px] sm:rounded-[36px] overflow-hidden flex items-center justify-center select-none shadow-sm hover:shadow-xl transition-all duration-500 block"
+                className="group relative w-full h-full min-h-[190px] sm:min-h-[220px] rounded-[28px] sm:rounded-[36px] overflow-hidden flex items-center justify-center select-none shadow-sm hover:shadow-xl transition-all duration-500 block bg-white dark:bg-[#141414]"
               >
                 <img
                   src={resolvedTopMiddle1.image}
                   alt={resolvedTopMiddle1.title}
-                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                 />
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300" />
-                <span className="relative z-10 inline-flex items-center px-4 sm:px-5 py-2.5 rounded-full bg-neutral-950/90 backdrop-blur-xs text-white font-black text-[11px] sm:text-xs tracking-wider uppercase shadow-lg shadow-black/20 group-hover:scale-105 group-hover:bg-neutral-950 group-active:scale-95 transition-all duration-300">
+                <span className="relative z-10 inline-flex items-center px-4 sm:px-5 py-2.5 rounded-full bg-neutral-950/90 backdrop-blur-xs text-white font-black text-[11px] sm:text-xs tracking-wider uppercase shadow-lg shadow-black/25 group-hover:scale-105 group-hover:bg-neutral-950 group-active:scale-95 transition-all duration-300">
                   {resolvedTopMiddle1.badgeText || resolvedTopMiddle1.title}
                 </span>
               </Link>
@@ -217,15 +216,14 @@ export function OrganicCategoriesGrid({
               {/* Card 2 */}
               <Link
                 href={resolvedTopMiddle2.link}
-                className="group relative w-full h-full min-h-[190px] sm:min-h-[220px] rounded-[28px] sm:rounded-[36px] overflow-hidden flex items-center justify-center select-none shadow-sm hover:shadow-xl transition-all duration-500 block"
+                className="group relative w-full h-full min-h-[190px] sm:min-h-[220px] rounded-[28px] sm:rounded-[36px] overflow-hidden flex items-center justify-center select-none shadow-sm hover:shadow-xl transition-all duration-500 block bg-white dark:bg-[#141414]"
               >
                 <img
                   src={resolvedTopMiddle2.image}
                   alt={resolvedTopMiddle2.title}
-                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                 />
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300" />
-                <span className="relative z-10 inline-flex items-center px-4 sm:px-5 py-2.5 rounded-full bg-neutral-950/90 backdrop-blur-xs text-white font-black text-[11px] sm:text-xs tracking-wider uppercase shadow-lg shadow-black/20 group-hover:scale-105 group-hover:bg-neutral-950 group-active:scale-95 transition-all duration-300">
+                <span className="relative z-10 inline-flex items-center px-4 sm:px-5 py-2.5 rounded-full bg-neutral-950/90 backdrop-blur-xs text-white font-black text-[11px] sm:text-xs tracking-wider uppercase shadow-lg shadow-black/25 group-hover:scale-105 group-hover:bg-neutral-950 group-active:scale-95 transition-all duration-300">
                   {resolvedTopMiddle2.badgeText || resolvedTopMiddle2.title}
                 </span>
               </Link>
@@ -235,15 +233,14 @@ export function OrganicCategoriesGrid({
             <div className="flex-1 min-h-[190px] sm:min-h-[220px]">
               <Link
                 href={resolvedBottomMiddle.link}
-                className="group relative w-full h-full min-h-[190px] sm:min-h-[220px] rounded-[28px] sm:rounded-[36px] overflow-hidden flex items-center justify-center select-none shadow-sm hover:shadow-xl transition-all duration-500 block"
+                className="group relative w-full h-full min-h-[190px] sm:min-h-[220px] rounded-[28px] sm:rounded-[36px] overflow-hidden flex items-center justify-center select-none shadow-sm hover:shadow-xl transition-all duration-500 block bg-white dark:bg-[#141414]"
               >
                 <img
                   src={resolvedBottomMiddle.image}
                   alt={resolvedBottomMiddle.title}
-                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                 />
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300" />
-                <span className="relative z-10 inline-flex items-center px-5 sm:px-6 py-2.5 rounded-full bg-neutral-950/90 backdrop-blur-xs text-white font-black text-xs sm:text-[13px] tracking-wider uppercase shadow-lg shadow-black/20 group-hover:scale-105 group-hover:bg-neutral-950 group-active:scale-95 transition-all duration-300">
+                <span className="relative z-10 inline-flex items-center px-5 sm:px-6 py-2.5 rounded-full bg-neutral-950/90 backdrop-blur-xs text-white font-black text-xs sm:text-[13px] tracking-wider uppercase shadow-lg shadow-black/25 group-hover:scale-105 group-hover:bg-neutral-950 group-active:scale-95 transition-all duration-300">
                   {resolvedBottomMiddle.badgeText || resolvedBottomMiddle.title}
                 </span>
               </Link>
@@ -254,15 +251,14 @@ export function OrganicCategoriesGrid({
           <div className="md:col-span-1 lg:col-span-3">
             <Link
               href={resolvedRightCard.link}
-              className="group relative w-full h-[380px] md:h-[400px] sm:md:h-[460px] lg:h-[490px] rounded-[36px] sm:rounded-[40px] overflow-hidden flex items-center justify-center select-none shadow-sm hover:shadow-xl transition-all duration-500 block"
+              className="group relative w-full h-[380px] md:h-[400px] sm:md:h-[460px] lg:h-[490px] rounded-[36px] sm:rounded-[40px] overflow-hidden flex items-center justify-center select-none shadow-sm hover:shadow-xl transition-all duration-500 block bg-white dark:bg-[#141414]"
             >
               <img
                 src={resolvedRightCard.image}
                 alt={resolvedRightCard.title}
-                className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-700 ease-out"
+                className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
               />
-              <div className="absolute inset-0 bg-black/15 group-hover:bg-black/5 transition-colors duration-300" />
-              <span className="relative z-10 inline-flex items-center px-5 sm:px-6 py-2.5 rounded-full bg-neutral-950/90 backdrop-blur-xs text-white font-black text-xs sm:text-[13px] tracking-wider uppercase shadow-lg shadow-black/20 group-hover:scale-105 group-hover:bg-neutral-950 group-active:scale-95 transition-all duration-300">
+              <span className="relative z-10 inline-flex items-center px-5 sm:px-6 py-2.5 rounded-full bg-neutral-950/90 backdrop-blur-xs text-white font-black text-xs sm:text-[13px] tracking-wider uppercase shadow-lg shadow-black/25 group-hover:scale-105 group-hover:bg-neutral-950 group-active:scale-95 transition-all duration-300">
                 {resolvedRightCard.badgeText || resolvedRightCard.title}
               </span>
             </Link>
