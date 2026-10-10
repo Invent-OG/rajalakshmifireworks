@@ -89,7 +89,7 @@ export function HangingSaravedi3D({
     // ---------- rope (verlet chain) ----------
     const rows = 12;
     const SEG = 0.16;
-    const CORD = 30;
+    const CORD = 7;
     const M = CORD + 2 * rows + 3;
     const PIVOT = 4.1 + CORD * SEG;
     const G = -14;
@@ -1193,8 +1193,10 @@ export function HangingSaravedi3D({
       boomLight.intensity = boomT * 16;
       boomT *= Math.pow(0.002, dt);
 
-      camera.position.set(0, 2.3, camDist);
-      camera.lookAt(0, 2, 0);
+      const H_half = camDist * Math.tan((40 * Math.PI) / 360);
+      const camY = PIVOT - H_half - 0.15;
+      camera.position.set(0, camY, camDist);
+      camera.lookAt(0, camY, 0);
 
       renderer.render(scene, camera);
       animId = requestAnimationFrame(tick);
