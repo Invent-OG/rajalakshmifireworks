@@ -228,23 +228,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       : activeNavItem?.label || 'Dashboard';
 
   return (
-    <div className="min-h-screen lg:h-screen lg:max-h-screen lg:overflow-hidden p-2.5 sm:p-4 flex flex-col font-sans text-neutral-900 selection:text-white bg-[#F4F6FA] dark:bg-[#10121A]">
+    <div className="min-h-screen lg:h-screen lg:max-h-screen lg:overflow-hidden p-2.5 sm:p-4 flex flex-col font-sans text-neutral-900 selection:text-white bg-[#F4F6FA] dark:bg-[#10121A] print:h-auto print:max-h-none print:min-h-0 print:overflow-visible print:bg-white print:p-0">
       {/* Mobile Drawer Backdrop */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 lg:hidden"
+          className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 lg:hidden print:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Main Unified Cockpit App Frame */}
-      <div className="w-full max-w-[1720px] mx-auto gap-5  overflow-hidden bg-[#F4F6FA] dark:bg-[#10121A]   flex flex-col lg:flex-row flex-1 min-h-[calc(100vh-2.5rem)] lg:h-[calc(100vh-2.5rem)] lg:max-h-[calc(100vh-2.5rem)]">
+      <div className="w-full max-w-[1720px] mx-auto gap-5 overflow-hidden bg-[#F4F6FA] dark:bg-[#10121A] flex flex-col lg:flex-row flex-1 min-h-[calc(100vh-2.5rem)] lg:h-[calc(100vh-2.5rem)] lg:max-h-[calc(100vh-2.5rem)] print:overflow-visible print:max-w-none print:h-auto print:max-h-none print:min-h-0 print:bg-white print:p-0 print:gap-0">
         {/* Left Dark Sidebar - Fixed to cockpit viewport so it never scrolls away */}
         <aside
           className={`
             fixed lg:static top-0 left-0 z-50 h-full lg:h-full w-68 bg-[#0D0E15] text-white
             flex flex-col justify-between shrink-0 p-5 lg:rounded-[32px] border-r border-white/5
-            overflow-y-auto scrollbar-none transition-transform duration-200 shadow-2xl 
+            overflow-y-auto scrollbar-none transition-transform duration-200 shadow-2xl print:hidden invoice-no-print
             ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
           `}
         >
@@ -425,9 +425,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </aside>
 
         {/* Right Main Operations Workspace */}
-        <div className="flex-1 flex flex-col min-w-0 lg:h-full lg:overflow-y-auto overflow-x-hidden  dark:bg-[#0E1017]">
+        <div className="flex-1 flex flex-col min-w-0 lg:h-full lg:overflow-y-auto overflow-x-hidden dark:bg-[#0E1017] print:overflow-visible print:h-auto print:max-h-none print:bg-white print:p-0">
           {/* Top Header Bar */}
-          <header className=" flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0 sticky py-5 top-0 z-20  dark:bg-[#0E1017]/90 backdrop-blur-md">
+          <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0 sticky py-5 top-0 z-20 dark:bg-[#0E1017]/90 backdrop-blur-md print:hidden invoice-no-print">
             {/* Title & Mobile Hamburger */}
             <div className="flex items-center gap-3.5">
               <button

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useQuery, QueryClientProvider } from '@tanstack/react-query';
 import { sharedQueryClient } from '@/components/providers';
 import { queryKeys } from '@/lib/query/keys';
@@ -136,6 +136,145 @@ const DEFAULT_INVOICE_CONFIG: InvoiceCustomizerConfig = {
     '1. All fireworks are manufactured & dispatched under Supreme Court & PESO safety standards.\n2. Goods once sold cannot be returned or exchanged.\n3. Goods transported at buyer\'s risk through authorized transport operators.\n4. Subject exclusively to Sivakasi Jurisdiction.',
   fontSize: 'standard',
 };
+
+/**
+ * Isolated print helper that reliably extracts and prints only the invoice sheet.
+ * Completely immune to admin parent layout overflow clipping or dark mode interference.
+ */
+export function printInvoiceSheet(documentTitle?: string, invoiceNumber?: string) {
+  if (typeof window === 'undefined') return;
+
+  const container = document.getElementById('invoice-sheet-container');
+  if (!container) {
+    window.print();
+    return;
+  }
+
+  // Remove any stale print frame
+  const existingFrame = document.getElementById('invoice-print-frame');
+  if (existingFrame) {
+    existingFrame.remove();
+  }
+
+  const iframe = document.createElement('iframe');
+  iframe.id = 'invoice-print-frame';
+  iframe.setAttribute(
+    'style',
+    'position:fixed;top:-9999px;left:-9999px;width:210mm;height:297mm;border:0;opacity:0;pointer-events:none;z-index:-9999;'
+  );
+  document.body.appendChild(iframe);
+
+  const doc = iframe.contentWindow?.document;
+  if (!doc) {
+    window.print();
+    return;
+  }
+
+  // Clone active stylesheets and style blocks
+  const styles = Array.from(document.querySelectorAll('link[rel="stylesheet"], style'))
+    .map((el) => el.outerHTML)
+    .join('\n');
+
+  doc.open();
+  doc.write(`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>${documentTitle || 'Invoice'} - #${invoiceNumber || 'Order'}</title>
+      ${styles}
+      <style>
+        @page {
+          size: A4 portrait;
+          margin: 10mm 10mm 12mm 10mm;
+        }
+        * {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          box-sizing: border-box;
+        }
+        html, body {
+          margin: 0 !important;
+          padding: 0 !important;
+          background: #ffffff !important;
+          color: #171717 !important;
+          width: 100% !important;
+          height: auto !important;
+          min-height: 0 !important;
+          overflow: visible !important;
+          font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        #invoice-sheet-container {
+          display: block !important;
+          width: 100% !important;
+          max-width: 100% !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          border: none !important;
+          box-shadow: none !important;
+          border-radius: 0 !important;
+          background: #ffffff !important;
+          color: #171717 !important;
+          overflow: visible !important;
+        }
+        .invoice-no-print {
+          display: none !important;
+        }
+      </style>
+    </head>
+    <body class="bg-white text-neutral-900 p-0 m-0">
+      <div style="width: 100%; max-width: 100%; margin: 0 auto; background: #fff;">
+        ${container.outerHTML}
+      </div>
+    </body>
+    </html>
+  `);
+  doc.close();
+
+  const triggerPrint = () => {
+    setTimeout(() => {
+      try {
+        iframe.contentWindow?.focus();
+        iframe.contentWindow?.print();
+      } catch (err) {
+        console.error('Print iframe error, fallback to window.print', err);
+        window.print();
+      } finally {
+        setTimeout(() => {
+          iframe.remove();
+        }, 2000);
+      }
+    }, 300);
+  };
+
+  const images = iframe.contentWindow?.document.images;
+  if (images && images.length > 0) {
+    let loadedCount = 0;
+    const onImgDone = () => {
+      loadedCount++;
+      if (loadedCount >= images.length) {
+        triggerPrint();
+      }
+    };
+    for (let i = 0; i < images.length; i++) {
+      const img = images[i];
+      if (img.complete) {
+        loadedCount++;
+      } else {
+        img.onload = onImgDone;
+        img.onerror = onImgDone;
+      }
+    }
+    if (loadedCount >= images.length) {
+      triggerPrint();
+    } else {
+      setTimeout(triggerPrint, 600);
+    }
+  } else {
+    triggerPrint();
+  }
+}
 
 interface InvoiceCustomizerProps {
   order: any;
@@ -359,6 +498,10 @@ function InvoiceCustomizerContent({
     },
   }[config.fontSize];
 
+  const handlePrint = useCallback(() => {
+    printInvoiceSheet(config.documentTitle, config.invoiceNumber || order.invoiceNumber);
+  }, [config.documentTitle, config.invoiceNumber, order.invoiceNumber]);
+
   return (
     <div className="relative w-full bg-neutral-100 text-neutral-900 font-sans print:bg-white print:p-0 print:m-0">
       {/* Hidden File Inputs for Logo & Signature Uploads */}
@@ -381,27 +524,59 @@ function InvoiceCustomizerContent({
       <style dangerouslySetInnerHTML={{
         __html: `
         @media print {
-          body * {
-            visibility: hidden;
+          @page {
+            size: A4 portrait;
+            margin: 10mm 10mm 12mm 10mm;
           }
-          #invoice-sheet-container, #invoice-sheet-container * {
-            visibility: visible;
+          html, body {
+            height: auto !important;
+            min-height: 0 !important;
+            max-height: none !important;
+            overflow: visible !important;
+            background: #ffffff !important;
+            color: #000000 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          body > div,
+          body div,
+          main,
+          section,
+          article {
+            overflow: visible !important;
+            height: auto !important;
+            max-height: none !important;
+            min-height: 0 !important;
+          }
+          aside,
+          header,
+          nav,
+          .invoice-no-print,
+          .no-print,
+          [data-no-print] {
+            display: none !important;
           }
           #invoice-sheet-container {
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
+            display: block !important;
+            visibility: visible !important;
+            position: static !important;
             width: 100% !important;
             max-width: 100% !important;
             margin: 0 !important;
-            padding: 2.5rem !important;
-            background: white !important;
-            color: black !important;
-            box-shadow: none !important;
+            padding: 0 !important;
             border: none !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+            background: #ffffff !important;
+            color: #000000 !important;
+            overflow: visible !important;
           }
-          .invoice-no-print {
-            display: none !important;
+          #invoice-sheet-container * {
+            visibility: visible !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
           }
         }
       `}} />
@@ -496,7 +671,7 @@ function InvoiceCustomizerContent({
             {/* Print Button */}
             <button
               type="button"
-              onClick={() => window.print()}
+              onClick={handlePrint}
               className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold bg-neutral-900 hover:bg-black text-white dark:bg-emerald-600 dark:hover:bg-emerald-700 shadow-sm transition-all cursor-pointer"
             >
               <Printer className="h-4 w-4" />

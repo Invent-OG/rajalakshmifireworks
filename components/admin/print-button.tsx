@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Printer } from 'lucide-react';
+import { printInvoiceSheet } from './invoice-customizer';
 
 export function PrintButton() {
   return (
@@ -9,7 +10,7 @@ export function PrintButton() {
       variant="primary"
       size="sm"
       className="text-xs font-semibold"
-      onClick={() => window.print()}
+      onClick={() => printInvoiceSheet()}
     >
       <Printer className="h-4 w-4 mr-1.5" /> Print Invoice
     </Button>

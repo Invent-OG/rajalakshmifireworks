@@ -87,9 +87,9 @@ function AdminInvoicePageContent() {
       : recentOrders.find((o: any) => String(o.id) === selectedOrderId) || DEMO_TEMPLATE_ORDER;
 
   return (
-    <div className="space-y-6 animate-fade-in pb-16">
+    <div className="space-y-6 animate-fade-in pb-16 print:space-y-0 print:pb-0">
       {/* Title & Order Selector Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
+      <div className="invoice-no-print print:hidden flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
         <div>
           <div className="flex items-center gap-2">
             <div className="h-9 w-9 rounded-xl bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 flex items-center justify-center">
@@ -127,7 +127,7 @@ function AdminInvoicePageContent() {
       </div>
 
       {/* Embedded Live Invoice Customizer */}
-      <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-xs">
+      <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-xs print:border-none print:shadow-none print:rounded-none print:bg-transparent print:p-0 print:overflow-visible">
         <InvoiceCustomizer
           order={currentOrder}
           initialSettings={settingsMap}
