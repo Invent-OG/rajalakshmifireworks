@@ -13,7 +13,7 @@ async function _GET(request: NextRequest) {
 
   const { searchParams } = request.nextUrl;
   const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
-  const limit = Math.min(100, Math.max(5, parseInt(searchParams.get('limit') || '25', 10)));
+  const limit = Math.min(500, Math.max(5, parseInt(searchParams.get('limit') || '25', 10)));
   const offset = (page - 1) * limit;
   const search = searchParams.get('search')?.trim();
   const categoryId = searchParams.get('categoryId');

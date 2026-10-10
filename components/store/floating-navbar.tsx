@@ -18,6 +18,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { BrandLogo } from '@/components/ui/brand-logo';
+import { HangingSaravedi3D } from '@/components/store/hanging-saravedi-3d';
 import { LanguageSelector } from '@/components/ui/language-selector';
 import { useCart, useIsHydrated } from '@/hooks/use-cart';
 import { useStoreTheme } from '@/hooks/use-store-theme';
@@ -227,6 +228,12 @@ export function FloatingNavbar({ pathname: propPathname, locale: propLocale }: F
         label: tNav('about'),
         items: [
           {
+            title: locale === 'ta' ? 'ராஜலக்ஷ்மி பட்டாசு பற்றி' : 'About Rajalakshmi Fireworks',
+            description: locale === 'ta' ? 'சிவகாசி தொழிற்சாலை, பாரம்பரியம், சுற்றுச்சூழல் சான்றிதழ் & தர உத்திரவாதம்.' : 'Decades of Sivakasi manufacturing heritage, direct factory pricing, and safety standards.',
+            href: getHref('/about'),
+            badge: locale === 'ta' ? 'எங்களைப் பற்றி' : 'About Us',
+          },
+          {
             title: locale === 'ta' ? 'பசுமை பட்டாசு சான்றிதழ்' : 'Green Crackers Certification',
             description: locale === 'ta' ? 'CSIR-NEERI தரநிலைகள், QR குறியீடு மற்றும் சுற்றுச்சூழல் பாதுகாப்பு.' : 'Understand CSIR-NEERI standards, QR code verification, and eco safety.',
             href: getHref('/products?certified=green'),
@@ -239,7 +246,7 @@ export function FloatingNavbar({ pathname: propPathname, locale: propLocale }: F
           {
             title: locale === 'ta' ? 'நேரடி சிவகாசி உத்தரவாதம்' : 'Direct From Sivakasi Guarantee',
             description: locale === 'ta' ? '100% புதிய உற்பத்தி தொகுப்பு, ஈரப்பதம் புகா பேக்கிங்.' : '100% fresh batch manufacturing, moisture-proof sealed packaging.',
-            href: getHref('/products'),
+            href: getHref('/about'),
           },
         ],
         featuredSectionTitle: locale === 'ta' ? 'பாதுகாப்பு & நம்பிக்கை' : 'Safety & Trust',
@@ -402,12 +409,15 @@ export function FloatingNavbar({ pathname: propPathname, locale: propLocale }: F
       style={{ fontFamily: "'DM Sans', sans-serif" }}
     >
       <div className="w-full relative">
+        {/* 3D Hanging Saravedi Cracker on Bottom Left of Navbar */}
+        <HangingSaravedi3D className="!absolute -left-[72px] sm:-left-[80px] md:-left-[88px] top-[56px] sm:top-[64px] z-20 w-48 sm:w-56 md:w-64 h-60 sm:h-68 md:h-76 pointer-events-auto" />
+
         {/* Floating Frosted Pill Bar with Glassmorphism */}
         <header className="relative h-16 sm:h-[72px] px-3.5 sm:px-6 rounded-full bg-white/95 dark:bg-[#141414]/95 backdrop-blur-md border border-neutral-200/90 dark:border-[#2c2c2c] text-neutral-900 dark:text-white shadow-sm grid grid-cols-[1fr_auto_1fr] items-center gap-2 sm:gap-4 transition-all duration-300">
           {/* Left Column: Capsule Pill Navigation Links & Mobile Hamburger */}
           <div className="flex items-center justify-start min-w-0">
             {/* Mobile Menu Hamburger Button with GSAP Icon */}
-            <div className="flex md:hidden items-center">
+            <div className="flex md:hidden items-center relative z-30">
               <button
                 type="button"
                 onClick={(e) => {
@@ -425,7 +435,7 @@ export function FloatingNavbar({ pathname: propPathname, locale: propLocale }: F
             </div>
 
             {/* Desktop Capsule Pill Navigation */}
-            <nav className="hidden md:inline-flex items-center gap-1.5 bg-neutral-100/90 dark:bg-[#242424] p-1.5 rounded-full border border-neutral-200/60 dark:border-[#333333] shadow-inner shrink-0">
+            <nav className="hidden md:inline-flex items-center gap-1.5 bg-neutral-100/90 dark:bg-[#242424] p-1.5 rounded-full border border-neutral-200/60 dark:border-[#333333] shadow-inner shrink-0 relative z-30">
               <Link
                 href={getHref('/products')}
                 onMouseEnter={closeDropdown}
@@ -435,7 +445,7 @@ export function FloatingNavbar({ pathname: propPathname, locale: propLocale }: F
                     : 'text-neutral-600 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white hover:bg-white/80 dark:hover:bg-[#2c2c2c]'
                 }`}
               >
-                {tNav('catalog')}
+                {tNav('products')}
               </Link>
 
               {Object.keys(megaMenus).map((key) => {
@@ -480,8 +490,8 @@ export function FloatingNavbar({ pathname: propPathname, locale: propLocale }: F
 
           {/* Center Column: Brand Logo */}
           <div className="flex items-center justify-center px-1 shrink-0">
-            <Link href={getHref('/')} onMouseEnter={closeDropdown} className="flex items-center gap-2 group py-1">
-              <BrandLogo className="h-10 sm:h-11 md:h-12 max-h-12 w-auto transition-transform duration-200 group-hover:scale-105 drop-shadow-sm shrink-0" />
+            <Link href={getHref('/')} onMouseEnter={closeDropdown} className="flex flex-col items-center justify-center group py-0.5">
+              <BrandLogo className="transition-transform duration-200 group-hover:scale-105 drop-shadow-sm shrink-0" />
             </Link>
           </div>
 
@@ -724,7 +734,7 @@ export function FloatingNavbar({ pathname: propPathname, locale: propLocale }: F
                   onClick={() => setMobileMenuOpen(false)}
                   className="block text-sm font-bold text-neutral-900 dark:text-white hover:text-neutral-950 dark:hover:text-amber-400 transition-colors py-1"
                 >
-                  {tNav('catalog')}
+                  {tNav('products')}
                 </Link>
               </div>
 
@@ -773,8 +783,15 @@ export function FloatingNavbar({ pathname: propPathname, locale: propLocale }: F
                 </div>
               )}
 
-              {/* Direct Links: Green Crackers & Track */}
+              {/* Direct Links: Green Crackers, About & Track */}
               <div className="mobile-nav-item pb-3 border-b border-neutral-100 dark:border-[#242424] space-y-2">
+                <Link
+                  href={getHref('/about')}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block text-xs font-semibold text-neutral-900 dark:text-white hover:text-[#e24000] dark:hover:text-amber-400 transition-colors py-0.5"
+                >
+                  {locale === 'ta' ? '✦ ராஜலக்ஷ்மி பட்டாசு பற்றி' : '✦ About Rajalakshmi Fireworks'}
+                </Link>
                 <Link
                   href={getHref('/products?certified=green')}
                   onClick={() => setMobileMenuOpen(false)}

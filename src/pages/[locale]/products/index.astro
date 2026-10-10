@@ -26,7 +26,8 @@ if (!isValidLocale(locale)) {
 const url = Astro.url;
 const search = url.searchParams.get('search') || '';
 const sort = url.searchParams.get('sort') || 'newest';
-const featured = url.searchParams.get('featured') === 'true';
+const isCombos = url.searchParams.get('combos') === 'true' || url.searchParams.get('combo') === 'true';
+const featured = isCombos || url.searchParams.get('featured') === 'true';
 const bestseller = url.searchParams.get('bestseller') === 'true';
 const categorySlug = url.searchParams.get('category') || '';
 
@@ -41,7 +42,18 @@ if (search) {
     )!
   );
 }
-if (featured) conditions.push(eq(products.isFeatured, true));
+if (isCombos) {
+  conditions.push(
+    or(
+      eq(products.isCombo, true),
+      eq(products.isFeatured, true),
+      ilike(products.name, '%combo%'),
+      ilike(products.name, '%gift%')
+    )!
+  );
+} else if (featured) {
+  conditions.push(eq(products.isFeatured, true));
+}
 if (bestseller) conditions.push(eq(products.isBestseller, true));
 
 let activeCategory: { id: number; name: string; nameTa?: string | null } | undefined;
@@ -141,9 +153,9 @@ const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`)
         {tCommon('all')}
       </a>
       <a
-        href={getHref('/products?featured=true')}
+        href={getHref('/products?combos=true')}
         class={`px-4 py-2 rounded-full text-xs font-semibold shrink-0 transition-all ${
-          featured
+          isCombos || featured
             ? 'bg-neutral-900 text-white dark:bg-white dark:text-black shadow-xs'
             : 'bg-white dark:bg-[#141414] text-neutral-600 dark:text-neutral-300 shadow-xs hover:bg-neutral-100 dark:hover:bg-[#202020] dark:border dark:border-[#282828]'
         }`}
@@ -198,9 +210,9 @@ const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`)
           </li>
           <li>
             <a
-              href={getHref('/products?featured=true')}
+              href={getHref('/products?combos=true')}
               class={`block px-3.5 py-2 rounded-full text-xs font-semibold transition-all ${
-                featured
+                isCombos || featured
                   ? 'bg-neutral-900 text-white dark:bg-white dark:text-black shadow-xs'
                   : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-[#202020] hover:text-neutral-900 dark:hover:text-white'
               }`}

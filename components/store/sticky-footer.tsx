@@ -122,7 +122,12 @@ export function StickyFooter() {
         {/* ── Main Content Grid ── */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 py-8 sm:py-12 relative z-10 items-start">
           {/* Left Column: Big Bold Typography & Newsletter Pill */}
-          <div className="lg:col-span-5 space-y-6">
+          <div className="lg:col-span-5 space-y-5">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/15 text-white text-[11px] font-bold tracking-wider uppercase backdrop-blur-md border border-white/20">
+              <span className="text-amber-300">✦</span>
+              <span>{locale === 'ta' ? 'ராஜலக்ஷ்மி பட்டாசு • சிவகாசி' : 'Rajalakshmi Fireworks • Sivakasi'}</span>
+            </div>
+
             <h2 className="text-2xl sm:text-3xl lg:text-[34px] font-black uppercase tracking-tight leading-[1.08] text-white">
               {locale === 'ta' ? (
                 <>
@@ -173,6 +178,12 @@ export function StickyFooter() {
               </h3>
               <ul className="space-y-2.5 text-white/80">
                 <li>
+                  <Link href="/about" className="hover:text-white transition-colors flex items-center gap-1.5 font-semibold text-amber-200">
+                    <span>✦</span>
+                    <span>{locale === 'ta' ? 'எங்களைப் பற்றி' : 'About Rajalakshmi'}</span>
+                  </Link>
+                </li>
+                <li>
                   <Link href="/quick-order" className="hover:text-white transition-colors flex items-center gap-1.5">
                     <span className="text-amber-400 font-bold">★</span>
                     <span>{locale === 'ta' ? 'விரைவு ஆர்டர்' : 'Quick Order'}</span>
@@ -199,9 +210,14 @@ export function StickyFooter() {
             {/* Column 2: Safety & Business */}
             <div className="space-y-3.5">
               <h3 className="font-extrabold uppercase tracking-wider text-white text-[11px] sm:text-xs">
-                {locale === 'ta' ? 'பாதுகாப்பு' : 'SAFETY & TRUST'}
+                {locale === 'ta' ? 'பாதுகாப்பு & நம்பிக்கை' : 'SAFETY & TRUST'}
               </h3>
               <ul className="space-y-2.5 text-white/80">
+                <li>
+                  <Link href="/about" className="hover:text-white transition-colors">
+                    {locale === 'ta' ? 'சிவகாசி தொழிற்சாலை' : 'Our Sivakasi Heritage'}
+                  </Link>
+                </li>
                 <li>
                   <Link href="/products?certified=green" className="hover:text-white transition-colors">
                     {locale === 'ta' ? 'பசுமை பட்டாசு சான்றிதழ்' : 'Green Crackers Certified'}
@@ -284,10 +300,10 @@ export function StickyFooter() {
 
         {/* ── Middle Row: Brand Mark & Social Media Icons ── */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-6 border-t border-white/15 relative z-10 text-xs">
-          <div className="flex items-center gap-2">
-            <BrandLogo className="h-9 w-auto brightness-0 invert" />
+          <div className="flex items-center gap-3">
+            <BrandLogo variant="footer" />
             <span className="text-white/80 text-[11px] sm:text-xs">
-              {locale === 'ta' ? 'சிவகாசியில் அன்போடும் 🔥 ஆர்வத்தோடும் உருவாக்கப்பட்டது' : 'is handcrafted with 🔥 in Sivakasi'}
+              {locale === 'ta' ? '— சிவகாசியில் அன்போடும் 🔥 ஆர்வத்தோடும் உருவாக்கப்பட்டது' : '— Handcrafted with pride & safety in Sivakasi'}
             </span>
           </div>
 

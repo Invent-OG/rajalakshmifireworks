@@ -212,6 +212,7 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
 
   const currentSlide = slides[currentIdx] || slides[0];
   const headingColor = currentSlide?.headingColor || config.defaultHeadingColor || '#0a0a0a';
+  const descriptionColor = currentSlide?.descriptionColor || config.defaultDescriptionColor || '#262626';
 
   // Dynamic localized text per active slide
   const headline1 = locale === 'ta' ? (currentSlide.headlineLine1Ta || currentSlide.headlineLine1) : currentSlide.headlineLine1;
@@ -248,11 +249,11 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
             </div>
           )}
 
-          {/* Main Slide Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-8 items-center flex-1 relative z-10">
+          {/* Main Slide Content */}
+          <div className="flex flex-col justify-center flex-1 relative z-10 py-4 sm:py-6 max-w-2xl lg:max-w-3xl">
 
-            {/* Left Column: Typography & Action */}
-            <div key={`hero-left-${currentIdx}`} className="lg:col-span-8 flex flex-col justify-center text-left space-y-5 sm:space-y-6 z-20 transition-all duration-500">
+            {/* Typography & Action */}
+            <div key={`hero-left-${currentIdx}`} className="flex flex-col justify-center text-left space-y-5 sm:space-y-6 z-20 transition-all duration-500">
               <h1
                 className="hero-heading text-4xl sm:text-6xl lg:text-[4.5rem] font-black tracking-tight uppercase leading-[0.92] select-none"
                 style={{ color: headingColor }}
@@ -264,7 +265,10 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
                 <span>{headline3}</span>
               </h1>
 
-              <p className="hero-text text-neutral-800 text-sm sm:text-base lg:text-[1.1rem] font-medium leading-relaxed max-w-lg">
+              <p
+                className="hero-text text-sm sm:text-base lg:text-[1.1rem] font-medium leading-relaxed max-w-xl"
+                style={{ color: descriptionColor }}
+              >
                 {subtitle}
               </p>
 
@@ -280,75 +284,14 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
               </div>
             </div>
 
-            {/* Right Column: Stacked Showcase Cards Linked to Products */}
-            <div key={`hero-right-${currentIdx}`} className="lg:col-span-4 flex flex-col gap-4 sm:gap-5 justify-center z-20 transition-all duration-500">
-
-              {/* Card 1: Top Product Card */}
-              {currentSlide.card1 && (
-                <Link
-                  href={currentSlide.card1.link || '/products'}
-                  style={{ backgroundColor: currentSlide.card1.bgColor || '#b5144f' }}
-                  className="organic-hero-cards group relative flex items-center gap-4 text-white p-4 sm:p-5 rounded-[24px] sm:rounded-[28px] shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.03] active:scale-98 overflow-hidden"
-                >
-                  <div className="relative h-16 w-16 sm:h-20 sm:w-20 rounded-[18px] overflow-hidden shrink-0 bg-black/20 shadow-inner">
-                    <img
-                      src={currentSlide.card1.image || '/images/hero/card-dried-fruits.jpg'}
-                      alt={currentSlide.card1.title}
-                      loading="lazy"
-                      decoding="async"
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 pointer-events-none"
-                    />
-                  </div>
-                  <div className="flex flex-col min-w-0 flex-1">
-                    <span className="font-bold text-sm sm:text-base leading-snug tracking-tight truncate">
-                      {locale === 'ta' ? (currentSlide.card1.titleTa || currentSlide.card1.title) : currentSlide.card1.title}
-                    </span>
-                    <span className="text-xs text-white/80 font-medium underline underline-offset-2 decoration-white/40 group-hover:decoration-white transition-colors mt-1 flex items-center gap-1">
-                      <span>{locale === 'ta' ? (currentSlide.card1.subtitleTa || tCommon('explore')) : currentSlide.card1.subtitle}</span>
-                      <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
-                    </span>
-                  </div>
-                </Link>
-              )}
-
-              {/* Card 2: Bottom Product Card */}
-              {currentSlide.card2 && (
-                <Link
-                  href={currentSlide.card2.link || '/products'}
-                  style={{ backgroundColor: currentSlide.card2.bgColor || '#114b82' }}
-                  className="organic-hero-cards group relative flex items-center gap-4 text-white p-4 sm:p-5 rounded-[24px] sm:rounded-[28px] shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.03] active:scale-98 overflow-hidden"
-                >
-                  <div className="relative h-16 w-16 sm:h-20 sm:w-20 rounded-[18px] overflow-hidden shrink-0 bg-black/20 shadow-inner">
-                    <img
-                      src={currentSlide.card2.image || '/images/hero/card-advent-calendar.jpg'}
-                      alt={currentSlide.card2.title}
-                      loading="lazy"
-                      decoding="async"
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 pointer-events-none"
-                    />
-                  </div>
-                  <div className="flex flex-col min-w-0 flex-1">
-                    <span className="font-bold text-sm sm:text-base leading-snug tracking-tight truncate">
-                      {locale === 'ta' ? (currentSlide.card2.titleTa || currentSlide.card2.title) : currentSlide.card2.title}
-                    </span>
-                    <span className="text-xs text-white/80 font-medium underline underline-offset-2 decoration-white/40 group-hover:decoration-white transition-colors mt-1 flex items-center gap-1">
-                      <span>{locale === 'ta' ? (currentSlide.card2.subtitleTa || tCommon('explore')) : currentSlide.card2.subtitle}</span>
-                      <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
-                    </span>
-                  </div>
-                </Link>
-              )}
-
-            </div>
-
           </div>
 
           {/* ── Carousel Navigation Controls & Indicators ── */}
           {slides.length > 1 && (
-            <div className="relative z-30 pt-6 flex items-center justify-between border-t border-black/10 mt-6">
+            <div className="relative z-30 pt-5 flex items-center justify-between border-t border-white/20 dark:border-white/10 mt-6">
 
               {/* Left / Right Arrow Buttons */}
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-2 sm:gap-2.5">
                 <button
                   type="button"
                   onClick={(e) => {
@@ -357,9 +300,9 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
                     prevSlide();
                   }}
                   aria-label="Previous Slide"
-                  className="h-10 w-10 sm:h-9 sm:w-9 rounded-full bg-black/15 hover:bg-black/25 text-neutral-900 flex items-center justify-center backdrop-blur-xs transition-all active:scale-95 cursor-pointer touch-manipulation shadow-2xs"
+                  className="h-10 w-10 sm:h-11 sm:w-11 rounded-full bg-white text-neutral-950 hover:bg-neutral-100 flex items-center justify-center transition-all active:scale-90 cursor-pointer touch-manipulation shadow-md hover:shadow-lg hover:scale-105 border border-black/10"
                 >
-                  <ChevronLeft className="h-5 w-5" />
+                  <ChevronLeft className="h-5 w-5 stroke-[2.5]" />
                 </button>
                 <button
                   type="button"
@@ -369,14 +312,14 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
                     nextSlide();
                   }}
                   aria-label="Next Slide"
-                  className="h-10 w-10 sm:h-9 sm:w-9 rounded-full bg-black/15 hover:bg-black/25 text-neutral-900 flex items-center justify-center backdrop-blur-xs transition-all active:scale-95 cursor-pointer touch-manipulation shadow-2xs"
+                  className="h-10 w-10 sm:h-11 sm:w-11 rounded-full bg-white text-neutral-950 hover:bg-neutral-100 flex items-center justify-center transition-all active:scale-90 cursor-pointer touch-manipulation shadow-md hover:shadow-lg hover:scale-105 border border-black/10"
                 >
-                  <ChevronRight className="h-5 w-5" />
+                  <ChevronRight className="h-5 w-5 stroke-[2.5]" />
                 </button>
               </div>
 
-              {/* Dot Indicators */}
-              <div className="flex items-center gap-2 py-2">
+              {/* Dot Indicators in Frosted Glass Capsule */}
+              <div className="flex items-center gap-2 py-1.5 px-3.5 rounded-full bg-black/40 backdrop-blur-md border border-white/20 shadow-md">
                 {slides.map((_, idx) => (
                   <button
                     key={idx}
@@ -387,14 +330,14 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
                     }}
                     aria-label={`Go to slide ${idx + 1}`}
                     className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer touch-manipulation ${currentIdx === idx
-                      ? 'w-8 bg-neutral-950'
-                      : 'w-2.5 bg-neutral-950/25 hover:bg-neutral-950/40'
+                      ? 'w-7 sm:w-8 bg-white shadow-xs'
+                      : 'w-2.5 bg-white/40 hover:bg-white/75'
                       }`}
                   />
                 ))}
               </div>
 
-              {/* Pause / Play status toggle */}
+              {/* Pause / Play status toggle in Frosted Glass Capsule */}
               <button
                 type="button"
                 onClick={(e) => {
@@ -402,10 +345,12 @@ export function OrganicHero({ initialConfig = DEFAULT_HERO_CONFIG }: OrganicHero
                   setIsUserInteracting((prev) => !prev);
                 }}
                 aria-label={isUserInteracting ? 'Resume autoplay' : 'Pause autoplay'}
-                className="text-xs font-semibold text-neutral-800/80 hover:text-neutral-950 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/10 hover:bg-black/15 transition-colors cursor-pointer touch-manipulation"
+                className="text-xs font-bold text-white flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md border border-white/20 transition-all cursor-pointer touch-manipulation shadow-md"
               >
-                {isUserInteracting ? <Play className="h-3 w-3" /> : <Pause className="h-3 w-3" />}
-                <span className="hidden sm:inline">{isUserInteracting ? (locale === 'ta' ? 'நிறுத்தப்பட்டது' : 'Paused') : (locale === 'ta' ? 'சுழற்சி' : 'Auto')}</span>
+                {isUserInteracting ? <Play className="h-3.5 w-3.5 fill-white" /> : <Pause className="h-3.5 w-3.5 fill-white" />}
+                <span className="hidden sm:inline font-semibold">
+                  {isUserInteracting ? (locale === 'ta' ? 'நிறுத்தப்பட்டது' : 'Paused') : (locale === 'ta' ? 'சுழற்சி' : 'Auto')}
+                </span>
               </button>
 
             </div>

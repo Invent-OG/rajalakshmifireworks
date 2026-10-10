@@ -24,6 +24,8 @@ import { InvoiceCustomizer } from './invoice-customizer';
 import { withAdminShell } from './admin-shell';
 
 interface DashboardData {
+  totalOrders?: number;
+  totalRevenue?: number;
   todayOrders: number;
   todaySales: number;
   newOrders: number;
@@ -483,14 +485,14 @@ function AdminDashboardPageContent() {
     { name: 'Repeat / Referral', percent: 14, value: 16200, color: '#94A3B8', isPattern: true },
   ];
 
-  // Derive products sold count
-  const totalProductsSold = d?.totalProductsSold ?? (d?.recentOrders?.reduce((acc, o) => acc + (o.items?.length || 1), 0) || 0) * 8 + 846;
+  // Derive products sold count from real database metrics
+  const totalProductsSold = d?.totalProductsSold ?? (d?.recentOrders?.reduce((acc, o) => acc + (o.items?.length || 0), 0) || 0);
 
   return (
     <div ref={containerRef} className="space-y-5 pb-6">
       {/* 4 KPI Cards Matching the Mockup Design Pattern */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Card 1: Total Sales */}
+        {/* Card 1: Total Orders */}
         <div className="admin-kpi-card bg-white dark:bg-[#161826] rounded-[20px] p-5 border border-neutral-200/60 dark:border-white/5 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between mb-4">
             <div className="w-10 h-10 rounded-full border border-neutral-200/80 dark:border-white/10 flex items-center justify-center text-neutral-600 dark:text-neutral-300 bg-neutral-50/50 dark:bg-white/5">
@@ -500,15 +502,15 @@ function AdminDashboardPageContent() {
           </div>
           <div>
             <p className="text-2xl sm:text-3xl font-extrabold text-neutral-900 dark:text-white tracking-tight">
-              <KpiValueCounter target={d?.todayOrders ? d.todayOrders * 120 + 2680 : 2680} />
+              <KpiValueCounter target={d?.totalOrders ?? (d?.todayOrders ?? 0)} />
             </p>
             <p className="text-xs sm:text-sm font-medium text-neutral-400 dark:text-neutral-400 mt-0.5">
-              Total Sales
+              Total Orders
             </p>
           </div>
         </div>
 
-        {/* Card 2: New Customers */}
+        {/* Card 2: Total Customers */}
         <div className="admin-kpi-card bg-white dark:bg-[#161826] rounded-[20px] p-5 border border-neutral-200/60 dark:border-white/5 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between mb-4">
             <div className="w-10 h-10 rounded-full border border-neutral-200/80 dark:border-white/10 flex items-center justify-center text-neutral-600 dark:text-neutral-300 bg-neutral-50/50 dark:bg-white/5">
@@ -518,15 +520,15 @@ function AdminDashboardPageContent() {
           </div>
           <div>
             <p className="text-2xl sm:text-3xl font-extrabold text-neutral-900 dark:text-white tracking-tight">
-              <KpiValueCounter target={d?.totalCustomers || 537} />
+              <KpiValueCounter target={d?.totalCustomers ?? 0} />
             </p>
             <p className="text-xs sm:text-sm font-medium text-neutral-400 dark:text-neutral-400 mt-0.5">
-              New Customers
+              Total Customers
             </p>
           </div>
         </div>
 
-        {/* Card 3: Product Sold */}
+        {/* Card 3: Items Sold */}
         <div className="admin-kpi-card bg-white dark:bg-[#161826] rounded-[20px] p-5 border border-neutral-200/60 dark:border-white/5 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between mb-4">
             <div className="w-10 h-10 rounded-full border border-neutral-200/80 dark:border-white/10 flex items-center justify-center text-neutral-600 dark:text-neutral-300 bg-neutral-50/50 dark:bg-white/5">
@@ -539,7 +541,7 @@ function AdminDashboardPageContent() {
               <KpiValueCounter target={totalProductsSold} />
             </p>
             <p className="text-xs sm:text-sm font-medium text-neutral-400 dark:text-neutral-400 mt-0.5">
-              Product Sold
+              Items Sold
             </p>
           </div>
         </div>
@@ -555,7 +557,7 @@ function AdminDashboardPageContent() {
           <div>
             <p className="text-2xl sm:text-3xl font-extrabold text-neutral-900 dark:text-white tracking-tight">
               <KpiValueCounter
-                target={d?.todaySales && d.todaySales > 0 ? d.todaySales : 78383}
+                target={d?.totalRevenue ?? (d?.todaySales ?? 0)}
                 isCurrency={true}
               />
             </p>

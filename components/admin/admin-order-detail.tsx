@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/query/keys';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { StatusBadge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { formatCurrency, formatDateTime, toNumber } from '@/lib/utils/format';
@@ -40,9 +40,15 @@ import {
   Sparkles,
   Lock,
   ShieldCheck,
+  Plus,
+  Minus,
+  Trash2,
+  Search,
+  ShoppingBag,
 } from 'lucide-react';
 import Link from '@/components/ui/link';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Portal } from '@/components/ui/portal';
 import { InvoiceCustomizer } from '@/components/admin/invoice-customizer';
 import {
   getOrderWhatsAppTemplates,
@@ -76,6 +82,16 @@ interface OrderItemDetail {
   quantity: number;
   lineTotal: string | number;
   productId?: number;
+}
+
+interface EditableOrderItem {
+  productId: number;
+  productNameSnapshot: string;
+  productSkuSnapshot?: string | null;
+  sellingPriceSnapshot: number;
+  mrpSnapshot: number;
+  quantity: number;
+  stockQuantity?: number;
 }
 
 interface OrderStatusHistoryEntry {
@@ -258,6 +274,116 @@ function AdminOrderDetailPageContent({
       return window.location.search.includes('print=true');
     }
     return false;
+  });
+
+  // Customer Edit Modal State & Mutation
+  const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
+  const [customerForm, setCustomerForm] = useState({
+    name: '',
+    mobile: '',
+    email: '',
+    deliveryAddress: '',
+    deliveryCityName: '',
+    deliveryStateName: '',
+    pincode: '',
+    notes: '',
+  });
+
+  const updateCustomerMutation = useMutation({
+    mutationFn: async (customerDetails: typeof customerForm) => {
+      const res = await fetch(`/api/admin/orders/${orderId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ customerDetails }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || 'Failed to update customer details');
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.orders.detail(orderId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.orders.all });
+      toast.success('Customer details updated successfully!');
+      setIsCustomerModalOpen(false);
+    },
+    onError: (err: any) => {
+      toast.error(err.message || 'Failed to update customer details');
+    },
+  });
+
+  // Order Items Alteration Modal State, Query & Mutation
+  const [isItemsModalOpen, setIsItemsModalOpen] = useState(false);
+  const [editableItems, setEditableItems] = useState<EditableOrderItem[]>([]);
+  const [editDeliveryCharge, setEditDeliveryCharge] = useState<string>('0');
+  const [editDiscountAmount, setEditDiscountAmount] = useState<string>('0');
+  const [itemSearchQuery, setItemSearchQuery] = useState('');
+  const [selectedCatalogProductId, setSelectedCatalogProductId] = useState<string>('');
+
+  const { data: allCatalogProducts = [], isLoading: isCatalogLoading } = useQuery({
+    queryKey: ['admin', 'catalog-products-all-for-order'],
+    queryFn: async () => {
+      const res = await fetch('/api/admin/products?limit=500&statusFilter=active');
+      if (!res.ok) return [];
+      const json = await res.json();
+      return Array.isArray(json.products) ? json.products : [];
+    },
+    enabled: isItemsModalOpen,
+  });
+
+  const filteredCatalogProducts = useMemo(() => {
+    if (!itemSearchQuery.trim()) return allCatalogProducts;
+    const q = itemSearchQuery.toLowerCase();
+    return allCatalogProducts.filter((p: any) =>
+      (p.name && p.name.toLowerCase().includes(q)) ||
+      (p.sku && p.sku.toLowerCase().includes(q)) ||
+      (p.category && p.category.toLowerCase().includes(q))
+    );
+  }, [allCatalogProducts, itemSearchQuery]);
+
+  const updateOrderItemsMutation = useMutation({
+    mutationFn: async ({
+      items,
+      deliveryCharge,
+      discountAmount,
+    }: {
+      items: EditableOrderItem[];
+      deliveryCharge: number;
+      discountAmount: number;
+    }) => {
+      const res = await fetch(`/api/admin/orders/${orderId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: items.map((it) => ({
+            productId: it.productId,
+            productNameSnapshot: it.productNameSnapshot,
+            productSkuSnapshot: it.productSkuSnapshot,
+            sellingPriceSnapshot: it.sellingPriceSnapshot,
+            mrpSnapshot: it.mrpSnapshot,
+            quantity: it.quantity,
+          })),
+          deliveryCharge,
+          discountAmount,
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || 'Failed to update order items');
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.orders.detail(orderId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.orders.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.dashboard() });
+      toast.success('Order products and charges updated successfully!');
+      setIsItemsModalOpen(false);
+    },
+    onError: (err: any) => {
+      toast.error(err.message || 'Failed to update order products');
+    },
   });
 
   if (isLoading) {
@@ -491,6 +617,92 @@ function AdminOrderDetailPageContent({
 
   const completedStepsCount = activeSteps.filter((s) => getStepState(s.id) === 'completed').length;
   const progressPercent = Math.round((completedStepsCount / activeSteps.length) * 100);
+
+  // Customer Edit Helpers
+  const openCustomerModal = () => {
+    setCustomerForm({
+      name: order.customerNameSnapshot || order.customer?.name || '',
+      mobile: order.customerMobileSnapshot || order.customer?.mobile || '',
+      email: order.customer?.email || '',
+      deliveryAddress: streetAddress || '',
+      deliveryCityName: cityName || '',
+      deliveryStateName: stateName || 'Tamil Nadu',
+      pincode: address?.pincode || '',
+      notes: order.notes || '',
+    });
+    setIsCustomerModalOpen(true);
+  };
+
+  // Order Items Alteration Helpers
+  const openItemsModal = () => {
+    const current: EditableOrderItem[] = (order.items || []).map((it: OrderItemDetail) => ({
+      productId: it.productId || it.id,
+      productNameSnapshot: it.productNameSnapshot || 'Product',
+      productSkuSnapshot: (it as any).productSkuSnapshot || '',
+      sellingPriceSnapshot: toNumber(it.sellingPriceSnapshot),
+      mrpSnapshot: toNumber(it.mrpSnapshot || it.sellingPriceSnapshot),
+      quantity: it.quantity || 1,
+    }));
+    setEditableItems(current);
+    setEditDeliveryCharge(String(toNumber(order.deliveryCharge)));
+    // In pricing logic, subtotal already reflects wholesale selling prices.
+    // order.discountAmount in DB often records MRP retail savings (e.g. MRP - sellingPrice),
+    // NOT an extra order-level discount from subtotal.
+    // True order-level extra discount = max(0, subtotal + deliveryCharge - totalAmount)
+    const actualExtraDiscount = Math.max(
+      0,
+      Math.round((toNumber(order.subtotal) + toNumber(order.deliveryCharge) - toNumber(order.totalAmount)) * 100) / 100
+    );
+    setEditDiscountAmount(actualExtraDiscount > 0 ? String(actualExtraDiscount) : '0');
+    setItemSearchQuery('');
+    setSelectedCatalogProductId('');
+    setIsItemsModalOpen(true);
+  };
+
+  const handleItemQuantityChange = (productId: number, newQty: number) => {
+    if (newQty < 1) return;
+    setEditableItems((prev) =>
+      prev.map((it) => (it.productId === productId ? { ...it, quantity: newQty } : it))
+    );
+  };
+
+  const handleRemoveItem = (productId: number) => {
+    if (editableItems.length <= 1) {
+      toast.error('An order must contain at least one product');
+      return;
+    }
+    setEditableItems((prev) => prev.filter((it) => it.productId !== productId));
+  };
+
+  const handleAddProductToOrder = (prod: any) => {
+    const existing = editableItems.find((it) => it.productId === prod.id);
+    if (existing) {
+      handleItemQuantityChange(prod.id, existing.quantity + 1);
+      toast.success(`Increased ${prod.name} quantity to ${existing.quantity + 1}`);
+    } else {
+      setEditableItems((prev) => [
+        ...prev,
+        {
+          productId: prod.id,
+          productNameSnapshot: prod.name,
+          productSkuSnapshot: prod.sku || '',
+          sellingPriceSnapshot: toNumber(prod.sellingPrice),
+          mrpSnapshot: toNumber(prod.mrp || prod.sellingPrice),
+          quantity: 1,
+          stockQuantity: prod.stockQuantity,
+        },
+      ]);
+      toast.success(`Added ${prod.name} to order`);
+    }
+  };
+
+  const editableSubtotal = editableItems.reduce(
+    (acc, it) => acc + it.sellingPriceSnapshot * it.quantity,
+    0
+  );
+  const parsedDeliveryCharge = parseFloat(editDeliveryCharge) || 0;
+  const parsedDiscountAmount = parseFloat(editDiscountAmount) || 0;
+  const editableTotal = Math.max(0, editableSubtotal - parsedDiscountAmount + parsedDeliveryCharge);
 
   return (
     <div className="space-y-6 sm:space-y-8 animate-fade-in max-w-7xl mx-auto">
@@ -1042,13 +1254,23 @@ function AdminOrderDetailPageContent({
 
           {/* C. PRODUCTS SECTION (PATTERN MATCH) */}
           <div className="p-6 rounded-2xl bg-card border border-border space-y-4 shadow-xs">
-            <div className="flex items-center justify-between pb-3 border-b border-border">
-              <h2 className="font-bold text-base text-foreground">
-                Products
-              </h2>
-              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-muted text-muted-foreground">
-                {order.items?.length ?? 0} {order.items?.length === 1 ? 'Product' : 'Products'}
-              </span>
+            <div className="flex items-center justify-between pb-3 border-b border-border flex-wrap gap-2">
+              <div className="flex items-center gap-2.5">
+                <h2 className="font-bold text-base text-foreground">
+                  Products
+                </h2>
+                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-muted text-muted-foreground">
+                  {order.items?.length ?? 0} {order.items?.length === 1 ? 'Product' : 'Products'}
+                </span>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={openItemsModal}
+                className="h-8 px-3 rounded-full text-xs font-bold border-brand/40 text-brand hover:bg-brand/10 hover:text-brand cursor-pointer shadow-2xs"
+              >
+                <Edit className="h-3.5 w-3.5 mr-1.5" /> Alter Order Products
+              </Button>
             </div>
 
             <div className="divide-y divide-border/60">
@@ -1318,7 +1540,14 @@ function AdminOrderDetailPageContent({
               <h2 className="font-bold text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                 <FileText className="h-4 w-4 text-brand" /> Order Note
               </h2>
-              <Edit className="h-3.5 w-3.5 text-muted-foreground" />
+              <button
+                type="button"
+                onClick={openCustomerModal}
+                className="text-xs font-semibold text-brand hover:underline flex items-center gap-1 cursor-pointer"
+                title="Edit Order Note"
+              >
+                <Edit className="h-3.5 w-3.5" /> Edit
+              </button>
             </div>
 
             {order.notes ? (
@@ -1341,6 +1570,14 @@ function AdminOrderDetailPageContent({
               <h2 className="font-bold text-xs uppercase tracking-wider text-muted-foreground">
                 Customer
               </h2>
+              <button
+                type="button"
+                onClick={openCustomerModal}
+                className="text-xs font-semibold text-brand hover:underline flex items-center gap-1 cursor-pointer"
+                title="Edit Customer"
+              >
+                <Edit className="h-3.5 w-3.5" /> Edit
+              </button>
             </div>
 
             <div className="flex items-center justify-between gap-3">
@@ -1379,7 +1616,14 @@ function AdminOrderDetailPageContent({
                 <MapPin className="h-4 w-4 text-brand" />
                 {fulfillmentType === 'DELIVERY' ? 'Shipping Address' : 'Counter Pickup Location'}
               </h2>
-              <Edit className="h-3.5 w-3.5 text-muted-foreground" />
+              <button
+                type="button"
+                onClick={openCustomerModal}
+                className="text-xs font-semibold text-brand hover:underline flex items-center gap-1 cursor-pointer"
+                title="Edit Shipping Address"
+              >
+                <Edit className="h-3.5 w-3.5" /> Edit
+              </button>
             </div>
 
             {fulfillmentType === 'DELIVERY' ? (
@@ -1422,7 +1666,14 @@ function AdminOrderDetailPageContent({
               <h2 className="font-bold text-xs uppercase tracking-wider text-muted-foreground">
                 Contact Information
               </h2>
-              <Edit className="h-3.5 w-3.5 text-muted-foreground" />
+              <button
+                type="button"
+                onClick={openCustomerModal}
+                className="text-xs font-semibold text-brand hover:underline flex items-center gap-1 cursor-pointer"
+                title="Edit Contact Information"
+              >
+                <Edit className="h-3.5 w-3.5" /> Edit
+              </button>
             </div>
 
             <div className="space-y-2.5">
@@ -1506,125 +1757,628 @@ function AdminOrderDetailPageContent({
 
       {/* Invoice Customizer Modal */}
       {isPrintModalOpen && (
-        <div className="invoice-no-print fixed inset-0 z-50 overflow-y-auto bg-black/75 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 md:p-6 animate-fade-in print:p-0 print:bg-white print:static print:overflow-visible">
-          <div className="relative w-full max-w-5xl bg-white dark:bg-[#121212] rounded-2xl shadow-2xl border border-neutral-300 dark:border-neutral-800 overflow-hidden print:border-none print:shadow-none print:rounded-none">
-            <div className="invoice-no-print px-5 py-3.5 bg-neutral-900 text-white flex items-center justify-between border-b border-neutral-800 print:hidden">
-              <div className="flex items-center gap-2.5">
-                <Printer className="h-4 w-4 text-emerald-400" />
-                <span className="font-bold text-sm">Invoice Slip Preview & Customizer</span>
-                <span className="text-xs text-neutral-400 font-mono">#{order.invoiceNumber}</span>
+        <Portal>
+          <div className="invoice-no-print fixed inset-0 z-[100] overflow-y-auto bg-black/75 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 md:p-6 animate-fade-in print:p-0 print:bg-white print:static print:overflow-visible">
+            <div className="relative w-full max-w-5xl bg-white dark:bg-[#121212] rounded-2xl shadow-2xl border border-neutral-300 dark:border-neutral-800 overflow-hidden print:border-none print:shadow-none print:rounded-none z-[101]">
+              <div className="invoice-no-print px-5 py-3.5 bg-neutral-900 text-white flex items-center justify-between border-b border-neutral-800 print:hidden">
+                <div className="flex items-center gap-2.5">
+                  <Printer className="h-4 w-4 text-emerald-400" />
+                  <span className="font-bold text-sm">Invoice Slip Preview & Customizer</span>
+                  <span className="text-xs text-neutral-400 font-mono">#{order.invoiceNumber}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsPrintModalOpen(false)}
+                  className="h-8 w-8 rounded-full hover:bg-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white transition-colors cursor-pointer"
+                  title="Close"
+                >
+                  <X className="h-5 w-5" />
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => setIsPrintModalOpen(false)}
-                className="h-8 w-8 rounded-full hover:bg-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white transition-colors cursor-pointer"
-                title="Close"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
 
-            <div className="max-h-[85vh] overflow-y-auto print:max-h-none print:overflow-visible">
-              <InvoiceCustomizer
-                order={order}
-                isModal={true}
-                onClose={() => setIsPrintModalOpen(false)}
-              />
+              <div className="max-h-[85vh] overflow-y-auto print:max-h-none print:overflow-visible">
+                <InvoiceCustomizer
+                  order={order}
+                  isModal={true}
+                  onClose={() => setIsPrintModalOpen(false)}
+                />
+              </div>
             </div>
           </div>
-        </div>
+        </Portal>
       )}
 
       {/* Record / Edit Payment Modal */}
       {isPaymentModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
-          <div className="bg-card border border-border rounded-3xl p-6 w-full max-w-md shadow-2xl space-y-5 animate-scale-in">
-            <div className="flex items-center justify-between pb-3 border-b border-border">
-              <div className="flex items-center gap-2.5">
-                <div className="h-9 w-9 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
-                  <CreditCard className="h-5 w-5" />
+        <Portal>
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
+            <div className="bg-card border border-border rounded-3xl p-6 w-full max-w-md shadow-2xl space-y-5 animate-scale-in relative z-[101]">
+              <div className="flex items-center justify-between pb-3 border-b border-border">
+                <div className="flex items-center gap-2.5">
+                  <div className="h-9 w-9 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                    <CreditCard className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-base text-foreground">
+                      {order.paymentStatus === 'PAID' ? 'Update Payment Details' : 'Record Order Payment'}
+                    </h3>
+                    <p className="text-xs text-muted-foreground font-mono">{order.invoiceNumber}</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-bold text-base text-foreground">
-                    {order.paymentStatus === 'PAID' ? 'Update Payment Details' : 'Record Order Payment'}
-                  </h3>
-                  <p className="text-xs text-muted-foreground font-mono">{order.invoiceNumber}</p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsPaymentModalOpen(false)}
-                className="text-muted-foreground hover:text-foreground p-1 rounded-full hover:bg-muted cursor-pointer transition-colors"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            <div className="p-3.5 rounded-2xl bg-muted/50 border border-border flex items-center justify-between">
-              <span className="text-xs font-semibold text-muted-foreground">Order Total Amount:</span>
-              <span className="text-lg font-bold font-mono text-foreground">
-                {formatCurrency(toNumber(order.totalAmount))}
-              </span>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
-                  Payment Method
-                </label>
-                <select
-                  value={paymentMethodInput}
-                  onChange={(e) => setPaymentMethodInput(e.target.value)}
-                  className="w-full h-11 px-4 rounded-full border border-border bg-card text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-brand/20 cursor-pointer shadow-xs"
+                <button
+                  type="button"
+                  onClick={() => setIsPaymentModalOpen(false)}
+                  className="text-muted-foreground hover:text-foreground p-1 rounded-full hover:bg-muted cursor-pointer transition-colors"
                 >
-                  {PAYMENT_METHODS.map((pm) => (
-                    <option key={pm.id} value={pm.id}>
-                      {pm.label}
-                    </option>
-                  ))}
-                </select>
+                  <X className="h-5 w-5" />
+                </button>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
-                  Transaction Reference / UTR / Note (Optional)
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. UTR-402910482910 or GPay Ref"
-                  value={paymentRefInput}
-                  onChange={(e) => setPaymentRefInput(e.target.value)}
-                  className="w-full h-11 px-4 rounded-full border border-border bg-card text-sm font-mono text-foreground focus:outline-none focus:ring-2 focus:ring-brand/20 shadow-xs"
-                />
+              <div className="p-3.5 rounded-2xl bg-muted/50 border border-border flex items-center justify-between">
+                <span className="text-xs font-semibold text-muted-foreground">Order Total Amount:</span>
+                <span className="text-lg font-bold font-mono text-foreground">
+                  {formatCurrency(toNumber(order.totalAmount))}
+                </span>
               </div>
-            </div>
 
-            <div className="flex items-center gap-3 pt-2">
-              <Button
-                variant="outline"
-                className="flex-1 h-11 rounded-full font-semibold text-sm cursor-pointer"
-                onClick={() => setIsPaymentModalOpen(false)}
-                disabled={paymentMutation.isPending}
-              >
-                Cancel
-              </Button>
-              <Button
-                className="flex-1 h-11 rounded-full font-bold text-sm bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer shadow-xs"
-                onClick={() => {
-                  paymentMutation.mutate({
-                    paymentStatus: 'PAID',
-                    paymentMethod: paymentMethodInput,
-                    paymentReference: paymentRefInput.trim() || undefined,
-                  });
-                }}
-                disabled={paymentMutation.isPending}
-              >
-                <CheckCircle2 className="h-4 w-4 mr-2" />
-                {paymentMutation.isPending ? 'Saving...' : 'Confirm as Paid'}
-              </Button>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    Payment Method
+                  </label>
+                  <select
+                    value={paymentMethodInput}
+                    onChange={(e) => setPaymentMethodInput(e.target.value)}
+                    className="w-full h-11 px-4 rounded-full border border-border bg-card text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-brand/20 cursor-pointer shadow-xs"
+                  >
+                    {PAYMENT_METHODS.map((pm) => (
+                      <option key={pm.id} value={pm.id}>
+                        {pm.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    Transaction Reference / UTR / Note (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. UTR-402910482910 or GPay Ref"
+                    value={paymentRefInput}
+                    onChange={(e) => setPaymentRefInput(e.target.value)}
+                    className="w-full h-11 px-4 rounded-full border border-border bg-card text-sm font-mono text-foreground focus:outline-none focus:ring-2 focus:ring-brand/20 shadow-xs"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 pt-2">
+                <Button
+                  variant="outline"
+                  className="flex-1 h-11 rounded-full font-semibold text-sm cursor-pointer"
+                  onClick={() => setIsPaymentModalOpen(false)}
+                  disabled={paymentMutation.isPending}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  className="flex-1 h-11 rounded-full font-bold text-sm bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer shadow-xs"
+                  onClick={() => {
+                    paymentMutation.mutate({
+                      paymentStatus: 'PAID',
+                      paymentMethod: paymentMethodInput,
+                      paymentReference: paymentRefInput.trim() || undefined,
+                    });
+                  }}
+                  disabled={paymentMutation.isPending}
+                >
+                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                  {paymentMutation.isPending ? 'Saving...' : 'Confirm as Paid'}
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
+        </Portal>
+      )}
+
+      {/* Edit Customer & Delivery Details Modal */}
+      {isCustomerModalOpen && (
+        <Portal>
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
+            <div className="bg-card border border-border rounded-3xl p-6 w-full max-w-lg shadow-2xl space-y-5 animate-scale-in max-h-[88vh] overflow-y-auto relative z-[101]">
+              <div className="flex items-center justify-between pb-3 border-b border-border">
+                <div className="flex items-center gap-2.5">
+                  <div className="h-9 w-9 rounded-full bg-brand/10 text-brand flex items-center justify-center">
+                    <User className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-base text-foreground">
+                      Edit Customer & Delivery Details
+                    </h3>
+                    <p className="text-xs text-muted-foreground font-mono">Order #{order.invoiceNumber}</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsCustomerModalOpen(false)}
+                  className="text-muted-foreground hover:text-foreground p-1 rounded-full hover:bg-muted cursor-pointer transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  updateCustomerMutation.mutate(customerForm);
+                }}
+                className="space-y-4"
+              >
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    Customer Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={customerForm.name}
+                    onChange={(e) => setCustomerForm((prev) => ({ ...prev, name: e.target.value }))}
+                    placeholder="e.g. Ramesh Kumar"
+                    className="w-full h-11 px-4 rounded-xl border border-border bg-card text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-brand/20 shadow-xs"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
+                      Mobile Number *
+                    </label>
+                    <input
+                      type="tel"
+                      required
+                      value={customerForm.mobile}
+                      onChange={(e) => setCustomerForm((prev) => ({ ...prev, mobile: e.target.value }))}
+                      placeholder="e.g. 9876543210"
+                      className="w-full h-11 px-4 rounded-xl border border-border bg-card text-sm font-mono text-foreground focus:outline-none focus:ring-2 focus:ring-brand/20 shadow-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
+                      Email Address (Optional)
+                    </label>
+                    <input
+                      type="email"
+                      value={customerForm.email}
+                      onChange={(e) => setCustomerForm((prev) => ({ ...prev, email: e.target.value }))}
+                      placeholder="e.g. customer@gmail.com"
+                      className="w-full h-11 px-4 rounded-xl border border-border bg-card text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-brand/20 shadow-xs"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    Delivery Street Address
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={customerForm.deliveryAddress}
+                    onChange={(e) => setCustomerForm((prev) => ({ ...prev, deliveryAddress: e.target.value }))}
+                    placeholder="Door number, street name, landmark..."
+                    className="w-full p-3 rounded-xl border border-border bg-card text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-brand/20 shadow-xs resize-y"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
+                      City / Area
+                    </label>
+                    <input
+                      type="text"
+                      value={customerForm.deliveryCityName}
+                      onChange={(e) => setCustomerForm((prev) => ({ ...prev, deliveryCityName: e.target.value }))}
+                      placeholder="e.g. Madurai"
+                      className="w-full h-11 px-3 rounded-xl border border-border bg-card text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-brand/20 shadow-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
+                      State
+                    </label>
+                    <input
+                      type="text"
+                      value={customerForm.deliveryStateName}
+                      onChange={(e) => setCustomerForm((prev) => ({ ...prev, deliveryStateName: e.target.value }))}
+                      placeholder="Tamil Nadu"
+                      className="w-full h-11 px-3 rounded-xl border border-border bg-card text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-brand/20 shadow-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
+                      Pincode
+                    </label>
+                    <input
+                      type="text"
+                      value={customerForm.pincode}
+                      onChange={(e) => setCustomerForm((prev) => ({ ...prev, pincode: e.target.value }))}
+                      placeholder="625001"
+                      className="w-full h-11 px-3 rounded-xl border border-border bg-card text-sm font-mono text-foreground focus:outline-none focus:ring-2 focus:ring-brand/20 shadow-xs"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    Order Note / Packing Instructions
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={customerForm.notes}
+                    onChange={(e) => setCustomerForm((prev) => ({ ...prev, notes: e.target.value }))}
+                    placeholder="Special instructions from customer or admin notes..."
+                    className="w-full p-3 rounded-xl border border-border bg-card text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-brand/20 shadow-xs resize-y"
+                  />
+                </div>
+
+                <div className="flex items-center gap-3 pt-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="flex-1 h-11 rounded-full font-semibold text-sm cursor-pointer"
+                    onClick={() => setIsCustomerModalOpen(false)}
+                    disabled={updateCustomerMutation.isPending}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="flex-1 h-11 rounded-full font-bold text-sm !bg-[#e24000] hover:!bg-[#c93800] !text-white cursor-pointer shadow-md shadow-[#e24000]/20 transition-all border-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={updateCustomerMutation.isPending}
+                  >
+                    <CheckCircle2 className="h-4 w-4 mr-2 shrink-0 text-white" />
+                    {updateCustomerMutation.isPending ? 'Saving...' : 'Save Customer Details'}
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </Portal>
+      )}
+
+      {/* Alter Order Products & Items Modal */}
+      {isItemsModalOpen && (
+        <Portal>
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-5 md:p-6 bg-black/70 backdrop-blur-sm animate-fade-in overflow-y-auto">
+            <div className="bg-card border border-border rounded-3xl p-5 sm:p-7 w-full max-w-4xl shadow-2xl space-y-5 animate-scale-in max-h-[86vh] flex flex-col relative z-[101] my-auto">
+              {/* Modal Header */}
+              <div className="flex items-center justify-between pb-3 border-b border-border shrink-0">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-brand/10 text-brand flex items-center justify-center">
+                    <ShoppingBag className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-base sm:text-lg text-foreground">
+                      Alter Order Products & Items
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      Add new products, adjust quantities, or remove items for Order #{order.invoiceNumber}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsItemsModalOpen(false)}
+                  className="text-muted-foreground hover:text-foreground p-1.5 rounded-full hover:bg-muted cursor-pointer transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Modal Scrollable Body */}
+              <div className="flex-1 overflow-y-auto space-y-6 pr-1.5">
+                {/* 1. Add Product From Catalog (Search + Dropdown) */}
+                <div className="p-4 rounded-2xl bg-muted/30 border border-border space-y-3.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold uppercase tracking-wider text-foreground flex items-center gap-1.5">
+                      <Plus className="h-3.5 w-3.5 text-brand" /> Add Product From Catalog
+                    </span>
+                    <span className="text-[11px] text-muted-foreground">
+                      {isCatalogLoading ? 'Loading catalog...' : `${filteredCatalogProducts.length} products available`}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-2.5">
+                    {/* Search Input Filter */}
+                    <div className="relative md:col-span-5">
+                      <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                      <input
+                        type="text"
+                        value={itemSearchQuery}
+                        onChange={(e) => setItemSearchQuery(e.target.value)}
+                        placeholder="Filter catalog by name or SKU..."
+                        className="w-full h-11 pl-10 pr-8 rounded-xl border border-border bg-card text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-brand/20 shadow-xs"
+                      />
+                      {itemSearchQuery && (
+                        <button
+                          type="button"
+                          onClick={() => setItemSearchQuery('')}
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 rounded-full text-xs"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Dropdown Selector */}
+                    <div className="md:col-span-5">
+                      <select
+                        value={selectedCatalogProductId}
+                        onChange={(e) => setSelectedCatalogProductId(e.target.value)}
+                        disabled={isCatalogLoading || filteredCatalogProducts.length === 0}
+                        className="w-full h-11 px-3.5 rounded-xl border border-border bg-card text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-brand/20 shadow-xs font-sans truncate"
+                      >
+                        <option value="">
+                          {isCatalogLoading
+                            ? 'Loading catalog products...'
+                            : filteredCatalogProducts.length === 0
+                            ? 'No products match filter'
+                            : `-- Select a product (${filteredCatalogProducts.length}) --`}
+                        </option>
+                        {filteredCatalogProducts.map((prod: any) => (
+                          <option key={prod.id} value={String(prod.id)}>
+                            {prod.name} ({prod.sku || `PRD-${prod.id}`}) — ₹{toNumber(prod.sellingPrice).toFixed(0)} [Stock: {prod.stockQuantity ?? 0}]
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Add Button */}
+                    <div className="md:col-span-2">
+                      <Button
+                        type="button"
+                        className="w-full h-11 rounded-xl text-xs font-semibold cursor-pointer shadow-xs flex items-center justify-center gap-1.5 !bg-[#e24000] hover:!bg-[#c93800] !text-white disabled:opacity-50 disabled:cursor-not-allowed border-0"
+                        disabled={!selectedCatalogProductId}
+                        onClick={() => {
+                          const prod = allCatalogProducts.find((p: any) => String(p.id) === selectedCatalogProductId);
+                          if (prod) {
+                            handleAddProductToOrder(prod);
+                            setSelectedCatalogProductId('');
+                          }
+                        }}
+                      >
+                        <Plus className="h-4 w-4 shrink-0 text-white" />
+                        Add
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Quick-Pick Matching Results (if searching) */}
+                  {itemSearchQuery.trim().length > 0 && (
+                    <div className="max-h-52 overflow-y-auto rounded-xl border border-border bg-card divide-y divide-border/60 shadow-md">
+                      {isCatalogLoading ? (
+                        <div className="p-4 text-center text-xs text-muted-foreground">Searching catalog...</div>
+                      ) : filteredCatalogProducts.length === 0 ? (
+                        <div className="p-4 text-center text-xs text-muted-foreground">No matching products found</div>
+                      ) : (
+                        filteredCatalogProducts.slice(0, 8).map((prod: any) => {
+                          const isAlreadyAdded = editableItems.some((it) => it.productId === prod.id);
+                          return (
+                            <div
+                              key={prod.id}
+                              className="p-3 flex items-center justify-between gap-3 hover:bg-muted/40 transition-colors"
+                            >
+                              <div className="min-w-0">
+                                <p className="font-semibold text-xs sm:text-sm text-foreground truncate">{prod.name}</p>
+                                <p className="text-[11px] text-muted-foreground font-mono">
+                                  SKU: {prod.sku || `PRD-${prod.id}`} • Available Stock: {prod.stockQuantity ?? 0}
+                                </p>
+                              </div>
+
+                              <div className="flex items-center gap-3 shrink-0">
+                                <span className="font-bold text-xs sm:text-sm font-mono text-foreground">
+                                  {formatCurrency(toNumber(prod.sellingPrice))}
+                                </span>
+                                <Button
+                                  size="sm"
+                                  variant={isAlreadyAdded ? 'outline' : 'primary'}
+                                  className="h-8 px-3 rounded-full text-xs font-semibold cursor-pointer shadow-2xs"
+                                  onClick={() => handleAddProductToOrder(prod)}
+                                >
+                                  <Plus className="h-3 w-3 mr-1" />
+                                  {isAlreadyAdded ? 'Add More' : 'Add to Order'}
+                                </Button>
+                              </div>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* 2. Order Items List */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                      Items in Order ({editableItems.length})
+                    </h4>
+                    <span className="text-[11px] text-muted-foreground">
+                      At least 1 product required
+                    </span>
+                  </div>
+
+                  {editableItems.length === 0 ? (
+                    <div className="p-8 text-center rounded-2xl border border-dashed border-destructive/40 bg-destructive/5 text-destructive text-sm font-medium">
+                      Order cannot be empty. Please add at least one product from above.
+                    </div>
+                  ) : (
+                    <div className="rounded-2xl border border-border bg-card divide-y divide-border/60 overflow-hidden shadow-xs">
+                      {editableItems.map((item) => (
+                        <div
+                          key={item.productId}
+                          className="p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm"
+                        >
+                          <div className="flex items-center gap-3 min-w-0 flex-1">
+                            <div className="h-10 w-10 rounded-xl bg-muted/60 border border-border flex items-center justify-center shrink-0 text-muted-foreground">
+                              <Package className="h-5 w-5" />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="font-semibold text-foreground truncate">{item.productNameSnapshot}</p>
+                              <p className="text-xs text-muted-foreground font-mono">
+                                {formatCurrency(item.sellingPriceSnapshot)} / unit
+                                {item.productSkuSnapshot ? ` • ${item.productSkuSnapshot}` : ''}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Quantity Counter & Line Total */}
+                          <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0">
+                            <div className="flex items-center border border-border rounded-full bg-muted/30 p-0.5">
+                              <button
+                                type="button"
+                                onClick={() => handleItemQuantityChange(item.productId, item.quantity - 1)}
+                                disabled={item.quantity <= 1}
+                                className="h-7 w-7 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed hover:bg-muted cursor-pointer transition-colors"
+                              >
+                                <Minus className="h-3 w-3" />
+                              </button>
+                              <span className="w-10 text-center font-mono font-bold text-xs text-foreground">
+                                {item.quantity}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => handleItemQuantityChange(item.productId, item.quantity + 1)}
+                                className="h-7 w-7 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer transition-colors"
+                              >
+                                <Plus className="h-3 w-3" />
+                              </button>
+                            </div>
+
+                            <div className="w-24 text-right">
+                              <span className="font-mono font-bold text-foreground text-sm">
+                                {formatCurrency(item.sellingPriceSnapshot * item.quantity)}
+                              </span>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveItem(item.productId)}
+                              className="h-8 w-8 rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 flex items-center justify-center transition-colors cursor-pointer"
+                              title="Remove Product"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* 3. Financial Calculation & Summary Bar */}
+                <div className="p-4 sm:p-5 rounded-2xl bg-muted/40 border border-border space-y-3.5">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    Order Summary & Charges Breakdown
+                  </h4>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                    <div>
+                      <label className="block text-muted-foreground font-medium mb-1">
+                        Products Subtotal (₹)
+                      </label>
+                      <div className="h-10 px-3.5 rounded-xl border border-border bg-card flex items-center font-mono font-bold text-foreground">
+                        {formatCurrency(editableSubtotal)}
+                      </div>
+                      <p className="text-[10px] text-muted-foreground mt-1">Wholesale selling prices</p>
+                    </div>
+
+                    <div>
+                      <label className="block text-muted-foreground font-medium mb-1">
+                        Delivery Charge (₹)
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        step="any"
+                        value={editDeliveryCharge}
+                        onChange={(e) => setEditDeliveryCharge(e.target.value)}
+                        className="w-full h-10 px-3.5 rounded-xl border border-border bg-card font-mono font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-brand/20 shadow-xs"
+                      />
+                      <p className="text-[10px] text-muted-foreground mt-1">Added to order total</p>
+                    </div>
+
+                    <div>
+                      <label className="block text-muted-foreground font-medium mb-1">
+                        Additional Discount / Coupon (₹)
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        step="any"
+                        value={editDiscountAmount}
+                        onChange={(e) => setEditDiscountAmount(e.target.value)}
+                        className="w-full h-10 px-3.5 rounded-xl border border-border bg-card font-mono font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-brand/20 shadow-xs"
+                      />
+                      <p className="text-[10px] text-muted-foreground mt-1">Extra cash discount deduction</p>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 border-t border-border flex items-center justify-between">
+                    <div>
+                      <span className="font-bold text-sm text-foreground">Calculated Grand Total:</span>
+                      <p className="text-[11px] text-muted-foreground font-mono">
+                        {formatCurrency(editableSubtotal)} + {formatCurrency(parsedDeliveryCharge)} - {formatCurrency(parsedDiscountAmount)}
+                      </p>
+                    </div>
+                    <span className="font-mono text-lg sm:text-xl font-bold text-brand">
+                      {formatCurrency(editableTotal)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Automatic Stock Notice */}
+                <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
+                  <Check className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                  <span>
+                    Inventory reconciling is active: Stock will be automatically reserved or restored in the database when you save changes.
+                  </span>
+                </div>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="flex items-center gap-3 pt-3 border-t border-border shrink-0">
+                <Button
+                  variant="outline"
+                  className="flex-1 h-11 rounded-full font-semibold text-sm cursor-pointer"
+                  onClick={() => setIsItemsModalOpen(false)}
+                  disabled={updateOrderItemsMutation.isPending}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  className="flex-1 h-11 rounded-full font-bold text-sm !bg-[#e24000] hover:!bg-[#c93800] !text-white cursor-pointer shadow-md shadow-[#e24000]/20 transition-all border-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={() => {
+                    if (editableItems.length === 0) {
+                      toast.error('Please add at least one product');
+                      return;
+                    }
+                    updateOrderItemsMutation.mutate({
+                      items: editableItems,
+                      deliveryCharge: parsedDeliveryCharge,
+                      discountAmount: parsedDiscountAmount,
+                    });
+                  }}
+                  disabled={editableItems.length === 0 || updateOrderItemsMutation.isPending}
+                >
+                  <CheckCircle2 className="h-4 w-4 mr-2 shrink-0 text-white" />
+                  {updateOrderItemsMutation.isPending ? 'Saving Changes...' : 'Save Order Changes'}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Portal>
       )}
     </div>
   );

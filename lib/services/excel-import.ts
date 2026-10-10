@@ -49,6 +49,7 @@ export interface ValidationSummary {
   errorRows: number;
   existingCount: number;
   newCount: number;
+  newCategoriesCreated?: string[];
 }
 
 export type DuplicateHandlingMode = 'skip' | 'update' | 'stop';
@@ -377,6 +378,84 @@ export function resolveCategory(
 }
 
 /**
+ * Automatically retrieves an existing category or creates a new one in the database
+ * when an uploaded Excel file contains a category that does not yet exist.
+ */
+export async function getOrCreateCategory(
+  categoryInput: string,
+  categoriesList: Array<CategoryLookupItem>
+): Promise<CategoryLookupItem> {
+  const value = normalizeCellValue(categoryInput);
+  if (!value) {
+    throw new Error('Category name cannot be empty');
+  }
+
+  // 1. Check in-memory list first
+  const existing = resolveCategory(value, categoriesList);
+  if (existing && existing.id) {
+    return existing;
+  }
+
+  // 2. Query DB directly for exact slug or case-insensitive match
+  const candidateSlug = slugify(value);
+  if (candidateSlug) {
+    const dbExisting = await db.query.categories.findFirst({
+      where: eq(categories.slug, candidateSlug),
+    });
+
+    if (dbExisting) {
+      const item: CategoryLookupItem = {
+        id: dbExisting.id,
+        name: dbExisting.name,
+        slug: dbExisting.slug,
+        nameTa: dbExisting.nameTa,
+      };
+      categoriesList.push(item);
+      return item;
+    }
+  }
+
+  // 3. Generate unique slug
+  let baseSlug = candidateSlug || `cat-${Date.now().toString(36)}`;
+  let finalSlug = baseSlug;
+  let counter = 1;
+  while (true) {
+    const slugCheck = await db.query.categories.findFirst({
+      where: eq(categories.slug, finalSlug),
+    });
+    if (!slugCheck) break;
+    finalSlug = `${baseSlug}-${counter}`;
+    counter++;
+  }
+
+  // 4. Create new category with active status
+  const [created] = await db
+    .insert(categories)
+    .values({
+      name: value,
+      slug: finalSlug,
+      sortOrder: 0,
+      isActive: true,
+    })
+    .returning();
+
+  logger.info('category.autoCreate', `Auto-created category "${value}" from Excel import`, {
+    id: created.id,
+    name: created.name,
+    slug: created.slug,
+  });
+
+  const newItem: CategoryLookupItem = {
+    id: created.id,
+    name: created.name,
+    slug: created.slug,
+    nameTa: created.nameTa,
+  };
+  categoriesList.push(newItem);
+  return newItem;
+}
+
+/**
  * Normalizes column names to key identifiers.
  * Specific compound patterns MUST be evaluated before generic keywords
  * (e.g. "Category (Name or Slug)" must map to "category", not "name").
@@ -391,10 +470,31 @@ export function normalizeHeaderKey(header: string): string {
   if (clean.includes('productnameta') || clean.includes('nameta') || clean.includes('tamilname') || clean.includes('tamiltitle')) return 'nameTa';
 
   // 3. Category (MUST be before generic 'name' because headers like 'Category (Name or Slug)' or 'Category Name' contain 'name')
-  if (clean.includes('category') || clean.includes('catname') || clean.includes('catslug') || clean === 'cat') return 'category';
+  if (
+    clean.includes('category') ||
+    clean.includes('catname') ||
+    clean.includes('catslug') ||
+    clean === 'cat' ||
+    clean.includes('itemgroup') ||
+    clean.includes('group')
+  ) {
+    return 'category';
+  }
 
   // 4. Product Name (EN) / Title
-  if (clean.includes('productname') || clean.includes('nameen') || clean.includes('producttitle') || clean.includes('name') || clean.includes('title')) return 'name';
+  if (
+    clean.includes('productname') ||
+    clean.includes('nameen') ||
+    clean.includes('producttitle') ||
+    clean.includes('name') ||
+    clean.includes('title') ||
+    clean.includes('particular') ||
+    clean === 'product' ||
+    clean === 'item' ||
+    clean.includes('itemname')
+  ) {
+    return 'name';
+  }
 
   // 5. Tamil Description (MUST be before generic description)
   if (clean.includes('descriptionta') || clean.includes('descta') || clean.includes('tamildesc')) return 'descriptionTa';
@@ -421,7 +521,19 @@ export function normalizeHeaderKey(header: string): string {
   if (clean.includes('mrp') || clean.includes('originalprice') || clean.includes('marketprice') || clean.includes('listprice')) return 'mrp';
 
   // 13. Selling Price / Offer Price
-  if (clean.includes('sellingprice') || clean.includes('offerprice') || clean.includes('discountprice') || clean.includes('saleprice') || clean.includes('price')) return 'sellingPrice';
+  if (
+    clean.includes('sellingprice') ||
+    clean.includes('offerprice') ||
+    clean.includes('discountprice') ||
+    clean.includes('saleprice') ||
+    clean.includes('price') ||
+    clean.includes('rate') ||
+    clean.includes('amount') ||
+    clean.includes('cost') ||
+    clean.includes('net')
+  ) {
+    return 'sellingPrice';
+  }
 
   // 14. Flags
   if (clean.includes('featured')) return 'isFeatured';
@@ -486,6 +598,7 @@ export async function parseAndValidateExcel(fileBuffer: Buffer | ArrayBuffer): P
   }
 
   const fileSkus = new Set<string>();
+  const newCategoriesSet = new Set<string>();
   const validatedRows: ValidatedRow[] = [];
   let validCount = 0;
   let errorCount = 0;
@@ -515,29 +628,48 @@ export async function parseAndValidateExcel(fileBuffer: Buffer | ArrayBuffer): P
     // 2. Name TA (Optional)
     const nameTa = normalized.nameTa ? normalizeCellValue(normalized.nameTa) : null;
 
-    // 3. Category (Required) - Phase 4 & Phase 8 resolution
+    // 3. Category (Required) - Phase 4 & Phase 8 resolution + Auto-creation if not found
     const categoryInput = normalizeCellValue(normalized.category);
-    let matchedCategory: typeof dbCategories[0] | undefined;
+    let matchedCategory: CategoryLookupItem | undefined;
 
     if (!categoryInput) {
       rowErrors.push('Category is required.');
     } else {
       const resolved = resolveCategory(categoryInput, dbCategories);
-      if (!resolved) {
-        rowErrors.push(`Category "${categoryInput}" was not found.`);
-      } else if (!resolved.id) {
-        rowErrors.push(`Category "${categoryInput}" could not be resolved to a category ID.`);
+      if (resolved && resolved.id) {
+        matchedCategory = resolved;
       } else {
-        matchedCategory = resolved as typeof dbCategories[0];
+        // If no matching category exists, automatically create a new category with the uploaded category name
+        try {
+          const created = await getOrCreateCategory(categoryInput, dbCategories);
+          matchedCategory = created;
+          newCategoriesSet.add(created.name);
+        } catch (catErr: any) {
+          rowErrors.push(`Failed to create category "${categoryInput}": ${catErr.message}`);
+        }
       }
     }
 
     // 4. Pricing & Discount
-    const mrp = toNumber(normalized.mrp);
+    let mrp = toNumber(normalized.mrp);
     let sellingPrice = toNumber(normalized.sellingPrice);
     let discountPercent = normalized.discountPercent !== '' && normalized.discountPercent !== undefined
       ? Math.round(toNumber(normalized.discountPercent))
       : undefined;
+
+    // Automatic Fallback: If MRP is missing or 0, but selling price is provided, default MRP to selling price
+    if ((isNaN(mrp) || mrp <= 0) && !isNaN(sellingPrice) && sellingPrice > 0) {
+      mrp = sellingPrice;
+    }
+
+    // Automatic Fallback: If selling price is missing or 0, but MRP is provided
+    if ((isNaN(sellingPrice) || sellingPrice <= 0) && !isNaN(mrp) && mrp > 0) {
+      if (discountPercent !== undefined && discountPercent >= 0 && discountPercent <= 100) {
+        sellingPrice = Math.round(mrp * (1 - discountPercent / 100) * 100) / 100;
+      } else {
+        sellingPrice = mrp;
+      }
+    }
 
     if (isNaN(mrp) || mrp <= 0) {
       rowErrors.push('MRP must be a valid positive number greater than 0.');
@@ -660,7 +792,15 @@ export async function parseAndValidateExcel(fileBuffer: Buffer | ArrayBuffer): P
           isFeatured,
           isBestseller,
           isActive,
-          isCombo: false,
+          isCombo: Boolean(
+            matchedCategory?.name?.toLowerCase().includes('combo') ||
+            matchedCategory?.name?.toLowerCase().includes('gift box') ||
+            categoryInput.toLowerCase().includes('combo') ||
+            categoryInput.toLowerCase().includes('gift box') ||
+            name.toLowerCase().includes('combo') ||
+            name.toLowerCase().includes('giftbox') ||
+            name.toLowerCase().includes('gift box')
+          ),
         },
         status: 'valid',
         isExisting,
@@ -688,6 +828,7 @@ export async function parseAndValidateExcel(fileBuffer: Buffer | ArrayBuffer): P
       errorRows: errorCount,
       existingCount,
       newCount,
+      newCategoriesCreated: Array.from(newCategoriesSet),
     },
     rows: validatedRows,
   };
@@ -771,6 +912,9 @@ export async function executeBulkProductImport({
     if (p.slug) slugMap.set(p.slug.trim().toLowerCase(), p.id);
   }
 
+  // Fetch all existing categories for categoryId validation
+  const dbCategories = await db.query.categories.findMany();
+
   // Process in chunks inside transactions
   const chunkSize = 25;
   for (let i = 0; i < items.length; i += chunkSize) {
@@ -781,6 +925,14 @@ export async function executeBulkProductImport({
         try {
           const generatedSlug = slugify(item.name);
           let existingId: number | undefined;
+
+          // Ensure categoryId is valid, auto-creating category if somehow missing
+          let resolvedCategoryId = item.categoryId;
+          if (!resolvedCategoryId || resolvedCategoryId <= 0) {
+            const catName = item.categoryNameOrSlug || item.categoryName || 'Assorted Fireworks';
+            const cat = await getOrCreateCategory(catName, dbCategories as any);
+            resolvedCategoryId = cat.id;
+          }
 
           if (item.sku && skuMap.has(item.sku.toLowerCase())) {
             existingId = skuMap.get(item.sku.toLowerCase());
@@ -806,7 +958,7 @@ export async function executeBulkProductImport({
                 .set({
                   name: item.name,
                   nameTa: item.nameTa,
-                  categoryId: item.categoryId,
+                  categoryId: resolvedCategoryId,
                   description: item.description,
                   descriptionTa: item.descriptionTa,
                   sku: item.sku,
@@ -845,7 +997,7 @@ export async function executeBulkProductImport({
               name: item.name,
               nameTa: item.nameTa,
               slug: finalSlug,
-              categoryId: item.categoryId,
+              categoryId: resolvedCategoryId,
               description: item.description,
               descriptionTa: item.descriptionTa,
               sku: item.sku,

@@ -71,6 +71,7 @@ interface ValidationSummary {
   errorRows: number;
   existingCount: number;
   newCount: number;
+  newCategoriesCreated?: string[];
 }
 
 interface ImportResult {
@@ -157,7 +158,13 @@ function BulkProductUploadPageContent() {
       setRows(data.rows);
 
       if (data.summary.errorRows === 0) {
-        toast.success(`Validated ${data.summary.totalRows} products successfully!`);
+        if (data.summary.newCategoriesCreated && data.summary.newCategoriesCreated.length > 0) {
+          toast.success(
+            `Validated ${data.summary.totalRows} products! Auto-created ${data.summary.newCategoriesCreated.length} new categories (${data.summary.newCategoriesCreated.join(', ')}).`
+          );
+        } else {
+          toast.success(`Validated ${data.summary.totalRows} products successfully!`);
+        }
       } else {
         toast.warning(
           `Validated with ${data.summary.errorRows} errors out of ${data.summary.totalRows} rows.`
@@ -224,6 +231,7 @@ function BulkProductUploadPageContent() {
     onSuccess: (data) => {
       setImportResult(data);
       queryClient.invalidateQueries({ queryKey: queryKeys.admin.products.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.categories.all });
       toast.success(
         `Import complete: ${data.imported} added, ${data.updated} updated, ${data.skipped} skipped`
       );
@@ -586,6 +594,19 @@ function BulkProductUploadPageContent() {
                 </div>
               </div>
 
+              {/* Newly Auto-Created Categories Banner */}
+              {summary.newCategoriesCreated && summary.newCategoriesCreated.length > 0 && (
+                <div className="flex items-center gap-2.5 px-4 py-3 rounded-xl bg-amber-500/10 border border-amber-500/25 text-amber-800 dark:text-amber-300 text-xs sm:text-sm font-medium">
+                  <Layers className="h-4.5 w-4.5 shrink-0 text-amber-600 dark:text-amber-400" />
+                  <span>
+                    Auto-created <strong>{summary.newCategoriesCreated.length}</strong> new categories from Excel:{' '}
+                    <span className="font-semibold text-foreground">
+                      {summary.newCategoriesCreated.join(', ')}
+                    </span>
+                  </span>
+                </div>
+              )}
+
               {/* Toolbar & Actions */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-card border border-border">
                 {/* Filters */}
@@ -769,13 +790,17 @@ function BulkProductUploadPageContent() {
                                       <span className="font-bold text-foreground">
                                         {formatCurrency(p.sellingPrice)}
                                       </span>
-                                      <span className="line-through text-muted-foreground text-[10px]">
-                                        {formatCurrency(p.mrp)}
-                                      </span>
+                                      {p.mrp > p.sellingPrice && (
+                                        <span className="line-through text-muted-foreground text-[10px]">
+                                          {formatCurrency(p.mrp)}
+                                        </span>
+                                      )}
                                     </div>
-                                    <span className="text-[10px] font-bold text-emerald-600">
-                                      {calculateDiscountPercent(p.mrp, p.sellingPrice)}% OFF
-                                    </span>
+                                    {p.mrp > p.sellingPrice && calculateDiscountPercent(p.mrp, p.sellingPrice) > 0 && (
+                                      <span className="text-[10px] font-bold text-emerald-600">
+                                        {calculateDiscountPercent(p.mrp, p.sellingPrice)}% OFF
+                                      </span>
+                                    )}
                                   </div>
                                 ) : (
                                   <span className="text-muted-foreground">

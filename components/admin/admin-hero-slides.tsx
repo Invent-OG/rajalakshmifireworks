@@ -65,6 +65,18 @@ const HEADING_COLOR_PRESETS = [
   { label: 'Berry Plum', hex: '#701a75' },
 ];
 
+const DESCRIPTION_COLOR_PRESETS = [
+  { label: 'Deep Charcoal', hex: '#262626' },
+  { label: 'Pure Black', hex: '#000000' },
+  { label: 'Pure White', hex: '#ffffff' },
+  { label: 'Slate Gray', hex: '#475569' },
+  { label: 'Sivakasi Orange', hex: '#e24000' },
+  { label: 'Warm Amber', hex: '#b45309' },
+  { label: 'Deep Crimson', hex: '#991b1b' },
+  { label: 'Forest Pine', hex: '#064e3b' },
+  { label: 'Midnight Navy', hex: '#1e293b' },
+];
+
 interface ProductItem {
   id: number;
   name: string;
@@ -258,6 +270,7 @@ function AdminHeroSlidesPageContent() {
       backgroundImage: '',
       bgColor: '#bfe5da',
       headingColor: config.defaultHeadingColor || '#0a0a0a',
+      descriptionColor: config.defaultDescriptionColor || '#262626',
       card1: {
         id: `card-${Date.now()}-1`,
         title: 'Featured Product',
@@ -724,15 +737,84 @@ function AdminHeroSlidesPageContent() {
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-foreground block">
-                    Subtitle Paragraph
-                  </label>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-bold text-foreground block">
+                      Subtitle / Description Paragraph
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground font-semibold">Description Color:</span>
+                      <input
+                        type="color"
+                        value={activeSlide.descriptionColor || config.defaultDescriptionColor || '#262626'}
+                        onChange={(e) => updateActiveSlide({ descriptionColor: e.target.value })}
+                        className="h-7 w-9 rounded-sm cursor-pointer"
+                        title="Pick description color"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Description Color Bar with Hex Input and Presets */}
+                  <div className="p-3 bg-background-secondary rounded-xl border border-border space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-bold text-muted-foreground uppercase">
+                        Description Text Color
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          value={activeSlide.descriptionColor || config.defaultDescriptionColor || '#262626'}
+                          onChange={(e) => updateActiveSlide({ descriptionColor: e.target.value })}
+                          placeholder="#262626"
+                          className="w-28 h-8 font-mono text-xs uppercase"
+                        />
+                        {activeSlide.descriptionColor && (
+                          <button
+                            type="button"
+                            onClick={() => updateActiveSlide({ descriptionColor: undefined })}
+                            className="text-[11px] text-muted-foreground hover:text-foreground underline"
+                            title="Reset to default description color"
+                          >
+                            Reset
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5 flex-wrap pt-1">
+                      {DESCRIPTION_COLOR_PRESETS.map((preset) => {
+                        const currentDescColor = (activeSlide.descriptionColor || config.defaultDescriptionColor || '#262626').toLowerCase();
+                        const isSelected = currentDescColor === preset.hex.toLowerCase();
+                        return (
+                          <button
+                            key={preset.hex}
+                            type="button"
+                            onClick={() => updateActiveSlide({ descriptionColor: preset.hex })}
+                            title={preset.label}
+                            className={`h-6 px-2 rounded-md border text-[11px] font-semibold flex items-center gap-1.5 transition-all ${
+                              isSelected
+                                ? 'border-brand ring-2 ring-brand/30 scale-105'
+                                : 'border-border hover:border-neutral-400'
+                            }`}
+                            style={{
+                              backgroundColor: preset.hex === '#ffffff' ? '#ffffff' : preset.hex,
+                              color: preset.hex === '#ffffff' || preset.hex === '#fef08a' ? '#0a0a0a' : '#ffffff',
+                            }}
+                          >
+                            <span
+                              className="w-2 h-2 rounded-full border border-black/20"
+                              style={{ backgroundColor: preset.hex }}
+                            />
+                            <span>{preset.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
                   <Textarea
                     rows={2}
                     value={activeSlide.subtitle}
                     onChange={(e) => updateActiveSlide({ subtitle: e.target.value })}
-                    placeholder="Our new nuts are the best food for your health. Choose your favourite!"
+                    placeholder="Authentic Sivakasi celebration fireworks delivered direct to your door with certified wholesale pricing."
                     className="text-base"
                   />
                 </div>
@@ -1087,6 +1169,74 @@ function AdminHeroSlidesPageContent() {
                         setConfig((prev) => ({
                           ...prev,
                           defaultHeadingColor: preset.hex,
+                        }))
+                      }
+                      title={preset.label}
+                      className={`h-7 px-2.5 rounded-lg border text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                        isSelected
+                          ? 'border-brand ring-2 ring-brand/30 scale-105'
+                          : 'border-border hover:border-neutral-400'
+                      }`}
+                      style={{
+                        backgroundColor: preset.hex === '#ffffff' ? '#ffffff' : preset.hex,
+                        color: preset.hex === '#ffffff' || preset.hex === '#fef08a' ? '#0a0a0a' : '#ffffff',
+                      }}
+                    >
+                      <span
+                        className="w-2 h-2 rounded-full border border-black/20"
+                        style={{ backgroundColor: preset.hex }}
+                      />
+                      <span>{preset.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Global Default Description Color */}
+            <div className="p-4 bg-card border border-border rounded-2xl shadow-xs">
+              <label className="text-sm font-bold text-foreground block mb-1">
+                Global Default Description Color
+              </label>
+              <p className="text-xs text-muted-foreground mb-3">
+                Applies to all slides that do not specify an individual custom description color.
+              </p>
+              <div className="flex items-center gap-3 mb-3">
+                <input
+                  type="color"
+                  value={config.defaultDescriptionColor || '#262626'}
+                  onChange={(e) =>
+                    setConfig((prev) => ({
+                      ...prev,
+                      defaultDescriptionColor: e.target.value,
+                    }))
+                  }
+                  className="h-10 w-14 rounded-lg border border-border cursor-pointer p-0.5 bg-transparent"
+                />
+                <Input
+                  value={config.defaultDescriptionColor || '#262626'}
+                  onChange={(e) =>
+                    setConfig((prev) => ({
+                      ...prev,
+                      defaultDescriptionColor: e.target.value,
+                    }))
+                  }
+                  placeholder="#262626"
+                  className="max-w-[140px] font-mono text-sm uppercase"
+                />
+              </div>
+
+              <div className="flex items-center gap-2 flex-wrap">
+                {DESCRIPTION_COLOR_PRESETS.map((preset) => {
+                  const isSelected = (config.defaultDescriptionColor || '#262626').toLowerCase() === preset.hex.toLowerCase();
+                  return (
+                    <button
+                      key={preset.hex}
+                      type="button"
+                      onClick={() =>
+                        setConfig((prev) => ({
+                          ...prev,
+                          defaultDescriptionColor: preset.hex,
                         }))
                       }
                       title={preset.label}

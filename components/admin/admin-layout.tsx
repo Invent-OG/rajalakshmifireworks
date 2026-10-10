@@ -31,8 +31,9 @@ import {
   ChevronDown,
   Bell,
 } from 'lucide-react';
-import { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState, useMemo } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/lib/query/keys';
 import { toast } from 'sonner';
 import { useAdminTheme } from '@/hooks/use-admin-theme';
 
@@ -43,9 +44,9 @@ interface NavItem {
   badge?: string | number;
 }
 
-const navItems: NavItem[] = [
+const baseNavItems: NavItem[] = [
   { href: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/admin/orders', icon: ShoppingCart, label: 'Orders', badge: 3 },
+  { href: '/admin/orders', icon: ShoppingCart, label: 'Orders' },
   { href: '/admin/products', icon: Package, label: 'Products' },
   { href: '/admin/customers', icon: Users, label: 'Customers' },
   { href: '/admin/delivery-partners', icon: Truck, label: 'Delivery' },
@@ -63,7 +64,97 @@ const salesNavItems: NavItem[] = [
   { href: '/admin/sales/reports', icon: Trophy, label: 'Agent Reports' },
 ];
 
-const allNavItems = [...navItems, ...salesNavItems];
+function NotificationBell({
+  count,
+  pendingOrders,
+  lowStock,
+}: {
+  count: number;
+  pendingOrders: number;
+  lowStock: number;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((prev) => !prev)}
+        className="w-10 h-10 rounded-full bg-white dark:bg-[#161824] border border-neutral-200/80 dark:border-white/10 flex items-center justify-center text-neutral-600 dark:text-neutral-300 relative shadow-xs hover:bg-neutral-50 dark:hover:bg-white/5 transition-colors cursor-pointer shrink-0"
+        title={count > 0 ? `Notifications (${count} unread)` : 'No new notifications'}
+      >
+        <Bell className="h-4.5 w-4.5" />
+        {count > 0 && (
+          <span className="absolute -top-1 -right-1 min-w-4.5 h-4.5 px-1 bg-[#EF4444] text-white text-[10px] font-extrabold rounded-full flex items-center justify-center border-2 border-white dark:border-[#161824] shadow-xs">
+            {count}
+          </span>
+        )}
+      </button>
+
+      {open && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <div className="absolute right-0 mt-2 w-72 rounded-2xl bg-white dark:bg-[#161824] border border-neutral-200/80 dark:border-white/10 shadow-2xl p-3 z-50 space-y-2 text-xs">
+            <div className="flex items-center justify-between pb-2 border-b border-neutral-100 dark:border-white/5 font-bold">
+              <span className="text-neutral-900 dark:text-white">Store Notifications</span>
+              <span className="text-[10px] font-semibold text-neutral-400">
+                {count > 0 ? `${count} actionable` : 'Up to date'}
+              </span>
+            </div>
+
+            {pendingOrders > 0 && (
+              <Link
+                href="/admin/orders?status=NEW"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-neutral-50 dark:hover:bg-white/5 transition-colors group"
+              >
+                <div className="w-8 h-8 rounded-full bg-orange-500/10 text-[#e24000] flex items-center justify-center shrink-0">
+                  <ShoppingCart className="h-4 w-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-neutral-800 dark:text-neutral-200">
+                    {pendingOrders} New Order{pendingOrders === 1 ? '' : 's'}
+                  </p>
+                  <p className="text-[10px] text-neutral-400">Needs admin confirmation</p>
+                </div>
+                <span className="text-[10px] font-bold text-white bg-[#e24000] px-1.5 py-0.5 rounded-full">
+                  {pendingOrders}
+                </span>
+              </Link>
+            )}
+
+            {lowStock > 0 && (
+              <Link
+                href="/admin/inventory"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-neutral-50 dark:hover:bg-white/5 transition-colors group"
+              >
+                <div className="w-8 h-8 rounded-full bg-rose-500/10 text-rose-500 flex items-center justify-center shrink-0">
+                  <Warehouse className="h-4 w-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-neutral-800 dark:text-neutral-200">
+                    {lowStock} Low Stock Product{lowStock === 1 ? '' : 's'}
+                  </p>
+                  <p className="text-[10px] text-neutral-400">Restock required</p>
+                </div>
+                <span className="text-[10px] font-bold text-white bg-rose-500 px-1.5 py-0.5 rounded-full">
+                  {lowStock}
+                </span>
+              </Link>
+            )}
+
+            {count === 0 && (
+              <div className="py-4 text-center text-neutral-400 text-xs">
+                All caught up! No pending alerts.
+              </div>
+            )}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -71,6 +162,36 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const { theme, toggleTheme } = useAdminTheme();
+
+  // Fetch live dashboard metrics to drive badges dynamically
+  const { data: dashboardData } = useQuery({
+    queryKey: queryKeys.admin.dashboard(),
+    queryFn: async () => {
+      const res = await fetch('/api/admin/dashboard');
+      if (!res.ok) return null;
+      return res.json();
+    },
+    refetchInterval: 15000,
+  });
+
+  const dashboard = dashboardData?.dashboard;
+  const pendingOrdersCount = Number(dashboard?.newOrders ?? 0);
+  const lowStockCount = Number(dashboard?.lowStockProducts ?? 0);
+  const totalNotifications = pendingOrdersCount + lowStockCount;
+
+  const navItems = useMemo(() => {
+    return baseNavItems.map((item) => {
+      if (item.href === '/admin/orders') {
+        return {
+          ...item,
+          badge: pendingOrdersCount > 0 ? pendingOrdersCount : undefined,
+        };
+      }
+      return item;
+    });
+  }, [pendingOrdersCount]);
+
+  const allNavItems = useMemo(() => [...navItems, ...salesNavItems], [navItems]);
 
   if (pathname === '/admin/login') {
     return <>{children}</>;
@@ -327,17 +448,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <div className="flex items-center gap-2.5 sm:gap-3">
               {pathname === '/admin/products' ? (
                 <>
-                  {/* Circular Notification Bell Button with Red Badge */}
-                  <button
-                    type="button"
-                    className="w-10 h-10 rounded-full bg-white dark:bg-[#161824] border border-neutral-200/80 dark:border-white/10 flex items-center justify-center text-neutral-600 dark:text-neutral-300 relative shadow-xs hover:bg-neutral-50 dark:hover:bg-white/5 transition-colors cursor-pointer shrink-0"
-                    title="Notifications (3 unread)"
-                  >
-                    <Bell className="h-4.5 w-4.5" />
-                    <span className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-[#EF4444] text-white text-[10px] font-extrabold rounded-full flex items-center justify-center border-2 border-white dark:border-[#161824] shadow-xs">
-                      3
-                    </span>
-                  </button>
+                  {/* Dynamic Notification Bell */}
+                  <NotificationBell
+                    count={totalNotifications}
+                    pendingOrders={pendingOrdersCount}
+                    lowStock={lowStockCount}
+                  />
 
                   {/* Import Button */}
                   <Link
@@ -369,17 +485,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     />
                   </div>
 
-                  {/* Circular Notification Bell Button with Red Badge */}
-                  <button
-                    type="button"
-                    className="w-10 h-10 rounded-full bg-white dark:bg-[#161824] border border-neutral-200/80 dark:border-white/10 flex items-center justify-center text-neutral-600 dark:text-neutral-300 relative shadow-xs hover:bg-neutral-50 dark:hover:bg-white/5 transition-colors cursor-pointer shrink-0"
-                    title="Notifications (3 unread)"
-                  >
-                    <Bell className="h-4.5 w-4.5" />
-                    <span className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-[#EF4444] text-white text-[10px] font-extrabold rounded-full flex items-center justify-center border-2 border-white dark:border-[#161824] shadow-xs">
-                      3
-                    </span>
-                  </button>
+                  {/* Dynamic Notification Bell */}
+                  <NotificationBell
+                    count={totalNotifications}
+                    pendingOrders={pendingOrdersCount}
+                    lowStock={lowStockCount}
+                  />
                 </>
               )}
 

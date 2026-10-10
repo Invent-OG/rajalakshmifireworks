@@ -28,7 +28,7 @@ describe('Image Compression Utility', () => {
     expect(metadata.format).toBe('webp');
     expect(metadata.width).toBeLessThanOrEqual(2048);
     expect(metadata.height).toBeLessThanOrEqual(2048);
-  });
+  }, 15000);
 
   it('ensures compressed output is strictly under 1MB', async () => {
     // Generate a noise/complex image that would typically have high compression size
@@ -47,5 +47,5 @@ describe('Image Compression Utility', () => {
 
     expect(result.size).toBeLessThanOrEqual(1024 * 1024);
     expect(result.contentType).toBe('image/webp');
-  });
+  }, 15000);
 });

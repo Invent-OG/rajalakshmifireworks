@@ -38,12 +38,6 @@ export function HomeMotion({ children }: HomeMotionProps) {
             { opacity: 0, scale: 0.95, y: 10 },
             { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: 'back.out(1.5)', clearProps: 'transform,opacity' },
             '-=0.3'
-          )
-          .fromTo(
-            '.organic-hero-cards',
-            { opacity: 0, x: 25 },
-            { opacity: 1, x: 0, duration: 0.65, stagger: 0.1, clearProps: 'transform,opacity' },
-            '-=0.4'
           );
 
         // 2. Smooth Scroll Reveal for all subsequent sections

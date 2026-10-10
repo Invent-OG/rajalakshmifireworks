@@ -34,12 +34,19 @@ describe('Excel Bulk Upload Service', () => {
     it('correctly maps product names, prices, and stock threshold without collision', () => {
       expect(normalizeHeaderKey('Product Name (EN)')).toBe('name');
       expect(normalizeHeaderKey('Product Name (TA)')).toBe('nameTa');
+      expect(normalizeHeaderKey('Product')).toBe('name');
+      expect(normalizeHeaderKey('Particulars')).toBe('name');
+      expect(normalizeHeaderKey('Item Name')).toBe('name');
       expect(normalizeHeaderKey('MRP (₹)')).toBe('mrp');
       expect(normalizeHeaderKey('Selling Price (₹)')).toBe('sellingPrice');
+      expect(normalizeHeaderKey('Rate')).toBe('sellingPrice');
+      expect(normalizeHeaderKey('Price')).toBe('sellingPrice');
       expect(normalizeHeaderKey('Stock Quantity')).toBe('stockQuantity');
       expect(normalizeHeaderKey('Low Stock Threshold')).toBe('lowStockThreshold');
       expect(normalizeHeaderKey('Box Content')).toBe('boxContent');
       expect(normalizeHeaderKey('Unit of Content')).toBe('contentUnit');
+      expect(normalizeHeaderKey('Group')).toBe('category');
+      expect(normalizeHeaderKey('Item Group')).toBe('category');
     });
   });
 
