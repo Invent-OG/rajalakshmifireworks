@@ -113,13 +113,11 @@ export function ProductCard({ product }: ProductCardProps) {
               decoding="async"
               draggable={false}
               referrerPolicy="no-referrer"
-              className="pointer-events-none select-none"
+              className="pointer-events-none select-none w-full h-full object-cover"
             />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center p-4">
-                <ProductVisualPlaceholder name={product.name} />
-              </div>
-            )}
+          ) : (
+            <ProductVisualPlaceholder name={product.name} className="w-full h-full" />
+          )}
 
             {/* Out of Stock Overlay */}
             {isOutOfStock && (

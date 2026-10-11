@@ -66,7 +66,7 @@ export function ProductVisualPlaceholder({
 }) {
   const src = getCategory3DImage(name);
   return (
-    <div className={`relative overflow-hidden bg-muted select-none ${className}`}>
+    <div className={`relative overflow-hidden bg-transparent select-none ${className}`}>
       <img
         src={src}
         alt={name}

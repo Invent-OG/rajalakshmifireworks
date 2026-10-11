@@ -751,7 +751,7 @@ select option {
   aspect-ratio: 1;
   border-radius: var(--_inner-radius);
   overflow: hidden;
-  background-color: #f5f5f4;
+  background-color: transparent;
 }
 
 ._thumbnail-stack img {
@@ -969,7 +969,7 @@ select option {
 }
 
 .dark ._thumbnail-stack {
-  background-color: #1c1c1c;
+  background-color: transparent;
 }
 
 .dark ._card ._category {
