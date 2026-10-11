@@ -6,6 +6,7 @@ import { eq, and, sql, desc, asc } from 'drizzle-orm';
 import { getSession } from '@/lib/auth/session';
 import { productCreateSchema } from '@/lib/validation/product';
 import { slugify } from '@/lib/utils/format';
+import { invalidateCatalogCache } from '@/lib/cache/catalog-cache';
 
 async function _GET(request: NextRequest) {
   const session = await getSession();
@@ -243,6 +244,7 @@ async function _POST(request: NextRequest) {
       );
     }
 
+    invalidateCatalogCache();
     return Response.json({ product }, { status: 201 });
   } catch (error) {
     console.error('Error creating product:', error);

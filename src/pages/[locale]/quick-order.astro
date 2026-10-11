@@ -1,8 +1,10 @@
 ---
 import StoreLayout from '@/src/layouts/StoreLayout.astro';
-import { db } from '@/db';
-import { categories, products, settings } from '@/db/schema';
-import { eq, and, asc } from 'drizzle-orm';
+import {
+  getCachedCategories,
+  getCachedAllActiveProducts,
+  getCachedSettingsMap,
+} from '@/lib/cache/catalog-cache';
 import { QuickOrderContent } from '@/components/store/quick-order-content';
 import { isValidLocale } from '@/lib/i18n/config';
 import { getTranslations } from '@/lib/i18n/server';
@@ -13,36 +15,33 @@ if (!isValidLocale(locale)) {
   return Astro.redirect('/en/quick-order');
 }
 
-// Fetch all active categories
-const categoriesData = await db.query.categories.findMany({
-  where: eq(categories.isActive, true),
-  orderBy: [asc(categories.sortOrder), asc(categories.name)],
+// Edge & Browser Cache: 30s fresh, 120s stale-while-revalidate
+Astro.response.headers.set(
+  'Cache-Control',
+  'public, max-age=0, s-maxage=30, stale-while-revalidate=120'
+);
+
+// Fetch cached categories, products, and store settings in parallel (< 0.5ms)
+const [categoriesData, allProducts, settingsMap] = await Promise.all([
+  getCachedCategories(),
+  getCachedAllActiveProducts(),
+  getCachedSettingsMap(),
+]);
+
+// Sort products by sellingPrice ASC, then name
+const productsData = [...allProducts].sort((a, b) => {
+  const pA = Number(a.sellingPrice || 0);
+  const pB = Number(b.sellingPrice || 0);
+  if (pA !== pB) return pA - pB;
+  return (a.name || '').localeCompare(b.name || '');
 });
 
-// Fetch all active products including combos
-const productsData = await db.query.products.findMany({
-  where: eq(products.isActive, true),
-  orderBy: [asc(products.sellingPrice), asc(products.name)],
-  with: {
-    category: true,
-    media: {
-      orderBy: (m, { asc }) => [asc(m.sortOrder)],
-      limit: 1,
-    },
-  },
-});
-
-// Fetch store settings for min order value
+// Store settings for min order value
 let minOrderValue = 2000;
-try {
-  const settingRows = await db.query.settings.findMany();
-  const minOrderRow = settingRows.find((s) => s.key === 'MIN_ORDER_VALUE');
-  if (minOrderRow?.value) {
-    const parsed = parseInt(minOrderRow.value, 10);
-    if (!isNaN(parsed) && parsed > 0) minOrderValue = parsed;
-  }
-} catch (err) {
-  console.warn('Could not load min order setting, using default 2000', err);
+const minOrderValStr = settingsMap.get('MIN_ORDER_VALUE');
+if (minOrderValStr) {
+  const parsed = parseInt(minOrderValStr, 10);
+  if (!isNaN(parsed) && parsed > 0) minOrderValue = parsed;
 }
 
 const tNav = getTranslations(locale, 'navigation');

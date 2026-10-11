@@ -1,8 +1,9 @@
 ---
 import StoreLayout from '@/src/layouts/StoreLayout.astro';
-import { db } from '@/db';
-import { products, categories } from '@/db/schema';
-import { eq, and, desc } from 'drizzle-orm';
+import {
+  getCachedCategories,
+  getCachedAllActiveProducts,
+} from '@/lib/cache/catalog-cache';
 import { ProductCard } from '@/components/store/product-card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { QuickCartSidebar } from '@/components/store/quick-cart-drawer';
@@ -22,19 +23,24 @@ if (!slug) {
   return Astro.redirect(`/${locale}/products`);
 }
 
-const category = await db.query.categories.findFirst({
-  where: and(eq(categories.slug, slug), eq(categories.isActive, true)),
-});
+// Edge & Browser Cache: 30s fresh, 120s stale-while-revalidate
+Astro.response.headers.set(
+  'Cache-Control',
+  'public, max-age=0, s-maxage=30, stale-while-revalidate=120'
+);
 
+// Retrieve cached catalog in parallel (< 0.2ms)
+const [allCategories, allActiveProducts] = await Promise.all([
+  getCachedCategories(),
+  getCachedAllActiveProducts(),
+]);
+
+const category = allCategories.find((c) => c.slug === slug);
 if (!category) {
   return Astro.redirect(`/${locale}/products`);
 }
 
-const productList = await db.query.products.findMany({
-  where: and(eq(products.categoryId, category.id), eq(products.isActive, true)),
-  with: { media: { orderBy: (m, { asc }) => [asc(m.sortOrder)], limit: 1 } },
-  orderBy: [desc(products.createdAt)],
-});
+const productList = allActiveProducts.filter((p) => p.categoryId === category.id);
 
 const displayName = getLocalizedName(category, locale);
 const displayDescription = getLocalizedDescription(category, locale);

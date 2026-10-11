@@ -6,6 +6,7 @@ import { eq, asc, sql } from 'drizzle-orm';
 import { getSession } from '@/lib/auth/session';
 import { productUpdateSchema } from '@/lib/validation/product';
 import { slugify } from '@/lib/utils/format';
+import { invalidateCatalogCache } from '@/lib/cache/catalog-cache';
 
 async function _GET(
   request: any,
@@ -134,6 +135,7 @@ async function _PUT(
       }
     }
 
+    invalidateCatalogCache();
     return Response.json({ product: updated });
   } catch (error) {
     console.error('Error updating product:', error);
@@ -183,6 +185,7 @@ async function _DELETE(
         })
         .where(eq(products.id, productId));
 
+      invalidateCatalogCache();
       return Response.json({
         success: true,
         archived: true,
@@ -197,6 +200,7 @@ async function _DELETE(
     await db.delete(inventoryTransactions).where(eq(inventoryTransactions.productId, productId));
     await db.delete(products).where(eq(products.id, productId));
 
+    invalidateCatalogCache();
     return Response.json({
       success: true,
       archived: false,

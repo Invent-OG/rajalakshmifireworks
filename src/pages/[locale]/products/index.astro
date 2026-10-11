@@ -1,8 +1,9 @@
 ---
 import StoreLayout from '@/src/layouts/StoreLayout.astro';
-import { db } from '@/db';
-import { products, categories } from '@/db/schema';
-import { eq, and, desc, asc, ilike, or, sql } from 'drizzle-orm';
+import {
+  getCachedCategories,
+  getCachedAllActiveProducts,
+} from '@/lib/cache/catalog-cache';
 import { ProductCard } from '@/components/store/product-card';
 import { ProductsCatalogToolbar } from '@/components/store/products-catalog-toolbar';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -23,6 +24,12 @@ if (!isValidLocale(locale)) {
   return Astro.redirect('/en');
 }
 
+// Edge & Browser Cache: 30s fresh, 120s stale-while-revalidate
+Astro.response.headers.set(
+  'Cache-Control',
+  'public, max-age=0, s-maxage=30, stale-while-revalidate=120'
+);
+
 const url = Astro.url;
 const search = url.searchParams.get('search') || '';
 const sort = url.searchParams.get('sort') || 'newest';
@@ -31,108 +38,84 @@ const featured = isCombos || url.searchParams.get('featured') === 'true';
 const bestseller = url.searchParams.get('bestseller') === 'true';
 const categorySlug = url.searchParams.get('category') || '';
 
-const conditions = [eq(products.isActive, true)];
-if (search) {
-  conditions.push(
-    or(
-      ilike(products.name, `%${search}%`),
-      ilike(products.nameTa, `%${search}%`),
-      ilike(products.description, `%${search}%`),
-      ilike(products.descriptionTa, `%${search}%`)
-    )!
-  );
-}
-if (isCombos) {
-  conditions.push(
-    or(
-      eq(products.isCombo, true),
-      eq(products.isFeatured, true),
-      ilike(products.name, '%combo%'),
-      ilike(products.name, '%gift%')
-    )!
-  );
-} else if (featured) {
-  conditions.push(eq(products.isFeatured, true));
-}
-if (bestseller) conditions.push(eq(products.isBestseller, true));
-
-let activeCategory: { id: number; name: string; nameTa?: string | null } | undefined;
-if (categorySlug) {
-  const found = await db.query.categories.findFirst({
-    where: eq(categories.slug, categorySlug),
-  });
-  if (found) {
-    activeCategory = found;
-    conditions.push(eq(products.categoryId, found.id));
-  }
-}
-
-let orderBy;
-switch (sort) {
-  case 'price_asc':
-    orderBy = asc(products.sellingPrice);
-    break;
-  case 'price_desc':
-    orderBy = desc(products.sellingPrice);
-    break;
-  case 'name_asc':
-    orderBy = asc(locale === 'ta' ? products.nameTa : products.name);
-    break;
-  default:
-    orderBy = desc(products.createdAt);
-}
-
-const [
-  productList,
-  categoryList,
-  allCountRow,
-  categoryCountRows,
-  comboCountRow,
-  bestsellerCountRow,
-] = await Promise.all([
-  db.query.products.findMany({
-    where: and(...conditions),
-    with: {
-      media: { orderBy: (m, { asc }) => [asc(m.sortOrder)], limit: 1 },
-      category: true,
-    },
-    orderBy: () => [orderBy],
-  }),
-  db.query.categories.findMany({
-    where: eq(categories.isActive, true),
-    orderBy: (c, { asc }) => [asc(c.sortOrder)],
-  }),
-  db.select({ count: sql<number>`count(*)::int` }).from(products).where(eq(products.isActive, true)),
-  db.select({ categoryId: products.categoryId, count: sql<number>`count(*)::int` })
-    .from(products)
-    .where(eq(products.isActive, true))
-    .groupBy(products.categoryId),
-  db.select({ count: sql<number>`count(*)::int` })
-    .from(products)
-    .where(
-      and(
-        eq(products.isActive, true),
-        or(
-          eq(products.isCombo, true),
-          eq(products.isFeatured, true),
-          ilike(products.name, '%combo%'),
-          ilike(products.name, '%gift%')
-        )!
-      )
-    ),
-  db.select({ count: sql<number>`count(*)::int` })
-    .from(products)
-    .where(and(eq(products.isActive, true), eq(products.isBestseller, true))),
+// Fetch all active categories & products from in-memory cache (< 0.2ms)
+const [categoryList, allActiveProducts] = await Promise.all([
+  getCachedCategories(),
+  getCachedAllActiveProducts(),
 ]);
 
-const totalActiveCount = allCountRow[0]?.count ?? 0;
-const categoryCountMap = new Map<number, number>(
-  categoryCountRows
-    .filter((r) => r.categoryId !== null)
-    .map((r) => [r.categoryId as number, r.count])
-);
-const comboTotalCount = comboCountRow[0]?.count ?? 0;
-const bestsellerTotalCount = bestsellerCountRow[0]?.count ?? 0;
+// Compute counts instantly from memory
+const totalActiveCount = allActiveProducts.length;
+const categoryCountMap = new Map<number, number>();
+let comboTotalCount = 0;
+let bestsellerTotalCount = 0;
+
+for (const p of allActiveProducts) {
+  if (p.categoryId) {
+    categoryCountMap.set(p.categoryId, (categoryCountMap.get(p.categoryId) || 0) + 1);
+  }
+  const isComboItem = Boolean(
+    p.isCombo ||
+    p.isFeatured ||
+    (p.name && /combo|gift/i.test(p.name))
+  );
+  if (isComboItem) comboTotalCount++;
+  if (p.isBestseller) bestsellerTotalCount++;
+}
+
+// Active category if category filter is set
+let activeCategory: { id: number; name: string; nameTa?: string | null } | undefined;
+if (categorySlug) {
+  activeCategory = categoryList.find((c) => c.slug === categorySlug);
+}
+
+// Filter products in memory
+let filtered = allActiveProducts;
+
+if (search.trim()) {
+  const query = search.trim().toLowerCase();
+  filtered = filtered.filter((p) => {
+    return (
+      (p.name && p.name.toLowerCase().includes(query)) ||
+      (p.nameTa && p.nameTa.toLowerCase().includes(query)) ||
+      (p.description && p.description.toLowerCase().includes(query)) ||
+      (p.descriptionTa && p.descriptionTa.toLowerCase().includes(query))
+    );
+  });
+}
+
+if (isCombos) {
+  filtered = filtered.filter((p) =>
+    Boolean(p.isCombo || p.isFeatured || (p.name && /combo|gift/i.test(p.name)))
+  );
+} else if (featured) {
+  filtered = filtered.filter((p) => Boolean(p.isFeatured));
+}
+
+if (bestseller) {
+  filtered = filtered.filter((p) => Boolean(p.isBestseller));
+}
+
+if (activeCategory) {
+  filtered = filtered.filter((p) => p.categoryId === activeCategory!.id);
+}
+
+// Sort in memory
+const productList = [...filtered].sort((a, b) => {
+  switch (sort) {
+    case 'price_asc':
+      return Number(a.sellingPrice || 0) - Number(b.sellingPrice || 0);
+    case 'price_desc':
+      return Number(b.sellingPrice || 0) - Number(a.sellingPrice || 0);
+    case 'name_asc': {
+      const nameA = locale === 'ta' && a.nameTa ? a.nameTa : (a.name || '');
+      const nameB = locale === 'ta' && b.nameTa ? b.nameTa : (b.name || '');
+      return nameA.localeCompare(nameB);
+    }
+    default:
+      return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+  }
+});
 
 const tNav = getTranslations(locale, 'navigation');
 const tProd = getTranslations(locale, 'products');

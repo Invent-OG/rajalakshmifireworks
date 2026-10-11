@@ -1,8 +1,10 @@
 ---
 import StoreLayout from "@/src/layouts/StoreLayout.astro";
-import { db } from "@/db";
-import { categories, products, settings } from "@/db/schema";
-import { eq, desc, and } from "drizzle-orm";
+import {
+  getCachedCategories,
+  getCachedAllActiveProducts,
+  getCachedHeroConfig,
+} from "@/lib/cache/catalog-cache";
 import { FeaturedProductsSlider } from "@/components/store/featured-products-slider";
 import Featured_05 from "@/components/ui/globe-feature-section";
 import { HomeMotion } from "@/components/store/home-motion";
@@ -21,37 +23,27 @@ if (!isValidLocale(locale)) {
   return Astro.redirect("/en");
 }
 
-const [categoryList, featuredProducts, bestsellerProducts, heroConfigRow] =
-  await Promise.all([
-    db.query.categories.findMany({
-      where: eq(categories.isActive, true),
-      orderBy: (c, { asc }) => [asc(c.sortOrder)],
-      limit: 8,
-    }),
-    db.query.products.findMany({
-      where: and(eq(products.isActive, true), eq(products.isFeatured, true)),
-      with: {
-        category: true,
-        media: { orderBy: (m, { asc }) => [asc(m.sortOrder)], limit: 1 },
-      },
-      limit: 12,
-      orderBy: [desc(products.createdAt)],
-    }),
-    db.query.products.findMany({
-      where: and(eq(products.isActive, true), eq(products.isBestseller, true)),
-      with: {
-        category: true,
-        media: { orderBy: (m, { asc }) => [asc(m.sortOrder)], limit: 1 },
-      },
-      limit: 12,
-      orderBy: [desc(products.createdAt)],
-    }),
-    db.query.settings.findFirst({
-      where: eq(settings.key, "HERO_SLIDES_CONFIG"),
-    }),
-  ]);
+// Edge & Browser Cache: 30s fresh, 120s stale-while-revalidate
+Astro.response.headers.set(
+  "Cache-Control",
+  "public, max-age=0, s-maxage=30, stale-while-revalidate=120"
+);
 
-const heroConfig = parseHeroConfig(heroConfigRow?.value);
+const [allCategories, allActiveProducts, heroConfigRaw] = await Promise.all([
+  getCachedCategories(),
+  getCachedAllActiveProducts(),
+  getCachedHeroConfig(),
+]);
+
+const categoryList = allCategories.slice(0, 8);
+const featuredProducts = allActiveProducts
+  .filter((p) => p.isFeatured)
+  .slice(0, 12);
+const bestsellerProducts = allActiveProducts
+  .filter((p) => p.isBestseller)
+  .slice(0, 12);
+
+const heroConfig = parseHeroConfig(heroConfigRaw);
 const tSeo = getTranslations(locale, "seo");
 ---
 
@@ -131,7 +123,7 @@ const tSeo = getTranslations(locale, "seo");
         featuredProducts.length > 0 && (
           <section class="reveal-section w-full">
             <FeaturedProductsSlider
-              client:load
+              client:visible
               products={featuredProducts}
               title={
                 locale === "ta"

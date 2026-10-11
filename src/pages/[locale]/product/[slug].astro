@@ -23,6 +23,12 @@ if (!slug) {
   return Astro.redirect(`/${locale}/products`);
 }
 
+// Edge & Browser Cache: 60s fresh, 300s stale-while-revalidate
+Astro.response.headers.set(
+  'Cache-Control',
+  'public, max-age=0, s-maxage=60, stale-while-revalidate=300'
+);
+
 const product = await db.query.products.findFirst({
   where: eq(products.slug, slug),
   with: {

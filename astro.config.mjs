@@ -16,6 +16,10 @@ export default defineConfig({
   output: 'server',
   adapter: isNodeStandalone ? node({ mode: 'standalone' }) : vercel(),
   integrations: [react()],
+  prefetch: {
+    prefetchAll: true,
+    defaultStrategy: 'hover',
+  },
   vite: {
     plugins: [tailwindcss()],
     resolve: {

@@ -4,6 +4,7 @@ import { categories, products } from '@/db/schema';
 import { eq, inArray, sql } from 'drizzle-orm';
 import { slugify, toNumber } from '@/lib/utils/format';
 import { logger } from '@/lib/utils/logger';
+import { invalidateCatalogCache } from '@/lib/cache/catalog-cache';
 
 export interface RawProductRow {
   [key: string]: any;
@@ -1044,6 +1045,8 @@ export async function executeBulkProductImport({
     failed: failedCount,
     adminEmail,
   });
+
+  invalidateCatalogCache();
 
   return {
     success: failedCount === 0 || importedCount > 0 || updatedCount > 0,
