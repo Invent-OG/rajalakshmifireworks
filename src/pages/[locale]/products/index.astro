@@ -90,7 +90,6 @@ const [productList, categoryList] = await Promise.all([
       category: true,
     },
     orderBy: () => [orderBy],
-    limit: 100,
   }),
   db.query.categories.findMany({
     where: eq(categories.isActive, true),
