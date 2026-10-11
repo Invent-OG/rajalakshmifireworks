@@ -45,6 +45,8 @@ import {
   Trash2,
   Search,
   ShoppingBag,
+  Save,
+  Settings,
 } from 'lucide-react';
 import Link from '@/components/ui/link';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -53,6 +55,8 @@ import {
   getOrderWhatsAppTemplates,
   generateCustomerWhatsAppQuotationUrl,
   buildWhatsAppShareUrl,
+  WHATSAPP_SETTINGS_KEYS,
+  DEFAULT_WHATSAPP_TEMPLATES,
   type WhatsAppProcessType,
   type WhatsAppOrderData,
 } from '@/lib/services/whatsapp-service';
@@ -483,7 +487,38 @@ function AdminOrderDetailPageContent({
     trackingUrl,
   };
 
-  const templatesList = getOrderWhatsAppTemplates(whatsAppOrderData, order.customerMobileSnapshot);
+  // Fetch store settings for configurable WhatsApp templates
+  const { data: settingsData } = useQuery<{ settings: Record<string, string> }>({
+    queryKey: ['admin', 'settings'],
+    queryFn: async () => {
+      const res = await fetch('/api/admin/settings');
+      if (!res.ok) return { settings: {} };
+      return res.json();
+    },
+    staleTime: 60 * 1000,
+  });
+
+  const settingsTemplates = useMemo(() => {
+    if (!settingsData?.settings) return undefined;
+    return {
+      ORDER_CONFIRMED: settingsData.settings.WHATSAPP_TEMPLATE_ORDER_CONFIRMED,
+      ORDER_ASSIGNED: settingsData.settings.WHATSAPP_TEMPLATE_ORDER_ASSIGNED,
+      ORDER_OUT_FOR_DELIVERY: settingsData.settings.WHATSAPP_TEMPLATE_ORDER_OUT_FOR_DELIVERY,
+      ORDER_DELIVERED: settingsData.settings.WHATSAPP_TEMPLATE_ORDER_DELIVERED,
+      ORDER_RECEIVED: settingsData.settings.WHATSAPP_TEMPLATE_ORDER_RECEIVED,
+    };
+  }, [settingsData]);
+
+  const templatesList = getOrderWhatsAppTemplates(
+    whatsAppOrderData,
+    order.customerMobileSnapshot,
+    settingsTemplates,
+    {
+      storeName: settingsData?.settings?.STORE_NAME,
+      storePhone: settingsData?.settings?.STORE_PHONE,
+      whatsappNumber: settingsData?.settings?.WHATSAPP_NUMBER,
+    }
+  );
   const activeTemplate =
     templatesList.find((t) => t.type === selectedWhatsAppProcess) || templatesList[0];
 
@@ -505,6 +540,32 @@ function AdminOrderDetailPageContent({
     });
     toast.info(`Reset ${activeTemplate.label} to default`);
   };
+
+  const saveTemplateToSettingsMutation = useMutation({
+    mutationFn: async () => {
+      const settingKey = WHATSAPP_SETTINGS_KEYS[selectedWhatsAppProcess];
+      const res = await fetch('/api/admin/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          [settingKey]: currentMessageText,
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || 'Failed to save template to settings');
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'settings'] });
+      queryClient.invalidateQueries({ queryKey: ['settings'] });
+      toast.success(`Saved as default template in Settings for ${activeTemplate.label}!`);
+    },
+    onError: (err: any) => {
+      toast.error(err.message || 'Failed to save template to settings');
+    },
+  });
 
   const getProcessShareUrl = (processType: WhatsAppProcessType) => {
     const tpl = templatesList.find((t) => t.type === processType);
@@ -535,8 +596,8 @@ function AdminOrderDetailPageContent({
 
   const deliverySteps = [
     { id: 'REVIEW', stepNum: 1, label: 'Review order', desc: 'Placed by customer', icon: FileText },
-    { id: 'CONFIRMED', stepNum: 2, label: 'Confirm order', desc: 'Confirmed by store', icon: ShieldCheck },
-    { id: 'PAYMENT', stepNum: 3, label: 'Check payment', desc: isPaid ? 'Payment verified' : 'Payment pending', icon: CreditCard },
+    { id: 'PAYMENT', stepNum: 2, label: 'Check payment', desc: isPaid ? 'Payment verified' : 'Payment pending', icon: CreditCard },
+    { id: 'CONFIRMED', stepNum: 3, label: 'Confirm order', desc: currentStatus !== 'NEW' ? 'Confirmed by store' : 'Stock reserved', icon: ShieldCheck },
     { id: 'ASSIGNED', stepNum: 4, label: 'Delivery partner', desc: assignedPartner ? (assignedPartner.name || assignedPartner.fullName) : 'Partner assignment', icon: Truck },
     { id: 'OUT_FOR_DELIVERY', stepNum: 5, label: 'Shipping', desc: 'Out for delivery', icon: Package },
     { id: 'DELIVERED', stepNum: 6, label: 'Delivered', desc: 'Received by customer', icon: CheckCircle2 },
@@ -544,8 +605,8 @@ function AdminOrderDetailPageContent({
 
   const pickupSteps = [
     { id: 'REVIEW', stepNum: 1, label: 'Review order', desc: 'Placed by customer', icon: FileText },
-    { id: 'CONFIRMED', stepNum: 2, label: 'Confirm order', desc: 'Stock reserved', icon: ShieldCheck },
-    { id: 'PAYMENT', stepNum: 3, label: 'Check payment', desc: isPaid ? 'Payment verified' : 'Payment pending', icon: CreditCard },
+    { id: 'PAYMENT', stepNum: 2, label: 'Check payment', desc: isPaid ? 'Payment verified' : 'Payment pending', icon: CreditCard },
+    { id: 'CONFIRMED', stepNum: 3, label: 'Confirm order', desc: currentStatus !== 'NEW' ? 'Confirmed by store' : 'Stock reserved', icon: ShieldCheck },
     { id: 'READY', stepNum: 4, label: 'Ready for pickup', desc: 'Counter ready in Sivakasi', icon: Store },
     { id: 'DELIVERED', stepNum: 5, label: 'Delivered', desc: 'Collected at counter', icon: CheckCircle2 },
   ];
@@ -556,19 +617,18 @@ function AdminOrderDetailPageContent({
     if (currentStatus === 'CANCELLED') return 'cancelled';
 
     if (stepId === 'REVIEW') {
-      return currentStatus === 'NEW' ? 'current' : 'completed';
-    }
-
-    if (stepId === 'CONFIRMED') {
-      if (currentStatus === 'NEW') return 'upcoming';
       return 'completed';
     }
 
     if (stepId === 'PAYMENT') {
-      if (currentStatus === 'NEW') {
-        return isPaid ? 'completed' : 'locked';
-      }
       return isPaid ? 'completed' : 'current';
+    }
+
+    if (stepId === 'CONFIRMED') {
+      if (currentStatus === 'NEW') {
+        return isPaid ? 'current' : 'upcoming';
+      }
+      return 'completed';
     }
 
     if (stepId === 'ASSIGNED') {
@@ -939,10 +999,10 @@ function AdminOrderDetailPageContent({
                     <CheckCircle2 className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
                   ) : currentStatus === 'CANCELLED' ? (
                     <XCircle className="h-6 w-6 text-destructive" />
-                  ) : currentStatus === 'NEW' ? (
-                    <FileText className="h-6 w-6 text-brand-foreground" />
-                  ) : currentStatus === 'CONFIRMED' && !isPaid ? (
+                  ) : !isPaid ? (
                     <CreditCard className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+                  ) : currentStatus === 'NEW' ? (
+                    <ShieldCheck className="h-6 w-6 text-brand-foreground" />
                   ) : currentStatus === 'CONFIRMED' && isPaid && !assignedPartner ? (
                     <Truck className="h-6 w-6 text-foreground" />
                   ) : currentStatus === 'ASSIGNED' ? (
@@ -957,11 +1017,12 @@ function AdminOrderDetailPageContent({
                     <h3 className="font-bold text-sm sm:text-base text-foreground">
                       {currentStatus === 'DELIVERED' && 'Order Fulfilled & Delivered'}
                       {currentStatus === 'CANCELLED' && 'Order Cancelled'}
-                      {currentStatus === 'NEW' && 'Step 1: Review Order & Reserve Inventory'}
-                      {currentStatus === 'CONFIRMED' && !isPaid && 'Step 3: Check & Verify Payment'}
+                      {currentStatus === 'NEW' && !isPaid && 'Step 2: Check & Verify Payment'}
+                      {currentStatus === 'NEW' && isPaid && 'Step 3: Confirm Order & Reserve Inventory'}
+                      {currentStatus === 'CONFIRMED' && !isPaid && 'Step 2: Check & Verify Payment'}
                       {currentStatus === 'CONFIRMED' && isPaid && fulfillmentType === 'DELIVERY' && (!assignedPartner ? 'Step 4: Assign Delivery Partner' : 'Step 5: Ready for Dispatch')}
                       {currentStatus === 'CONFIRMED' && isPaid && fulfillmentType === 'PICKUP' && 'Step 4: Ready for Counter Pickup'}
-                      {currentStatus === 'ASSIGNED' && (isPaid ? 'Step 5: Handover & Out for Delivery' : 'Step 3: Verify Payment')}
+                      {currentStatus === 'ASSIGNED' && (isPaid ? 'Step 5: Handover & Out for Delivery' : 'Step 2: Check & Verify Payment')}
                       {currentStatus === 'OUT_FOR_DELIVERY' && 'Step 6: Out for Delivery Handover'}
                     </h3>
                     {currentStatus !== 'DELIVERED' && currentStatus !== 'CANCELLED' && (
@@ -974,7 +1035,8 @@ function AdminOrderDetailPageContent({
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     {currentStatus === 'DELIVERED' && 'All crackers delivered and received by customer. Fulfilled successfully.'}
                     {currentStatus === 'CANCELLED' && 'This order has been cancelled and will not be dispatched.'}
-                    {currentStatus === 'NEW' && 'Review item quantities, festive discounts, and customer details before confirming.'}
+                    {currentStatus === 'NEW' && !isPaid && 'Verify customer payment (UPI/Cash/Bank) before confirming the order.'}
+                    {currentStatus === 'NEW' && isPaid && 'Payment verified (PAID). Confirm order to reserve warehouse inventory.'}
                     {currentStatus === 'CONFIRMED' && !isPaid && 'Order is confirmed. Verify and record payment (UPI/Cash/Bank) to unlock dispatch.'}
                     {currentStatus === 'CONFIRMED' && isPaid && fulfillmentType === 'DELIVERY' && (!assignedPartner ? 'Payment verified (PAID). Select an active delivery partner for dispatch.' : `Partner ${assignedPartner.name} assigned. Ready to dispatch.`)}
                     {currentStatus === 'CONFIRMED' && isPaid && fulfillmentType === 'PICKUP' && 'Payment verified (PAID). Crackers are packed and ready at Sivakasi counter.'}
@@ -1001,8 +1063,34 @@ function AdminOrderDetailPageContent({
                   </button>
                 )}
 
-                {/* 1. Review -> Confirm Order */}
-                {currentStatus === 'NEW' && (
+                {/* 1. NEW & Unpaid -> Check & Mark as Paid (with option to confirm without payment) */}
+                {currentStatus === 'NEW' && !isPaid && (
+                  <>
+                    <Button
+                      variant="outline"
+                      className="w-full md:w-auto h-11 px-5 rounded-full font-bold text-xs sm:text-sm shadow-sm cursor-pointer"
+                      onClick={() => statusMutation.mutate({ newStatus: 'CONFIRMED' })}
+                      disabled={statusMutation.isPending}
+                    >
+                      <CheckCircle2 className="h-4 w-4 mr-1.5" /> Confirm Without Payment
+                    </Button>
+                    <Button
+                      className="w-full md:w-auto h-11 px-6 rounded-full font-bold text-sm bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm cursor-pointer"
+                      onClick={() => {
+                        setPaymentMethodInput(order.paymentMethod || 'UPI');
+                        setPaymentRefInput(order.paymentReference || '');
+                        setIsPaymentModalOpen(true);
+                      }}
+                      disabled={paymentMutation.isPending}
+                    >
+                      <CreditCard className="h-4 w-4 mr-1.5" /> Check & Mark as Paid
+                      <ChevronRight className="h-4 w-4 ml-1" />
+                    </Button>
+                  </>
+                )}
+
+                {/* 2. NEW & Paid -> Confirm Order */}
+                {currentStatus === 'NEW' && isPaid && (
                   <Button
                     className="w-full md:w-auto h-11 px-6 rounded-full font-bold text-sm bg-brand text-brand-foreground hover:brightness-105 shadow-sm cursor-pointer"
                     onClick={() => statusMutation.mutate({ newStatus: 'CONFIRMED' })}
@@ -1013,7 +1101,7 @@ function AdminOrderDetailPageContent({
                   </Button>
                 )}
 
-                {/* 2. Confirmed & Unpaid -> Check & Mark as Paid */}
+                {/* 3. Confirmed & Unpaid -> Check & Mark as Paid */}
                 {currentStatus === 'CONFIRMED' && !isPaid && (
                   <Button
                     className="w-full md:w-auto h-11 px-6 rounded-full font-bold text-sm bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm cursor-pointer"
@@ -1474,20 +1562,32 @@ function AdminOrderDetailPageContent({
 
             {/* Editable Message Box */}
             <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between flex-wrap gap-2">
                 <label className="text-[11px] font-medium text-muted-foreground">
                   WhatsApp Message (Editable):
                 </label>
-                {customMessages[selectedWhatsAppProcess] !== undefined &&
-                  customMessages[selectedWhatsAppProcess] !== activeDefaultText && (
-                    <button
-                      type="button"
-                      onClick={handleResetTemplate}
-                      className="text-[11px] text-brand hover:underline font-medium cursor-pointer"
-                    >
-                      Reset to default
-                    </button>
-                  )}
+                <div className="flex items-center gap-2.5">
+                  {customMessages[selectedWhatsAppProcess] !== undefined &&
+                    customMessages[selectedWhatsAppProcess] !== activeDefaultText && (
+                      <button
+                        type="button"
+                        onClick={handleResetTemplate}
+                        className="text-[11px] text-muted-foreground hover:text-foreground hover:underline font-medium cursor-pointer"
+                      >
+                        Reset to default
+                      </button>
+                    )}
+                  <button
+                    type="button"
+                    onClick={() => saveTemplateToSettingsMutation.mutate()}
+                    disabled={saveTemplateToSettingsMutation.isPending}
+                    title="Save current message as default template in Settings"
+                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 hover:underline cursor-pointer disabled:opacity-50"
+                  >
+                    <Save className="h-3 w-3" />
+                    {saveTemplateToSettingsMutation.isPending ? 'Saving...' : 'Save as Default in Settings'}
+                  </button>
+                </div>
               </div>
               <textarea
                 value={currentMessageText}

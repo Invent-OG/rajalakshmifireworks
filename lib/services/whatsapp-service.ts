@@ -281,10 +281,237 @@ export function buildOrderReceivedMessage(order: WhatsAppOrderData): string {
 /**
  * Build message by process type
  */
+/**
+ * Centralized Settings DB Keys mapping for configurable WhatsApp templates.
+ */
+export const WHATSAPP_SETTINGS_KEYS: Record<WhatsAppProcessType, string> = {
+  ORDER_CONFIRMED: 'WHATSAPP_TEMPLATE_ORDER_CONFIRMED',
+  ORDER_ASSIGNED: 'WHATSAPP_TEMPLATE_ORDER_ASSIGNED',
+  ORDER_OUT_FOR_DELIVERY: 'WHATSAPP_TEMPLATE_ORDER_OUT_FOR_DELIVERY',
+  ORDER_DELIVERED: 'WHATSAPP_TEMPLATE_ORDER_DELIVERED',
+  ORDER_RECEIVED: 'WHATSAPP_TEMPLATE_ORDER_RECEIVED',
+};
+
+/**
+ * Standard default template strings with placeholder tags.
+ */
+export const DEFAULT_WHATSAPP_TEMPLATES: Record<WhatsAppProcessType, string> = {
+  ORDER_CONFIRMED: `✨ *{storeName}* ✨
+🎉 *ORDER CONFIRMED & QUOTATION*
+━━━━━━━━━━━━━━━━━━━━━
+Dear *{customerName}*,
+Thank you for choosing {storeName}, Sivakasi! Your order has been reviewed and confirmed.
+
+📄 *Invoice No:* {invoiceNumber}
+📦 *Fulfillment:* {fulfillmentType}
+
+🛍️ *Ordered Products & Quotation:*
+{productsList}
+
+━━━━━━━━━━━━━━━━━━━━━
+💰 *Payment & Total Breakdown:*
+• Subtotal: {subtotal}
+• Delivery Charge: {deliveryCharge}
+*Grand Total: {totalAmount}*
+━━━━━━━━━━━━━━━━━━━━━
+
+📍 *Delivery Address:*
+{deliveryAddress}
+
+🔗 *View Order / Live Tracking:*
+{trackingUrl}
+
+📞 *Questions? Call/WhatsApp:* {storePhone}
+Wishing you a safe and joyful festive celebration! 🎆`,
+
+  ORDER_ASSIGNED: `✨ *{storeName}* ✨
+🚚 *ORDER DISPATCHED & DELIVERY ASSIGNED*
+━━━━━━━━━━━━━━━━━━━━━
+Dear *{customerName}*,
+Great news! Your fireworks order *{invoiceNumber}* has been packed and handed over to our delivery logistics partner.
+
+📦 *Logistics Partner Details:*
+• *Carrier / Partner:* {deliveryPartnerName}
+• *Partner Contact:* {deliveryPartnerMobile}
+• *Vehicle Number:* {deliveryPartnerVehicle}
+• *Total Items:* {itemsCount} items ({productsCount} products)
+• *Order Amount:* {totalAmount}
+• *Destination City:* {deliveryCity}
+
+🔗 *Track Your Delivery:*
+{trackingUrl}
+
+The delivery team will contact you prior to arrival.
+Thank you for shopping with {storeName}! 🎆`,
+
+  ORDER_OUT_FOR_DELIVERY: `✨ *{storeName}* ✨
+🛵 *OUT FOR DELIVERY TODAY!*
+━━━━━━━━━━━━━━━━━━━━━
+Dear *{customerName}*,
+Your fireworks order *{invoiceNumber}* is *OUT FOR DELIVERY* today!
+
+📦 *Consignment Summary:*
+• Total: {itemsCount} items | Amount: *{totalAmount}*
+• *Delivery Location:*
+  {deliveryAddress}
+
+🔔 *Please Note:* Kindly ensure an adult is available at the delivery address with a valid mobile phone to receive the package.
+
+🔗 *Live Status:*
+{trackingUrl}
+
+📞 *Delivery Helpline:* {storePhone}
+Get ready for dazzling festive moments! 🎆✨`,
+
+  ORDER_DELIVERED: `✨ *{storeName}* ✨
+✅ *ORDER DELIVERED SUCCESSFULLY!*
+━━━━━━━━━━━━━━━━━━━━━
+Dear *{customerName}*,
+Your fireworks package for order *{invoiceNumber}* has been delivered! 🎉
+
+📦 *Summary:* {productsCount} products | *{totalAmount}*
+
+🎆 May this festive season bring immense brightness, peace, and prosperity to you and your loved ones!
+
+⚠️ *Safety Reminder:*
+• Always ignite crackers under adult supervision in open outdoor spaces.
+• Keep a bucket of water and sand nearby for emergency safety.
+
+⭐ We would love to hear your feedback!
+📞 *Customer Support:* {storePhone}
+Thank you for choosing {storeName}! 🎇`,
+
+  ORDER_RECEIVED: `✨ *{storeName}* ✨
+📝 *ORDER RECEIVED*
+━━━━━━━━━━━━━━━━━━━━━
+Dear *{customerName}*,
+We have received your order *{invoiceNumber}* totaling *{totalAmount}*.
+Our team is reviewing the order and checking warehouse stock. We will send you the confirmed quotation shortly.
+
+🔗 *Track Status:* {trackingUrl}
+📞 *Helpline:* {storePhone}`,
+};
+
+/**
+ * List of available dynamic tags for template editing UI.
+ */
+export const WHATSAPP_TEMPLATE_TAGS: Array<{ tag: string; label: string; desc: string }> = [
+  { tag: '{customerName}', label: 'Customer Name', desc: 'Customer name snapshot' },
+  { tag: '{invoiceNumber}', label: 'Invoice No', desc: 'Order invoice identifier' },
+  { tag: '{totalAmount}', label: 'Grand Total', desc: 'Formatted grand total amount' },
+  { tag: '{productsList}', label: 'Product List', desc: 'Numbered list with quantities & prices' },
+  { tag: '{subtotal}', label: 'Subtotal', desc: 'Subtotal before discounts & shipping' },
+  { tag: '{discountAmount}', label: 'Discount', desc: 'Festive discount amount' },
+  { tag: '{deliveryCharge}', label: 'Delivery Fee', desc: 'Delivery charge or FREE' },
+  { tag: '{fulfillmentType}', label: 'Fulfillment', desc: 'Doorstep Delivery or Sivakasi Counter Pickup' },
+  { tag: '{deliveryAddress}', label: 'Delivery Address', desc: 'Full delivery address with city & PIN' },
+  { tag: '{deliveryCity}', label: 'City', desc: 'Destination city name' },
+  { tag: '{deliveryPartnerName}', label: 'Partner Name', desc: 'Assigned logistics partner name' },
+  { tag: '{deliveryPartnerMobile}', label: 'Partner Mobile', desc: 'Driver/partner contact number' },
+  { tag: '{deliveryPartnerVehicle}', label: 'Vehicle No', desc: 'Transport vehicle registration' },
+  { tag: '{trackingUrl}', label: 'Tracking URL', desc: 'Direct order view & tracking link' },
+  { tag: '{storeName}', label: 'Store Name', desc: 'Rajalakshmi Fireworks store name' },
+  { tag: '{storePhone}', label: 'Store Phone', desc: 'Customer care helpline phone' },
+  { tag: '{whatsappNumber}', label: 'WhatsApp Mobile', desc: 'Official WhatsApp order number' },
+  { tag: '{itemsCount}', label: 'Items Count', desc: 'Total aggregate items count' },
+  { tag: '{productsCount}', label: 'Products Count', desc: 'Number of distinct products' },
+];
+
+/**
+ * Interpolates template string placeholders with actual order and store data.
+ */
+export function interpolateWhatsAppTemplate(
+  template: string,
+  order: WhatsAppOrderData,
+  storeConfig?: { storeName?: string; storePhone?: string; whatsappNumber?: string }
+): string {
+  if (!template) return '';
+
+  const storeName = storeConfig?.storeName || APP_CONFIG.STORE_NAME || 'Rajalakshmi Fireworks';
+  const storePhone = storeConfig?.storePhone || APP_CONFIG.STORE_PHONE || '+91 9876543210';
+  const whatsappNumber = storeConfig?.whatsappNumber || APP_CONFIG.WHATSAPP_NUMBER || '919876543210';
+
+  const customerName = order.customerName || 'Valued Customer';
+  const customerMobile = order.customerMobile || '';
+  const invoiceNumber = order.invoiceNumber || 'N/A';
+  const fulfillmentType =
+    order.fulfillmentType === 'DELIVERY' ? 'Doorstep Delivery' : 'Sivakasi Counter Pickup';
+
+  const items = order.items || [];
+  let productsList = '';
+  if (items.length > 0) {
+    productsList = items
+      .map((item, idx) => {
+        const qty = item.quantity || 1;
+        const price = item.price || 0;
+        const lineTotal = price * qty;
+        return `${idx + 1}. *${item.name}*\n    Qty: ${qty} × ${formatCurrency(price)} = *${formatCurrency(lineTotal)}*`;
+      })
+      .join('\n');
+  } else {
+    productsList = '• No items listed';
+  }
+
+  const itemsCount = String(items.reduce((acc, i) => acc + (i.quantity || 1), 0));
+  const productsCount = String(items.length);
+  const subtotal = formatCurrency(order.subtotal || 0);
+  const discountAmount = formatCurrency(order.discountAmount || 0);
+  const deliveryCharge =
+    (order.deliveryCharge || 0) > 0 ? formatCurrency(order.deliveryCharge) : 'FREE';
+  const totalAmount = formatCurrency(order.totalAmount || 0);
+  const deliveryAddress =
+    formatOrderAddress(order.address) ||
+    (order.fulfillmentType === 'DELIVERY' ? 'Address on file' : 'Sivakasi Counter Pickup');
+  const deliveryCity = order.address?.city || '';
+  const deliveryPartnerName = order.deliveryPartner?.name || 'Express Logistics Partner';
+  const deliveryPartnerMobile = order.deliveryPartner?.mobileNumber || 'N/A';
+  const deliveryPartnerVehicle = order.deliveryPartner?.vehicleNumber || 'N/A';
+  const trackingUrl = order.trackingUrl || '';
+
+  const replacements: Record<string, string> = {
+    '{storeName}': storeName,
+    '{storePhone}': storePhone,
+    '{whatsappNumber}': whatsappNumber,
+    '{customerName}': customerName,
+    '{customerMobile}': customerMobile,
+    '{invoiceNumber}': invoiceNumber,
+    '{fulfillmentType}': fulfillmentType,
+    '{productsList}': productsList,
+    '{items}': productsList,
+    '{itemsCount}': itemsCount,
+    '{productsCount}': productsCount,
+    '{subtotal}': subtotal,
+    '{discountAmount}': discountAmount,
+    '{deliveryCharge}': deliveryCharge,
+    '{totalAmount}': totalAmount,
+    '{deliveryAddress}': deliveryAddress,
+    '{deliveryCity}': deliveryCity,
+    '{deliveryPartnerName}': deliveryPartnerName,
+    '{deliveryPartnerMobile}': deliveryPartnerMobile,
+    '{deliveryPartnerVehicle}': deliveryPartnerVehicle,
+    '{trackingUrl}': trackingUrl,
+  };
+
+  let result = template;
+  for (const [key, val] of Object.entries(replacements)) {
+    result = result.split(key).join(val);
+  }
+  return result;
+}
+
+/**
+ * Build message by process type (supports custom template override)
+ */
 export function buildProcessWhatsAppMessage(
   processType: WhatsAppProcessType,
-  order: WhatsAppOrderData
+  order: WhatsAppOrderData,
+  customTemplate?: string | null,
+  storeConfig?: { storeName?: string; storePhone?: string; whatsappNumber?: string }
 ): string {
+  if (customTemplate && customTemplate.trim().length > 0) {
+    return interpolateWhatsAppTemplate(customTemplate, order, storeConfig);
+  }
+
   switch (processType) {
     case 'ORDER_CONFIRMED':
       return buildOrderConfirmationMessage(order);
@@ -317,7 +544,6 @@ export function generateWhatsAppUrl(order: WhatsAppOrderData): string {
   return buildWhatsAppShareUrl(phone, message);
 }
 
-
 export function generateCustomerWhatsAppQuotationUrl(
   customerMobile: string | null | undefined,
   order: WhatsAppOrderData
@@ -329,9 +555,11 @@ export function generateCustomerWhatsAppQuotationUrl(
 export function generateWhatsAppProcessShareUrl(
   customerMobile: string | null | undefined,
   order: WhatsAppOrderData,
-  processType: WhatsAppProcessType
+  processType: WhatsAppProcessType,
+  customTemplate?: string | null,
+  storeConfig?: { storeName?: string; storePhone?: string; whatsappNumber?: string }
 ): string {
-  const message = buildProcessWhatsAppMessage(processType, order);
+  const message = buildProcessWhatsAppMessage(processType, order, customTemplate, storeConfig);
   return buildWhatsAppShareUrl(customerMobile || '', message);
 }
 
@@ -346,53 +574,61 @@ export interface WhatsAppTemplateOption {
 
 /**
  * Get all available process templates with pre-rendered messages and wa.me links
+ * Supports overriding template strings from Store Settings
  */
 export function getOrderWhatsAppTemplates(
   order: WhatsAppOrderData,
-  customerMobile?: string | null
+  customerMobile?: string | null,
+  customTemplates?: Partial<Record<WhatsAppProcessType, string>>,
+  storeConfig?: { storeName?: string; storePhone?: string; whatsappNumber?: string }
 ): WhatsAppTemplateOption[] {
   const phone = customerMobile || order.customerMobile || '';
-  
+
+  const getMsg = (type: WhatsAppProcessType) => {
+    const custom = customTemplates?.[type];
+    return buildProcessWhatsAppMessage(type, order, custom, storeConfig);
+  };
+
   return [
     {
       type: 'ORDER_CONFIRMED',
       label: 'Order Confirmed & Quotation',
       badge: 'Quotation with Products',
       description: 'Send itemized product list, prices, totals, and confirmation link.',
-      messageText: buildOrderConfirmationMessage(order),
-      shareUrl: generateWhatsAppProcessShareUrl(phone, order, 'ORDER_CONFIRMED'),
+      messageText: getMsg('ORDER_CONFIRMED'),
+      shareUrl: generateWhatsAppProcessShareUrl(phone, order, 'ORDER_CONFIRMED', customTemplates?.ORDER_CONFIRMED, storeConfig),
     },
     {
       type: 'ORDER_ASSIGNED',
       label: 'Delivery Assigned',
       badge: 'Dispatched & Courier',
       description: 'Send logistics partner name, contact, vehicle, and dispatch details.',
-      messageText: buildOrderAssignedMessage(order),
-      shareUrl: generateWhatsAppProcessShareUrl(phone, order, 'ORDER_ASSIGNED'),
+      messageText: getMsg('ORDER_ASSIGNED'),
+      shareUrl: generateWhatsAppProcessShareUrl(phone, order, 'ORDER_ASSIGNED', customTemplates?.ORDER_ASSIGNED, storeConfig),
     },
     {
       type: 'ORDER_OUT_FOR_DELIVERY',
       label: 'Out for Delivery',
       badge: 'Out Today',
       description: 'Notify customer that the delivery team is on the way today.',
-      messageText: buildOrderOutForDeliveryMessage(order),
-      shareUrl: generateWhatsAppProcessShareUrl(phone, order, 'ORDER_OUT_FOR_DELIVERY'),
+      messageText: getMsg('ORDER_OUT_FOR_DELIVERY'),
+      shareUrl: generateWhatsAppProcessShareUrl(phone, order, 'ORDER_OUT_FOR_DELIVERY', customTemplates?.ORDER_OUT_FOR_DELIVERY, storeConfig),
     },
     {
       type: 'ORDER_DELIVERED',
       label: 'Delivered Successfully',
       badge: 'Completed & Wishes',
       description: 'Confirm successful delivery with safety tips and festive wishes.',
-      messageText: buildOrderDeliveredMessage(order),
-      shareUrl: generateWhatsAppProcessShareUrl(phone, order, 'ORDER_DELIVERED'),
+      messageText: getMsg('ORDER_DELIVERED'),
+      shareUrl: generateWhatsAppProcessShareUrl(phone, order, 'ORDER_DELIVERED', customTemplates?.ORDER_DELIVERED, storeConfig),
     },
     {
       type: 'ORDER_RECEIVED',
       label: 'Order Received',
       badge: 'Initial Acknowledgement',
       description: 'Initial order acknowledgement before admin verification.',
-      messageText: buildOrderReceivedMessage(order),
-      shareUrl: generateWhatsAppProcessShareUrl(phone, order, 'ORDER_RECEIVED'),
+      messageText: getMsg('ORDER_RECEIVED'),
+      shareUrl: generateWhatsAppProcessShareUrl(phone, order, 'ORDER_RECEIVED', customTemplates?.ORDER_RECEIVED, storeConfig),
     },
   ];
 }

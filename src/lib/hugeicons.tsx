@@ -127,8 +127,10 @@ export const Sparkle: React.FC<IconProps> = createIcon(HugeIcons.SparklesIcon);
 export const Sparkles: React.FC<IconProps> = createIcon(HugeIcons.SparklesIcon);
 export const Square: React.FC<IconProps> = createIcon(HugeIcons.SquareIcon);
 export const Star: React.FC<IconProps> = createIcon(HugeIcons.StarIcon);
+export const Info: React.FC<IconProps> = createIcon(HugeIcons.InformationCircleIcon);
 export const Store: React.FC<IconProps> = createIcon(HugeIcons.Store01Icon);
 export const Sun: React.FC<IconProps> = createIcon(HugeIcons.Sun01Icon);
+export const Tag: React.FC<IconProps> = createIcon(HugeIcons.Tag01Icon);
 export const Tags: React.FC<IconProps> = createIcon(HugeIcons.Tag01Icon);
 export const Trash2: React.FC<IconProps> = createIcon(HugeIcons.Delete01Icon);
 export const TrendingDown: React.FC<IconProps> = createIcon(HugeIcons.TradeDownIcon);
@@ -253,8 +255,10 @@ export default {
   Sparkles,
   Square,
   Star,
+  Info,
   Store,
   Sun,
+  Tag,
   Tags,
   Trash2,
   TrendingDown,

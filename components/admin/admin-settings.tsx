@@ -6,12 +6,32 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input, Textarea } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Save, Truck, MessageSquare, Sparkles, UserCog, ArrowRight, Sun, Moon, Printer, CreditCard, FileText, Sliders, X } from 'lucide-react';
+import { Save, Truck, MessageSquare, Sparkles, UserCog, ArrowRight, Sun, Moon, Printer, CreditCard, FileText, Sliders, X, Copy, Check, RotateCcw, Info, Tag } from 'lucide-react';
 import { toast } from 'sonner';
 import { Banner } from '@/components/ui/banner';
 import { useAdminTheme } from '@/hooks/use-admin-theme';
+import {
+  DEFAULT_WHATSAPP_TEMPLATES,
+  WHATSAPP_SETTINGS_KEYS,
+  WHATSAPP_TEMPLATE_TAGS,
+  interpolateWhatsAppTemplate,
+  type WhatsAppProcessType,
+  type WhatsAppOrderData,
+} from '@/lib/services/whatsapp-service';
 
 import { withAdminShell } from './admin-shell';
+
+const WHATSAPP_PROCESS_TABS: Array<{
+  type: WhatsAppProcessType;
+  label: string;
+  badge: string;
+}> = [
+  { type: 'ORDER_CONFIRMED', label: 'Order Confirmed & Quotation', badge: 'Quotation with Products' },
+  { type: 'ORDER_ASSIGNED', label: 'Delivery Assigned', badge: 'Dispatched & Courier' },
+  { type: 'ORDER_OUT_FOR_DELIVERY', label: 'Out for Delivery', badge: 'Out Today' },
+  { type: 'ORDER_DELIVERED', label: 'Delivered Successfully', badge: 'Completed & Wishes' },
+  { type: 'ORDER_RECEIVED', label: 'Order Received', badge: 'Initial Acknowledgement' },
+];
 
 function AdminSettingsPageContent() {
   const queryClient = useQueryClient();
@@ -37,6 +57,13 @@ function AdminSettingsPageContent() {
   const [invoiceUpiId, setInvoiceUpiId] = useState('');
   const [invoiceTerms, setInvoiceTerms] = useState('');
   const [invoiceSafetyNotice, setInvoiceSafetyNotice] = useState('');
+  const [tplOrderConfirmed, setTplOrderConfirmed] = useState(DEFAULT_WHATSAPP_TEMPLATES.ORDER_CONFIRMED);
+  const [tplOrderAssigned, setTplOrderAssigned] = useState(DEFAULT_WHATSAPP_TEMPLATES.ORDER_ASSIGNED);
+  const [tplOrderOutForDelivery, setTplOrderOutForDelivery] = useState(DEFAULT_WHATSAPP_TEMPLATES.ORDER_OUT_FOR_DELIVERY);
+  const [tplOrderDelivered, setTplOrderDelivered] = useState(DEFAULT_WHATSAPP_TEMPLATES.ORDER_DELIVERED);
+  const [tplOrderReceived, setTplOrderReceived] = useState(DEFAULT_WHATSAPP_TEMPLATES.ORDER_RECEIVED);
+  const [activeWhatsAppTab, setActiveWhatsAppTab] = useState<WhatsAppProcessType>('ORDER_CONFIRMED');
+  const [isCopiedPreview, setIsCopiedPreview] = useState(false);
   const [initialized, setInitialized] = useState(false);
 
   const demoOrder = {
@@ -107,6 +134,11 @@ function AdminSettingsPageContent() {
           s.INVOICE_SAFETY_NOTICE ??
             'This is a computer generated invoice/dispatch memo. All products conform to Sivakasi fireworks safety guidelines. Keep strictly away from unattended children.'
         );
+        setTplOrderConfirmed(s.WHATSAPP_TEMPLATE_ORDER_CONFIRMED ?? DEFAULT_WHATSAPP_TEMPLATES.ORDER_CONFIRMED);
+        setTplOrderAssigned(s.WHATSAPP_TEMPLATE_ORDER_ASSIGNED ?? DEFAULT_WHATSAPP_TEMPLATES.ORDER_ASSIGNED);
+        setTplOrderOutForDelivery(s.WHATSAPP_TEMPLATE_ORDER_OUT_FOR_DELIVERY ?? DEFAULT_WHATSAPP_TEMPLATES.ORDER_OUT_FOR_DELIVERY);
+        setTplOrderDelivered(s.WHATSAPP_TEMPLATE_ORDER_DELIVERED ?? DEFAULT_WHATSAPP_TEMPLATES.ORDER_DELIVERED);
+        setTplOrderReceived(s.WHATSAPP_TEMPLATE_ORDER_RECEIVED ?? DEFAULT_WHATSAPP_TEMPLATES.ORDER_RECEIVED);
         setInitialized(true);
       }
       return json;
@@ -137,6 +169,11 @@ function AdminSettingsPageContent() {
         INVOICE_UPI_ID: invoiceUpiId,
         INVOICE_TERMS: invoiceTerms,
         INVOICE_SAFETY_NOTICE: invoiceSafetyNotice,
+        WHATSAPP_TEMPLATE_ORDER_CONFIRMED: tplOrderConfirmed,
+        WHATSAPP_TEMPLATE_ORDER_ASSIGNED: tplOrderAssigned,
+        WHATSAPP_TEMPLATE_ORDER_OUT_FOR_DELIVERY: tplOrderOutForDelivery,
+        WHATSAPP_TEMPLATE_ORDER_DELIVERED: tplOrderDelivered,
+        WHATSAPP_TEMPLATE_ORDER_RECEIVED: tplOrderReceived,
       };
 
       const res = await fetch('/api/admin/settings', {
@@ -562,6 +599,261 @@ function AdminSettingsPageContent() {
               onChange={(e) => setInvoiceSafetyNotice(e.target.value)}
               hint="Sivakasi fireworks compliance statement"
             />
+          </div>
+        </div>
+
+        {/* 05. WhatsApp Message Templates (Direct Share & Quotation) */}
+        <div className="p-6 sm:p-7 rounded-2xl bg-card border border-border space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-border">
+            <div className="flex items-center gap-2.5">
+              <div className="h-8 w-8 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0">
+                <MessageSquare className="h-4 w-4" />
+              </div>
+              <div>
+                <h2 className="font-bold text-sm uppercase tracking-wider text-foreground">
+                  05. WhatsApp Message Templates
+                </h2>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Customize the pre-formatted WhatsApp messages and quotation copy used when sharing order updates with customers.
+                </p>
+              </div>
+            </div>
+            <span className="text-[10px] font-mono px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-semibold self-start sm:self-auto">
+              Direct wa.me Messages
+            </span>
+          </div>
+
+          {/* Process Selector Tabs */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+            {WHATSAPP_PROCESS_TABS.map((tab) => {
+              const isSelected = activeWhatsAppTab === tab.type;
+              return (
+                <button
+                  key={tab.type}
+                  type="button"
+                  onClick={() => setActiveWhatsAppTab(tab.type)}
+                  className={`text-left p-3 rounded-xl border text-xs transition-all cursor-pointer ${
+                    isSelected
+                      ? 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/20 text-emerald-900 dark:text-emerald-200 font-semibold shadow-xs'
+                      : 'border-border/80 hover:border-border hover:bg-muted/30 text-foreground'
+                  }`}
+                >
+                  <p className="font-bold text-xs truncate">{tab.label}</p>
+                  <p className="text-[10px] text-muted-foreground line-clamp-1 mt-0.5">{tab.badge}</p>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Dynamic Placeholder Tag Insert Buttons */}
+          <div className="space-y-2 pt-1">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                <Tag className="h-3.5 w-3.5 text-brand" /> Available Dynamic Placeholders (Click to insert):
+              </label>
+              <button
+                type="button"
+                onClick={() => {
+                  const defaultVal = DEFAULT_WHATSAPP_TEMPLATES[activeWhatsAppTab];
+                  switch (activeWhatsAppTab) {
+                    case 'ORDER_CONFIRMED': setTplOrderConfirmed(defaultVal); break;
+                    case 'ORDER_ASSIGNED': setTplOrderAssigned(defaultVal); break;
+                    case 'ORDER_OUT_FOR_DELIVERY': setTplOrderOutForDelivery(defaultVal); break;
+                    case 'ORDER_DELIVERED': setTplOrderDelivered(defaultVal); break;
+                    case 'ORDER_RECEIVED': setTplOrderReceived(defaultVal); break;
+                  }
+                  toast.success(`Reset ${WHATSAPP_PROCESS_TABS.find(t => t.type === activeWhatsAppTab)?.label} to default`);
+                }}
+                className="text-xs text-brand hover:underline font-semibold flex items-center gap-1 cursor-pointer"
+              >
+                <RotateCcw className="h-3 w-3" /> Reset Template to Default
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-1.5 p-3 rounded-xl bg-muted/40 border border-border">
+              {WHATSAPP_TEMPLATE_TAGS.map((t) => (
+                <button
+                  key={t.tag}
+                  type="button"
+                  onClick={() => {
+                    const currentVal = (() => {
+                      switch (activeWhatsAppTab) {
+                        case 'ORDER_CONFIRMED': return tplOrderConfirmed;
+                        case 'ORDER_ASSIGNED': return tplOrderAssigned;
+                        case 'ORDER_OUT_FOR_DELIVERY': return tplOrderOutForDelivery;
+                        case 'ORDER_DELIVERED': return tplOrderDelivered;
+                        case 'ORDER_RECEIVED': return tplOrderReceived;
+                      }
+                    })();
+                    const newVal = currentVal ? `${currentVal} ${t.tag}` : t.tag;
+                    switch (activeWhatsAppTab) {
+                      case 'ORDER_CONFIRMED': setTplOrderConfirmed(newVal); break;
+                      case 'ORDER_ASSIGNED': setTplOrderAssigned(newVal); break;
+                      case 'ORDER_OUT_FOR_DELIVERY': setTplOrderOutForDelivery(newVal); break;
+                      case 'ORDER_DELIVERED': setTplOrderDelivered(newVal); break;
+                      case 'ORDER_RECEIVED': setTplOrderReceived(newVal); break;
+                    }
+                    toast.info(`Inserted ${t.tag}`);
+                  }}
+                  title={t.desc}
+                  className="px-2 py-1 rounded-md text-[11px] font-mono font-medium bg-card border border-border hover:border-emerald-500/50 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/30 text-foreground hover:text-emerald-700 dark:hover:text-emerald-400 transition-all cursor-pointer shadow-2xs"
+                >
+                  {t.tag}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Editor & Live Preview Side by Side */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 pt-1">
+            {/* Template Textarea */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-foreground">
+                  Template Editor ({WHATSAPP_PROCESS_TABS.find(t => t.type === activeWhatsAppTab)?.label}):
+                </label>
+                <span className="text-[10px] text-muted-foreground font-mono">
+                  {(() => {
+                    switch (activeWhatsAppTab) {
+                      case 'ORDER_CONFIRMED': return tplOrderConfirmed.length;
+                      case 'ORDER_ASSIGNED': return tplOrderAssigned.length;
+                      case 'ORDER_OUT_FOR_DELIVERY': return tplOrderOutForDelivery.length;
+                      case 'ORDER_DELIVERED': return tplOrderDelivered.length;
+                      case 'ORDER_RECEIVED': return tplOrderReceived.length;
+                    }
+                  })()} characters
+                </span>
+              </div>
+              <textarea
+                value={(() => {
+                  switch (activeWhatsAppTab) {
+                    case 'ORDER_CONFIRMED': return tplOrderConfirmed;
+                    case 'ORDER_ASSIGNED': return tplOrderAssigned;
+                    case 'ORDER_OUT_FOR_DELIVERY': return tplOrderOutForDelivery;
+                    case 'ORDER_DELIVERED': return tplOrderDelivered;
+                    case 'ORDER_RECEIVED': return tplOrderReceived;
+                  }
+                })()}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  switch (activeWhatsAppTab) {
+                    case 'ORDER_CONFIRMED': setTplOrderConfirmed(val); break;
+                    case 'ORDER_ASSIGNED': setTplOrderAssigned(val); break;
+                    case 'ORDER_OUT_FOR_DELIVERY': setTplOrderOutForDelivery(val); break;
+                    case 'ORDER_DELIVERED': setTplOrderDelivered(val); break;
+                    case 'ORDER_RECEIVED': setTplOrderReceived(val); break;
+                  }
+                }}
+                rows={14}
+                className="w-full text-xs font-mono p-3.5 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all resize-y shadow-2xs leading-relaxed"
+                placeholder="Enter template with dynamic placeholders like {customerName}, {invoiceNumber}..."
+              />
+            </div>
+
+            {/* Live Rendered Preview */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                  <Sparkles className="h-3.5 w-3.5 text-amber-500" /> Live Customer WhatsApp Preview:
+                </label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const currentTpl = (() => {
+                      switch (activeWhatsAppTab) {
+                        case 'ORDER_CONFIRMED': return tplOrderConfirmed;
+                        case 'ORDER_ASSIGNED': return tplOrderAssigned;
+                        case 'ORDER_OUT_FOR_DELIVERY': return tplOrderOutForDelivery;
+                        case 'ORDER_DELIVERED': return tplOrderDelivered;
+                        case 'ORDER_RECEIVED': return tplOrderReceived;
+                      }
+                    })();
+                    const demoOrderData: WhatsAppOrderData = {
+                      invoiceNumber: demoOrder.invoiceNumber,
+                      customerName: demoOrder.customerNameSnapshot,
+                      customerMobile: demoOrder.customerMobileSnapshot,
+                      items: demoOrder.items.map((i) => ({
+                        name: i.productNameSnapshot,
+                        quantity: i.quantity,
+                        price: Number(i.sellingPriceSnapshot),
+                      })),
+                      subtotal: Number(demoOrder.subtotal),
+                      discountAmount: Number(demoOrder.discountAmount),
+                      deliveryCharge: Number(demoOrder.deliveryCharge),
+                      totalAmount: Number(demoOrder.totalAmount),
+                      fulfillmentType: 'DELIVERY',
+                      address: {
+                        address: demoOrder.addressSnapshot.address,
+                        city: demoOrder.addressSnapshot.city,
+                        pincode: demoOrder.addressSnapshot.pincode,
+                      },
+                      deliveryPartner: {
+                        name: 'Ramu Express Logistics',
+                        mobileNumber: '+91 94433 22110',
+                        vehicleNumber: 'TN 67 AB 1234',
+                      },
+                      trackingUrl: 'https://rajalakshmifireworks.com/track-order?inv=FW-20261007-0002',
+                    };
+                    const text = interpolateWhatsAppTemplate(currentTpl, demoOrderData, { storePhone, whatsappNumber });
+                    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+                      navigator.clipboard.writeText(text);
+                      setIsCopiedPreview(true);
+                      toast.success('Preview message copied to clipboard');
+                      setTimeout(() => setIsCopiedPreview(false), 2000);
+                    }
+                  }}
+                  className="text-xs font-semibold text-muted-foreground hover:text-foreground flex items-center gap-1 cursor-pointer"
+                >
+                  {isCopiedPreview ? <Check className="h-3 w-3 text-emerald-600" /> : <Copy className="h-3 w-3" />}
+                  {isCopiedPreview ? 'Copied' : 'Copy Preview'}
+                </button>
+              </div>
+              <div className="p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 dark:bg-[#111b15] min-h-[300px] h-[320px] overflow-y-auto space-y-2 shadow-inner">
+                <div className="flex items-center gap-2 pb-2 border-b border-border/50 text-[10px] text-muted-foreground">
+                  <span className="font-semibold text-emerald-700 dark:text-emerald-400">Preview Recipient:</span>
+                  <span>{demoOrder.customerNameSnapshot} ({demoOrder.customerMobileSnapshot})</span>
+                </div>
+                <div className="bg-card dark:bg-[#1a2920] p-3.5 rounded-xl border border-border/60 text-xs text-foreground whitespace-pre-wrap font-sans leading-relaxed shadow-xs">
+                  {(() => {
+                    const currentTpl = (() => {
+                      switch (activeWhatsAppTab) {
+                        case 'ORDER_CONFIRMED': return tplOrderConfirmed;
+                        case 'ORDER_ASSIGNED': return tplOrderAssigned;
+                        case 'ORDER_OUT_FOR_DELIVERY': return tplOrderOutForDelivery;
+                        case 'ORDER_DELIVERED': return tplOrderDelivered;
+                        case 'ORDER_RECEIVED': return tplOrderReceived;
+                      }
+                    })();
+                    const demoOrderData: WhatsAppOrderData = {
+                      invoiceNumber: demoOrder.invoiceNumber,
+                      customerName: demoOrder.customerNameSnapshot,
+                      customerMobile: demoOrder.customerMobileSnapshot,
+                      items: demoOrder.items.map((i) => ({
+                        name: i.productNameSnapshot,
+                        quantity: i.quantity,
+                        price: Number(i.sellingPriceSnapshot),
+                      })),
+                      subtotal: Number(demoOrder.subtotal),
+                      discountAmount: Number(demoOrder.discountAmount),
+                      deliveryCharge: Number(demoOrder.deliveryCharge),
+                      totalAmount: Number(demoOrder.totalAmount),
+                      fulfillmentType: 'DELIVERY',
+                      address: {
+                        address: demoOrder.addressSnapshot.address,
+                        city: demoOrder.addressSnapshot.city,
+                        pincode: demoOrder.addressSnapshot.pincode,
+                      },
+                      deliveryPartner: {
+                        name: 'Ramu Express Logistics',
+                        mobileNumber: '+91 94433 22110',
+                        vehicleNumber: 'TN 67 AB 1234',
+                      },
+                      trackingUrl: 'https://rajalakshmifireworks.com/track-order?inv=FW-20261007-0002',
+                    };
+                    return interpolateWhatsAppTemplate(currentTpl, demoOrderData, { storePhone, whatsappNumber });
+                  })()}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
