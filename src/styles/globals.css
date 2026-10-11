@@ -396,64 +396,46 @@ p, span, input, select, textarea, button {
   background-color: #050505;
 }
 
-/* ── Floating Animated Gradient Orbs Keyframes ── */
+/* ── Floating Animated Gradient Orbs Keyframes (Hardware Accelerated translate3d) ── */
 @keyframes floatSlow1 {
   0%, 100% {
-    transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
+    transform: translate3d(0, 0, 0);
   }
   33% {
-    transform: translate3d(60px, 80px, 0) scale(1.12) rotate(25deg);
+    transform: translate3d(50px, 60px, 0);
   }
   66% {
-    transform: translate3d(-40px, 45px, 0) scale(0.92) rotate(-18deg);
+    transform: translate3d(-35px, 35px, 0);
   }
 }
 
 @keyframes floatSlow2 {
   0%, 100% {
-    transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
+    transform: translate3d(0, 0, 0);
   }
   33% {
-    transform: translate3d(-70px, -50px, 0) scale(1.15) rotate(-30deg);
+    transform: translate3d(-55px, -40px, 0);
   }
   66% {
-    transform: translate3d(45px, 60px, 0) scale(0.95) rotate(20deg);
+    transform: translate3d(35px, 45px, 0);
   }
 }
 
 @keyframes floatSlow3 {
   0%, 100% {
-    transform: translate3d(0, 0, 0) scale(1);
+    transform: translate3d(0, 0, 0);
   }
   50% {
-    transform: translate3d(50px, -60px, 0) scale(1.2);
+    transform: translate3d(40px, -45px, 0);
   }
 }
 
 @keyframes floatSlow4 {
   0%, 100% {
-    transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
+    transform: translate3d(0, 0, 0);
   }
   50% {
-    transform: translate3d(-55px, 75px, 0) scale(1.14) rotate(35deg);
-  }
-}
-
-@keyframes floatSlow5 {
-  0%, 100% {
-    transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
-  }
-  50% {
-    transform: translate3d(65px, -55px, 0) scale(1.16) rotate(-25deg);
-  }
-}
-
-@keyframes floatSlow6 {
-  0%, 100% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  50% {
-    transform: translate3d(-45px, -45px, 0) scale(1.18);
+    transform: translate3d(-45px, 55px, 0);
   }
 }
 
@@ -471,14 +453,6 @@ p, span, input, select, textarea, button {
 
 .animate-float-slow-4 {
   animation: floatSlow4 28s ease-in-out infinite;
-}
-
-.animate-float-slow-5 {
-  animation: floatSlow5 24s ease-in-out infinite;
-}
-
-.animate-float-slow-6 {
-  animation: floatSlow6 20s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -786,8 +760,7 @@ select option {
   height: 100%;
   object-fit: cover;
   border-radius: var(--_inner-radius);
-  filter: url(#svg-inset-shadow);
-  transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+  transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
 ._card:hover ._thumbnail-stack img {

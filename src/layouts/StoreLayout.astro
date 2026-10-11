@@ -21,7 +21,7 @@ const pathname = Astro.url.pathname;
   description={description}
   keywords={keywords}
   locale={locale}
-  bodyClass={bodyClass || (containerClass ? containerClass : 'bg-background')}
+  bodyClass={bodyClass || 'bg-background'}
 >
   <div class:list={['min-h-screen flex flex-col text-foreground', containerClass || 'bg-background']}>
     <StoreHeader client:load pathname={pathname} locale={locale} />

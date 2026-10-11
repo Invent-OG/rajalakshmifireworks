@@ -49,19 +49,17 @@ export function HomeMotion({ children }: HomeMotionProps) {
             section,
             {
               opacity: 0,
-              y: 45,
-              scale: 0.985,
+              y: 28,
             },
             {
               opacity: 1,
               y: 0,
-              scale: 1,
-              duration: 0.95,
-              ease: 'power3.out',
+              duration: 0.65,
+              ease: 'power2.out',
               clearProps: 'transform,opacity',
               scrollTrigger: {
                 trigger: section,
-                start: 'top 88%',
+                start: 'top 92%',
                 once: true,
               },
             }

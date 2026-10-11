@@ -95,36 +95,26 @@ export function ProductCard({ product }: ProductCardProps) {
   if (categoryName) tags.push(categoryName);
 
   return (
-    <>
-      {/* SVG Inset Shadow Filter */}
-      <svg width="0" height="0" className="hidden fixed" aria-hidden="true">
-        <filter id="svg-inset-shadow">
-          <feOffset in="SourceAlpha" dx="6" dy="8" />
-          <feGaussianBlur in="SourceAlpha" stdDeviation="8" />
-          <feComposite in="SourceAlpha" operator="out" />
-          <feBlend in2="SourceGraphic" mode="multiply" />
-        </filter>
-      </svg>
-
-      <section
-        ref={cardRef}
-        className="_card group scope product-card select-none h-full flex flex-col justify-between"
-      >
-        {/* Top & Middle Content Container */}
-        <div className="w-full flex-1 flex flex-col">
-          {/* ── 1. Thumbnail Stack & Curved Inverted Category Tab ── */}
-          <div className="_thumbnail-stack relative">
-            {img1 ? (
-              <img
-                src={img1}
-                alt={displayName}
-                width={400}
-                height={400}
-                loading="lazy"
-                draggable={false}
-                referrerPolicy="no-referrer"
-                className="pointer-events-none select-none"
-              />
+    <section
+      ref={cardRef}
+      className="_card group scope product-card select-none h-full flex flex-col justify-between"
+    >
+      {/* Top & Middle Content Container */}
+      <div className="w-full flex-1 flex flex-col">
+        {/* ── 1. Thumbnail Stack & Curved Inverted Category Tab ── */}
+        <div className="_thumbnail-stack relative">
+          {img1 ? (
+            <img
+              src={img1}
+              alt={displayName}
+              width={400}
+              height={400}
+              loading="lazy"
+              decoding="async"
+              draggable={false}
+              referrerPolicy="no-referrer"
+              className="pointer-events-none select-none"
+            />
             ) : (
               <div className="w-full h-full flex items-center justify-center p-4">
                 <ProductVisualPlaceholder name={product.name} />
@@ -221,6 +211,5 @@ export function ProductCard({ product }: ProductCardProps) {
           )}
         </div>
       </section>
-    </>
   );
 }

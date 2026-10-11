@@ -67,6 +67,7 @@ export function InfiniteRibbon({
           {
             "--ribbon-duration": `${Math.max(0.1, duration)}s`,
             animation: `${animationName} var(--ribbon-duration) linear infinite`,
+            willChange: 'transform',
           } as React.CSSProperties
         }
       >
