@@ -1060,5 +1060,43 @@ astro-slot {
   }
 }
 
+/* ── Products Catalog View Mode (List View) ── */
+#products-grid-container.is-list-view {
+  grid-template-columns: 1fr !important;
+}
+
+@media (max-width: 640px) {
+  #products-grid-container.is-list-view ._card {
+    display: grid !important;
+    grid-template-columns: 110px minmax(0, 1fr) !important;
+    gap: 14px !important;
+    padding: 12px !important;
+    align-items: center !important;
+  }
+
+  #products-grid-container.is-list-view ._card ._thumbnail-stack {
+    width: 110px !important;
+    height: 110px !important;
+    min-height: 110px !important;
+    border-radius: 18px !important;
+  }
+
+  #products-grid-container.is-list-view ._card ._category {
+    display: none !important;
+  }
+
+  #products-grid-container.is-list-view ._card ._description {
+    display: none !important;
+  }
+
+  #products-grid-container.is-list-view ._card ._tag-list {
+    display: none !important;
+  }
+
+  #products-grid-container.is-list-view ._card-header-grid {
+    margin-top: 0 !important;
+  }
+}
+
 
 

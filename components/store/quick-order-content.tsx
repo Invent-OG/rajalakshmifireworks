@@ -20,6 +20,8 @@ import {
   ArrowRight,
   ShieldCheck,
   Package,
+  LayoutGrid,
+  Check,
 } from 'lucide-react';
 import { QuickCartWidget } from '@/components/store/quick-cart-widget';
 import { useCart, useCartItemQuantity } from '@/hooks/use-cart';
@@ -84,7 +86,114 @@ export function QuickOrderContent({
   // Search & Filter State
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [filterType, setFilterType] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('default');
+
+  // Dropdown Open States & Refs
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [isSortOpen, setIsSortOpen] = useState(false);
+  const categoryRef = useRef<HTMLDivElement>(null);
+  const filtersRef = useRef<HTMLDivElement>(null);
+  const sortRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdowns on outside click or escape
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (categoryRef.current && !categoryRef.current.contains(e.target as Node)) {
+        setIsCategoryOpen(false);
+      }
+      if (filtersRef.current && !filtersRef.current.contains(e.target as Node)) {
+        setIsFiltersOpen(false);
+      }
+      if (sortRef.current && !sortRef.current.contains(e.target as Node)) {
+        setIsSortOpen(false);
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsCategoryOpen(false);
+        setIsFiltersOpen(false);
+        setIsSortOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
+  // Category counts computation
+  const categoryCounts = useMemo(() => {
+    const map = new Map<string, number>();
+    map.set('all', products.length);
+    let combos = 0;
+    let bestseller = 0;
+    products.forEach((p) => {
+      if (p.isFeatured || p.isCombo) combos++;
+      if (p.isBestseller) bestseller++;
+      if (p.category?.slug) {
+        map.set(p.category.slug, (map.get(p.category.slug) || 0) + 1);
+      }
+    });
+    map.set('combos', combos);
+    map.set('bestseller', bestseller);
+    return map;
+  }, [products]);
+
+  // Label helpers matching the screenshot
+  const activeCategoryLabel = useMemo(() => {
+    if (selectedCategory === 'all') {
+      const count = categoryCounts.get('all') || products.length;
+      return `All Pro... (${count})`;
+    }
+    if (selectedCategory === 'combos') {
+      const count = categoryCounts.get('combos') || 0;
+      return `Combos (${count})`;
+    }
+    if (selectedCategory === 'bestseller') {
+      const count = categoryCounts.get('bestseller') || 0;
+      return `Bestseller (${count})`;
+    }
+    const cat = categories.find((c) => c.slug === selectedCategory);
+    const name = cat ? getLocalizedName(cat, locale) : selectedCategory;
+    const count = categoryCounts.get(selectedCategory) || 0;
+    const shortName = name.length > 8 ? `${name.slice(0, 7)}...` : name;
+    return `${shortName} (${count})`;
+  }, [selectedCategory, categories, categoryCounts, products.length, locale]);
+
+  const activeFilterLabel = useMemo(() => {
+    switch (filterType) {
+      case 'in_stock':
+        return locale === 'ta' ? 'கையிருப்பு' : 'In Stock';
+      case 'combos':
+        return locale === 'ta' ? 'காம்போ' : 'Combos';
+      case 'bestseller':
+        return locale === 'ta' ? 'சிறந்தவை' : 'Bestsellers';
+      case 'discounted':
+        return locale === 'ta' ? 'தள்ளுபடி' : 'Discounted';
+      default:
+        return locale === 'ta' ? 'வடிகட்டி' : 'Filters';
+    }
+  }, [filterType, locale]);
+
+  const activeSortLabel = useMemo(() => {
+    switch (sortBy) {
+      case 'price_asc':
+        return locale === 'ta' ? 'குறைந்த விலை' : 'Price: Low';
+      case 'price_desc':
+        return locale === 'ta' ? 'உயர்ந்த விலை' : 'Price: High';
+      case 'discount_desc':
+        return locale === 'ta' ? 'தள்ளுபடி' : 'Discount';
+      case 'name_asc':
+        return locale === 'ta' ? 'பெயர்' : 'Name';
+      default:
+        return locale === 'ta' ? 'வரிசை' : 'Sort';
+    }
+  }, [sortBy, locale]);
 
   // Max discount calculation for the top badge
   const maxDiscountRate = useMemo(() => {
@@ -125,6 +234,22 @@ export function QuickOrderContent({
           }
         }
 
+        // Additional Filter Type
+        if (filterType === 'in_stock' && p.stockQuantity <= 0) {
+          return false;
+        }
+        if (filterType === 'combos' && !p.isFeatured && !p.isCombo) {
+          return false;
+        }
+        if (filterType === 'bestseller' && !p.isBestseller) {
+          return false;
+        }
+        if (filterType === 'discounted') {
+          const mrp = toNumber(p.mrp);
+          const sp = toNumber(p.sellingPrice);
+          if (mrp <= sp || ((mrp - sp) / mrp) * 100 < 40) return false;
+        }
+
         return true;
       })
       .sort((a, b) => {
@@ -148,7 +273,7 @@ export function QuickOrderContent({
             return 0; // Natural shop order
         }
       });
-  }, [products, searchQuery, selectedCategory, sortBy]);
+  }, [products, searchQuery, selectedCategory, filterType, sortBy]);
 
   const getHref = (path: string) => `/${locale}${path}`;
 
@@ -213,56 +338,7 @@ export function QuickOrderContent({
           </div>
         </div>
 
-        {/* Mobile Category Horizontal Scroll (Same as Products Page) */}
-        <div className="lg:hidden flex gap-2 overflow-x-auto no-scrollbar pb-1">
-          <button
-            type="button"
-            onClick={() => setSelectedCategory('all')}
-            className={`px-4 py-2 rounded-full text-xs font-semibold shrink-0 transition-all cursor-pointer ${
-              selectedCategory === 'all'
-                ? 'bg-neutral-900 text-white dark:bg-white dark:text-black shadow-xs'
-                : 'bg-white dark:bg-[#141414] text-neutral-600 dark:text-neutral-300 shadow-xs hover:bg-neutral-100 dark:hover:bg-[#202020] dark:border dark:border-[#282828]'
-            }`}
-          >
-            {tCommon('all')}
-          </button>
-          <button
-            type="button"
-            onClick={() => setSelectedCategory('combos')}
-            className={`px-4 py-2 rounded-full text-xs font-semibold shrink-0 transition-all cursor-pointer ${
-              selectedCategory === 'combos'
-                ? 'bg-neutral-900 text-white dark:bg-white dark:text-black shadow-xs'
-                : 'bg-white dark:bg-[#141414] text-neutral-600 dark:text-neutral-300 shadow-xs hover:bg-neutral-100 dark:hover:bg-[#202020] dark:border dark:border-[#282828]'
-            }`}
-          >
-            {tNav('combos')}
-          </button>
-          <button
-            type="button"
-            onClick={() => setSelectedCategory('bestseller')}
-            className={`px-4 py-2 rounded-full text-xs font-semibold shrink-0 transition-all cursor-pointer ${
-              selectedCategory === 'bestseller'
-                ? 'bg-neutral-900 text-white dark:bg-white dark:text-black shadow-xs'
-                : 'bg-white dark:bg-[#141414] text-neutral-600 dark:text-neutral-300 shadow-xs hover:bg-neutral-100 dark:hover:bg-[#202020] dark:border dark:border-[#282828]'
-            }`}
-          >
-            {tProd('bestseller')}
-          </button>
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              type="button"
-              onClick={() => setSelectedCategory(cat.slug)}
-              className={`px-4 py-2 rounded-full text-xs font-semibold shrink-0 transition-all cursor-pointer ${
-                selectedCategory === cat.slug
-                  ? 'bg-neutral-900 text-white dark:bg-white dark:text-black shadow-xs'
-                  : 'bg-white dark:bg-[#141414] text-neutral-600 dark:text-neutral-300 shadow-xs hover:bg-neutral-100 dark:hover:bg-[#202020] dark:border dark:border-[#282828]'
-              }`}
-            >
-              {getLocalizedName(cat, locale)}
-            </button>
-          ))}
-        </div>
+
 
         {/* ── Main Catalog View: Category Sidebar + Product Table + Bag Sidebar ── */}
         <div className="flex flex-col lg:flex-row gap-5 lg:gap-6 items-start">
@@ -344,67 +420,274 @@ export function QuickOrderContent({
              ═══════════════════════════════════════════════════ */}
           <main className="flex-1 min-w-0 w-full space-y-4">
 
-            {/* Toolbar: Category Dropdown, Search Input, Sort Selector */}
-            <div className="bg-white dark:bg-[#141414] border border-neutral-200/90 dark:border-[#242424] rounded-[24px] p-3 sm:p-4 shadow-xs flex flex-col sm:flex-row items-center gap-3">
-              {/* Category Dropdown (Desktop & Mobile) */}
-              <div className="relative w-full sm:w-auto shrink-0">
-                <select
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="w-full sm:w-auto appearance-none bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-xs sm:text-sm font-bold text-neutral-800 dark:text-neutral-200 h-10 pl-3.5 pr-8 rounded-full focus:outline-none focus:border-[#e24000] cursor-pointer"
-                >
-                  <option value="all">
-                    {locale === 'ta' ? `அனைத்து பட்டாசுகள் (${products.length})` : `All Fireworks (${products.length})`}
-                  </option>
-                  <option value="combos">
-                    {tNav('combos')}
-                  </option>
-                  <option value="bestseller">
-                    {tProd('bestseller')}
-                  </option>
-                  {categories.map((c) => (
-                    <option key={c.id} value={c.slug}>
-                      {getLocalizedName(c, locale)}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 pointer-events-none text-neutral-400" />
-              </div>
-
-              {/* Search Bar with live matching count */}
-              <div className="relative flex-1 w-full">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
+            {/* ── Compact Controls Toolbar (Matches Screenshot) ── */}
+            <div className="space-y-2.5">
+              {/* Row 1: Search Bar with live matching product count */}
+              <div className="relative w-full h-12 rounded-2xl bg-white dark:bg-[#141414] border border-neutral-200/90 dark:border-[#282828] flex items-center px-3.5 shadow-2xs focus-within:border-amber-500 focus-within:ring-2 focus-within:ring-amber-500/15 transition-all">
+                <Search className="h-4 w-4 text-neutral-400 shrink-0 select-none mr-2.5" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={
                     locale === 'ta'
-                      ? 'பட்டாசு பெயர் அல்லது குறியீட்டைத் தேடுங்கள்...'
-                      : 'Search products by name or code...'
+                      ? 'பட்டாசு அல்லது குறியீட்டைத் தேடுங்கள்...'
+                      : 'Search products...'
                   }
-                  className="w-full h-10 pl-10 pr-24 rounded-full bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-xs sm:text-sm text-neutral-900 dark:text-white placeholder:text-neutral-500 focus:outline-none focus:border-[#e24000]"
+                  className="w-full bg-transparent text-xs sm:text-sm text-foreground placeholder:text-neutral-400 focus:outline-none"
                 />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-semibold text-neutral-400 pointer-events-none">
-                  {filteredProducts.length} {locale === 'ta' ? 'முடிவுகள்' : 'items'}
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery('')}
+                    className="p-1 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 cursor-pointer mr-2 shrink-0"
+                    aria-label="Clear search"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+                <span className="text-xs text-neutral-400 shrink-0 select-none ml-2 font-normal">
+                  {filteredProducts.length} {locale === 'ta' ? 'பட்டாசுகள்' : 'products'}
                 </span>
               </div>
 
-              {/* Sort Dropdown */}
-              <div className="relative w-full sm:w-auto shrink-0">
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="w-full sm:w-auto appearance-none bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-xs sm:text-sm font-bold text-neutral-800 dark:text-neutral-200 h-10 pl-3.5 pr-8 rounded-full focus:outline-none focus:border-[#e24000] cursor-pointer"
-                >
-                  <option value="default">{locale === 'ta' ? 'இயல்பு வரிசை' : 'Shop Order'}</option>
-                  <option value="price_asc">{locale === 'ta' ? 'விலை: குறைந்ததிலிருந்து' : 'Price: Low to High'}</option>
-                  <option value="price_desc">{locale === 'ta' ? 'விலை: உயர்ந்ததிலிருந்து' : 'Price: High to Low'}</option>
-                  <option value="discount_desc">{locale === 'ta' ? 'அதிக தள்ளுபடி' : 'Highest Discount'}</option>
-                  <option value="name_asc">{locale === 'ta' ? 'பெயர்: A - Z' : 'Name: A to Z'}</option>
-                </select>
-                <ArrowUpDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 pointer-events-none text-neutral-400" />
+              {/* Row 2: Three compact dropdown pill buttons */}
+              <div className="grid grid-cols-3 gap-2 sm:gap-2.5">
+                {/* 1. Category Dropdown Button */}
+                <div ref={categoryRef} className="relative min-w-0">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsCategoryOpen((prev) => !prev);
+                      setIsFiltersOpen(false);
+                      setIsSortOpen(false);
+                    }}
+                    aria-expanded={isCategoryOpen}
+                    className="w-full h-10 px-2.5 sm:px-3.5 rounded-2xl border border-neutral-200/90 dark:border-[#282828] bg-white dark:bg-[#141414] hover:bg-neutral-50 dark:hover:bg-[#1a1a1a] flex items-center justify-between gap-1 text-xs font-semibold text-neutral-800 dark:text-neutral-200 shadow-2xs cursor-pointer select-none transition-all"
+                  >
+                    <div className="flex items-center gap-1.5 min-w-0 truncate">
+                      <LayoutGrid className="h-3.5 sm:h-4 w-3.5 sm:w-4 text-neutral-500 dark:text-neutral-400 shrink-0" />
+                      <span className="truncate">{activeCategoryLabel}</span>
+                    </div>
+                    <ChevronDown
+                      className={`h-3.5 w-3.5 text-neutral-400 shrink-0 transition-transform duration-200 ${
+                        isCategoryOpen ? 'rotate-180' : ''
+                      }`}
+                    />
+                  </button>
+
+                  {isCategoryOpen && (
+                    <div className="absolute left-0 top-full mt-2 w-60 sm:w-64 max-h-80 overflow-y-auto no-scrollbar bg-white dark:bg-[#141414] rounded-2xl p-1.5 shadow-2xl border border-neutral-200/80 dark:border-[#282828] z-50 animate-in fade-in zoom-in-95 duration-150 origin-top-left">
+                      <div className="px-3 py-1.5 text-[10px] font-bold tracking-wider text-neutral-400 uppercase border-b border-neutral-100 dark:border-[#282828]">
+                        {locale === 'ta' ? 'வகையைத் தேர்ந்தெடுக்கவும்' : 'Select Category'}
+                      </div>
+                      <div className="py-1 space-y-0.5">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedCategory('all');
+                            setIsCategoryOpen(false);
+                          }}
+                          className={`w-full px-3 py-2 text-xs rounded-xl flex items-center justify-between font-medium cursor-pointer ${
+                            selectedCategory === 'all'
+                              ? 'bg-amber-400 text-neutral-950 font-bold'
+                              : 'text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-[#202020]'
+                          }`}
+                        >
+                          <span>{locale === 'ta' ? 'அனைத்து பட்டாசுகள்' : 'All Products'}</span>
+                          <span className="text-[11px] opacity-75">({products.length})</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedCategory('combos');
+                            setIsCategoryOpen(false);
+                          }}
+                          className={`w-full px-3 py-2 text-xs rounded-xl flex items-center justify-between font-medium cursor-pointer ${
+                            selectedCategory === 'combos'
+                              ? 'bg-amber-400 text-neutral-950 font-bold'
+                              : 'text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-[#202020]'
+                          }`}
+                        >
+                          <span>{tNav('combos')}</span>
+                          <span className="text-[11px] opacity-75">({categoryCounts.get('combos') || 0})</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedCategory('bestseller');
+                            setIsCategoryOpen(false);
+                          }}
+                          className={`w-full px-3 py-2 text-xs rounded-xl flex items-center justify-between font-medium cursor-pointer ${
+                            selectedCategory === 'bestseller'
+                              ? 'bg-amber-400 text-neutral-950 font-bold'
+                              : 'text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-[#202020]'
+                          }`}
+                        >
+                          <span>{tProd('bestseller')}</span>
+                          <span className="text-[11px] opacity-75">({categoryCounts.get('bestseller') || 0})</span>
+                        </button>
+
+                        <div className="border-t border-neutral-100 dark:border-[#282828] my-1" />
+
+                        {categories.map((c) => {
+                          const isSelected = selectedCategory === c.slug;
+                          const count = categoryCounts.get(c.slug) || 0;
+                          return (
+                            <button
+                              key={c.id}
+                              type="button"
+                              onClick={() => {
+                                setSelectedCategory(c.slug);
+                                setIsCategoryOpen(false);
+                              }}
+                              className={`w-full px-3 py-2 text-xs rounded-xl flex items-center justify-between font-medium cursor-pointer ${
+                                isSelected
+                                  ? 'bg-amber-400 text-neutral-950 font-bold'
+                                  : 'text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-[#202020]'
+                              }`}
+                            >
+                              <span className="truncate">{getLocalizedName(c, locale)}</span>
+                              <span className="text-[11px] opacity-75 shrink-0 ml-2">({count})</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* 2. Filters Dropdown Button */}
+                <div ref={filtersRef} className="relative min-w-0">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsFiltersOpen((prev) => !prev);
+                      setIsCategoryOpen(false);
+                      setIsSortOpen(false);
+                    }}
+                    aria-expanded={isFiltersOpen}
+                    className={`w-full h-10 px-2.5 sm:px-3.5 rounded-2xl border bg-white dark:bg-[#141414] hover:bg-neutral-50 dark:hover:bg-[#1a1a1a] flex items-center justify-between gap-1 text-xs font-semibold shadow-2xs cursor-pointer select-none transition-all ${
+                      filterType !== 'all'
+                        ? 'border-amber-500 text-amber-600 dark:text-amber-400'
+                        : 'border-neutral-200/90 dark:border-[#282828] text-neutral-800 dark:text-neutral-200'
+                    }`}
+                  >
+                    <div className="flex items-center gap-1.5 min-w-0 truncate">
+                      <Filter className="h-3.5 sm:h-4 w-3.5 sm:w-4 text-neutral-500 dark:text-neutral-400 shrink-0" />
+                      <span className="truncate">{activeFilterLabel}</span>
+                    </div>
+                    <ChevronDown
+                      className={`h-3.5 w-3.5 text-neutral-400 shrink-0 transition-transform duration-200 ${
+                        isFiltersOpen ? 'rotate-180' : ''
+                      }`}
+                    />
+                  </button>
+
+                  {isFiltersOpen && (
+                    <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-52 sm:w-56 bg-white dark:bg-[#141414] rounded-2xl p-1.5 shadow-2xl border border-neutral-200/80 dark:border-[#282828] z-50 animate-in fade-in zoom-in-95 duration-150 origin-top">
+                      <div className="px-3 py-1.5 text-[10px] font-bold tracking-wider text-neutral-400 uppercase border-b border-neutral-100 dark:border-[#282828]">
+                        {locale === 'ta' ? 'வடிகட்டிகள்' : 'Filter Products'}
+                      </div>
+                      <div className="py-1 space-y-0.5">
+                        {[
+                          { id: 'all', label: locale === 'ta' ? 'அனைத்து பட்டாசுகள்' : 'All Products' },
+                          { id: 'in_stock', label: locale === 'ta' ? 'கையிருப்பில் மட்டும்' : 'In Stock Only' },
+                          { id: 'combos', label: locale === 'ta' ? 'காம்போ தொகுப்புகள்' : 'Combos & Gift Packs' },
+                          { id: 'bestseller', label: locale === 'ta' ? 'அதிகம் விற்பனையானவை' : 'Festive Bestsellers' },
+                          { id: 'discounted', label: locale === 'ta' ? 'அதிக தள்ளுபடி (>40%)' : 'Big Discounts (>40%)' },
+                        ].map((opt) => {
+                          const isSelected = filterType === opt.id;
+                          return (
+                            <button
+                              key={opt.id}
+                              type="button"
+                              onClick={() => {
+                                setFilterType(opt.id);
+                                setIsFiltersOpen(false);
+                              }}
+                              className={`w-full px-3 py-2 text-xs rounded-xl flex items-center justify-between font-medium cursor-pointer ${
+                                isSelected
+                                  ? 'bg-amber-400 text-neutral-950 font-bold'
+                                  : 'text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-[#202020]'
+                              }`}
+                            >
+                              <span>{opt.label}</span>
+                              {isSelected && <Check className="h-3.5 w-3.5 shrink-0" />}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* 3. Sort Dropdown Button */}
+                <div ref={sortRef} className="relative min-w-0">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsSortOpen((prev) => !prev);
+                      setIsCategoryOpen(false);
+                      setIsFiltersOpen(false);
+                    }}
+                    aria-expanded={isSortOpen}
+                    className="w-full h-10 px-2.5 sm:px-3.5 rounded-2xl border border-neutral-200/90 dark:border-[#282828] bg-white dark:bg-[#141414] hover:bg-neutral-50 dark:hover:bg-[#1a1a1a] flex items-center justify-between gap-1 text-xs font-semibold text-neutral-800 dark:text-neutral-200 shadow-2xs cursor-pointer select-none transition-all"
+                  >
+                    <div className="flex items-center gap-1.5 min-w-0 truncate">
+                      <ArrowUpDown className="h-3.5 sm:h-4 w-3.5 sm:w-4 text-neutral-500 dark:text-neutral-400 shrink-0" />
+                      <span className="truncate">{activeSortLabel}</span>
+                    </div>
+                    <ChevronDown
+                      className={`h-3.5 w-3.5 text-neutral-400 shrink-0 transition-transform duration-200 ${
+                        isSortOpen ? 'rotate-180' : ''
+                      }`}
+                    />
+                  </button>
+
+                  {isSortOpen && (
+                    <div className="absolute right-0 top-full mt-2 w-52 sm:w-56 bg-white dark:bg-[#141414] rounded-2xl p-1.5 shadow-2xl border border-neutral-200/80 dark:border-[#282828] z-50 animate-in fade-in zoom-in-95 duration-150 origin-top-right">
+                      <div className="px-3 py-1.5 text-[10px] font-bold tracking-wider text-neutral-400 uppercase border-b border-neutral-100 dark:border-[#282828]">
+                        {locale === 'ta' ? 'வரிசைப்படுத்து' : 'Sort By'}
+                      </div>
+                      <div className="py-1 space-y-0.5">
+                        {[
+                          { id: 'default', label: locale === 'ta' ? 'இயல்பு வரிசை' : 'Default Order' },
+                          { id: 'price_asc', label: locale === 'ta' ? 'விலை: குறைந்ததிலிருந்து' : 'Price: Low to High' },
+                          { id: 'price_desc', label: locale === 'ta' ? 'விலை: உயர்ந்ததிலிருந்து' : 'Price: High to Low' },
+                          { id: 'discount_desc', label: locale === 'ta' ? 'அதிக தள்ளுபடி' : 'Highest Discount' },
+                          { id: 'name_asc', label: locale === 'ta' ? 'பெயர்: A - Z' : 'Name: A to Z' },
+                        ].map((opt) => {
+                          const isSelected = sortBy === opt.id;
+                          return (
+                            <button
+                              key={opt.id}
+                              type="button"
+                              onClick={() => {
+                                setSortBy(opt.id);
+                                setIsSortOpen(false);
+                              }}
+                              className={`w-full px-3 py-2 text-xs rounded-xl flex items-center justify-between font-medium cursor-pointer ${
+                                isSelected
+                                  ? 'bg-amber-400 text-neutral-950 font-bold'
+                                  : 'text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-[#202020]'
+                              }`}
+                            >
+                              <span>{opt.label}</span>
+                              {isSelected && <Check className="h-3.5 w-3.5 shrink-0" />}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
+
+              {/* Thin Divider Line (Matches Screenshot) */}
+              <div className="border-b border-neutral-200/80 dark:border-[#282828] pt-1" />
             </div>
 
             {/* ── Table View on Desktop / Cards on Mobile ── */}

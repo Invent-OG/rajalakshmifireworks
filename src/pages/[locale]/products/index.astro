@@ -2,9 +2,9 @@
 import StoreLayout from '@/src/layouts/StoreLayout.astro';
 import { db } from '@/db';
 import { products, categories } from '@/db/schema';
-import { eq, and, desc, asc, ilike, or } from 'drizzle-orm';
+import { eq, and, desc, asc, ilike, or, sql } from 'drizzle-orm';
 import { ProductCard } from '@/components/store/product-card';
-import { SortSelector } from '@/components/store/sort-selector';
+import { ProductsCatalogToolbar } from '@/components/store/products-catalog-toolbar';
 import { EmptyState } from '@/components/ui/empty-state';
 import { QuickCartSidebar } from '@/components/store/quick-cart-drawer';
 import { SectionTag } from '@/components/ui/section-tag';
@@ -82,7 +82,14 @@ switch (sort) {
     orderBy = desc(products.createdAt);
 }
 
-const [productList, categoryList] = await Promise.all([
+const [
+  productList,
+  categoryList,
+  allCountRow,
+  categoryCountRows,
+  comboCountRow,
+  bestsellerCountRow,
+] = await Promise.all([
   db.query.products.findMany({
     where: and(...conditions),
     with: {
@@ -95,7 +102,37 @@ const [productList, categoryList] = await Promise.all([
     where: eq(categories.isActive, true),
     orderBy: (c, { asc }) => [asc(c.sortOrder)],
   }),
+  db.select({ count: sql<number>`count(*)::int` }).from(products).where(eq(products.isActive, true)),
+  db.select({ categoryId: products.categoryId, count: sql<number>`count(*)::int` })
+    .from(products)
+    .where(eq(products.isActive, true))
+    .groupBy(products.categoryId),
+  db.select({ count: sql<number>`count(*)::int` })
+    .from(products)
+    .where(
+      and(
+        eq(products.isActive, true),
+        or(
+          eq(products.isCombo, true),
+          eq(products.isFeatured, true),
+          ilike(products.name, '%combo%'),
+          ilike(products.name, '%gift%')
+        )!
+      )
+    ),
+  db.select({ count: sql<number>`count(*)::int` })
+    .from(products)
+    .where(and(eq(products.isActive, true), eq(products.isBestseller, true))),
 ]);
+
+const totalActiveCount = allCountRow[0]?.count ?? 0;
+const categoryCountMap = new Map<number, number>(
+  categoryCountRows
+    .filter((r) => r.categoryId !== null)
+    .map((r) => [r.categoryId as number, r.count])
+);
+const comboTotalCount = comboCountRow[0]?.count ?? 0;
+const bestsellerTotalCount = bestsellerCountRow[0]?.count ?? 0;
 
 const tNav = getTranslations(locale, 'navigation');
 const tProd = getTranslations(locale, 'products');
@@ -111,78 +148,125 @@ const pageHeading = activeCategory
       ? (locale === 'ta' ? 'அதிகம் விற்பனையான பட்டாசுகள்' : 'Festive Bestsellers')
       : search
         ? `${locale === 'ta' ? 'தேடல் முடிவுகள்:' : 'Results for'} "${search}"`
-        : tNav('allProducts');
+        : (locale === 'ta' ? 'பிரீமியம் பட்டாசுகள்' : 'Premium Fireworks');
 
 const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`);
 ---
 
-<StoreLayout title={`${tNav('allProducts')} | Rajalakshmi Fireworks`} locale={locale}>
-  <div class="w-full px-4 sm:px-8 lg:px-12 py-8 animate-fade-in space-y-8 font-sans">
-    {/* Header bar */}
-    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-6 border-b border-border">
-      <div class="space-y-3">
-        <SectionTag client:load label={locale === 'ta' ? 'சிவகாசி நேரடி பட்டியல்' : 'Sivakasi Catalog'} size="sm" />
-        <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground font-heading">
-          {pageHeading}
-        </h1>
-        <p class="text-xs sm:text-sm text-muted-foreground mt-1">
-          {tFilters('showingResults', { count: productList.length })}
-        </p>
-      </div>
-
-      {/* Sort selector */}
-      <div class="flex items-center gap-2 self-start sm:self-auto">
-        <label for="sort" class="text-xs font-medium text-muted-foreground shrink-0">
-          {tFilters('sortBy')}:
-        </label>
-        <SortSelector client:load current={sort} />
-      </div>
+<StoreLayout title={`${pageHeading} | Rajalakshmi Fireworks`} locale={locale}>
+  <div class="w-full px-3 sm:px-6 lg:px-10 py-4 sm:py-8 animate-fade-in space-y-4 sm:space-y-6 font-sans">
+    {/* ── Centered Header Title (Matches Screenshot) ── */}
+    <div class="text-center pt-1 pb-1 sm:pt-2">
+      <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-foreground font-heading tracking-tight">
+        {pageHeading}
+      </h1>
     </div>
 
-    {/* Mobile Category Horizontal Scroll */}
-    <div class="lg:hidden flex gap-2 overflow-x-auto no-scrollbar pb-2">
+    {/* ── Horizontal Scrolling Category Pills with Live Product Counts (Matches Screenshot) ── */}
+    <div class="flex gap-2 sm:gap-2.5 overflow-x-auto no-scrollbar py-1 -mx-3 px-3 sm:mx-0 sm:px-0 select-none items-center">
       <a
         href={getHref('/products')}
-        class={`px-4 py-2 rounded-full text-xs font-semibold shrink-0 transition-all ${
+        class={`px-4 py-2 sm:py-2.5 rounded-full text-xs font-bold shrink-0 transition-all flex items-center gap-2 ${
           !categorySlug && !featured && !bestseller
-            ? 'bg-neutral-900 text-white dark:bg-white dark:text-black shadow-xs'
-            : 'bg-white dark:bg-[#141414] text-neutral-600 dark:text-neutral-300 shadow-xs hover:bg-neutral-100 dark:hover:bg-[#202020] dark:border dark:border-[#282828]'
+            ? 'bg-amber-400 text-neutral-950 shadow-xs ring-1 ring-amber-500/30'
+            : 'bg-white dark:bg-[#141414] text-neutral-700 dark:text-neutral-200 border border-neutral-200/90 dark:border-[#282828] hover:bg-neutral-50 dark:hover:bg-[#1a1a1a] shadow-2xs'
         }`}
       >
-        {tCommon('all')}
-      </a>
-      <a
-        href={getHref('/products?combos=true')}
-        class={`px-4 py-2 rounded-full text-xs font-semibold shrink-0 transition-all ${
-          isCombos || featured
-            ? 'bg-neutral-900 text-white dark:bg-white dark:text-black shadow-xs'
-            : 'bg-white dark:bg-[#141414] text-neutral-600 dark:text-neutral-300 shadow-xs hover:bg-neutral-100 dark:hover:bg-[#202020] dark:border dark:border-[#282828]'
-        }`}
-      >
-        {tNav('combos')}
-      </a>
-      <a
-        href={getHref('/products?bestseller=true')}
-        class={`px-4 py-2 rounded-full text-xs font-semibold shrink-0 transition-all ${
-          bestseller
-            ? 'bg-neutral-900 text-white dark:bg-white dark:text-black shadow-xs'
-            : 'bg-white dark:bg-[#141414] text-neutral-600 dark:text-neutral-300 shadow-xs hover:bg-neutral-100 dark:hover:bg-[#202020] dark:border dark:border-[#282828]'
-        }`}
-      >
-        {tProd('bestseller')}
-      </a>
-      {categoryList.map((cat) => (
-        <a
-          href={getHref(`/products?category=${cat.slug}`)}
-          class={`px-4 py-2 rounded-full text-xs font-semibold shrink-0 transition-all ${
-            categorySlug === cat.slug
-              ? 'bg-neutral-900 text-white dark:bg-white dark:text-black shadow-xs'
-              : 'bg-white dark:bg-[#141414] text-neutral-600 dark:text-neutral-300 shadow-xs hover:bg-neutral-100 dark:hover:bg-[#202020] dark:border dark:border-[#282828]'
+        <span>{tCommon('all')} {tNav('allProducts')}</span>
+        <span
+          class={`text-[11px] px-2 py-0.5 rounded-full font-bold ${
+            !categorySlug && !featured && !bestseller
+              ? 'bg-black/15 text-neutral-950'
+              : 'bg-neutral-100 dark:bg-[#202020] text-neutral-500 dark:text-neutral-400'
           }`}
         >
-          {getLocalizedName(cat, locale)}
+          {totalActiveCount}
+        </span>
+      </a>
+
+      {/* Combos Pill */}
+      {comboTotalCount > 0 && (
+        <a
+          href={getHref('/products?combos=true')}
+          class={`px-4 py-2 sm:py-2.5 rounded-full text-xs font-bold shrink-0 transition-all flex items-center gap-2 ${
+            isCombos || featured
+              ? 'bg-amber-400 text-neutral-950 shadow-xs ring-1 ring-amber-500/30'
+              : 'bg-white dark:bg-[#141414] text-neutral-700 dark:text-neutral-200 border border-neutral-200/90 dark:border-[#282828] hover:bg-neutral-50 dark:hover:bg-[#1a1a1a] shadow-2xs'
+          }`}
+        >
+          <span>{tNav('combos')}</span>
+          <span
+            class={`text-[11px] px-2 py-0.5 rounded-full font-bold ${
+              isCombos || featured
+                ? 'bg-black/15 text-neutral-950'
+                : 'bg-neutral-100 dark:bg-[#202020] text-neutral-500 dark:text-neutral-400'
+            }`}
+          >
+            {comboTotalCount}
+          </span>
         </a>
-      ))}
+      )}
+
+      {/* Bestseller Pill */}
+      {bestsellerTotalCount > 0 && (
+        <a
+          href={getHref('/products?bestseller=true')}
+          class={`px-4 py-2 sm:py-2.5 rounded-full text-xs font-bold shrink-0 transition-all flex items-center gap-2 ${
+            bestseller
+              ? 'bg-amber-400 text-neutral-950 shadow-xs ring-1 ring-amber-500/30'
+              : 'bg-white dark:bg-[#141414] text-neutral-700 dark:text-neutral-200 border border-neutral-200/90 dark:border-[#282828] hover:bg-neutral-50 dark:hover:bg-[#1a1a1a] shadow-2xs'
+          }`}
+        >
+          <span>{tProd('bestseller')}</span>
+          <span
+            class={`text-[11px] px-2 py-0.5 rounded-full font-bold ${
+              bestseller
+                ? 'bg-black/15 text-neutral-950'
+                : 'bg-neutral-100 dark:bg-[#202020] text-neutral-500 dark:text-neutral-400'
+            }`}
+          >
+            {bestsellerTotalCount}
+          </span>
+        </a>
+      )}
+
+      {/* Categories */}
+      {categoryList.map((cat) => {
+        const isSelected = categorySlug === cat.slug;
+        const count = categoryCountMap.get(cat.id) || 0;
+        return (
+          <a
+            href={getHref(`/products?category=${cat.slug}`)}
+            class={`px-4 py-2 sm:py-2.5 rounded-full text-xs font-bold shrink-0 transition-all flex items-center gap-2 ${
+              isSelected
+                ? 'bg-amber-400 text-neutral-950 shadow-xs ring-1 ring-amber-500/30'
+                : 'bg-white dark:bg-[#141414] text-neutral-700 dark:text-neutral-200 border border-neutral-200/90 dark:border-[#282828] hover:bg-neutral-50 dark:hover:bg-[#1a1a1a] shadow-2xs'
+            }`}
+          >
+            <span>{getLocalizedName(cat, locale)}</span>
+            <span
+              class={`text-[11px] px-2 py-0.5 rounded-full font-bold ${
+                isSelected
+                  ? 'bg-black/15 text-neutral-950'
+                  : 'bg-neutral-100 dark:bg-[#202020] text-neutral-500 dark:text-neutral-400'
+              }`}
+            >
+              {count}
+            </span>
+          </a>
+        );
+      })}
+    </div>
+
+    {/* ── Compact Controls Toolbar: Search + Sort Dropdown + View Toggle (Matches Screenshot) ── */}
+    <div>
+      <ProductsCatalogToolbar
+        client:load
+        currentSort={sort}
+        initialSearch={search}
+        placeholder={locale === 'ta' ? 'பட்டாசுகளைத் தேடுங்கள்...' : 'Search fireworks...'}
+      />
+      <div class="border-b border-neutral-200/80 dark:border-[#282828] mt-3" />
     </div>
 
     {/* Main Catalog View: Category Sidebar + Product Grid + Quick Cart Widget */}
@@ -198,37 +282,40 @@ const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`)
           <li>
             <a
               href={getHref('/products')}
-              class={`block px-3.5 py-2 rounded-full text-xs font-semibold transition-all ${
+              class={`flex items-center justify-between px-3.5 py-2 rounded-full text-xs font-semibold transition-all ${
                 !categorySlug && !featured && !bestseller
                   ? 'bg-neutral-900 text-white dark:bg-white dark:text-black shadow-xs'
                   : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-[#202020] hover:text-neutral-900 dark:hover:text-white'
               }`}
             >
-              {tNav('allProducts')}
+              <span>{tNav('allProducts')}</span>
+              <span class="text-[11px] opacity-75">{totalActiveCount}</span>
             </a>
           </li>
           <li>
             <a
               href={getHref('/products?combos=true')}
-              class={`block px-3.5 py-2 rounded-full text-xs font-semibold transition-all ${
+              class={`flex items-center justify-between px-3.5 py-2 rounded-full text-xs font-semibold transition-all ${
                 isCombos || featured
                   ? 'bg-neutral-900 text-white dark:bg-white dark:text-black shadow-xs'
                   : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-[#202020] hover:text-neutral-900 dark:hover:text-white'
               }`}
             >
-              {tNav('combos')}
+              <span>{tNav('combos')}</span>
+              <span class="text-[11px] opacity-75">{comboTotalCount}</span>
             </a>
           </li>
           <li>
             <a
               href={getHref('/products?bestseller=true')}
-              class={`block px-3.5 py-2 rounded-full text-xs font-semibold transition-all ${
+              class={`flex items-center justify-between px-3.5 py-2 rounded-full text-xs font-semibold transition-all ${
                 bestseller
                   ? 'bg-neutral-900 text-white dark:bg-white dark:text-black shadow-xs'
                   : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-[#202020] hover:text-neutral-900 dark:hover:text-white'
               }`}
             >
-              {tProd('bestseller')}
+              <span>{tProd('bestseller')}</span>
+              <span class="text-[11px] opacity-75">{bestsellerTotalCount}</span>
             </a>
           </li>
 
@@ -240,13 +327,14 @@ const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`)
             <li>
               <a
                 href={getHref(`/products?category=${cat.slug}`)}
-                class={`block px-3.5 py-2 rounded-full text-xs font-semibold transition-all ${
+                class={`flex items-center justify-between px-3.5 py-2 rounded-full text-xs font-semibold transition-all ${
                   categorySlug === cat.slug
                     ? 'bg-neutral-900 text-white dark:bg-white dark:text-black shadow-xs'
                     : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-[#202020] hover:text-neutral-900 dark:hover:text-white'
                 }`}
               >
-                {getLocalizedName(cat, locale)}
+                <span>{getLocalizedName(cat, locale)}</span>
+                <span class="text-[11px] opacity-75">{categoryCountMap.get(cat.id) || 0}</span>
               </a>
             </li>
           ))}
@@ -256,7 +344,10 @@ const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`)
       {/* Product Grid Area */}
       <div class="flex-1 min-w-0">
         {productList.length > 0 ? (
-          <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-3 sm:gap-4">
+          <div
+            id="products-grid-container"
+            class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-3 sm:gap-4"
+          >
             {productList.map((product) => (
               <ProductCard client:visible product={product} />
             ))}
