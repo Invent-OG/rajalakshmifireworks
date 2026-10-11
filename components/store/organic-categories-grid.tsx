@@ -70,88 +70,88 @@ export function OrganicCategoriesGrid({
     mainCard ||
     (categories.length > 0
       ? {
-          title: getLocalizedName(categories[0], locale),
-          badgeText: getLocalizedName(categories[0], locale).toUpperCase(),
-          subtitle: getLocalizedDescription(categories[0], locale) || (locale === 'ta' ? 'சிவகாசி நேரடி சிறப்பு பட்டாசு தயாரிப்புகள்' : 'Handcrafted celebration crackers from Sivakasi'),
-          link: `/category/${categories[0].slug}`,
-          image: categories[0].image || getCategory3DImage(categories[0].name),
-          bgColor: '#fef3c7',
-        }
+        title: getLocalizedName(categories[0], locale),
+        badgeText: getLocalizedName(categories[0], locale).toUpperCase(),
+        subtitle: getLocalizedDescription(categories[0], locale) || (locale === 'ta' ? 'சிவகாசி நேரடி சிறப்பு பட்டாசு தயாரிப்புகள்' : 'Handcrafted celebration crackers from Sivakasi'),
+        link: `/category/${categories[0].slug}`,
+        image: categories[0].image || getCategory3DImage(categories[0].name),
+        bgColor: '#fef3c7',
+      }
       : {
-          title: locale === 'ta' ? 'கிஃப்ட் பாக்ஸ் & காம்போ' : 'Gift Boxes & Combos',
-          badgeText: locale === 'ta' ? 'சிறப்பு காம்போ' : 'FESTIVE SPECIALS',
-          subtitle: locale === 'ta' ? 'சிவகாசியிலிருந்து நேரடியாகப் பெறப்படும் குடும்ப காம்போ பேக்!' : 'Handpicked celebration boxes direct from Sivakasi!',
-          link: '/category/gift-boxes',
-          image: '/images/3d/cat-gift-boxes.jpg',
-          bgColor: '#fef3c7',
-        });
+        title: locale === 'ta' ? 'கிஃப்ட் பாக்ஸ் & காம்போ' : 'Gift Boxes & Combos',
+        badgeText: locale === 'ta' ? 'சிறப்பு காம்போ' : 'FESTIVE SPECIALS',
+        subtitle: locale === 'ta' ? 'சிவகாசியிலிருந்து நேரடியாகப் பெறப்படும் குடும்ப காம்போ பேக்!' : 'Handpicked celebration boxes direct from Sivakasi!',
+        link: '/category/gift-boxes',
+        image: '/images/3d/cat-gift-boxes.jpg',
+        bgColor: '#fef3c7',
+      });
 
   const resolvedTopMiddle1: CategoryCardData =
     topMiddleCard1 ||
     (categories.length > 1
       ? {
-          title: getLocalizedName(categories[1], locale),
-          badgeText: getLocalizedName(categories[1], locale).toUpperCase(),
-          link: `/category/${categories[1].slug}`,
-          image: categories[1].image || getCategory3DImage(categories[1].name),
-        }
+        title: getLocalizedName(categories[1], locale),
+        badgeText: getLocalizedName(categories[1], locale).toUpperCase(),
+        link: `/category/${categories[1].slug}`,
+        image: categories[1].image || getCategory3DImage(categories[1].name),
+      }
       : {
-          title: locale === 'ta' ? 'கம்பி மத்தாப்பு' : 'Sparklers',
-          badgeText: locale === 'ta' ? 'மத்தாப்பு' : 'SPARKLERS',
-          link: '/category/sparklers',
-          image: '/images/3d/cat-sparklers.jpg',
-        });
+        title: locale === 'ta' ? 'கம்பி மத்தாப்பு' : 'Sparklers',
+        badgeText: locale === 'ta' ? 'மத்தாப்பு' : 'SPARKLERS',
+        link: '/category/sparklers',
+        image: '/images/3d/cat-sparklers.jpg',
+      });
 
   const resolvedTopMiddle2: CategoryCardData =
     topMiddleCard2 ||
     (categories.length > 2
       ? {
-          title: getLocalizedName(categories[2], locale),
-          badgeText: getLocalizedName(categories[2], locale).toUpperCase(),
-          link: `/category/${categories[2].slug}`,
-          image: categories[2].image || getCategory3DImage(categories[2].name),
-        }
+        title: getLocalizedName(categories[2], locale),
+        badgeText: getLocalizedName(categories[2], locale).toUpperCase(),
+        link: `/category/${categories[2].slug}`,
+        image: categories[2].image || getCategory3DImage(categories[2].name),
+      }
       : {
-          title: locale === 'ta' ? 'பூந்தொட்டி' : 'Flower Pots',
-          badgeText: locale === 'ta' ? 'பூந்தொட்டி' : 'FLOWER POTS',
-          link: '/category/flower-pots',
-          image: '/images/3d/cat-flower-pots.jpg',
-        });
+        title: locale === 'ta' ? 'பூந்தொட்டி' : 'Flower Pots',
+        badgeText: locale === 'ta' ? 'பூந்தொட்டி' : 'FLOWER POTS',
+        link: '/category/flower-pots',
+        image: '/images/3d/cat-flower-pots.jpg',
+      });
 
   const resolvedBottomMiddle: CategoryCardData =
     bottomMiddleCard ||
     (categories.length > 3
       ? {
-          title: getLocalizedName(categories[3], locale),
-          badgeText: getLocalizedName(categories[3], locale).toUpperCase(),
-          link: `/category/${categories[3].slug}`,
-          image: categories[3].image || getCategory3DImage(categories[3].name),
-        }
+        title: getLocalizedName(categories[3], locale),
+        badgeText: getLocalizedName(categories[3], locale).toUpperCase(),
+        link: `/category/${categories[3].slug}`,
+        image: categories[3].image || getCategory3DImage(categories[3].name),
+      }
       : {
-          title: locale === 'ta' ? 'சரவெடி & வெடி' : 'Sound Crackers',
-          badgeText: locale === 'ta' ? 'சரவெடி' : 'SOUND CRACKERS',
-          link: '/category/sound-crackers',
-          image: '/images/3d/cat-sound-crackers.jpg',
-        });
+        title: locale === 'ta' ? 'சரவெடி & வெடி' : 'Sound Crackers',
+        badgeText: locale === 'ta' ? 'சரவெடி' : 'SOUND CRACKERS',
+        link: '/category/sound-crackers',
+        image: '/images/3d/cat-sound-crackers.jpg',
+      });
 
   const resolvedRightCard: CategoryCardData =
     rightCard ||
     (categories.length > 4
       ? {
-          title: getLocalizedName(categories[4], locale),
-          badgeText: getLocalizedName(categories[4], locale).toUpperCase(),
-          link: `/category/${categories[4].slug}`,
-          image: categories[4].image || getCategory3DImage(categories[4].name),
-        }
+        title: getLocalizedName(categories[4], locale),
+        badgeText: getLocalizedName(categories[4], locale).toUpperCase(),
+        link: `/category/${categories[4].slug}`,
+        image: categories[4].image || getCategory3DImage(categories[4].name),
+      }
       : {
-          title: locale === 'ta' ? 'ராக்கெட் & ஃபேன்ஸி' : 'Rockets & Aerial',
-          badgeText: locale === 'ta' ? 'ராக்கெட்' : 'ROCKETS',
-          link: '/category/rockets',
-          image: '/images/3d/cat-rockets.jpg',
-        });
+        title: locale === 'ta' ? 'ராக்கெட் & ஃபேன்ஸி' : 'Rockets & Aerial',
+        badgeText: locale === 'ta' ? 'ராக்கெட்' : 'ROCKETS',
+        link: '/category/rockets',
+        image: '/images/3d/cat-rockets.jpg',
+      });
 
   return (
-    <section className="w-full py-4 sm:py-6 items-center justify-center lg:py-8">
+    <section className="w-full py-4 sm:py-6 bg-[#0b0606] items-center justify-center lg:py-8">
       <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-8 md:px-[80px]">
         {/* ── 3-Column Bento Grid ── */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-[20px] md:gap-[32px]">

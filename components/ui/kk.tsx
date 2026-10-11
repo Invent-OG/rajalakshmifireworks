@@ -492,11 +492,16 @@ export function ShaderBackground({ className }: { className?: string }) {
       updatePointerTarget()
       requestRender()
     }
+    const onScroll = () => {
+      bounds = canvas.getBoundingClientRect()
+      updatePointerTarget()
+      requestRender()
+    }
     window.addEventListener("resize", updateLayout)
     if (UNIFORMS.cursorEnabled) {
       window.addEventListener("pointermove", onPointerMove, { passive: true })
       window.addEventListener("pointercancel", onPointerLeave)
-      window.addEventListener("scroll", updateLayout, true)
+      window.addEventListener("scroll", onScroll, { passive: true })
       window.addEventListener("blur", onPointerLeave)
       document.documentElement.addEventListener("pointerleave", onPointerLeave)
     }
@@ -576,7 +581,7 @@ export function ShaderBackground({ className }: { className?: string }) {
       if (UNIFORMS.cursorEnabled) {
         window.removeEventListener("pointermove", onPointerMove)
         window.removeEventListener("pointercancel", onPointerLeave)
-        window.removeEventListener("scroll", updateLayout, true)
+        window.removeEventListener("scroll", onScroll)
         window.removeEventListener("blur", onPointerLeave)
         document.documentElement.removeEventListener(
           "pointerleave",

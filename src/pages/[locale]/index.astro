@@ -17,6 +17,7 @@ import { DiwaliCountdownBanner } from "@/components/store/diwali-countdown-banne
 import { ShaderBackground } from "@/components/ui/kk";
 import { isValidLocale } from "@/lib/i18n/config";
 import { getTranslations } from "@/lib/i18n/server";
+import DiwaliHero from "@/components/store/DiwaliHero.astro";
 
 const { locale = "en" } = Astro.params;
 if (!isValidLocale(locale)) {
@@ -26,7 +27,7 @@ if (!isValidLocale(locale)) {
 // Edge & Browser Cache: 30s fresh, 120s stale-while-revalidate
 Astro.response.headers.set(
   "Cache-Control",
-  "public, max-age=0, s-maxage=30, stale-while-revalidate=120"
+  "public, max-age=0, s-maxage=30, stale-while-revalidate=120",
 );
 
 const [allCategories, allActiveProducts, heroConfigRaw] = await Promise.all([
@@ -52,29 +53,36 @@ const tSeo = getTranslations(locale, "seo");
   description={tSeo("defaultDescription")}
   locale={locale}
   containerClass="home-page-gradient relative"
+  headerOverlay={true}
 >
   <!-- ── WebGL Mesh Drift Background (Red, Orange, Yellow, White) ── -->
-  <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
-    <ShaderBackground client:load className="w-full h-full opacity-90 dark:opacity-40" />
+  <div
+    class="fixed inset-0 pointer-events-none z-0 overflow-hidden"
+    aria-hidden="true"
+  >
+    <ShaderBackground
+      client:load
+      className="w-full h-full opacity-90 dark:opacity-40"
+    />
   </div>
   <HomeMotion client:load>
+    <DiwaliHero />
     <div
-      class="relative z-10 w-full space-y-16 sm:space-y-24 md:space-y-[100px] pb-12 overflow-hidden font-sans"
+      class="relative z-10 w-full space-y-6 sm:space-y-12 md:space-y-[50px] pb-12 overflow-hidden font-sans"
     >
       {/* ── Diwali Live Countdown Banner ─── */}
-      <section class="reveal-section py-5 w-full">
+      <!-- <section class="reveal-section py-5 w-full">
         <DiwaliCountdownBanner client:load />
-      </section>
+      </section> -->
 
       {/* ── Infinite Ribbon Ticker ─── */}
-      <section class="reveal-section w-full">
+      <section class="reveal-section bg-[#0b0606] w-full">
         <InfiniteRibbonPreview client:load />
+        <OrganicCategoriesGrid client:load categories={categoryList} />
       </section>
 
       {/* ── 2. Live Fireworks Categories Bento Discovery Grid ─── */}
-      <section class="reveal-section w-full">
-        <OrganicCategoriesGrid client:load categories={categoryList} />
-      </section>
+      <section class="reveal-section w-full"></section>
 
       <!-- 
       {/* ── 1. Hero Section ─── */}

@@ -31,7 +31,7 @@ export function InfiniteRibbonPreview() {
   );
 
   return (
-    <div className="relative w-full overflow-hidden py-14 sm:py-20 md:py-24 lg:py-28 min-h-[160px] sm:min-h-[200px] md:min-h-[240px] flex items-center justify-center select-none">
+    <div className="relative  w-full overflow-hidden py-14 sm:py-20 md:py-24 lg:py-28 min-h-[160px] sm:min-h-[200px] md:min-h-[240px] flex items-center justify-center select-none">
       {/* Background Intersecting Ribbon (Rotated +3.2°) */}
       <div className="absolute w-[140%] -left-[20%] flex items-center justify-center pointer-events-none z-10">
         <InfiniteRibbon

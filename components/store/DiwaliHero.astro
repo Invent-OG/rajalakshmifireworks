@@ -1,0 +1,345 @@
+---
+/**
+ * DiwaliHero — layered parallax hero (sky → fireworks → title → city → embers → animated Ravana).
+ *
+ * Assets live in /public/hero (sky.jpg, city.webp, ravana.webp, ravana-still.webp).
+ * Needs:  npm i gsap lenis
+ */
+interface Props {
+  happy?: string;          // small line above the title
+  title?: string;          // big title
+  base?: string;           // folder (under /public) that holds the images
+  fireworks?: boolean;     // canvas fireworks in the sky
+  embers?: boolean;        // drifting golden sparks
+  smoothScroll?: boolean;  // enable Lenis smooth scrolling site-wide
+  bg?: string;             // colour the hero fades into at the bottom (match the next section)
+}
+const {
+  happy = 'Happy',
+  title = 'Diwali',
+  base = '/hero',
+  fireworks = true,
+  embers = true,
+  smoothScroll = true,
+  bg = '#0d0807',
+} = Astro.props;
+---
+
+<section
+  class="dh"
+  data-diwali-hero
+  data-smooth={smoothScroll ? '1' : '0'}
+  style={`--dh-bg:${bg}`}
+>
+  <div class="dh-vis">
+    <div class="dh-layers" data-layers>
+      <!-- 1 sky (slowest) -->
+      <div class="dh-l" data-l="1">
+        <div class="dh-pos dh-cover">
+          <div class="dh-stg" data-m="5">
+            <img src={`${base}/sky.jpg`} width="1536" height="1024" alt="" fetchpriority="high" decoding="async" />
+          </div>
+        </div>
+      </div>
+
+      {fireworks && (
+        <div class="dh-l" data-l="1b">
+          <canvas class="dh-fw" aria-hidden="true"></canvas>
+        </div>
+      )}
+
+      <!-- 2 title -->
+      <div class="dh-l" data-l="2">
+        <div class="dh-pos dh-ttlw">
+          <h1 class="dh-ttl" data-m="10">
+            <span class="dh-happy">{happy}</span>
+            <span class="dh-diwali">{title}</span>
+          </h1>
+        </div>
+      </div>
+
+      <!-- 3 city -->
+      <div class="dh-l" data-l="3">
+        <div class="dh-pos dh-cover">
+          <div class="dh-stg" data-m="15">
+            <img src={`${base}/city.webp`} width="1536" height="1024" alt="" decoding="async" />
+          </div>
+        </div>
+      </div>
+
+      {embers && (
+        <div class="dh-l" data-l="3b">
+          <div class="dh-embers" data-embers></div>
+        </div>
+      )}
+
+      <!-- 4 Ravana on the hill (fastest, nearest) -->
+      <div class="dh-l" data-l="4">
+        <div class="dh-ground"></div>
+        <div class="dh-pos dh-fit">
+          <div class="dh-stg" data-m="26">
+            <picture>
+              <source media="(prefers-reduced-motion: reduce)" srcset={`${base}/ravana-still.webp`} />
+              <img
+                src={`${base}/ravana.webp`}
+                width="1920"
+                height="1198"
+                alt="Ravana standing on a hill above a Tamil Nadu temple city at night"
+                fetchpriority="high"
+                decoding="async"
+              />
+            </picture>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="dh-fade"></div>
+  </div>
+</section>
+
+<style is:global>
+  .dh { position: relative; overflow: hidden; background: #06091c; }
+  .dh-vis { position: relative; height: 100vh; height: 100svh; overflow: hidden; }
+  .dh-layers { position: absolute; inset: 0; }
+  .dh-l { position: absolute; inset: 0; pointer-events: none; will-change: transform; }
+
+  /* .dh-pos = static placement (centering). .dh-stg / [data-m] = what GSAP moves with the mouse. */
+  .dh-pos { position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); }
+  .dh-stg { position: absolute; inset: 0; will-change: transform; }
+  .dh-stg img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; user-select: none; -webkit-user-drag: none; }
+  .dh-cover { width: max(106vw, calc(106svh * 1.5)); aspect-ratio: 3 / 2; }
+  .dh-fit { width: max(104vw, calc(100svh * 1.6033)); aspect-ratio: 3840 / 2395; }
+  .dh-ground { position: absolute; left: -12vw; right: -12vw; bottom: -1px; height: 5.5%;
+    background: linear-gradient(to top, #100805 55%, rgba(16, 8, 5, 0)); }
+
+  .dh-ttlw { top: 21%; bottom: auto; }
+  .dh-ttl { margin: 0; font-family: 'Arial Black', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-weight: 900;
+    font-size: min(15.5vw, 27svh); line-height: 0.9; letter-spacing: -0.025em; white-space: nowrap; will-change: transform; }
+  .dh-happy { display: block; font-size: 0.43em; color: #fff; text-align: left; margin: 0 0 0.04em 0.02em;
+    filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.35)); }
+  .dh-diwali { display: block; background: linear-gradient(#fff3cf 10%, #ffd98f 55%, #ffb84d);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 0 26px rgba(255, 160, 60, 0.5)); }
+
+  .dh-fw { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .dh-embers { position: absolute; inset: 0; overflow: hidden; }
+  .dh-embers i { position: absolute; bottom: 14%; width: 5px; height: 5px; border-radius: 50%; background: #ffcf5a;
+    box-shadow: 0 0 10px 3px rgba(255, 170, 40, 0.8); opacity: 0; left: var(--x);
+    animation: dh-rise var(--t) linear infinite; animation-delay: var(--d); }
+  @keyframes dh-rise {
+    0% { transform: translate(0, 0); opacity: 0; }
+    15% { opacity: 0.85; }
+    100% { transform: translate(var(--s), -55vh); opacity: 0; }
+  }
+  .dh-fade { position: absolute; left: 0; bottom: 0; width: 100%; height: 7%; z-index: 10; pointer-events: none;
+    background: linear-gradient(to top, var(--dh-bg), transparent); }
+
+  @media (prefers-reduced-motion: reduce) { .dh-embers { display: none; } }
+</style>
+
+<script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  import Lenis from 'lenis';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  let dispose: Array<() => void> = [];
+
+  function boot() {
+    const root = document.querySelector<HTMLElement>('[data-diwali-hero]');
+    if (!root || root.dataset.ready) return;
+    root.dataset.ready = '1';
+
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const layers = root.querySelector<HTMLElement>('[data-layers]')!;
+
+    /* ---------- embers ---------- */
+    const em = root.querySelector<HTMLElement>('[data-embers]');
+    if (em && !reduce) {
+      for (let i = 0; i < 18; i++) {
+        const e = document.createElement('i');
+        e.style.setProperty('--x', Math.random() * 100 + '%');
+        e.style.setProperty('--t', 5 + Math.random() * 6 + 's');
+        e.style.setProperty('--d', -Math.random() * 9 + 's');
+        e.style.setProperty('--s', (Math.random() - 0.5) * 80 + 'px');
+        em.appendChild(e);
+      }
+    }
+
+    if (!reduce) {
+      /* ---------- scroll parallax: far layers drop most, near layers least ---------- */
+      const tl = gsap.timeline({
+        scrollTrigger: { trigger: root, start: 'top top', end: 'bottom top', scrub: 0.4 },
+      });
+      ([['1', 24], ['1b', 22], ['2', 16], ['3', 10], ['3b', 8], ['4', 2]] as const).forEach(([l, y], i) => {
+        const els = layers.querySelectorAll(`[data-l="${l}"]`);
+        if (els.length) tl.to(els, { yPercent: y, ease: 'none' }, i === 0 ? undefined : '<');
+      });
+      dispose.push(() => { tl.scrollTrigger?.kill(); tl.kill(); });
+
+      /* ---------- smooth scroll (single instance, desktop-only) ---------- */
+      if (root.dataset.smooth === '1') {
+        const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0 || window.matchMedia('(pointer: coarse)').matches;
+        const hasExistingLenis = Boolean((window as any).__lenis);
+
+        if (!isTouch && !hasExistingLenis) {
+          const lenis = new Lenis({
+            duration: 1.0,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            orientation: 'vertical',
+            gestureOrientation: 'vertical',
+            smoothWheel: true,
+            wheelMultiplier: 1.0,
+          });
+          (window as any).__lenis = lenis;
+
+          lenis.on('scroll', ScrollTrigger.update);
+          const tick = (time: number) => {
+            lenis.raf(time * 1000);
+          };
+          gsap.ticker.add(tick);
+          gsap.ticker.lagSmoothing(500, 33);
+
+          dispose.push(() => {
+            gsap.ticker.remove(tick);
+            lenis.destroy();
+            delete (window as any).__lenis;
+          });
+        }
+      }
+
+      /* ---------- mouse depth (rAF-throttled, passive) ---------- */
+      const mv = [...root.querySelectorAll<HTMLElement>('[data-m]')].map((el) => ({
+        q: gsap.quickTo(el, 'x', { duration: 0.6, ease: 'power2.out' }),
+        m: Number(el.dataset.m),
+      }));
+      let mouseRaf = 0;
+      let lastNx = 0;
+      const onMove = (e: PointerEvent) => {
+        lastNx = (e.clientX / innerWidth - 0.5) * 2;
+        if (!mouseRaf) {
+          mouseRaf = requestAnimationFrame(() => {
+            mv.forEach((s) => s.q(-lastNx * s.m));
+            mouseRaf = 0;
+          });
+        }
+      };
+      addEventListener('pointermove', onMove, { passive: true });
+      dispose.push(() => {
+        removeEventListener('pointermove', onMove);
+        if (mouseRaf) cancelAnimationFrame(mouseRaf);
+      });
+
+      /* ---------- fireworks ---------- */
+      const cv = root.querySelector<HTMLCanvasElement>('.dh-fw');
+      if (cv) dispose.push(fireworks(cv, root));
+    }
+  }
+
+  function fireworks(cv: HTMLCanvasElement, root: HTMLElement) {
+    const ctx = cv.getContext('2d', { alpha: true })!;
+    let W = 0, H = 0;
+    const fit = () => {
+      const d = Math.min(window.devicePixelRatio || 1, 1.25);
+      W = cv.clientWidth; H = cv.clientHeight;
+      cv.width = Math.round(W * d); cv.height = Math.round(H * d);
+      ctx.setTransform(d, 0, 0, d, 0, 0);
+    };
+    fit();
+    window.addEventListener('resize', fit, { passive: true });
+
+    type RGB = [number, number, number];
+    const PAL: RGB[] = [[255, 214, 120], [255, 170, 60], [255, 120, 60], [255, 240, 200], [255, 90, 120], [120, 200, 255], [190, 130, 255]];
+    const rnd = (a: number, b: number) => a + Math.random() * (b - a);
+    const pick = () => PAL[(Math.random() * PAL.length) | 0];
+    const rockets: { x: number; y: number; vx: number; vy: number; age: number; t: number; c: RGB }[] = [];
+    const parts: { x: number; y: number; vx: number; vy: number; life: number; max: number; g: number; c: RGB }[] = [];
+    let next = 0, last = 0, flash = 0, fx = 0, fy = 0, running = false, visible = true, alive = true;
+    const timers: number[] = [];
+
+    function launch() {
+      const tx = rnd(0.12, 0.88) * W, ty = rnd(0.12, 0.40) * H, sx = tx + rnd(-50, 50), sy = H * 0.58, t = rnd(50, 75);
+      rockets.push({ x: sx, y: sy, vx: (tx - sx) / t, vy: (ty - sy) / t, age: 0, t, c: pick() });
+    }
+    function burst(x: number, y: number, c: RGB) {
+      if (parts.length > 280) return;
+      const k = Math.random(), n = k < 0.25 ? 36 : 48, c2 = pick(), sp = rnd(2.2, 3.8), willow = k > 0.85;
+      for (let i = 0; i < n; i++) {
+        const a = (Math.PI * 2 * i) / n + rnd(-0.04, 0.04);
+        const s = k < 0.25 ? sp * (i % 2 ? 1 : 0.6) : sp * rnd(0.85, 1.05);
+        parts.push({
+          x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 0,
+          max: willow ? rnd(100, 140) : rnd(60, 95), g: willow ? 0.02 : 0.03,
+          c: willow ? [255, 200, 90] : k > 0.55 && i % 3 === 0 ? c2 : c,
+        });
+      }
+      flash = 0.4; fx = x; fy = y;
+    }
+    function frame(ts: number) {
+      if (!running || !alive) return;
+      const dt = Math.min((ts - (last || ts)) / 16.67, 2.0); last = ts;
+      if (!next) next = ts + 400;
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.fillStyle = `rgba(0,0,0,${Math.min(0.2 * dt, 0.5)})`;
+      ctx.fillRect(0, 0, W, H);
+      ctx.globalCompositeOperation = 'lighter';
+      if (ts >= next) {
+        launch();
+        if (Math.random() < 0.25) timers.push(window.setTimeout(() => alive && launch(), rnd(200, 450)));
+        next = ts + rnd(800, 1800);
+      }
+      for (let i = rockets.length - 1; i >= 0; i--) {
+        const r = rockets[i];
+        r.x += r.vx * dt; r.y += r.vy * dt; r.age += dt;
+        ctx.fillStyle = 'rgba(255,220,150,.95)';
+        ctx.fillRect(r.x - 1, r.y - 1, 2.5, 2.5);
+        if (r.age >= r.t) { burst(r.x, r.y, r.c); rockets.splice(i, 1); }
+      }
+      const drag = Math.pow(0.985, dt);
+      for (let i = parts.length - 1; i >= 0; i--) {
+        const p = parts[i];
+        p.vx *= drag; p.vy = p.vy * drag + p.g * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.life += dt;
+        const a = 1 - p.life / p.max;
+        if (a <= 0) { parts.splice(i, 1); continue; }
+        ctx.fillStyle = `rgba(${p.c[0]},${p.c[1]},${p.c[2]},${a})`;
+        const sz = 1.2 + 1.4 * a;
+        ctx.fillRect(p.x - sz / 2, p.y - sz / 2, sz, sz);
+      }
+      if (flash > 0.02) {
+        ctx.fillStyle = `rgba(255,200,120,${flash * 0.15})`;
+        ctx.fillRect(0, 0, W, H);
+        flash *= Math.pow(0.82, dt);
+      }
+      if (!parts.length && !rockets.length) { ctx.globalCompositeOperation = 'source-over'; ctx.clearRect(0, 0, W, H); }
+      requestAnimationFrame(frame);
+    }
+    const sync = () => {
+      const go = visible && !document.hidden && alive;
+      if (go && !running) { running = true; last = 0; requestAnimationFrame(frame); }
+      else if (!go) running = false;
+    };
+    const io = new IntersectionObserver((es) => {
+      visible = es[0].isIntersecting;
+      sync();
+    }, { threshold: 0.02 });
+    io.observe(root);
+    document.addEventListener('visibilitychange', sync);
+    sync();
+
+    return () => {
+      alive = false; running = false;
+      io.disconnect();
+      timers.forEach(clearTimeout);
+      window.removeEventListener('resize', fit);
+      document.removeEventListener('visibilitychange', sync);
+    };
+  }
+
+  boot();
+  document.addEventListener('astro:page-load', boot); // works with <ClientRouter /> view transitions
+  document.addEventListener('astro:before-swap', () => {
+    dispose.forEach((fn) => fn());
+    dispose = [];
+  });
+</script>

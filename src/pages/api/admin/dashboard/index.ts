@@ -13,6 +13,7 @@ async function _GET() {
   try {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    const todayIso = today.toISOString();
 
     const [
       ordersAggResult,
@@ -27,13 +28,13 @@ async function _GET() {
         .select({
           totalOrders: sql<number>`count(*)`,
           totalRevenue: sql<string>`COALESCE(SUM(CASE WHEN ${orders.orderStatus} != 'CANCELLED' THEN total_amount::numeric ELSE 0 END), 0)`,
-          todayOrders: sql<number>`count(*) filter (where ${orders.placedAt} >= ${today})`,
-          todaySales: sql<string>`COALESCE(SUM(CASE WHEN ${orders.placedAt} >= ${today} AND ${orders.orderStatus} != 'CANCELLED' THEN total_amount::numeric ELSE 0 END), 0)`,
+          todayOrders: sql<number>`count(*) filter (where ${orders.placedAt} >= ${todayIso}::timestamptz)`,
+          todaySales: sql<string>`COALESCE(SUM(CASE WHEN ${orders.placedAt} >= ${todayIso}::timestamptz AND ${orders.orderStatus} != 'CANCELLED' THEN total_amount::numeric ELSE 0 END), 0)`,
           newOrders: sql<number>`count(*) filter (where ${orders.orderStatus} in ('NEW', 'PENDING'))`,
           confirmedOrders: sql<number>`count(*) filter (where ${orders.orderStatus} = 'CONFIRMED')`,
           assignedOrders: sql<number>`count(*) filter (where ${orders.orderStatus} = 'ASSIGNED')`,
           outForDelivery: sql<number>`count(*) filter (where ${orders.orderStatus} = 'OUT_FOR_DELIVERY')`,
-          deliveredToday: sql<number>`count(*) filter (where ${orders.deliveredAt} >= ${today} and ${orders.orderStatus} in ('DELIVERED', 'COMPLETED'))`,
+          deliveredToday: sql<number>`count(*) filter (where ${orders.deliveredAt} >= ${todayIso}::timestamptz and ${orders.orderStatus} in ('DELIVERED', 'COMPLETED'))`,
         })
         .from(orders),
 
