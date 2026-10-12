@@ -9,7 +9,14 @@ async function _GET() {
     for (const s of allSettings) {
       settingsMap[s.key] = s.value;
     }
-    return Response.json({ settings: settingsMap });
+    return Response.json(
+      { settings: settingsMap },
+      {
+        headers: {
+          'Cache-Control': 'public, max-age=60, s-maxage=300, stale-while-revalidate=600',
+        },
+      }
+    );
   } catch (error) {
     console.error('Error fetching settings:', error);
     return Response.json({ message: 'Failed to load settings' }, { status: 500 });

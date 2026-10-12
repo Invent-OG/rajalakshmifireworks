@@ -61,11 +61,11 @@ const tSeo = getTranslations(locale, "seo");
     aria-hidden="true"
   >
     <ShaderBackground
-      client:load
+      client:idle
       className="w-full h-full opacity-90 dark:opacity-40"
     />
   </div>
-  <HomeMotion client:load>
+  <HomeMotion client:idle>
     <DiwaliHero />
     <div
       class="relative z-10 w-full space-y-6 sm:space-y-12 md:space-y-[50px] pb-12 overflow-hidden font-sans"
@@ -77,8 +77,8 @@ const tSeo = getTranslations(locale, "seo");
 
       {/* ── Infinite Ribbon Ticker ─── */}
       <section class="reveal-section bg-[#0b0606] w-full">
-        <InfiniteRibbonPreview client:load />
-        <OrganicCategoriesGrid client:load categories={categoryList} locale={locale as any} />
+        <InfiniteRibbonPreview client:visible />
+        <OrganicCategoriesGrid client:visible categories={categoryList} locale={locale as any} />
       </section>
 
       {/* ── 2. Live Fireworks Categories Bento Discovery Grid ─── */}
@@ -95,7 +95,7 @@ const tSeo = getTranslations(locale, "seo");
         bestsellerProducts.length > 0 && (
           <section class="reveal-section w-full">
             <FeaturedProductsSlider
-              client:load
+              client:visible
               products={bestsellerProducts}
               locale={locale as any}
               title={

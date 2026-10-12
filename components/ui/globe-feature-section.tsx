@@ -157,8 +157,12 @@ export function Globe({
     });
 
     let animationFrameId: number;
+    let lastGlobeFrame = 0;
 
-    const animate = () => {
+    const animate = (time: number) => {
+      animationFrameId = requestAnimationFrame(animate);
+      if (time - lastGlobeFrame < 33) return;
+      lastGlobeFrame = time;
       if (!pointerInteracting.current) {
         phi += 0.003;
       }
@@ -167,10 +171,9 @@ export function Globe({
         width: (width || 350) * 1.5,
         height: (width || 350) * 1.5,
       });
-      animationFrameId = requestAnimationFrame(animate);
     };
 
-    animate();
+    animationFrameId = requestAnimationFrame(animate);
 
     if (canvasRef.current) {
       canvasRef.current.style.opacity = "1";

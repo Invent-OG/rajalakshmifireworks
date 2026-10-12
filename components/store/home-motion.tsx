@@ -67,41 +67,14 @@ export function HomeMotion({ children }: HomeMotionProps) {
         });
       });
 
-      // Mobile animations (max-width: 767px)
+      // Mobile animations (max-width: 767px) - keep lean and eliminate scroll listeners for buttery smooth 120Hz native touch scroll
       mm.add('(max-width: 767px)', () => {
-        // Mobile hero entrance
         const heroTl = gsap.timeline({ defaults: { ease: 'power2.out' } });
         heroTl.fromTo(
           '.hero-heading, .hero-text, .hero-ctas',
           { opacity: 0, y: 15 },
           { opacity: 1, y: 0, duration: 0.55, stagger: 0.1, clearProps: 'transform,opacity' }
         );
-
-        // Mobile smooth scroll reveal for sections
-        const allSections = gsap.utils.toArray<HTMLElement>('.reveal-section', containerRef.current);
-        const scrollSections = allSections.slice(1);
-
-        scrollSections.forEach((section) => {
-          gsap.fromTo(
-            section,
-            {
-              opacity: 0,
-              y: 28,
-            },
-            {
-              opacity: 1,
-              y: 0,
-              duration: 0.75,
-              ease: 'power2.out',
-              clearProps: 'transform,opacity',
-              scrollTrigger: {
-                trigger: section,
-                start: 'top 90%',
-                once: true,
-              },
-            }
-          );
-        });
       });
 
       // Refresh ScrollTrigger once DOM/fonts/images settle

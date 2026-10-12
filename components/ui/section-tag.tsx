@@ -1,7 +1,4 @@
-'use client';
-
 import React from 'react';
-import { motion } from 'framer-motion';
 import { Sparkle, type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -29,16 +26,12 @@ export function SectionTag({
           isSm ? 'w-9 h-9' : 'w-[44px] h-[44px]'
         )}
       >
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 6, repeat: Infinity, ease: 'linear' }}
-          className="flex items-center justify-center"
-        >
+        <div className="flex items-center justify-center animate-spin [animation-duration:6s]">
           <Icon
             size={isSm ? 15 : 18}
             className="text-[#0f162b] fill-[#0f162b] dark:text-white dark:fill-white"
           />
-        </motion.div>
+        </div>
       </div>
 
       {/* Pill Tag */}

@@ -306,19 +306,19 @@ const UNIFORMS = {
   saturation: 1.000,
   hue: 0.0000,
   vignette: 0.150,
-  blur: 0.0072,
-  grain: 0.098,
+  blur: 0.0,       // Disabled: 5-tap blur is very expensive on mobile GPUs
+  grain: 0.050,
   seed: 5069.0,
   rotate: 2.7227,
   offsetX: 0.090,
   offsetY: 0.150,
-  drift: 0.148,
-  cursorEnabled: true,
+  drift: 0.060,    // Reduced for cheaper animation
+  cursorEnabled: false,  // Disabled: removes scroll/pointermove listener overhead
   cursorEffect: 2.0,
   cursorStrength: 0.730,
   cursorRadius: 0.365,
   oklab: 0.0,
-  timeScale: -1.373,
+  timeScale: -0.5,  // Slower = cheaper (fewer noise octave changes per second)
 }
 
 const pendingContextReleases = new WeakMap<HTMLCanvasElement, number>()
@@ -428,12 +428,14 @@ export function ShaderBackground({ className }: { className?: string }) {
     const timeAnimated = Math.abs(UNIFORMS.timeScale) > 0.0001
 
     const resizeCanvas = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2)
+      // Cap pixel ratio at 1 for performance (shader quality imperceptible above 1:1)
+      const dpr = Math.min(window.devicePixelRatio || 1, 1)
       const rawWidth = Math.max(1, Math.round(bounds.width * dpr))
       const rawHeight = Math.max(1, Math.round(bounds.height * dpr))
+      // Further limit to 600k pixels max (vs 2M) for low-end devices
       const pixelScale = Math.min(
         1,
-        Math.sqrt(2_000_000 / Math.max(1, rawWidth * rawHeight)),
+        Math.sqrt(600_000 / Math.max(1, rawWidth * rawHeight)),
       )
       const width = Math.max(1, Math.round(rawWidth * pixelScale))
       const height = Math.max(1, Math.round(rawHeight * pixelScale))
@@ -529,9 +531,19 @@ export function ShaderBackground({ className }: { className?: string }) {
     }
     document.addEventListener("visibilitychange", onVisibilityChange)
 
+    // Target ~20fps max to reduce GPU load (shader is smooth enough at 20fps)
+    const TARGET_FRAME_MS = 50 // 1000/20 = 50ms
+    let lastFrameTime = 0
+
     function render(now: number) {
       raf = 0
       if (disposed || !visible || !inView || !canvas || !gl) return
+      // Throttle to target FPS
+      if (now - lastFrameTime < TARGET_FRAME_MS) {
+        raf = requestAnimationFrame(render)
+        return
+      }
+      lastFrameTime = now
       const dt = lastNow === null ? 0 : Math.min((now - lastNow) / 1000, 0.1)
       lastNow = now
       const follow = 1 - Math.exp(-12 * dt)

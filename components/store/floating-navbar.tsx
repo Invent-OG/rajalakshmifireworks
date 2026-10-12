@@ -18,7 +18,6 @@ import {
   Zap,
 } from 'lucide-react';
 import { BrandLogo } from '@/components/ui/brand-logo';
-import { HangingSaravedi3D } from '@/components/store/hanging-saravedi-3d';
 import { LanguageSelector } from '@/components/ui/language-selector';
 import { useCart, useIsHydrated } from '@/hooks/use-cart';
 import { useStoreTheme } from '@/hooks/use-store-theme';
@@ -409,9 +408,6 @@ export function FloatingNavbar({ pathname: propPathname, locale: propLocale }: F
       style={{ fontFamily: "'DM Sans', sans-serif" }}
     >
       <div className="w-full relative">
-        {/* 3D Hanging Saravedi Cracker on Bottom Left of Navbar */}
-        <HangingSaravedi3D className="!absolute -left-[72px] sm:-left-[80px] md:-left-[88px] top-[56px] sm:top-[64px] z-20 w-48 sm:w-56 md:w-64 h-60 sm:h-68 md:h-76 pointer-events-auto" />
-
         {/* Floating Frosted Pill Bar with Glassmorphism */}
         <header className="relative h-16 sm:h-[72px] px-3.5 sm:px-6 rounded-full bg-white/95 dark:bg-[#141414]/95 backdrop-blur-md border border-neutral-200/90 dark:border-[#2c2c2c] text-neutral-900 dark:text-white shadow-sm grid grid-cols-[1fr_auto_1fr] items-center gap-2 sm:gap-4 transition-all duration-300">
           {/* Left Column: Capsule Pill Navigation Links & Mobile Hamburger */}

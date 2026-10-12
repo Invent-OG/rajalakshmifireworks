@@ -185,12 +185,13 @@ const {
 
         if (!isTouch && !hasExistingLenis) {
           const lenis = new Lenis({
-            duration: 1.0,
+            duration: 0.8,
             easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
             orientation: 'vertical',
             gestureOrientation: 'vertical',
             smoothWheel: true,
             wheelMultiplier: 1.0,
+            autoRaf: false,
           });
           (window as any).__lenis = lenis;
 
@@ -208,6 +209,7 @@ const {
           });
         }
       }
+
 
       /* ---------- mouse depth (rAF-throttled, passive) ---------- */
       const mv = [...root.querySelectorAll<HTMLElement>('[data-m]')].map((el) => ({
@@ -255,7 +257,7 @@ const {
     const pick = () => PAL[(Math.random() * PAL.length) | 0];
     const rockets: { x: number; y: number; vx: number; vy: number; age: number; t: number; c: RGB }[] = [];
     const parts: { x: number; y: number; vx: number; vy: number; life: number; max: number; g: number; c: RGB }[] = [];
-    let next = 0, last = 0, flash = 0, fx = 0, fy = 0, running = false, visible = true, alive = true;
+    let next = 0, last = 0, flash = 0, fx = 0, fy = 0, running = false, visible = true, alive = true, lastFrameTs = 0;
     const timers: number[] = [];
 
     function launch() {
@@ -278,6 +280,9 @@ const {
     }
     function frame(ts: number) {
       if (!running || !alive) return;
+      // Cap fireworks to ~30fps to halve canvas drawing cost
+      if (ts - lastFrameTs < 33) { requestAnimationFrame(frame); return; }
+      lastFrameTs = ts;
       const dt = Math.min((ts - (last || ts)) / 16.67, 2.0); last = ts;
       if (!next) next = ts + 400;
       ctx.globalCompositeOperation = 'destination-out';

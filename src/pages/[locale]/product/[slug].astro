@@ -177,7 +177,7 @@ const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`)
 
         {/* Pricing Hierarchy */}
         <div class="p-6 rounded-[28px] sm:rounded-[32px] bg-white dark:bg-[#141414] dark:border dark:border-[#282828] shadow-sm dark:shadow-none space-y-2">
-          <PriceDisplay client:load sellingPrice={price} mrp={mrp} size="xl" />
+          <PriceDisplay sellingPrice={price} mrp={mrp} size="xl" />
           <p class="text-[11px] text-muted-foreground">
             {locale === 'ta' ? 'GST மற்றும் தொழிற்சாலை பேக்கிங் உள்ளடங்கியது. மறைமுக கட்டணங்கள் இல்லை.' : 'Inclusive of GST & Factory Packaging. No hidden charges.'}
           </p>

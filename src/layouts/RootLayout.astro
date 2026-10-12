@@ -121,7 +121,7 @@ const {
   <body
     class={`${bodyClass} text-foreground min-h-screen flex flex-col font-sans antialiased selection:bg-brand selection:text-brand-foreground`}
   >
-    <AppToaster client:load />
+    <AppToaster client:idle />
     <slot />
   </body>
 </html>
