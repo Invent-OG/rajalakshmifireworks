@@ -113,8 +113,8 @@ const DEFAULT_INVOICE_CONFIG: InvoiceCustomizerConfig = {
   storeAddress: '123 Factory Road, Sivakasi, Tamil Nadu 626123',
   storePhone: APP_CONFIG.STORE_PHONE || '+91 98421 00001',
   storeEmail: APP_CONFIG.STORE_EMAIL || 'sales@rajalakshmifireworks.com',
-  storeGstin: '33AAAAA0000A1Z5',
-  storeLicenseNo: 'E/SC/TN/2024/00142',
+  storeGstin: '',
+  storeLicenseNo: '',
   logoImageUrl: null,
   showLogo: true,
   signatureImageUrl: null,
@@ -332,7 +332,7 @@ function InvoiceCustomizerContent({
     return {
       ...DEFAULT_INVOICE_CONFIG,
       ...savedConfig,
-      documentTitle: initialSettings['INVOICE_DEFAULT_TITLE'] || savedConfig.documentTitle || DEFAULT_INVOICE_CONFIG.documentTitle,
+      documentTitle: initialSettings['INVOICE_DEFAULT_TITLE'] !== undefined && initialSettings['INVOICE_DEFAULT_TITLE'] !== '' ? initialSettings['INVOICE_DEFAULT_TITLE'] : (savedConfig.documentTitle || DEFAULT_INVOICE_CONFIG.documentTitle),
       invoiceNumber: order?.invoiceNumber || '01234',
       invoiceDate: formatDateDots(order?.placedAt),
       customerName: order?.customerNameSnapshot || 'Valued Customer',
@@ -342,13 +342,15 @@ function InvoiceCustomizerContent({
       customerEmail: order?.customer?.email || '',
       logoImageUrl: savedLocalLogo || savedConfig.logoImageUrl || null,
       signatureImageUrl: savedLocalSignature || savedConfig.signatureImageUrl || null,
-      storeGstin: initialSettings['INVOICE_GSTIN'] || savedConfig.storeGstin || DEFAULT_INVOICE_CONFIG.storeGstin,
-      bankName: initialSettings['INVOICE_BANK_NAME'] || savedConfig.bankName || DEFAULT_INVOICE_CONFIG.bankName,
-      accountName: initialSettings['INVOICE_ACCOUNT_NAME'] || savedConfig.accountName || DEFAULT_INVOICE_CONFIG.accountName,
-      accountNumber: initialSettings['INVOICE_ACCOUNT_NUMBER'] || savedConfig.accountNumber || DEFAULT_INVOICE_CONFIG.accountNumber,
-      ifscCode: initialSettings['INVOICE_IFSC'] || savedConfig.ifscCode || DEFAULT_INVOICE_CONFIG.ifscCode,
-      upiId: initialSettings['INVOICE_UPI_ID'] || savedConfig.upiId || DEFAULT_INVOICE_CONFIG.upiId,
-      termsAndConditions: resolvedTerms,
+      storeGstin: initialSettings['INVOICE_GSTIN'] !== undefined ? initialSettings['INVOICE_GSTIN'] : (savedConfig.storeGstin !== undefined ? savedConfig.storeGstin : ''),
+      storeLicenseNo: initialSettings['INVOICE_LICENSE_NO'] !== undefined ? initialSettings['INVOICE_LICENSE_NO'] : (savedConfig.storeLicenseNo !== undefined ? savedConfig.storeLicenseNo : ''),
+      bankName: initialSettings['INVOICE_BANK_NAME'] !== undefined ? initialSettings['INVOICE_BANK_NAME'] : (savedConfig.bankName !== undefined ? savedConfig.bankName : ''),
+      accountName: initialSettings['INVOICE_ACCOUNT_NAME'] !== undefined ? initialSettings['INVOICE_ACCOUNT_NAME'] : (savedConfig.accountName !== undefined ? savedConfig.accountName : ''),
+      accountNumber: initialSettings['INVOICE_ACCOUNT_NUMBER'] !== undefined ? initialSettings['INVOICE_ACCOUNT_NUMBER'] : (savedConfig.accountNumber !== undefined ? savedConfig.accountNumber : ''),
+      ifscCode: initialSettings['INVOICE_IFSC'] !== undefined ? initialSettings['INVOICE_IFSC'] : (savedConfig.ifscCode !== undefined ? savedConfig.ifscCode : ''),
+      upiId: initialSettings['INVOICE_UPI_ID'] !== undefined ? initialSettings['INVOICE_UPI_ID'] : (savedConfig.upiId !== undefined ? savedConfig.upiId : ''),
+      termsAndConditions: initialSettings['INVOICE_TERMS'] !== undefined ? initialSettings['INVOICE_TERMS'] : resolvedTerms,
+      notes: initialSettings['INVOICE_SAFETY_NOTICE'] !== undefined ? initialSettings['INVOICE_SAFETY_NOTICE'] : (savedConfig.notes ?? DEFAULT_INVOICE_CONFIG.notes),
       showTerms: savedConfig.showTerms !== false,
     };
   });
@@ -372,6 +374,7 @@ function InvoiceCustomizerContent({
     if (s && Object.keys(s).length > 0) {
       setConfig((prev) => ({
         ...prev,
+<<<<<<< HEAD
         documentTitle: s.INVOICE_DEFAULT_TITLE || prev.documentTitle || DEFAULT_INVOICE_CONFIG.documentTitle,
         storeGstin: s.INVOICE_GSTIN || prev.storeGstin || DEFAULT_INVOICE_CONFIG.storeGstin,
         storeLicenseNo: s.INVOICE_LICENSE_NO || prev.storeLicenseNo || DEFAULT_INVOICE_CONFIG.storeLicenseNo,
@@ -387,14 +390,32 @@ function InvoiceCustomizerContent({
             : DEFAULT_INVOICE_CONFIG.termsAndConditions),
         notes: s.INVOICE_SAFETY_NOTICE || prev.notes || DEFAULT_INVOICE_CONFIG.notes,
         signatoryName: s.INVOICE_SIGNATORY_NAME || prev.signatoryName || DEFAULT_INVOICE_CONFIG.signatoryName,
+=======
+        documentTitle: s.INVOICE_DEFAULT_TITLE !== undefined && s.INVOICE_DEFAULT_TITLE !== '' ? s.INVOICE_DEFAULT_TITLE : prev.documentTitle,
+        storeGstin: s.INVOICE_GSTIN !== undefined ? s.INVOICE_GSTIN : prev.storeGstin,
+        storeLicenseNo: s.INVOICE_LICENSE_NO !== undefined ? s.INVOICE_LICENSE_NO : prev.storeLicenseNo,
+        bankName: s.INVOICE_BANK_NAME !== undefined ? s.INVOICE_BANK_NAME : prev.bankName,
+        accountName: s.INVOICE_ACCOUNT_NAME !== undefined ? s.INVOICE_ACCOUNT_NAME : prev.accountName,
+        accountNumber: s.INVOICE_ACCOUNT_NUMBER !== undefined ? s.INVOICE_ACCOUNT_NUMBER : prev.accountNumber,
+        ifscCode: s.INVOICE_IFSC !== undefined ? s.INVOICE_IFSC : prev.ifscCode,
+        upiId: s.INVOICE_UPI_ID !== undefined ? s.INVOICE_UPI_ID : prev.upiId,
+        termsAndConditions: s.INVOICE_TERMS !== undefined ? s.INVOICE_TERMS : prev.termsAndConditions,
+        notes: s.INVOICE_SAFETY_NOTICE !== undefined ? s.INVOICE_SAFETY_NOTICE : prev.notes,
+        signatoryName: s.INVOICE_SIGNATORY_NAME !== undefined ? s.INVOICE_SIGNATORY_NAME : prev.signatoryName,
+>>>>>>> fca5d32 (refactor: handle explicit undefined checks for invoice settings and configuration fields)
         fontSize: (s.INVOICE_FONT_SIZE as any) || prev.fontSize || DEFAULT_INVOICE_CONFIG.fontSize,
         showLogo: s.INVOICE_SHOW_LOGO !== undefined ? s.INVOICE_SHOW_LOGO !== 'false' : prev.showLogo,
         showSignature: s.INVOICE_SHOW_SIGNATURE !== undefined ? s.INVOICE_SHOW_SIGNATURE !== 'false' : prev.showSignature,
         showPaymentInfo: s.INVOICE_SHOW_PAYMENT_INFO !== undefined ? s.INVOICE_SHOW_PAYMENT_INFO !== 'false' : prev.showPaymentInfo,
         showTaxOrSavings: s.INVOICE_SHOW_TAX_SAVINGS !== undefined ? s.INVOICE_SHOW_TAX_SAVINGS !== 'false' : prev.showTaxOrSavings,
         showTerms: s.INVOICE_SHOW_TERMS !== undefined ? s.INVOICE_SHOW_TERMS !== 'false' : prev.showTerms,
+<<<<<<< HEAD
         logoImageUrl: prev.logoImageUrl || s.INVOICE_CUSTOM_LOGO || null,
         signatureImageUrl: prev.signatureImageUrl || s.INVOICE_CUSTOM_SIGNATURE || null,
+=======
+        logoImageUrl: s.INVOICE_CUSTOM_LOGO !== undefined ? (s.INVOICE_CUSTOM_LOGO || null) : prev.logoImageUrl,
+        signatureImageUrl: s.INVOICE_CUSTOM_SIGNATURE !== undefined ? (s.INVOICE_CUSTOM_SIGNATURE || null) : prev.signatureImageUrl,
+>>>>>>> fca5d32 (refactor: handle explicit undefined checks for invoice settings and configuration fields)
       }));
     }
   }, [initialSettings, storeSettingsData]);
@@ -1390,7 +1411,7 @@ function InvoiceCustomizerContent({
                 </div>
               )}
 
-              {config.showGstin && config.storeGstin && (
+              {config.showGstin && config.storeGstin && config.storeGstin.trim().length > 0 && (
                 <div className="flex sm:justify-end gap-3 items-baseline">
                   <span className={`font-bold uppercase tracking-wider text-neutral-900 ${fontSizes.heading}`}>
                     GSTIN:
@@ -1401,7 +1422,11 @@ function InvoiceCustomizerContent({
                 </div>
               )}
 
+<<<<<<< HEAD
               {config.storeLicenseNo && (
+=======
+              {config.storeLicenseNo && config.storeLicenseNo.trim().length > 0 && (
+>>>>>>> fca5d32 (refactor: handle explicit undefined checks for invoice settings and configuration fields)
                 <div className="flex sm:justify-end gap-3 items-baseline">
                   <span className={`font-bold uppercase tracking-wider text-neutral-900 ${fontSizes.heading}`}>
                     LICENSE:
