@@ -263,9 +263,9 @@ function TrackOrderPageContent() {
   );
 }
 
-export default function TrackOrderPage() {
+export default function TrackOrderPage({ locale }: { locale?: string } = {}) {
   return (
-    <Providers>
+    <Providers locale={locale}>
       <TrackOrderPageContent />
     </Providers>
   );

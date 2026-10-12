@@ -12,10 +12,10 @@ import NumberFlow from '@number-flow/react';
 import Link from '@/components/ui/link';
 import { useTranslations, useLocale } from '@/lib/i18n/context';
 
-export function QuickCartSidebar() {
+export function QuickCartSidebar({ locale }: { locale?: string } = {}) {
   return (
     <aside className="hidden xl:block w-80 shrink-0 sticky top-24 z-20">
-      <QuickCartWidget />
+      <QuickCartWidget locale={locale} />
     </aside>
   );
 }

@@ -27,10 +27,12 @@ interface ProductCardProps {
     category?: { name: string; nameTa?: string | null; slug: string } | null;
     media?: Array<{ url: string; alt?: string | null }>;
   };
+  locale?: string;
 }
 
-export function ProductCard({ product }: ProductCardProps) {
-  const locale = useLocale();
+export function ProductCard({ product, locale: propLocale }: ProductCardProps) {
+  const detectedLocale = useLocale();
+  const locale = (propLocale && (propLocale === 'ta' || propLocale === 'en') ? propLocale : detectedLocale) as any;
   const tProducts = useTranslations('products');
   const tCommon = useTranslations('common');
   const { addItem, updateQuantity, removeItem } = useCart();
@@ -65,7 +67,8 @@ export function ProductCard({ product }: ProductCardProps) {
 
     addItem({
       productId: product.id,
-      name: displayName,
+      name: product.name,
+      nameTa: product.nameTa,
       slug: product.slug,
       image: img1,
       mrp,
@@ -134,7 +137,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
           {/* ── 2. Header Grid (Heading + Price Pill) ── */}
           <div className="_card-header-grid mt-3">
-            <Link href={`/product/${product.slug}`} className="block min-w-0">
+            <Link href={`/${locale}/product/${product.slug}`} className="block min-w-0">
               <h2 className="_heading line-clamp-2 min-h-[2.6em] group-hover:text-amber-600 transition-colors" title={displayName}>
                 {displayName}
               </h2>

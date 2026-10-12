@@ -12,7 +12,7 @@ interface StoreHeaderProps {
 
 export function StoreHeader({ pathname, locale }: StoreHeaderProps = {}) {
   return (
-    <Providers>
+    <Providers locale={locale}>
       <StoreBanner />
       <FloatingNavbar pathname={pathname} locale={locale} />
     </Providers>

@@ -41,6 +41,31 @@ function interpolate(text: string, values?: Record<string, string | number>): st
   });
 }
 
+export function getClientFallbackLocale(): Locale {
+  if (typeof window !== 'undefined') {
+    // 1. Check pathname (e.g. /ta/quick-order or /ta)
+    const segment = window.location.pathname.split('/')[1];
+    if (isValidLocale(segment)) return segment as Locale;
+
+    // 2. Check <html lang="...">
+    if (typeof document !== 'undefined') {
+      const htmlLang = document.documentElement?.lang;
+      if (isValidLocale(htmlLang)) return htmlLang as Locale;
+
+      // 3. Check cookie NEXT_LOCALE
+      const cookieMatch = document.cookie.match(/(?:^|;\s*)NEXT_LOCALE=([^;]+)/);
+      if (cookieMatch && isValidLocale(cookieMatch[1])) return cookieMatch[1] as Locale;
+    }
+
+    // 4. Check localStorage
+    try {
+      const stored = localStorage.getItem('rajalakshmi_locale');
+      if (stored && isValidLocale(stored)) return stored as Locale;
+    } catch {}
+  }
+  return DEFAULT_LOCALE;
+}
+
 export function I18nProvider({
   locale: initialLocale,
   children,
@@ -51,14 +76,14 @@ export function I18nProvider({
   const router = useRouter();
   const pathname = usePathname();
 
-  // Derive active locale from props or pathname
+  // Derive active locale from props, pathname, or client fallback
   const locale: Locale = useMemo(() => {
     if (initialLocale && isValidLocale(initialLocale)) return initialLocale;
     if (pathname) {
       const segment = pathname.split('/')[1];
       if (isValidLocale(segment)) return segment;
     }
-    return DEFAULT_LOCALE;
+    return getClientFallbackLocale();
   }, [initialLocale, pathname]);
 
   const setLocale = useCallback(
@@ -126,18 +151,42 @@ export function I18nProvider({
 
 export function useLocale(): Locale {
   const ctx = useContext(I18nContext);
-  if (!ctx) return DEFAULT_LOCALE;
-  return ctx.locale;
+  if (ctx && ctx.locale) return ctx.locale;
+  return getClientFallbackLocale();
 }
 
 export function useChangeLocale() {
   const ctx = useContext(I18nContext);
-  return ctx?.setLocale || (() => {});
+  return useCallback(
+    (newLocale: Locale) => {
+      if (ctx?.setLocale) {
+        ctx.setLocale(newLocale);
+        return;
+      }
+      if (typeof document !== 'undefined') {
+        document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000; SameSite=Lax`;
+        try {
+          localStorage.setItem('rajalakshmi_locale', newLocale);
+        } catch {}
+        const pathname = window.location.pathname;
+        const segments = pathname.split('/');
+        let newPath = pathname;
+        if (isValidLocale(segments[1])) {
+          segments[1] = newLocale;
+          newPath = segments.join('/');
+        } else {
+          newPath = `/${newLocale}${pathname === '/' ? '' : pathname}`;
+        }
+        window.location.href = `${newPath}${window.location.search || ''}`;
+      }
+    },
+    [ctx]
+  );
 }
 
 export function useTranslations(namespace?: string) {
   const ctx = useContext(I18nContext);
-  const locale = ctx?.locale || DEFAULT_LOCALE;
+  const locale = ctx?.locale || getClientFallbackLocale();
 
   const t = useCallback(
     (key: string, values?: Record<string, string | number>): string => {
@@ -147,9 +196,10 @@ export function useTranslations(namespace?: string) {
       }
       // Fallback if rendered outside provider
       const activeMessages = messagesMap[locale] || messagesMap[DEFAULT_LOCALE];
+      const fallbackMessages = messagesMap[DEFAULT_LOCALE];
       let val = getNestedValue(activeMessages as unknown as Record<string, unknown>, fullKey);
       if (val === undefined) {
-        val = getNestedValue(messagesMap[DEFAULT_LOCALE] as unknown as Record<string, unknown>, fullKey);
+        val = getNestedValue(fallbackMessages as unknown as Record<string, unknown>, fullKey);
       }
       return typeof val === 'string' ? interpolate(val, values) : fullKey;
     },

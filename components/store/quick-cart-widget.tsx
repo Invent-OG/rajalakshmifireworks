@@ -16,12 +16,14 @@ import { getLocalizedName } from '@/lib/i18n/formatters';
 interface QuickCartWidgetProps {
   className?: string;
   onClose?: () => void;
+  locale?: string;
 }
 
-export function QuickCartWidget({ className = '', onClose }: QuickCartWidgetProps) {
+export function QuickCartWidget({ className = '', onClose, locale: propLocale }: QuickCartWidgetProps) {
   const { items, itemCount, subtotal, totalSavings, updateQuantity, removeItem } = useCart();
   const isHydrated = useIsHydrated();
-  const locale = useLocale();
+  const detectedLocale = useLocale();
+  const locale = (propLocale && (propLocale === 'ta' || propLocale === 'en') ? propLocale : detectedLocale) as any;
   const t = useTranslations('cart');
   const tCommon = useTranslations('common');
   const containerRef = useRef<HTMLDivElement>(null);

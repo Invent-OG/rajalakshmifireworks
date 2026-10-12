@@ -17,11 +17,11 @@ export const sharedQueryClient = new QueryClient({
   },
 });
 
-export function Providers({ children }: { children: React.ReactNode }) {
+export function Providers({ locale, children }: { locale?: string; children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={sharedQueryClient}>
-      <I18nProvider>
+      <I18nProvider locale={locale as any}>
         <CartProvider>
           {children}
           <Toaster

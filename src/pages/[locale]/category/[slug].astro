@@ -98,7 +98,7 @@ const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`)
         {productList.length > 0 ? (
           <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3 gap-3 sm:gap-4">
             {productList.map((product) => (
-              <ProductCard client:visible product={product} />
+              <ProductCard client:visible product={product} locale={locale as any} />
             ))}
           </div>
         ) : (
@@ -113,7 +113,7 @@ const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`)
       </div>
 
       {/* Desktop Quick Cart Widget */}
-      <QuickCartSidebar client:load />
+      <QuickCartSidebar client:load locale={locale as any} />
     </div>
   </div>
 </StoreLayout>

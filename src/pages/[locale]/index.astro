@@ -78,7 +78,7 @@ const tSeo = getTranslations(locale, "seo");
       {/* ── Infinite Ribbon Ticker ─── */}
       <section class="reveal-section bg-[#0b0606] w-full">
         <InfiniteRibbonPreview client:load />
-        <OrganicCategoriesGrid client:load categories={categoryList} />
+        <OrganicCategoriesGrid client:load categories={categoryList} locale={locale as any} />
       </section>
 
       {/* ── 2. Live Fireworks Categories Bento Discovery Grid ─── */}
@@ -97,6 +97,7 @@ const tSeo = getTranslations(locale, "seo");
             <FeaturedProductsSlider
               client:load
               products={bestsellerProducts}
+              locale={locale as any}
               title={
                 locale === "ta"
                   ? "அதிகம் விற்பனையான பட்டாசுகள்"
@@ -133,6 +134,7 @@ const tSeo = getTranslations(locale, "seo");
             <FeaturedProductsSlider
               client:visible
               products={featuredProducts}
+              locale={locale as any}
               title={
                 locale === "ta"
                   ? "சிறப்பு பட்டாசு ரகங்கள்"

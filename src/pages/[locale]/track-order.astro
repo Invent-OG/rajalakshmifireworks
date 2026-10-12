@@ -13,5 +13,5 @@ const t = getTranslations(locale, 'navigation');
 ---
 
 <StoreLayout title={`${t('trackOrder')} | Rajalakshmi Fireworks`} locale={locale}>
-  <TrackOrderPage client:only="react" />
+  <TrackOrderPage client:only="react" locale={locale as any} />
 </StoreLayout>

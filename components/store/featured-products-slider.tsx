@@ -5,7 +5,7 @@ import Link from '@/components/ui/link';
 import { ChevronLeft, ChevronRight, ArrowRight, Sparkles } from 'lucide-react';
 import { ProductCard } from '@/components/store/product-card';
 import { SectionTag } from '@/components/ui/section-tag';
-import { useLocale, useTranslations } from '@/lib/i18n/context';
+import { useLocale, useTranslations, I18nProvider } from '@/lib/i18n/context';
 
 interface ProductItem {
   id: number;
@@ -30,6 +30,7 @@ interface FeaturedProductsSliderProps {
   viewAllHref?: string;
   viewAllLabel?: string;
   scrollDrift?: 'left' | 'right';
+  locale?: string;
 }
 
 export function FeaturedProductsSlider({
@@ -39,8 +40,11 @@ export function FeaturedProductsSlider({
   tagLabel,
   viewAllHref = '/products?featured=true',
   viewAllLabel,
+  scrollDrift,
+  locale: propLocale,
 }: FeaturedProductsSliderProps) {
-  const locale = useLocale();
+  const detectedLocale = useLocale();
+  const locale = (propLocale && (propLocale === 'ta' || propLocale === 'en') ? propLocale : detectedLocale) as any;
   const tProducts = useTranslations('products');
   const tCommon = useTranslations('common');
 
@@ -149,7 +153,8 @@ export function FeaturedProductsSlider({
   if (products.length === 0) return null;
 
   return (
-    <section className="w-full overflow-hidden">
+    <I18nProvider locale={locale}>
+      <section className="w-full overflow-hidden">
       {/* ── Section Header with Rounded Outline Pill Button (Constrained container) ── */}
       <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-8 md:px-[80px]">
         <div className="slider-header flex flex-col md:flex-row justify-between items-start md:items-end mb-6 sm:mb-8 md:mb-10 gap-4 md:gap-6">
@@ -227,7 +232,7 @@ export function FeaturedProductsSlider({
               key={product.id}
               className="slider-card-item snap-start shrink-0 w-[270px] sm:w-[310px] md:w-[340px] flex flex-col h-auto self-stretch transition-transform duration-300 hover:scale-[1.02]"
             >
-              <ProductCard product={product} />
+              <ProductCard product={product} locale={locale} />
             </div>
           ))}
 
@@ -293,5 +298,6 @@ export function FeaturedProductsSlider({
         </div>
       </div>
     </section>
+    </I18nProvider>
   );
 }

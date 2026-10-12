@@ -374,23 +374,6 @@ function InvoiceCustomizerContent({
     if (s && Object.keys(s).length > 0) {
       setConfig((prev) => ({
         ...prev,
-<<<<<<< HEAD
-        documentTitle: s.INVOICE_DEFAULT_TITLE || prev.documentTitle || DEFAULT_INVOICE_CONFIG.documentTitle,
-        storeGstin: s.INVOICE_GSTIN || prev.storeGstin || DEFAULT_INVOICE_CONFIG.storeGstin,
-        storeLicenseNo: s.INVOICE_LICENSE_NO || prev.storeLicenseNo || DEFAULT_INVOICE_CONFIG.storeLicenseNo,
-        bankName: s.INVOICE_BANK_NAME || prev.bankName || DEFAULT_INVOICE_CONFIG.bankName,
-        accountName: s.INVOICE_ACCOUNT_NAME || prev.accountName || DEFAULT_INVOICE_CONFIG.accountName,
-        accountNumber: s.INVOICE_ACCOUNT_NUMBER || prev.accountNumber || DEFAULT_INVOICE_CONFIG.accountNumber,
-        ifscCode: s.INVOICE_IFSC || prev.ifscCode || DEFAULT_INVOICE_CONFIG.ifscCode,
-        upiId: s.INVOICE_UPI_ID || prev.upiId || DEFAULT_INVOICE_CONFIG.upiId,
-        termsAndConditions:
-          s.INVOICE_TERMS ||
-          (prev.termsAndConditions && prev.termsAndConditions.trim().length > 0
-            ? prev.termsAndConditions
-            : DEFAULT_INVOICE_CONFIG.termsAndConditions),
-        notes: s.INVOICE_SAFETY_NOTICE || prev.notes || DEFAULT_INVOICE_CONFIG.notes,
-        signatoryName: s.INVOICE_SIGNATORY_NAME || prev.signatoryName || DEFAULT_INVOICE_CONFIG.signatoryName,
-=======
         documentTitle: s.INVOICE_DEFAULT_TITLE !== undefined && s.INVOICE_DEFAULT_TITLE !== '' ? s.INVOICE_DEFAULT_TITLE : prev.documentTitle,
         storeGstin: s.INVOICE_GSTIN !== undefined ? s.INVOICE_GSTIN : prev.storeGstin,
         storeLicenseNo: s.INVOICE_LICENSE_NO !== undefined ? s.INVOICE_LICENSE_NO : prev.storeLicenseNo,
@@ -402,20 +385,14 @@ function InvoiceCustomizerContent({
         termsAndConditions: s.INVOICE_TERMS !== undefined ? s.INVOICE_TERMS : prev.termsAndConditions,
         notes: s.INVOICE_SAFETY_NOTICE !== undefined ? s.INVOICE_SAFETY_NOTICE : prev.notes,
         signatoryName: s.INVOICE_SIGNATORY_NAME !== undefined ? s.INVOICE_SIGNATORY_NAME : prev.signatoryName,
->>>>>>> fca5d32 (refactor: handle explicit undefined checks for invoice settings and configuration fields)
         fontSize: (s.INVOICE_FONT_SIZE as any) || prev.fontSize || DEFAULT_INVOICE_CONFIG.fontSize,
         showLogo: s.INVOICE_SHOW_LOGO !== undefined ? s.INVOICE_SHOW_LOGO !== 'false' : prev.showLogo,
         showSignature: s.INVOICE_SHOW_SIGNATURE !== undefined ? s.INVOICE_SHOW_SIGNATURE !== 'false' : prev.showSignature,
         showPaymentInfo: s.INVOICE_SHOW_PAYMENT_INFO !== undefined ? s.INVOICE_SHOW_PAYMENT_INFO !== 'false' : prev.showPaymentInfo,
         showTaxOrSavings: s.INVOICE_SHOW_TAX_SAVINGS !== undefined ? s.INVOICE_SHOW_TAX_SAVINGS !== 'false' : prev.showTaxOrSavings,
         showTerms: s.INVOICE_SHOW_TERMS !== undefined ? s.INVOICE_SHOW_TERMS !== 'false' : prev.showTerms,
-<<<<<<< HEAD
-        logoImageUrl: prev.logoImageUrl || s.INVOICE_CUSTOM_LOGO || null,
-        signatureImageUrl: prev.signatureImageUrl || s.INVOICE_CUSTOM_SIGNATURE || null,
-=======
         logoImageUrl: s.INVOICE_CUSTOM_LOGO !== undefined ? (s.INVOICE_CUSTOM_LOGO || null) : prev.logoImageUrl,
         signatureImageUrl: s.INVOICE_CUSTOM_SIGNATURE !== undefined ? (s.INVOICE_CUSTOM_SIGNATURE || null) : prev.signatureImageUrl,
->>>>>>> fca5d32 (refactor: handle explicit undefined checks for invoice settings and configuration fields)
       }));
     }
   }, [initialSettings, storeSettingsData]);
@@ -1422,11 +1399,7 @@ function InvoiceCustomizerContent({
                 </div>
               )}
 
-<<<<<<< HEAD
-              {config.storeLicenseNo && (
-=======
               {config.storeLicenseNo && config.storeLicenseNo.trim().length > 0 && (
->>>>>>> fca5d32 (refactor: handle explicit undefined checks for invoice settings and configuration fields)
                 <div className="flex sm:justify-end gap-3 items-baseline">
                   <span className={`font-bold uppercase tracking-wider text-neutral-900 ${fontSizes.heading}`}>
                     LICENSE:

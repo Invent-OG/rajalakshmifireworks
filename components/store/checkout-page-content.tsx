@@ -807,9 +807,9 @@ function CheckoutPageContent() {
   );
 }
 
-export default function CheckoutPage() {
+export default function CheckoutPage({ locale }: { locale?: string } = {}) {
   return (
-    <Providers>
+    <Providers locale={locale}>
       <CheckoutPageContent />
     </Providers>
   );

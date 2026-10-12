@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 import { QuickCartWidget } from '@/components/store/quick-cart-widget';
 import { useCart, useCartItemQuantity } from '@/hooks/use-cart';
-import { useLocale, useTranslations } from '@/lib/i18n/context';
+import { useLocale, useTranslations, I18nProvider } from '@/lib/i18n/context';
 import { getLocalizedName } from '@/lib/i18n/formatters';
 import { formatCurrency, toNumber } from '@/lib/utils/format';
 import { ProductVisualPlaceholder } from '@/components/ui/category-icon';
@@ -68,14 +68,17 @@ interface QuickOrderContentProps {
   products: QuickOrderProduct[];
   categories: QuickOrderCategory[];
   minOrderValue?: number;
+  locale?: 'en' | 'ta';
 }
 
 export function QuickOrderContent({
   products,
   categories,
   minOrderValue = 2000,
+  locale: propLocale,
 }: QuickOrderContentProps) {
-  const locale = (useLocale() || 'en') as 'en' | 'ta';
+  const detectedLocale = useLocale();
+  const locale = (propLocale && (propLocale === 'ta' || propLocale === 'en') ? propLocale : detectedLocale) as 'en' | 'ta';
   const tNav = useTranslations('navigation');
   const tCommon = useTranslations('common');
   const tCat = useTranslations('categories');
@@ -278,7 +281,8 @@ export function QuickOrderContent({
   const getHref = (path: string) => `/${locale}${path}`;
 
   return (
-    <div className="w-full min-h-screen bg-[#f8f9fa] dark:bg-[#0c0c0c] text-neutral-900 dark:text-neutral-100 transition-colors duration-200 select-none pb-28 lg:pb-16">
+    <I18nProvider locale={locale}>
+      <div className="w-full min-h-screen bg-[#f8f9fa] dark:bg-[#0c0c0c] text-neutral-900 dark:text-neutral-100 transition-colors duration-200 select-none pb-28 lg:pb-16">
       <div className="max-w-[1500px] mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-5 sm:space-y-6">
 
         {/* ── Top Header Banner: Quick Order & Discount Pill ── */}
@@ -773,6 +777,7 @@ export function QuickOrderContent({
         </div>
       </div>
     </div>
+    </I18nProvider>
   );
 }
 
@@ -882,6 +887,7 @@ function TableRow({ product, locale, addItem, updateQuantity, removeItem }: Tabl
               addItem({
                 productId: product.id,
                 name: product.name,
+                nameTa: product.nameTa,
                 slug: product.slug,
                 image: img,
                 mrp,
@@ -1013,6 +1019,7 @@ function MobileCard({ product, locale, addItem, updateQuantity, removeItem }: Mo
               addItem({
                 productId: product.id,
                 name: product.name,
+                nameTa: product.nameTa,
                 slug: product.slug,
                 image: img,
                 mrp,

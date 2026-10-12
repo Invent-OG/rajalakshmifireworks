@@ -206,13 +206,15 @@ const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`)
           client:load
           product={{
             id: product.id,
-            name: displayName,
+            name: product.name,
+            nameTa: product.nameTa,
             slug: product.slug,
             mrp,
             sellingPrice: price,
             stockQuantity: product.stockQuantity,
             image: imageUrl,
           }}
+          locale={locale as any}
         />
 
         {/* What's Included in this Combo Breakdown */}

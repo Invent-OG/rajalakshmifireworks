@@ -21,8 +21,9 @@ import { APP_CONFIG } from '@/lib/constants/config';
 import { useLocale } from '@/lib/i18n/context';
 import { BrandLogo } from '@/components/ui/brand-logo';
 
-export function AboutContent() {
-  const locale = useLocale();
+export function AboutContent({ locale: propLocale }: { locale?: 'en' | 'ta' } = {}) {
+  const detectedLocale = useLocale();
+  const locale = (propLocale && (propLocale === 'ta' || propLocale === 'en') ? propLocale : detectedLocale) as 'en' | 'ta';
   const isTa = locale === 'ta';
 
   const stats = [

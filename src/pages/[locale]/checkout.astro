@@ -13,5 +13,5 @@ const t = getTranslations(locale, 'checkout');
 ---
 
 <StoreLayout title={`${t('title')} | Rajalakshmi Fireworks`} locale={locale}>
-  <CheckoutPage client:only="react" />
+  <CheckoutPage client:only="react" locale={locale as any} />
 </StoreLayout>

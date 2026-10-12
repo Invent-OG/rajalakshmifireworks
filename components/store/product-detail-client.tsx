@@ -13,15 +13,17 @@ interface ProductDetailClientProps {
   product: {
     id: number;
     name: string;
+    nameTa?: string | null;
     slug: string;
     mrp: number;
     sellingPrice: number;
     stockQuantity: number;
     image: string | null;
   };
+  locale?: string;
 }
 
-export function ProductDetailClient({ product }: ProductDetailClientProps) {
+export function ProductDetailClient({ product, locale: propLocale }: ProductDetailClientProps) {
   const { addItem, updateQuantity, removeItem } = useCart();
   const cartQuantity = useCartItemQuantity(product.id);
   const [selectedQuantity, setSelectedQuantity] = useState(1);
@@ -29,7 +31,8 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const t = useTranslations('products');
   const tCart = useTranslations('cart');
-  const locale = useLocale();
+  const detectedLocale = useLocale();
+  const locale = (propLocale && (propLocale === 'ta' || propLocale === 'en') ? propLocale : detectedLocale) as any;
 
   function handleAddToCart() {
     if (buttonRef.current && !isReducedMotion()) {
@@ -43,6 +46,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
     addItem({
       productId: product.id,
       name: product.name,
+      nameTa: product.nameTa,
       slug: product.slug,
       image: product.image,
       mrp: product.mrp,

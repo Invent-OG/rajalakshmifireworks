@@ -39,6 +39,7 @@ export interface OrganicCategoriesGridProps {
   rightCard?: CategoryCardData;
   allCategoriesLink?: string;
   allCategoriesText?: string;
+  locale?: string;
 }
 
 export function OrganicCategoriesGrid({
@@ -53,8 +54,10 @@ export function OrganicCategoriesGrid({
   rightCard,
   allCategoriesLink = '/products',
   allCategoriesText,
+  locale: propLocale,
 }: OrganicCategoriesGridProps) {
-  const locale = useLocale();
+  const detectedLocale = useLocale();
+  const locale = (propLocale && (propLocale === 'ta' || propLocale === 'en') ? propLocale : detectedLocale) as any;
   const tCat = useTranslations('categories');
   const tNav = useTranslations('navigation');
 

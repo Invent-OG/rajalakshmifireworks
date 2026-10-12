@@ -15,6 +15,7 @@ export function useIsHydrated() {
 export interface CartItem {
   productId: number;
   name: string;
+  nameTa?: string | null;
   slug: string;
   image: string | null;
   mrp: number;
@@ -105,7 +106,9 @@ function createCartStore(): CartStore {
         const newQty = Math.min(existing.quantity + (item.quantity || 1), maxLimit);
         state = {
           items: items.map((i) =>
-            i.productId === item.productId ? { ...i, quantity: newQty } : i
+            i.productId === item.productId
+              ? { ...i, quantity: newQty, nameTa: i.nameTa || item.nameTa }
+              : i
           ),
         };
       } else {

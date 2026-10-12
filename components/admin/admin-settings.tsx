@@ -123,24 +123,6 @@ function AdminSettingsPageContent() {
       );
       setBannerLink(s.ANNOUNCEMENT_BANNER_LINK || '/products');
       setBannerVariant(s.ANNOUNCEMENT_BANNER_VARIANT || 'rainbow');
-<<<<<<< HEAD
-      setInvoiceTitle(s.INVOICE_DEFAULT_TITLE || 'ESTIMATE / DISPATCH MEMO');
-      setInvoiceGstin(s.INVOICE_GSTIN || '33AAAAA0000A1Z5');
-      setInvoiceLicenseNo(s.INVOICE_LICENSE_NO || 'E/SC/TN/2024/00142 (PESO Approved)');
-      setInvoiceBankName(s.INVOICE_BANK_NAME || 'State Bank of India');
-      setInvoiceAccountName(s.INVOICE_ACCOUNT_NAME || 'Rajalakshmi Fireworks Sivakasi');
-      setInvoiceAccountNumber(s.INVOICE_ACCOUNT_NUMBER || '38492019482');
-      setInvoiceIfsc(s.INVOICE_IFSC || 'SBIN0001234');
-      setInvoiceUpiId(s.INVOICE_UPI_ID || 'rajalakshmifireworks@sbi');
-      setInvoiceTerms(
-        s.INVOICE_TERMS ||
-          '1. Goods once sold cannot be returned or exchanged.\n2. All fireworks are manufactured & dispatched under Supreme Court & PESO safety standards.\n3. Transport risk is on buyer\'s account.\n4. Subject to Sivakasi Jurisdiction only.'
-      );
-      setInvoiceSafetyNotice(
-        s.INVOICE_SAFETY_NOTICE ||
-          'This is a computer generated invoice/dispatch memo. All products conform to Sivakasi fireworks safety guidelines. Keep strictly away from unattended children.'
-      );
-=======
       setInvoiceTitle(s.INVOICE_DEFAULT_TITLE !== undefined && s.INVOICE_DEFAULT_TITLE !== '' ? s.INVOICE_DEFAULT_TITLE : 'ESTIMATE / DISPATCH MEMO');
       setInvoiceGstin(s.INVOICE_GSTIN !== undefined ? s.INVOICE_GSTIN : '');
       setInvoiceLicenseNo(s.INVOICE_LICENSE_NO !== undefined ? s.INVOICE_LICENSE_NO : '');
@@ -151,7 +133,6 @@ function AdminSettingsPageContent() {
       setInvoiceUpiId(s.INVOICE_UPI_ID !== undefined ? s.INVOICE_UPI_ID : '');
       setInvoiceTerms(s.INVOICE_TERMS !== undefined ? s.INVOICE_TERMS : '');
       setInvoiceSafetyNotice(s.INVOICE_SAFETY_NOTICE !== undefined ? s.INVOICE_SAFETY_NOTICE : '');
->>>>>>> fca5d32 (refactor: handle explicit undefined checks for invoice settings and configuration fields)
       setTplOrderConfirmed(s.WHATSAPP_TEMPLATE_ORDER_CONFIRMED || DEFAULT_WHATSAPP_TEMPLATES.ORDER_CONFIRMED);
       setTplOrderAssigned(s.WHATSAPP_TEMPLATE_ORDER_ASSIGNED || DEFAULT_WHATSAPP_TEMPLATES.ORDER_ASSIGNED);
       setTplOrderOutForDelivery(s.WHATSAPP_TEMPLATE_ORDER_OUT_FOR_DELIVERY || DEFAULT_WHATSAPP_TEMPLATES.ORDER_OUT_FOR_DELIVERY);

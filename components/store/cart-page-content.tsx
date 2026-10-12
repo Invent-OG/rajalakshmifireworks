@@ -312,9 +312,9 @@ function CartPageContent() {
   );
 }
 
-export default function CartPage() {
+export default function CartPage({ locale }: { locale?: string } = {}) {
   return (
-    <Providers>
+    <Providers locale={locale}>
       <CartPageContent />
     </Providers>
   );

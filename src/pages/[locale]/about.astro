@@ -24,6 +24,6 @@ const pageDescription = locale === 'ta'
   locale={locale}
 >
   <main class="w-full">
-    <AboutContent client:load />
+    <AboutContent client:load locale={locale as any} />
   </main>
 </StoreLayout>
