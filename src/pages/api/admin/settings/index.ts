@@ -2,7 +2,7 @@ import { wrapHandler } from '@/src/lib/astro-api';
 
 import { db } from '@/db';
 import { settings } from '@/db/schema';
-import { eq } from 'drizzle-orm';
+import { sql } from 'drizzle-orm';
 import { getSession } from '@/lib/auth/session';
 import { settingsUpdateSchema } from '@/lib/validation/admin';
 
@@ -36,26 +36,23 @@ async function _PUT(request: NextRequest) {
     }
 
     const updates = result.data;
+    const entries = Object.entries(updates).map(([key, value]) => ({
+      key,
+      value: String(value ?? ''),
+    }));
 
-    await db.transaction(async (tx) => {
-      for (const [key, value] of Object.entries(updates)) {
-        const existing = await tx.query.settings.findFirst({
-          where: eq(settings.key, key),
+    if (entries.length > 0) {
+      await db
+        .insert(settings)
+        .values(entries)
+        .onConflictDoUpdate({
+          target: settings.key,
+          set: {
+            value: sql`excluded.value`,
+            updatedAt: new Date(),
+          },
         });
-
-        if (existing) {
-          await tx
-            .update(settings)
-            .set({ value: String(value), updatedAt: new Date() })
-            .where(eq(settings.key, key));
-        } else {
-          await tx.insert(settings).values({
-            key,
-            value: String(value),
-          });
-        }
-      }
-    });
+    }
 
     return Response.json({ success: true, message: 'Settings saved successfully' });
   } catch (error) {

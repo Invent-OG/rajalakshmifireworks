@@ -5,7 +5,7 @@ export const loginSchema = z.object({
   password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
-export const settingsUpdateSchema = z.record(z.string(), z.string());
+export const settingsUpdateSchema = z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.null()]));
 
 export const stockAdjustmentSchema = z.object({
   quantityChange: z.number().int().refine((v) => v !== 0, 'Quantity change cannot be 0'),

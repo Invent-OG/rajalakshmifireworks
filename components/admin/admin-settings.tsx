@@ -1,7 +1,7 @@
 'use client';
 
 import Link from '@/components/ui/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input, Textarea } from '@/components/ui/input';
@@ -97,53 +97,56 @@ function AdminSettingsPageContent() {
     ],
   };
 
-  const { isLoading } = useQuery({
+  const { data: settingsData, isLoading } = useQuery({
     queryKey: ['admin', 'settings'],
     queryFn: async () => {
       const res = await fetch('/api/admin/settings');
-      const json = await res.json();
-      if (json?.settings && !initialized) {
-        const s = json.settings;
-        setMinOrderValue(s.MIN_ORDER_VALUE ?? '500');
-        setDeliveryCharge(s.DELIVERY_CHARGE ?? '50');
-        setFreeDeliveryAbove(s.FREE_DELIVERY_ABOVE ?? '0');
-        setMaxQuantityPerItem(s.MAX_QUANTITY_PER_ITEM ?? '50');
-        setStorePhone(s.STORE_PHONE ?? '+91 98765 43210');
-        setWhatsappNumber(s.WHATSAPP_NUMBER ?? '919876543210');
-        setStoreAddress(s.STORE_ADDRESS ?? '123 Main Road, Sivakasi, Tamil Nadu 626123');
-        setBannerEnabled(s.ANNOUNCEMENT_BANNER_ENABLED !== 'false');
-        setBannerText(
-          s.ANNOUNCEMENT_BANNER_TEXT ??
-            'Direct from Sivakasi • 100% Genuine Factory Sealed Fireworks • Wholesale Pricing'
-        );
-        setBannerLink(s.ANNOUNCEMENT_BANNER_LINK ?? '/products');
-        setBannerVariant(s.ANNOUNCEMENT_BANNER_VARIANT ?? 'rainbow');
-        setInvoiceTitle(s.INVOICE_DEFAULT_TITLE ?? 'ESTIMATE / DISPATCH MEMO');
-        setInvoiceGstin(s.INVOICE_GSTIN ?? '33AAAAA0000A1Z5');
-        setInvoiceLicenseNo(s.INVOICE_LICENSE_NO ?? 'E/SC/TN/2024/00142 (PESO Approved)');
-        setInvoiceBankName(s.INVOICE_BANK_NAME ?? 'State Bank of India');
-        setInvoiceAccountName(s.INVOICE_ACCOUNT_NAME ?? 'Rajalakshmi Fireworks Sivakasi');
-        setInvoiceAccountNumber(s.INVOICE_ACCOUNT_NUMBER ?? '38492019482');
-        setInvoiceIfsc(s.INVOICE_IFSC ?? 'SBIN0001234');
-        setInvoiceUpiId(s.INVOICE_UPI_ID ?? 'rajalakshmifireworks@sbi');
-        setInvoiceTerms(
-          s.INVOICE_TERMS ??
-            '1. Goods once sold cannot be returned or exchanged.\n2. All fireworks are manufactured & dispatched under Supreme Court & PESO safety standards.\n3. Transport risk is on buyer\'s account.\n4. Subject to Sivakasi Jurisdiction only.'
-        );
-        setInvoiceSafetyNotice(
-          s.INVOICE_SAFETY_NOTICE ??
-            'This is a computer generated invoice/dispatch memo. All products conform to Sivakasi fireworks safety guidelines. Keep strictly away from unattended children.'
-        );
-        setTplOrderConfirmed(s.WHATSAPP_TEMPLATE_ORDER_CONFIRMED ?? DEFAULT_WHATSAPP_TEMPLATES.ORDER_CONFIRMED);
-        setTplOrderAssigned(s.WHATSAPP_TEMPLATE_ORDER_ASSIGNED ?? DEFAULT_WHATSAPP_TEMPLATES.ORDER_ASSIGNED);
-        setTplOrderOutForDelivery(s.WHATSAPP_TEMPLATE_ORDER_OUT_FOR_DELIVERY ?? DEFAULT_WHATSAPP_TEMPLATES.ORDER_OUT_FOR_DELIVERY);
-        setTplOrderDelivered(s.WHATSAPP_TEMPLATE_ORDER_DELIVERED ?? DEFAULT_WHATSAPP_TEMPLATES.ORDER_DELIVERED);
-        setTplOrderReceived(s.WHATSAPP_TEMPLATE_ORDER_RECEIVED ?? DEFAULT_WHATSAPP_TEMPLATES.ORDER_RECEIVED);
-        setInitialized(true);
-      }
-      return json;
+      if (!res.ok) throw new Error('Failed to load settings');
+      return res.json();
     },
   });
+
+  useEffect(() => {
+    if (settingsData?.settings && !initialized) {
+      const s = settingsData.settings;
+      setMinOrderValue(s.MIN_ORDER_VALUE || '500');
+      setDeliveryCharge(s.DELIVERY_CHARGE || '50');
+      setFreeDeliveryAbove(s.FREE_DELIVERY_ABOVE || '0');
+      setMaxQuantityPerItem(s.MAX_QUANTITY_PER_ITEM || '50');
+      setStorePhone(s.STORE_PHONE || '+91 98765 43210');
+      setWhatsappNumber(s.WHATSAPP_NUMBER || '919876543210');
+      setStoreAddress(s.STORE_ADDRESS || '123 Main Road, Sivakasi, Tamil Nadu 626123');
+      setBannerEnabled(s.ANNOUNCEMENT_BANNER_ENABLED !== 'false');
+      setBannerText(
+        s.ANNOUNCEMENT_BANNER_TEXT ||
+          'Direct from Sivakasi • 100% Genuine Factory Sealed Fireworks • Wholesale Pricing'
+      );
+      setBannerLink(s.ANNOUNCEMENT_BANNER_LINK || '/products');
+      setBannerVariant(s.ANNOUNCEMENT_BANNER_VARIANT || 'rainbow');
+      setInvoiceTitle(s.INVOICE_DEFAULT_TITLE || 'ESTIMATE / DISPATCH MEMO');
+      setInvoiceGstin(s.INVOICE_GSTIN || '33AAAAA0000A1Z5');
+      setInvoiceLicenseNo(s.INVOICE_LICENSE_NO || 'E/SC/TN/2024/00142 (PESO Approved)');
+      setInvoiceBankName(s.INVOICE_BANK_NAME || 'State Bank of India');
+      setInvoiceAccountName(s.INVOICE_ACCOUNT_NAME || 'Rajalakshmi Fireworks Sivakasi');
+      setInvoiceAccountNumber(s.INVOICE_ACCOUNT_NUMBER || '38492019482');
+      setInvoiceIfsc(s.INVOICE_IFSC || 'SBIN0001234');
+      setInvoiceUpiId(s.INVOICE_UPI_ID || 'rajalakshmifireworks@sbi');
+      setInvoiceTerms(
+        s.INVOICE_TERMS ||
+          '1. Goods once sold cannot be returned or exchanged.\n2. All fireworks are manufactured & dispatched under Supreme Court & PESO safety standards.\n3. Transport risk is on buyer\'s account.\n4. Subject to Sivakasi Jurisdiction only.'
+      );
+      setInvoiceSafetyNotice(
+        s.INVOICE_SAFETY_NOTICE ||
+          'This is a computer generated invoice/dispatch memo. All products conform to Sivakasi fireworks safety guidelines. Keep strictly away from unattended children.'
+      );
+      setTplOrderConfirmed(s.WHATSAPP_TEMPLATE_ORDER_CONFIRMED || DEFAULT_WHATSAPP_TEMPLATES.ORDER_CONFIRMED);
+      setTplOrderAssigned(s.WHATSAPP_TEMPLATE_ORDER_ASSIGNED || DEFAULT_WHATSAPP_TEMPLATES.ORDER_ASSIGNED);
+      setTplOrderOutForDelivery(s.WHATSAPP_TEMPLATE_ORDER_OUT_FOR_DELIVERY || DEFAULT_WHATSAPP_TEMPLATES.ORDER_OUT_FOR_DELIVERY);
+      setTplOrderDelivered(s.WHATSAPP_TEMPLATE_ORDER_DELIVERED || DEFAULT_WHATSAPP_TEMPLATES.ORDER_DELIVERED);
+      setTplOrderReceived(s.WHATSAPP_TEMPLATE_ORDER_RECEIVED || DEFAULT_WHATSAPP_TEMPLATES.ORDER_RECEIVED);
+      setInitialized(true);
+    }
+  }, [settingsData, initialized]);
 
   const saveMutation = useMutation({
     mutationFn: async () => {

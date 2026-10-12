@@ -353,36 +353,51 @@ function InvoiceCustomizerContent({
     };
   });
 
-  // Fetch store settings via TanStack Query when initialSettings is empty
+  // Fetch store settings via TanStack Query
   const { data: storeSettingsData } = useQuery<{ settings?: Record<string, string> }>({
-    queryKey: queryKeys.admin.settings.all,
+    queryKey: ['admin', 'settings'],
     queryFn: async () => {
       const res = await fetch('/api/admin/settings');
       if (!res.ok) throw new Error('Failed to load settings');
       return res.json();
     },
-    enabled: Object.keys(initialSettings).length === 0,
-    staleTime: 1000 * 60 * 5,
   });
 
   useEffect(() => {
-    if (storeSettingsData?.settings) {
-      const s = storeSettingsData.settings;
+    const s =
+      (initialSettings && Object.keys(initialSettings).length > 0)
+        ? initialSettings
+        : storeSettingsData?.settings;
+
+    if (s && Object.keys(s).length > 0) {
       setConfig((prev) => ({
         ...prev,
-        storeGstin: s.INVOICE_GSTIN || prev.storeGstin,
-        bankName: s.INVOICE_BANK_NAME || prev.bankName,
-        accountName: s.INVOICE_ACCOUNT_NAME || prev.accountName,
-        accountNumber: s.INVOICE_ACCOUNT_NUMBER || prev.accountNumber,
-        ifscCode: s.INVOICE_IFSC || prev.ifscCode,
-        upiId: s.INVOICE_UPI_ID || prev.upiId,
+        documentTitle: s.INVOICE_DEFAULT_TITLE || prev.documentTitle || DEFAULT_INVOICE_CONFIG.documentTitle,
+        storeGstin: s.INVOICE_GSTIN || prev.storeGstin || DEFAULT_INVOICE_CONFIG.storeGstin,
+        storeLicenseNo: s.INVOICE_LICENSE_NO || prev.storeLicenseNo || DEFAULT_INVOICE_CONFIG.storeLicenseNo,
+        bankName: s.INVOICE_BANK_NAME || prev.bankName || DEFAULT_INVOICE_CONFIG.bankName,
+        accountName: s.INVOICE_ACCOUNT_NAME || prev.accountName || DEFAULT_INVOICE_CONFIG.accountName,
+        accountNumber: s.INVOICE_ACCOUNT_NUMBER || prev.accountNumber || DEFAULT_INVOICE_CONFIG.accountNumber,
+        ifscCode: s.INVOICE_IFSC || prev.ifscCode || DEFAULT_INVOICE_CONFIG.ifscCode,
+        upiId: s.INVOICE_UPI_ID || prev.upiId || DEFAULT_INVOICE_CONFIG.upiId,
         termsAndConditions:
-          prev.termsAndConditions && prev.termsAndConditions.trim().length > 0
+          s.INVOICE_TERMS ||
+          (prev.termsAndConditions && prev.termsAndConditions.trim().length > 0
             ? prev.termsAndConditions
-            : (s.INVOICE_TERMS || DEFAULT_INVOICE_CONFIG.termsAndConditions),
+            : DEFAULT_INVOICE_CONFIG.termsAndConditions),
+        notes: s.INVOICE_SAFETY_NOTICE || prev.notes || DEFAULT_INVOICE_CONFIG.notes,
+        signatoryName: s.INVOICE_SIGNATORY_NAME || prev.signatoryName || DEFAULT_INVOICE_CONFIG.signatoryName,
+        fontSize: (s.INVOICE_FONT_SIZE as any) || prev.fontSize || DEFAULT_INVOICE_CONFIG.fontSize,
+        showLogo: s.INVOICE_SHOW_LOGO !== undefined ? s.INVOICE_SHOW_LOGO !== 'false' : prev.showLogo,
+        showSignature: s.INVOICE_SHOW_SIGNATURE !== undefined ? s.INVOICE_SHOW_SIGNATURE !== 'false' : prev.showSignature,
+        showPaymentInfo: s.INVOICE_SHOW_PAYMENT_INFO !== undefined ? s.INVOICE_SHOW_PAYMENT_INFO !== 'false' : prev.showPaymentInfo,
+        showTaxOrSavings: s.INVOICE_SHOW_TAX_SAVINGS !== undefined ? s.INVOICE_SHOW_TAX_SAVINGS !== 'false' : prev.showTaxOrSavings,
+        showTerms: s.INVOICE_SHOW_TERMS !== undefined ? s.INVOICE_SHOW_TERMS !== 'false' : prev.showTerms,
+        logoImageUrl: prev.logoImageUrl || s.INVOICE_CUSTOM_LOGO || null,
+        signatureImageUrl: prev.signatureImageUrl || s.INVOICE_CUSTOM_SIGNATURE || null,
       }));
     }
-  }, [storeSettingsData]);
+  }, [initialSettings, storeSettingsData]);
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -474,11 +489,75 @@ function InvoiceCustomizerContent({
     toast.info('Custom signature removed, using script signature');
   };
 
-  const handleSaveDefaults = () => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('raj_invoice_config_v2', JSON.stringify(config));
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSaveDefaults = async () => {
+    try {
+      setIsSaving(true);
+      // 1. Save to local storage for instant offline/session cache
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('raj_invoice_config_v2', JSON.stringify(config));
+        if (config.logoImageUrl) {
+          localStorage.setItem('raj_invoice_custom_logo', config.logoImageUrl);
+        } else {
+          localStorage.removeItem('raj_invoice_custom_logo');
+        }
+        if (config.signatureImageUrl) {
+          localStorage.setItem('raj_invoice_custom_signature', config.signatureImageUrl);
+        } else {
+          localStorage.removeItem('raj_invoice_custom_signature');
+        }
+      }
+
+      // 2. Persist to database via /api/admin/settings
+      const settingsPayload: Record<string, string> = {
+        INVOICE_DEFAULT_TITLE: config.documentTitle || 'INVOICE',
+        INVOICE_GSTIN: config.storeGstin || '',
+        INVOICE_LICENSE_NO: config.storeLicenseNo || '',
+        INVOICE_BANK_NAME: config.bankName || '',
+        INVOICE_ACCOUNT_NAME: config.accountName || '',
+        INVOICE_ACCOUNT_NUMBER: config.accountNumber || '',
+        INVOICE_IFSC: config.ifscCode || '',
+        INVOICE_UPI_ID: config.upiId || '',
+        INVOICE_TERMS: config.termsAndConditions || '',
+        INVOICE_SAFETY_NOTICE: config.notes || '',
+        INVOICE_SIGNATORY_NAME: config.signatoryName || '',
+        INVOICE_FONT_SIZE: config.fontSize || 'standard',
+        INVOICE_SHOW_LOGO: config.showLogo ? 'true' : 'false',
+        INVOICE_SHOW_SIGNATURE: config.showSignature ? 'true' : 'false',
+        INVOICE_SHOW_PAYMENT_INFO: config.showPaymentInfo ? 'true' : 'false',
+        INVOICE_SHOW_TAX_SAVINGS: config.showTaxOrSavings ? 'true' : 'false',
+        INVOICE_SHOW_TERMS: config.showTerms ? 'true' : 'false',
+      };
+
+      if (config.logoImageUrl) {
+        settingsPayload['INVOICE_CUSTOM_LOGO'] = config.logoImageUrl;
+      }
+      if (config.signatureImageUrl) {
+        settingsPayload['INVOICE_CUSTOM_SIGNATURE'] = config.signatureImageUrl;
+      }
+
+      const res = await fetch('/api/admin/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(settingsPayload),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to save settings to server');
+      }
+
+      sharedQueryClient.invalidateQueries({ queryKey: ['admin', 'settings'] });
+      sharedQueryClient.invalidateQueries({ queryKey: ['settings'] });
+
+      toast.success('Invoice style & preferences saved permanently!');
+    } catch (err: any) {
+      console.error('Error saving invoice settings:', err);
+      toast.error(err.message || 'Failed to save invoice settings');
+    } finally {
+      setIsSaving(false);
     }
-    toast.success('Invoice style & preferences saved as default');
   };
 
   const handleReset = () => {
@@ -674,11 +753,12 @@ function InvoiceCustomizerContent({
             <button
               type="button"
               onClick={handleSaveDefaults}
-              className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 transition-colors cursor-pointer"
-              title="Save current layout & logos as default for future orders"
+              disabled={isSaving}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 transition-colors cursor-pointer disabled:opacity-50"
+              title="Save current layout & settings permanently as default"
             >
               <Save className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Save Default</span>
+              <span>{isSaving ? 'Saving...' : 'Save Default'}</span>
             </button>
 
             {/* Print Button */}
@@ -808,6 +888,29 @@ function InvoiceCustomizerContent({
                       onChange={(e) => handleUpdate('dueDate', e.target.value)}
                       className="w-full px-3 py-2 rounded-lg border border-border bg-card text-foreground focus:border-neutral-900 outline-none"
                       placeholder="e.g. Immediate / Dispatch"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="font-bold text-foreground block mb-1">Store GSTIN:</label>
+                    <input
+                      type="text"
+                      value={config.storeGstin}
+                      onChange={(e) => handleUpdate('storeGstin', e.target.value)}
+                      className="w-full px-3 py-2 rounded-lg border border-border bg-card text-foreground font-mono uppercase focus:border-neutral-900 outline-none"
+                      placeholder="e.g. 33AAAAA0000A1Z5"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold text-foreground block mb-1">PESO License No.:</label>
+                    <input
+                      type="text"
+                      value={config.storeLicenseNo}
+                      onChange={(e) => handleUpdate('storeLicenseNo', e.target.value)}
+                      className="w-full px-3 py-2 rounded-lg border border-border bg-card text-foreground font-mono focus:border-neutral-900 outline-none"
+                      placeholder="e.g. E/SC/TN/2024/00142"
                     />
                   </div>
                 </div>
@@ -1054,15 +1157,27 @@ function InvoiceCustomizerContent({
                   />
                 </div>
 
-                <div>
-                  <label className="font-bold text-foreground block mb-1">IFSC Code & UPI ID:</label>
-                  <input
-                    type="text"
-                    value={config.upiId}
-                    onChange={(e) => handleUpdate('upiId', e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border border-border bg-card text-foreground font-mono focus:border-neutral-900 outline-none"
-                    placeholder="e.g. rajalakshmifireworks@sbi"
-                  />
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="font-bold text-foreground block mb-1">IFSC Code:</label>
+                    <input
+                      type="text"
+                      value={config.ifscCode}
+                      onChange={(e) => handleUpdate('ifscCode', e.target.value)}
+                      className="w-full px-3 py-2 rounded-lg border border-border bg-card text-foreground font-mono focus:border-neutral-900 outline-none uppercase"
+                      placeholder="e.g. SBIN0001234"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold text-foreground block mb-1">UPI ID / VPA:</label>
+                    <input
+                      type="text"
+                      value={config.upiId}
+                      onChange={(e) => handleUpdate('upiId', e.target.value)}
+                      className="w-full px-3 py-2 rounded-lg border border-border bg-card text-foreground font-mono focus:border-neutral-900 outline-none"
+                      placeholder="e.g. rajalakshmifireworks@sbi"
+                    />
+                  </div>
                 </div>
 
                 <div>
@@ -1152,9 +1267,10 @@ function InvoiceCustomizerContent({
               <button
                 type="button"
                 onClick={handleSaveDefaults}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold bg-neutral-900 hover:bg-black text-white dark:bg-white dark:hover:bg-neutral-100 dark:text-neutral-950 shadow-sm cursor-pointer transition-colors"
+                disabled={isSaving}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold bg-neutral-900 hover:bg-black text-white dark:bg-white dark:hover:bg-neutral-100 dark:text-neutral-950 shadow-sm cursor-pointer transition-colors disabled:opacity-50"
               >
-                <Save className="h-3.5 w-3.5" /> Save Default
+                <Save className="h-3.5 w-3.5" /> {isSaving ? 'Saving...' : 'Save Default'}
               </button>
               <button
                 type="button"
@@ -1284,6 +1400,17 @@ function InvoiceCustomizerContent({
                   </span>
                 </div>
               )}
+
+              {config.storeLicenseNo && (
+                <div className="flex sm:justify-end gap-3 items-baseline">
+                  <span className={`font-bold uppercase tracking-wider text-neutral-900 ${fontSizes.heading}`}>
+                    LICENSE:
+                  </span>
+                  <span className={`font-mono text-neutral-800 ${fontSizes.body}`}>
+                    {config.storeLicenseNo}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -1403,9 +1530,12 @@ function InvoiceCustomizerContent({
                 <p className={`text-neutral-700 font-mono ${fontSizes.body}`}>
                   Account No.: {config.accountNumber}
                 </p>
-                {config.upiId && (
+                {(config.ifscCode || config.upiId) && (
                   <p className={`text-neutral-600 font-mono text-xs`}>
-                    IFSC / UPI: {config.ifscCode} • {config.upiId}
+                    {[
+                      config.ifscCode ? `IFSC: ${config.ifscCode}` : null,
+                      config.upiId ? `UPI: ${config.upiId}` : null,
+                    ].filter(Boolean).join(' • ')}
                   </p>
                 )}
                 {config.notes && (
