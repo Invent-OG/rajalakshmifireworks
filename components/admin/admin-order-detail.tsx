@@ -878,7 +878,7 @@ function AdminOrderDetailPageContent({
             {/* Visual Stepper - Connected Interactive Timeline */}
             <div className="relative pt-2 pb-1">
               {/* Connected Background Track Line (desktop) */}
-              <div className="hidden md:block absolute top-[38px] left-[8.33%] right-[8.33%] h-1 bg-border/60 rounded-full z-0 overflow-hidden">
+              <div className="hidden md:block absolute top-[44px] left-[8.33%] right-[8.33%] h-1 bg-border/60 rounded-full z-0 overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-emerald-500 via-emerald-400 to-brand transition-all duration-500 ease-out rounded-full"
                   style={{
@@ -909,7 +909,7 @@ function AdminOrderDetailPageContent({
                       key={step.id}
                       className={`group relative flex flex-col items-center text-center p-3 sm:p-3.5 rounded-2xl transition-all duration-200 ${
                         isCurrent
-                          ? 'bg-brand/10 border-2 border-brand/80 shadow-md ring-4 ring-brand/10 scale-[1.02]'
+                          ? 'bg-brand/10 border-2 border-brand/80 shadow-md ring-4 ring-brand/10'
                           : isCompleted
                           ? 'bg-emerald-50/20 dark:bg-emerald-950/20 border border-emerald-500/25 hover:border-emerald-500/40'
                           : isLocked
@@ -923,7 +923,7 @@ function AdminOrderDetailPageContent({
                           isCompleted
                             ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-md shadow-emerald-500/25 ring-4 ring-card'
                             : isCurrent
-                            ? 'bg-brand text-brand-foreground shadow-lg shadow-brand/30 ring-4 ring-card scale-105 animate-pulse'
+                            ? 'bg-brand text-brand-foreground shadow-lg shadow-brand/30 ring-4 ring-card'
                             : isLocked
                             ? 'bg-muted/80 text-muted-foreground/60 border border-border/80 ring-4 ring-card'
                             : 'bg-muted text-muted-foreground border border-border ring-4 ring-card'
@@ -984,10 +984,11 @@ function AdminOrderDetailPageContent({
             </div>
 
             {/* Active Stage Command Bar (Redesigned & Elevated) */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-muted/30 dark:bg-muted/15 border border-border/80 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-              <div className="flex items-start sm:items-center gap-3.5">
+            <div className="p-5 sm:p-6 rounded-2xl bg-card border border-border/80 shadow-xs space-y-4">
+              {/* Top: Milestone Status Info */}
+              <div className="flex items-start gap-4">
                 <div
-                  className={`h-11 w-11 rounded-2xl flex items-center justify-center shrink-0 shadow-2xs ${
+                  className={`h-11 w-11 rounded-2xl flex items-center justify-center shrink-0 shadow-2xs mt-0.5 ${
                     currentStatus === 'DELIVERED'
                       ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
                       : currentStatus === 'CANCELLED'
@@ -1012,9 +1013,9 @@ function AdminOrderDetailPageContent({
                   )}
                 </div>
 
-                <div className="space-y-0.5 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-bold text-sm sm:text-base text-foreground">
+                <div className="space-y-1 min-w-0 flex-1">
+                  <div className="flex items-center gap-2.5 flex-wrap">
+                    <h3 className="font-bold text-sm sm:text-base text-foreground leading-snug">
                       {currentStatus === 'DELIVERED' && 'Order Fulfilled & Delivered'}
                       {currentStatus === 'CANCELLED' && 'Order Cancelled'}
                       {currentStatus === 'NEW' && !isPaid && 'Step 2: Check & Verify Payment'}
@@ -1026,13 +1027,13 @@ function AdminOrderDetailPageContent({
                       {currentStatus === 'OUT_FOR_DELIVERY' && 'Step 6: Out for Delivery Handover'}
                     </h3>
                     {currentStatus !== 'DELIVERED' && currentStatus !== 'CANCELLED' && (
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-brand/20 text-foreground font-bold">
+                      <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-brand/20 text-foreground font-bold shrink-0">
                         Action Required
                       </span>
                     )}
                   </div>
 
-                  <p className="text-xs text-muted-foreground leading-relaxed">
+                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                     {currentStatus === 'DELIVERED' && 'All crackers delivered and received by customer. Fulfilled successfully.'}
                     {currentStatus === 'CANCELLED' && 'This order has been cancelled and will not be dispatched.'}
                     {currentStatus === 'NEW' && !isPaid && 'Verify customer payment (UPI/Cash/Bank) before confirming the order.'}
@@ -1046,22 +1047,26 @@ function AdminOrderDetailPageContent({
                 </div>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex items-center gap-3 w-full md:w-auto justify-end shrink-0 pt-2 md:pt-0">
-                {currentStatus !== 'CANCELLED' && currentStatus !== 'DELIVERED' && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (confirm('Are you sure you want to cancel this order?')) {
-                        statusMutation.mutate({ newStatus: 'CANCELLED', note: 'Cancelled by admin' });
-                      }
-                    }}
-                    disabled={statusMutation.isPending}
-                    className="text-xs font-semibold text-muted-foreground hover:text-destructive underline-offset-4 hover:underline cursor-pointer transition-colors px-2 py-1"
-                  >
-                    Cancel Order
-                  </button>
-                )}
+              {/* Bottom: Dedicated Action Row with Clean Separation */}
+              <div className="flex items-center justify-between gap-3 pt-3 border-t border-border/60 flex-wrap">
+                <div>
+                  {currentStatus !== 'CANCELLED' && currentStatus !== 'DELIVERED' && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (confirm('Are you sure you want to cancel this order?')) {
+                          statusMutation.mutate({ newStatus: 'CANCELLED', note: 'Cancelled by admin' });
+                        }
+                      }}
+                      disabled={statusMutation.isPending}
+                      className="text-xs font-semibold text-muted-foreground hover:text-destructive underline-offset-4 hover:underline cursor-pointer transition-colors px-1 py-1.5"
+                    >
+                      Cancel Order
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2.5 flex-wrap ml-auto">
 
                 {/* 1. NEW & Unpaid -> Check & Mark as Paid (with option to confirm without payment) */}
                 {currentStatus === 'NEW' && !isPaid && (
@@ -1208,6 +1213,7 @@ function AdminOrderDetailPageContent({
                     Delivered Successfully
                   </div>
                 )}
+                </div>
               </div>
             </div>
           </div>
