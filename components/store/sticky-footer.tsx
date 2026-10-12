@@ -14,7 +14,7 @@ import { APP_CONFIG } from '@/lib/constants/config';
 import { BrandLogo } from '@/components/ui/brand-logo';
 import { useGSAP } from '@gsap/react';
 import { gsap, ScrollTrigger, isReducedMotion } from '@/lib/motion';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import { useLocale, useTranslations } from '@/lib/i18n/context';
 
 export function StickyFooter() {

@@ -12,7 +12,7 @@ import { Input, Textarea, Select } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, Trash2, AlertTriangle } from 'lucide-react';
 import Link from '@/components/ui/link';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import { Portal } from '@/components/ui/portal';
 
 import { ProductMediaManager } from '@/components/admin/product-media-manager';

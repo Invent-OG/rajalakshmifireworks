@@ -25,7 +25,7 @@ import {
   ChevronRight,
   Package,
 } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 
 interface RawRowData {
   [key: string]: any;

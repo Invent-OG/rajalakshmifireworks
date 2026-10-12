@@ -27,7 +27,7 @@ import {
   FileSpreadsheet,
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import Link from '@/components/ui/link';
 
 interface ProductListItem {

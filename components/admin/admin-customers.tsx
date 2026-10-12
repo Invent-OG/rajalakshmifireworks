@@ -16,7 +16,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import Link from '@/components/ui/link';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 
 interface CustomerListItem {
   id: number;

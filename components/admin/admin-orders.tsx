@@ -27,7 +27,7 @@ import {
 } from 'lucide-react';
 import Link from '@/components/ui/link';
 import { Skeleton } from '@/components/ui/skeleton';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import type { OrderStatus } from '@/db/schema';
 
 interface AdminOrderListItem {

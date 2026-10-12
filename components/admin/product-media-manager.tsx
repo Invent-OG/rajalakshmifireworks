@@ -19,7 +19,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Portal } from '@/components/ui/portal';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 
 export interface ProductMediaItem {
   id?: number;

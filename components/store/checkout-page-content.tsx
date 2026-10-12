@@ -13,7 +13,7 @@ import { EnquiryNoticeModal } from '@/components/store/enquiry-notice-modal';
 import { formatCurrency } from '@/lib/utils/format';
 import { Truck, Store, ShoppingBag, ShieldCheck, MessageSquare, ArrowRight, MapPin, CheckCircle2, AlertCircle, UserCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import { nanoid } from 'nanoid';
 import { useTranslations, useLocale } from '@/lib/i18n/context';
 import { getLocalizedName } from '@/lib/i18n/formatters';

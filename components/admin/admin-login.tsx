@@ -6,7 +6,7 @@ import { useMutation } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Lock, ShieldCheck, Sun, Moon } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import { BrandLogo } from '@/components/ui/brand-logo';
 import { useAdminTheme } from '@/hooks/use-admin-theme';
 

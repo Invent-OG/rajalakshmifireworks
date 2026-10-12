@@ -30,7 +30,7 @@ import { getLocalizedName } from '@/lib/i18n/formatters';
 import { formatCurrency, toNumber } from '@/lib/utils/format';
 import { ProductVisualPlaceholder } from '@/components/ui/category-icon';
 import { APP_CONFIG } from '@/lib/constants/config';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 
 export interface QuickOrderProduct {
   id: number;

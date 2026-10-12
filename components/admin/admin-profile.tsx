@@ -20,7 +20,7 @@ import {
   Sparkles,
   ShieldAlert,
 } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 
 interface ProfileData {
   id: number;

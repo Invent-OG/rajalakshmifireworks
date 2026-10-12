@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 import { formatCurrency, toNumber } from '@/lib/utils/format';
 import { APP_CONFIG } from '@/lib/constants/config';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 
 export interface InvoiceCustomizerConfig {
   // Style Template: 'minimalist' matches Image 2 exactly

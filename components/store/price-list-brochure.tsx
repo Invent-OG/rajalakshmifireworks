@@ -18,7 +18,7 @@ import { formatCurrency, toNumber } from '@/lib/utils/format';
 import { useLocale, useTranslations } from '@/lib/i18n/context';
 import { getLocalizedName, getLocalizedDescription } from '@/lib/i18n/formatters';
 import { useCart } from '@/hooks/use-cart';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 
 export interface PriceListProduct {
   id: number;

@@ -6,7 +6,7 @@ import { usePathname } from '@/lib/navigation';
 import { Home, LayoutGrid, Zap, Gift, Download, Loader2 } from 'lucide-react';
 import { useCart, useIsHydrated } from '@/hooks/use-cart';
 import { useTranslations, useLocale } from '@/lib/i18n/context';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 
 interface MobileBottomNavProps {
   pathname?: string;

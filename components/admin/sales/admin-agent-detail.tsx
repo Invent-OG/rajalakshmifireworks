@@ -25,7 +25,7 @@ import {
   Link as LinkIcon,
   X,
 } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import { formatCurrency, formatDateTime } from '@/lib/utils/format';
 import { StatusBadge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

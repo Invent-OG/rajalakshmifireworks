@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { formatCurrency, formatDateTime, toNumber } from '@/lib/utils/format';
 import { ORDER_STATUS_LABELS, PAYMENT_METHODS } from '@/lib/constants/order-status';
 import type { OrderStatus, FulfillmentType } from '@/db/schema';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import {
   ArrowLeft,
   User,

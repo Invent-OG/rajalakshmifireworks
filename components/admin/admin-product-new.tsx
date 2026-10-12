@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input, Textarea, Select } from '@/components/ui/input';
 import { ArrowLeft } from 'lucide-react';
 import Link from '@/components/ui/link';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 
 import { ProductMediaManager, type ProductMediaItem } from '@/components/admin/product-media-manager';
 import { ComboProductBuilder, type ComboItemEntry } from '@/components/admin/combo-product-builder';

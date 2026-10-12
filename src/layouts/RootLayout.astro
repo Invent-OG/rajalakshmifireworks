@@ -1,6 +1,7 @@
 ---
 import "@/src/styles/globals.css";
 import { ClientRouter } from 'astro:transitions';
+import { AppToaster } from '@/components/ui/app-toaster';
 
 interface Props {
   title?: string;
@@ -120,6 +121,7 @@ const {
   <body
     class={`${bodyClass} text-foreground min-h-screen flex flex-col font-sans antialiased selection:bg-brand selection:text-brand-foreground`}
   >
+    <AppToaster client:load />
     <slot />
   </body>
 </html>

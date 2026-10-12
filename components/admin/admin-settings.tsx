@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input, Textarea } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Save, Truck, MessageSquare, Sparkles, UserCog, ArrowRight, Sun, Moon, Printer, CreditCard, FileText, Sliders, X, Copy, Check, RotateCcw, Info, Tag } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import { Banner } from '@/components/ui/banner';
 import { useAdminTheme } from '@/hooks/use-admin-theme';
 import {

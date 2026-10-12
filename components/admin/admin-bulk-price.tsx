@@ -7,7 +7,7 @@ import { Input, Select } from '@/components/ui/input';
 import { formatCurrency } from '@/lib/utils/format';
 import { ArrowLeft } from 'lucide-react';
 import Link from '@/components/ui/link';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 
 interface PreviewItem {
   id: number;

@@ -23,7 +23,7 @@ import {
   Calendar,
   Sparkles,
 } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import { formatCurrency, formatDateTime } from '@/lib/utils/format';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

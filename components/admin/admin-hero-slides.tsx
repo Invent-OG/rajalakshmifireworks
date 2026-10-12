@@ -23,7 +23,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input, Textarea } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import {
   type HeroSettingsConfig,
   type HeroSlide,

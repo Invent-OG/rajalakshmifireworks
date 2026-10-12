@@ -7,7 +7,7 @@ import { Input, Textarea } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Portal } from '@/components/ui/portal';
 import { Plus, Edit2, Trash2, FolderTree, Upload, Image as ImageIcon } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import { getCategory3DImage } from '@/components/ui/category-icon';
 
 interface CategoryItem {

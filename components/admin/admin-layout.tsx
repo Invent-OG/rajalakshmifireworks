@@ -34,7 +34,7 @@ import {
 import { useState, useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/query/keys';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import { useAdminTheme } from '@/hooks/use-admin-theme';
 
 interface NavItem {

@@ -4,7 +4,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 import { CartProvider } from '@/hooks/use-cart';
 import { I18nProvider } from '@/lib/i18n/context';
-import { Toaster } from 'sonner';
 
 export const sharedQueryClient = new QueryClient({
   defaultOptions: {
@@ -24,16 +23,6 @@ export function Providers({ locale, children }: { locale?: string; children: Rea
       <I18nProvider locale={locale as any}>
         <CartProvider>
           {children}
-          <Toaster
-            position="top-right"
-            toastOptions={{
-              style: {
-                background: 'var(--card)',
-                color: 'var(--card-foreground)',
-                border: '1px solid var(--border)',
-              },
-            }}
-          />
         </CartProvider>
       </I18nProvider>
     </QueryClientProvider>

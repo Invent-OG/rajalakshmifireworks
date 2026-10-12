@@ -20,7 +20,7 @@ import {
   FileText,
   Clock,
 } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { queryKeys } from '@/lib/query/keys';
