@@ -8,6 +8,7 @@ import { QuantityStepper } from '@/components/ui/quantity-stepper';
 import { Check } from 'lucide-react';
 import { gsap, isReducedMotion } from '@/lib/motion';
 import { useTranslations, useLocale } from '@/lib/i18n/context';
+import { toast } from '@/lib/toast';
 
 interface ProductDetailClientProps {
   product: {
@@ -54,6 +55,13 @@ export function ProductDetailClient({ product, locale: propLocale }: ProductDeta
       maxStock: product.stockQuantity,
       quantity: selectedQuantity,
     });
+
+    const displayName = locale === 'ta' && product.nameTa ? product.nameTa : product.name;
+    toast.success(
+      locale === 'ta'
+        ? `${displayName} உங்கள் பையில் சேர்க்கப்பட்டது!`
+        : `${displayName} added to cart`
+    );
   }
 
   if (isOutOfStock) {

@@ -8,6 +8,7 @@ import { ProductVisualPlaceholder } from '@/components/ui/category-icon';
 import { Plus, Minus, ShoppingBag } from 'lucide-react';
 import { useLocale, useTranslations } from '@/lib/i18n/context';
 import { getLocalizedName, getLocalizedDescription } from '@/lib/i18n/formatters';
+import { toast } from '@/lib/toast';
 
 interface ProductCardProps {
   product: {
@@ -76,6 +77,12 @@ export function ProductCard({ product, locale: propLocale }: ProductCardProps) {
       maxStock: product.stockQuantity,
       quantity: 1,
     });
+
+    toast.success(
+      locale === 'ta'
+        ? `${displayName} உங்கள் பையில் சேர்க்கப்பட்டது!`
+        : `${displayName} added to cart`
+    );
   }
 
   // Generate contextual tags

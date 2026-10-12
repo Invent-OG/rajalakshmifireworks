@@ -150,10 +150,12 @@ export function PriceListBrochure({ categories, combos }: PriceListBrochureProps
       image: p.media?.[0]?.url || null,
       maxStock: p.stockQuantity || 100,
     });
+
+    const displayName = locale === 'ta' && p.nameTa ? p.nameTa : p.name;
     toast.success(
       locale === 'ta'
-        ? `${p.nameTa || p.name} உங்கள் பையில் சேர்க்கப்பட்டது!`
-        : `Added ${p.name} to your enquiry bag!`
+        ? `${displayName} உங்கள் பையில் சேர்க்கப்பட்டது!`
+        : `${displayName} added to cart`
     );
   };
 
