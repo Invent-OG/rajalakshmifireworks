@@ -383,6 +383,45 @@ function AdminOrderDetailPageContent({
     },
   });
 
+  // Edit Total Amount Modal State & Mutation (Admin Override at Any Point)
+  const [isTotalAmountModalOpen, setIsTotalAmountModalOpen] = useState(false);
+  const [totalAmountInput, setTotalAmountInput] = useState('');
+  const [totalAmountReasonInput, setTotalAmountReasonInput] = useState('');
+
+  const updateTotalAmountMutation = useMutation({
+    mutationFn: async ({
+      totalAmount,
+      totalAmountReason,
+    }: {
+      totalAmount: number;
+      totalAmountReason?: string;
+    }) => {
+      const res = await fetch(`/api/admin/orders/${orderId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          totalAmount,
+          totalAmountReason: totalAmountReason?.trim() || undefined,
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || 'Failed to update total amount');
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.orders.detail(orderId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.orders.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.dashboard() });
+      toast.success('Order total amount updated successfully!');
+      setIsTotalAmountModalOpen(false);
+    },
+    onError: (err: any) => {
+      toast.error(err.message || 'Failed to update total amount');
+    },
+  });
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -1452,9 +1491,24 @@ function AdminOrderDetailPageContent({
                 </span>
               </div>
 
-              <div className="flex justify-between items-baseline pt-3 border-t border-border font-bold text-lg text-foreground">
-                <span>Total Amount</span>
-                <span className="font-mono text-xl">{formatCurrency(toNumber(order.totalAmount))}</span>
+              <div className="flex justify-between items-center pt-3 border-t border-border font-bold text-foreground">
+                <div className="flex items-center gap-2">
+                  <span className="text-base sm:text-lg">Total Amount</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTotalAmountInput(String(toNumber(order.totalAmount)));
+                      setTotalAmountReasonInput('');
+                      setIsTotalAmountModalOpen(true);
+                    }}
+                    className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full bg-brand/10 text-brand hover:bg-brand/20 transition-all cursor-pointer border border-brand/20 shadow-2xs"
+                    title="Edit order total amount"
+                  >
+                    <Edit className="h-3 w-3" />
+                    <span>Edit Total</span>
+                  </button>
+                </div>
+                <span className="font-mono text-xl sm:text-2xl text-brand">{formatCurrency(toNumber(order.totalAmount))}</span>
               </div>
 
               {order.paidAt && (
@@ -2442,6 +2496,140 @@ function AdminOrderDetailPageContent({
                 >
                   <CheckCircle2 className="h-4 w-4 mr-2 shrink-0 text-white" />
                   {updateOrderItemsMutation.isPending ? 'Saving Changes...' : 'Save Order Changes'}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Portal>
+      )}
+
+      {/* ── Direct Total Amount Editing Modal (Admin Override at Any Point) ── */}
+      {isTotalAmountModalOpen && (
+        <Portal>
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+            <div
+              className="bg-card w-full max-w-md rounded-[28px] border border-border shadow-2xl p-6 sm:p-7 space-y-5 animate-in zoom-in-95 duration-200 relative overflow-hidden"
+              style={{ fontFamily: "'DM Sans', sans-serif" }}
+            >
+              {/* Header */}
+              <div className="flex items-start justify-between gap-4 border-b border-border pb-4">
+                <div className="space-y-1">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-brand/10 text-brand border border-brand/20">
+                    <Sparkles className="h-3 w-3" /> Admin Total Override
+                  </div>
+                  <h3 className="text-lg sm:text-xl font-bold text-foreground">
+                    Edit Order Total Amount
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    Invoice: <span className="font-mono font-bold text-foreground">{order.invoiceNumber}</span>
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsTotalAmountModalOpen(false)}
+                  className="h-8 w-8 rounded-full bg-muted hover:bg-muted/80 text-muted-foreground flex items-center justify-center cursor-pointer transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              {/* Order Amount Comparison Box */}
+              <div className="p-4 rounded-2xl bg-muted/50 border border-border space-y-2 text-xs">
+                <div className="flex justify-between items-center text-muted-foreground">
+                  <span>Product Subtotal:</span>
+                  <span className="font-mono font-semibold text-foreground">{formatCurrency(toNumber(order.subtotal))}</span>
+                </div>
+                <div className="flex justify-between items-center text-muted-foreground">
+                  <span>Shipping Fee:</span>
+                  <span className="font-mono font-semibold text-foreground">{formatCurrency(toNumber(order.deliveryCharge))}</span>
+                </div>
+                <div className="flex justify-between items-center pt-2 border-t border-border font-medium">
+                  <span className="text-muted-foreground">Current Recorded Total:</span>
+                  <span className="font-mono text-sm font-bold text-foreground">{formatCurrency(toNumber(order.totalAmount))}</span>
+                </div>
+              </div>
+
+              {/* Input: New Total Amount */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-foreground uppercase tracking-wider block">
+                  New Total Amount (₹) <span className="text-rose-500">*</span>
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-base text-muted-foreground">
+                    ₹
+                  </span>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    autoFocus
+                    value={totalAmountInput}
+                    onChange={(e) => setTotalAmountInput(e.target.value)}
+                    placeholder="0.00"
+                    className="w-full pl-8 pr-4 py-3 rounded-2xl bg-background border-2 border-border focus:border-brand focus:outline-hidden font-mono text-lg font-bold text-foreground transition-all shadow-inner"
+                  />
+                </div>
+                {/* Difference indicator */}
+                {(() => {
+                  const parsed = parseFloat(totalAmountInput);
+                  if (isNaN(parsed)) return null;
+                  const currentTotal = toNumber(order.totalAmount);
+                  const diff = parsed - currentTotal;
+                  if (Math.abs(diff) < 0.01) return null;
+                  return (
+                    <p className={`text-xs font-semibold ${diff > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                      {diff > 0 ? `+${formatCurrency(diff)} increase` : `${formatCurrency(diff)} reduction`} from original
+                    </p>
+                  );
+                })()}
+              </div>
+
+              {/* Input: Optional Reason / Audit Note */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-foreground uppercase tracking-wider block">
+                  Adjustment Reason / Audit Note <span className="text-muted-foreground font-normal">(optional)</span>
+                </label>
+                <input
+                  type="text"
+                  value={totalAmountReasonInput}
+                  onChange={(e) => setTotalAmountReasonInput(e.target.value)}
+                  placeholder="e.g. Offline discount, round-off, negotiated price"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-background border border-border focus:border-brand focus:outline-hidden text-xs sm:text-sm text-foreground transition-all"
+                />
+              </div>
+
+              {/* Notice */}
+              <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-800 dark:text-amber-300 leading-relaxed">
+                <strong>Note:</strong> You can edit the order total at any point regardless of order or payment status. Invoices, receipts, and order tracking will reflect this new grand total immediately.
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center gap-3 pt-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsTotalAmountModalOpen(false)}
+                  disabled={updateTotalAmountMutation.isPending}
+                  className="flex-1 h-11 rounded-full text-xs font-bold cursor-pointer"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => {
+                    const parsed = parseFloat(totalAmountInput);
+                    if (isNaN(parsed) || parsed < 0) {
+                      toast.error('Please enter a valid non-negative amount');
+                      return;
+                    }
+                    updateTotalAmountMutation.mutate({
+                      totalAmount: parsed,
+                      totalAmountReason: totalAmountReasonInput,
+                    });
+                  }}
+                  disabled={updateTotalAmountMutation.isPending}
+                  className="flex-1 h-11 rounded-full font-bold text-sm !bg-[#e24000] hover:!bg-[#c93800] !text-white cursor-pointer shadow-md shadow-[#e24000]/20 transition-all border-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <CheckCircle2 className="h-4 w-4 mr-1.5 shrink-0 !text-white" />
+                  {updateTotalAmountMutation.isPending ? 'Updating...' : 'Save New Total'}
                 </Button>
               </div>
             </div>

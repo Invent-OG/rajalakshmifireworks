@@ -178,8 +178,24 @@ async function _PATCH(
       itemsChanged = true;
     }
 
-    // 3. Handle Delivery Charge and Discount adjustments when items are not altered
-    if (!itemsChanged) {
+    // 3. Direct Total Amount Override (Admin can edit the order total at any point)
+    let totalAmountChanged = false;
+    const oldTotalAmount = parseFloat(String(order.totalAmount)) || 0;
+    let newTotalAmount = 0;
+
+    if (body.totalAmount !== undefined) {
+      const parsed = parseFloat(String(body.totalAmount));
+      if (isNaN(parsed) || parsed < 0) {
+        return Response.json(
+          { message: 'Invalid total amount. Must be a valid non-negative number.' },
+          { status: 400 }
+        );
+      }
+      newTotalAmount = Math.round(parsed * 100) / 100;
+      updateData.totalAmount = newTotalAmount.toFixed(2);
+      totalAmountChanged = Math.abs(newTotalAmount - oldTotalAmount) > 0.001;
+    } else if (!itemsChanged) {
+      // Handle Delivery Charge and Discount adjustments when items are not altered
       if (body.deliveryCharge !== undefined) {
         updateData.deliveryCharge = parseFloat(String(body.deliveryCharge)).toFixed(2);
       }
@@ -191,6 +207,7 @@ async function _PATCH(
         const del = body.deliveryCharge !== undefined ? parseFloat(String(body.deliveryCharge)) || 0 : parseFloat(String(order.deliveryCharge)) || 0;
         const disc = body.discountAmount !== undefined ? parseFloat(String(body.discountAmount)) || 0 : 0;
         updateData.totalAmount = Math.max(0, sub + del - disc).toFixed(2);
+        totalAmountChanged = Math.abs(parseFloat(String(updateData.totalAmount)) - oldTotalAmount) > 0.001;
       }
     }
 
@@ -199,6 +216,7 @@ async function _PATCH(
       !paymentChanged &&
       !customerDetailsChanged &&
       !itemsChanged &&
+      !totalAmountChanged &&
       Object.keys(updateData).length <= 1
     ) {
       return Response.json({ success: true, message: 'No changes required' });
@@ -326,6 +344,21 @@ async function _PATCH(
           newStatus: currentStatus,
           changedBy: session.email,
           note: `Customer contact & shipping details updated by admin`,
+        });
+      }
+
+      // Record manual total amount override in history
+      if (totalAmountChanged) {
+        const reasonStr =
+          body.totalAmountReason && String(body.totalAmountReason).trim()
+            ? ` - Reason: ${String(body.totalAmountReason).trim()}`
+            : '';
+        await tx.insert(orderStatusHistory).values({
+          orderId,
+          oldStatus: currentStatus,
+          newStatus: currentStatus,
+          changedBy: session.email,
+          note: `Total amount updated from ₹${oldTotalAmount.toFixed(2)} to ₹${parseFloat(String(updateData.totalAmount)).toFixed(2)}${reasonStr}`,
         });
       }
 

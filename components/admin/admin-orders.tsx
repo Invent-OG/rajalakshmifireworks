@@ -24,6 +24,8 @@ import {
   FileText,
   CheckCircle2,
   Clock,
+  Edit,
+  Sparkles,
 } from 'lucide-react';
 import Link from '@/components/ui/link';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -137,6 +139,48 @@ function AdminOrdersPageContent() {
     },
     onError: (err: Error) => {
       toast.error(err.message);
+    },
+  });
+
+  // Quick Edit Total Amount Modal State & Mutation
+  const [isEditTotalModalOpen, setIsEditTotalModalOpen] = useState(false);
+  const [selectedOrderForTotal, setSelectedOrderForTotal] = useState<AdminOrderListItem | null>(null);
+  const [editTotalInput, setEditTotalInput] = useState('');
+  const [editTotalReasonInput, setEditTotalReasonInput] = useState('');
+
+  const updateOrderTotalMutation = useMutation({
+    mutationFn: async ({
+      orderId,
+      totalAmount,
+      totalAmountReason,
+    }: {
+      orderId: number;
+      totalAmount: number;
+      totalAmountReason?: string;
+    }) => {
+      const res = await fetch(`/api/admin/orders/${orderId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          totalAmount,
+          totalAmountReason: totalAmountReason?.trim() || undefined,
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || 'Failed to update total amount');
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'orders'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard'] });
+      toast.success('Order total amount updated successfully!');
+      setIsEditTotalModalOpen(false);
+      setSelectedOrderForTotal(null);
+    },
+    onError: (err: any) => {
+      toast.error(err.message || 'Failed to update total amount');
     },
   });
 
@@ -456,7 +500,22 @@ function AdminOrdersPageContent() {
                         {order.items?.length ?? 0} items
                       </td>
                       <td className="px-4 py-3.5 text-right whitespace-nowrap">
-                        <p className="font-semibold text-foreground">{formatCurrency(order.totalAmount)}</p>
+                        <div className="flex items-center justify-end gap-1.5 group">
+                          <p className="font-semibold text-foreground">{formatCurrency(order.totalAmount)}</p>
+                          <button
+                            type="button"
+                            title="Edit Total Amount"
+                            onClick={() => {
+                              setSelectedOrderForTotal(order);
+                              setEditTotalInput(String(toNumber(order.totalAmount)));
+                              setEditTotalReasonInput('');
+                              setIsEditTotalModalOpen(true);
+                            }}
+                            className="p-1 rounded-md text-muted-foreground hover:text-brand hover:bg-muted opacity-60 group-hover:opacity-100 transition-opacity cursor-pointer"
+                          >
+                            <Edit className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
                         {order.paymentStatus === 'PAID' ? (
                           <span className="mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
                             <CheckCircle2 className="h-2.5 w-2.5" /> Paid {order.paymentMethod ? `• ${order.paymentMethod}` : ''}
@@ -624,6 +683,129 @@ function AdminOrdersPageContent() {
                   loading={bulkStatusMutation.isPending}
                 >
                   Apply to {selectedIds.length} orders
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Portal>
+      )}
+
+      {/* Quick Edit Total Amount Modal */}
+      {isEditTotalModalOpen && selectedOrderForTotal && (
+        <Portal>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 animate-fade-in">
+            <div className="bg-card rounded-[28px] border border-border max-w-md w-full p-6 sm:p-7 space-y-5 shadow-2xl">
+              {/* Header */}
+              <div className="flex items-start justify-between gap-4 border-b border-border pb-4">
+                <div className="space-y-1">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-brand/10 text-brand border border-brand/20">
+                    <Sparkles className="h-3 w-3" /> Admin Total Override
+                  </div>
+                  <h3 className="text-lg font-bold text-foreground">
+                    Edit Total Amount
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    Invoice: <span className="font-mono font-bold text-foreground">{selectedOrderForTotal.invoiceNumber}</span> • Customer: <span className="font-medium text-foreground">{selectedOrderForTotal.customerNameSnapshot}</span>
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsEditTotalModalOpen(false);
+                    setSelectedOrderForTotal(null);
+                  }}
+                  className="h-8 w-8 rounded-full bg-muted hover:bg-muted/80 text-muted-foreground flex items-center justify-center cursor-pointer transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              {/* Amount Info */}
+              <div className="p-3.5 rounded-xl bg-muted/40 border border-border flex justify-between items-center text-xs">
+                <span className="text-muted-foreground">Current Total Amount:</span>
+                <span className="font-mono text-sm font-bold text-foreground">{formatCurrency(selectedOrderForTotal.totalAmount)}</span>
+              </div>
+
+              {/* Input: New Total Amount */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-foreground uppercase tracking-wider block">
+                  New Total Amount (₹) <span className="text-rose-500">*</span>
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-base text-muted-foreground">
+                    ₹
+                  </span>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    autoFocus
+                    value={editTotalInput}
+                    onChange={(e) => setEditTotalInput(e.target.value)}
+                    placeholder="0.00"
+                    className="w-full pl-8 pr-4 py-2.5 rounded-xl bg-background border-2 border-border focus:border-brand focus:outline-hidden font-mono text-lg font-bold text-foreground transition-all shadow-inner"
+                  />
+                </div>
+                {(() => {
+                  const parsed = parseFloat(editTotalInput);
+                  if (isNaN(parsed)) return null;
+                  const currentTotal = toNumber(selectedOrderForTotal.totalAmount);
+                  const diff = parsed - currentTotal;
+                  if (Math.abs(diff) < 0.01) return null;
+                  return (
+                    <p className={`text-xs font-semibold ${diff > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                      {diff > 0 ? `+${formatCurrency(diff)} increase` : `${formatCurrency(diff)} reduction`} from original
+                    </p>
+                  );
+                })()}
+              </div>
+
+              {/* Input: Reason / Note */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-foreground uppercase tracking-wider block">
+                  Adjustment Reason <span className="text-muted-foreground font-normal">(optional)</span>
+                </label>
+                <input
+                  type="text"
+                  value={editTotalReasonInput}
+                  onChange={(e) => setEditTotalReasonInput(e.target.value)}
+                  placeholder="e.g. Offline discount, round-off, special pricing"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-background border border-border focus:border-brand focus:outline-hidden text-xs text-foreground transition-all"
+                />
+              </div>
+
+              {/* Actions */}
+              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-border">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsEditTotalModalOpen(false);
+                    setSelectedOrderForTotal(null);
+                  }}
+                  disabled={updateOrderTotalMutation.isPending}
+                  className="rounded-full text-xs font-semibold"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => {
+                    const parsed = parseFloat(editTotalInput);
+                    if (isNaN(parsed) || parsed < 0) {
+                      toast.error('Please enter a valid non-negative amount');
+                      return;
+                    }
+                    updateOrderTotalMutation.mutate({
+                      orderId: selectedOrderForTotal.id,
+                      totalAmount: parsed,
+                      totalAmountReason: editTotalReasonInput,
+                    });
+                  }}
+                  loading={updateOrderTotalMutation.isPending}
+                  disabled={updateOrderTotalMutation.isPending}
+                  className="h-10 px-5 rounded-full font-bold text-xs !bg-[#e24000] hover:!bg-[#c93800] !text-white cursor-pointer shadow-md shadow-[#e24000]/20 transition-all border-0 disabled:opacity-50"
+                >
+                  <CheckCircle2 className="h-4 w-4 mr-1.5 shrink-0 !text-white" />
+                  Save Total Amount
                 </Button>
               </div>
             </div>
