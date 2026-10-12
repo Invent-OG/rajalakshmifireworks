@@ -1,16 +1,26 @@
-import toast from 'react-hot-toast';
+import baseToast, { type ToastOptions } from 'react-hot-toast';
+
+type ToastMessage = Parameters<typeof baseToast>[0];
+type CustomToastHandler = (message: ToastMessage, opts?: ToastOptions) => string;
+
+export type CustomToast = typeof baseToast & {
+  info: CustomToastHandler;
+  warning: CustomToastHandler;
+};
+
+const toast = baseToast as CustomToast;
 
 if (typeof (toast as any).info !== 'function') {
-  (toast as any).info = (message: any, opts?: any) =>
-    toast(message, {
+  toast.info = (message: ToastMessage, opts?: ToastOptions) =>
+    baseToast(message, {
       icon: 'ℹ️',
       ...opts,
     });
 }
 
 if (typeof (toast as any).warning !== 'function') {
-  (toast as any).warning = (message: any, opts?: any) =>
-    toast(message, {
+  toast.warning = (message: ToastMessage, opts?: ToastOptions) =>
+    baseToast(message, {
       icon: '⚠️',
       ...opts,
     });
@@ -19,3 +29,4 @@ if (typeof (toast as any).warning !== 'function') {
 export { toast };
 export { Toaster } from 'react-hot-toast';
 export default toast;
+
