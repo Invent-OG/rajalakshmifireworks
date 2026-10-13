@@ -1,0 +1,92 @@
+---
+import AdminLayout from '@/src/layouts/AdminLayout.astro';
+import { TransporterBillView } from '@/components/admin/transporter-bill';
+import { db } from '@/db';
+import { orders, settings, orderDeliveryAssignments } from '@/db/schema';
+import { eq, desc } from 'drizzle-orm';
+import { toNumber } from '@/lib/utils/format';
+
+const { id } = Astro.params;
+const orderId = parseInt(id as string, 10);
+if (isNaN(orderId) || orderId <= 0) {
+  return Astro.redirect('/admin/orders');
+}
+
+const order = await db.query.orders.findFirst({
+  where: eq(orders.id, orderId),
+  with: {
+    items: true,
+    customer: true,
+    deliveryPartner: true,
+    deliveryAssignments: {
+      orderBy: [desc(orderDeliveryAssignments.createdAt)],
+      with: {
+        deliveryPartner: true,
+      },
+    },
+  },
+});
+
+if (!order) {
+  return Astro.redirect('/admin/orders');
+}
+
+// Fetch store settings
+const allSettings = await db.select().from(settings);
+const settingsMap: Record<string, string> = {};
+for (const s of allSettings) {
+  settingsMap[s.key] = s.value;
+}
+
+const assignedPartner =
+  order.deliveryPartner ||
+  order.deliveryAssignments?.[0]?.deliveryPartner ||
+  null;
+
+const billData = {
+  orderId: order.id,
+  invoiceNumber: order.invoiceNumber || `FW-${order.id}`,
+  customerName: order.customerNameSnapshot || 'Valued Customer',
+  customerMobile: order.customerMobileSnapshot || '',
+  customerEmail: (order as any).customer?.email || null,
+  shippingAddress: (order.addressSnapshot as any) || null,
+  customerNotes: order.notes || null,
+  packageCount: order.packageCount || 1,
+  totalAmount: toNumber(order.totalAmount),
+  paymentStatus: order.paymentStatus || 'PENDING',
+  paymentMethod: order.paymentMethod || null,
+  placedAt: order.placedAt,
+  carrierName: assignedPartner?.name || order.carriageDetails || 'Assigned Carrier',
+  driverMobile: assignedPartner?.mobileNumber || null,
+  vehicleType: assignedPartner?.vehicleType || null,
+  vehicleNumber: assignedPartner?.vehicleNumber || null,
+  lrNumber: order.lrNumber || null,
+  carriageDetails: order.carriageDetails || null,
+  itemsCount: order.items?.length || 0,
+};
+
+const invoiceNumber = order.invoiceNumber || `#${order.id}`;
+---
+
+<AdminLayout title={`Transporter Bill #${invoiceNumber} | Rajalakshmi Fireworks`}>
+  <div class="py-6 px-4">
+    <div class="max-w-4xl mx-auto mb-4 no-print flex items-center justify-between">
+      <a
+        href={`/admin/orders/${order.id}`}
+        class="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
+      >
+        ← Back to Order #{invoiceNumber}
+      </a>
+      <span class="text-xs font-mono font-bold text-muted-foreground">
+        Order ID: {order.id}
+      </span>
+    </div>
+
+    <TransporterBillView
+      client:only="react"
+      isModal={false}
+      data={billData}
+      storeSettings={settingsMap}
+    />
+  </div>
+</AdminLayout>

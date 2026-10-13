@@ -63,12 +63,13 @@ export function ComboProductBuilder({
 }: ComboProductBuilderProps) {
   const [modalOpen, setModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<number | string>('ALL');
 
-  // Fetch all products for selector
+  // Fetch all products for selector (fetch up to 500 to cover full catalog including One Sound Crackers)
   const { data: productsData, isLoading } = useQuery<{ products: ProductOption[] }>({
     queryKey: ['admin', 'products', 'combo-selector'],
     queryFn: async () => {
-      const res = await fetch('/api/admin/products?limit=100&statusFilter=active');
+      const res = await fetch('/api/admin/products?limit=500&statusFilter=active');
       if (!res.ok) return { products: [] };
       return res.json();
     },
@@ -80,16 +81,31 @@ export function ComboProductBuilder({
     return list.filter((p) => p.id !== excludeProductId);
   }, [productsData, excludeProductId]);
 
+  // Extract all unique categories present in available products
+  const categoriesList = useMemo(() => {
+    const map = new Map<number | string, { id: number | string; name: string }>();
+    for (const p of availableProducts) {
+      if (p.category?.id && p.category?.name) {
+        map.set(p.category.id, { id: p.category.id, name: p.category.name });
+      }
+    }
+    return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name));
+  }, [availableProducts]);
+
   const filteredProducts = useMemo(() => {
-    if (!searchQuery.trim()) return availableProducts;
+    let list = availableProducts;
+    if (selectedCategory !== 'ALL') {
+      list = list.filter((p) => p.category?.id === selectedCategory);
+    }
+    if (!searchQuery.trim()) return list;
     const q = searchQuery.toLowerCase();
-    return availableProducts.filter(
+    return list.filter(
       (p) =>
         p.name.toLowerCase().includes(q) ||
         (p.sku && p.sku.toLowerCase().includes(q)) ||
         (p.category?.name && p.category.name.toLowerCase().includes(q))
     );
-  }, [availableProducts, searchQuery]);
+  }, [availableProducts, searchQuery, selectedCategory]);
 
   // Map to get product details quickly
   const productMap = useMemo(() => {
@@ -416,6 +432,60 @@ export function ComboProductBuilder({
                 />
               </div>
 
+              {/* Category-Wise Filter Bar */}
+              {categoriesList.length > 0 && (
+                <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 shrink-0 -mx-1 px-1">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedCategory('ALL')}
+                    className={`px-3 py-1.5 rounded-full text-xs font-bold shrink-0 transition-all cursor-pointer flex items-center gap-1.5 ${
+                      selectedCategory === 'ALL'
+                        ? 'bg-neutral-950 text-white shadow-xs'
+                        : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 hover:text-neutral-900'
+                    }`}
+                  >
+                    <span>All</span>
+                    <span
+                      className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
+                        selectedCategory === 'ALL'
+                          ? 'bg-white/20 text-white'
+                          : 'bg-neutral-200 text-neutral-600'
+                      }`}
+                    >
+                      {availableProducts.length}
+                    </span>
+                  </button>
+
+                  {categoriesList.map((cat) => {
+                    const isSelected = selectedCategory === cat.id;
+                    const catCount = availableProducts.filter((p) => p.category?.id === cat.id).length;
+                    return (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => setSelectedCategory(cat.id)}
+                        className={`px-3 py-1.5 rounded-full text-xs font-bold shrink-0 transition-all cursor-pointer flex items-center gap-1.5 ${
+                          isSelected
+                            ? 'bg-neutral-950 text-white shadow-xs'
+                            : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 hover:text-neutral-900'
+                        }`}
+                      >
+                        <span>{cat.name}</span>
+                        <span
+                          className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
+                            isSelected
+                              ? 'bg-white/20 text-white'
+                              : 'bg-neutral-200 text-neutral-600'
+                          }`}
+                        >
+                          {catCount}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
               {/* Products List */}
               <div className="flex-1 overflow-y-auto space-y-2 pr-1 min-h-[260px]">
                 {isLoading ? (
@@ -424,7 +494,7 @@ export function ComboProductBuilder({
                   </div>
                 ) : filteredProducts.length === 0 ? (
                   <div className="py-12 text-center text-xs text-neutral-400">
-                    No products found matching &quot;{searchQuery}&quot;
+                    {searchQuery ? `No products found matching "${searchQuery}"` : 'No products found in this category'}
                   </div>
                 ) : (
                   filteredProducts.map((product) => {

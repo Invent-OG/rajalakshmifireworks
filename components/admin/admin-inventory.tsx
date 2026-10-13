@@ -27,6 +27,7 @@ import {
   AlertCircle,
   X,
   RefreshCw,
+  Ban,
 } from 'lucide-react';
 import { toast } from '@/lib/toast';
 import * as XLSX from 'xlsx';
@@ -248,6 +249,16 @@ function AdminInventoryPageContent() {
       qty: Math.abs(delta),
       type: isAdding ? 'STOCK_ADDED' : 'STOCK_REMOVED',
       auditNote: `Quick stepper adjust (${delta > 0 ? `+${delta}` : delta} units)`,
+    });
+  };
+
+  // 1-Click Out of Stock Handler (immediately sets product stock to 0)
+  const handleMarkOutOfStock = (product: InventoryItem) => {
+    bulkAdjustMutation.mutate({
+      mode: 'SET',
+      quantity: 0,
+      items: [{ productId: product.id }],
+      defaultNote: `Marked Out of Stock by Admin`,
     });
   };
 
@@ -751,7 +762,7 @@ function AdminInventoryPageContent() {
                       <th className="px-5 py-4 text-center">Warehouse Stock</th>
                       <th className="px-5 py-4 text-center">Reorder Limit</th>
                       <th className="px-5 py-4">Health</th>
-                      <th className="px-5 py-4 text-center">Quick Adjust</th>
+                      <th className="px-5 py-4 text-center">Stock Action</th>
                       <th className="px-5 py-4 text-right">Actions</th>
                     </tr>
                   </thead>
@@ -802,33 +813,24 @@ function AdminInventoryPageContent() {
                             <StatusBadge status={status} />
                           </td>
                           <td className="px-5 py-3.5 text-center">
-                            {/* Quick Stepper Buttons for Warehouse Operators */}
-                            <div className="inline-flex items-center gap-1">
+                            {/* 1-Click Out of Stock Button */}
+                            {stock <= 0 ? (
+                              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-900/50 text-[11px] font-bold select-none">
+                                <span className="h-1.5 w-1.5 rounded-full bg-rose-500 shrink-0" />
+                                Out of Stock
+                              </span>
+                            ) : (
                               <button
-                                onClick={() => handleQuickAdjust(item, 10)}
-                                disabled={adjustMutation.isPending}
-                                className="h-7 px-2 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200 text-[11px] font-bold hover:bg-emerald-100 transition-colors cursor-pointer"
-                                title="Add 10 units"
+                                type="button"
+                                onClick={() => handleMarkOutOfStock(item)}
+                                disabled={bulkAdjustMutation.isPending}
+                                className="inline-flex items-center gap-1.5 h-7 px-3 rounded-lg bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-800 text-[11px] font-bold transition-all active:scale-95 cursor-pointer disabled:opacity-50"
+                                title={`Mark ${item.name} as Out of Stock (sets stock to 0)`}
                               >
-                                +10
+                                <Ban className="h-3 w-3 text-rose-600 dark:text-rose-400" />
+                                <span>Out of Stock</span>
                               </button>
-                              <button
-                                onClick={() => handleQuickAdjust(item, 50)}
-                                disabled={adjustMutation.isPending}
-                                className="h-7 px-2 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200 text-[11px] font-bold hover:bg-emerald-100 transition-colors cursor-pointer"
-                                title="Add 50 units"
-                              >
-                                +50
-                              </button>
-                              <button
-                                onClick={() => handleQuickAdjust(item, -1)}
-                                disabled={adjustMutation.isPending || stock <= 0}
-                                className="h-7 px-2 rounded-md bg-rose-50 text-rose-800 border border-rose-200 text-[11px] font-bold hover:bg-rose-100 transition-colors disabled:opacity-40 cursor-pointer"
-                                title="Deduct 1 unit"
-                              >
-                                -1
-                              </button>
-                            </div>
+                            )}
                           </td>
                           <td className="px-5 py-3.5 text-right">
                             <Button
@@ -918,11 +920,22 @@ function AdminInventoryPageContent() {
             <Button
               size="sm"
               variant="outline"
-              className="bg-background text-rose-600 hover:bg-background/90 text-xs font-semibold"
-              onClick={() => handleQuickBulkAdjust('REMOVE', 1)}
+              className="bg-background text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-semibold"
+              onClick={() => {
+                const items = Array.from(selectedItemsMap.values()).map((p) => ({
+                  productId: p.id,
+                }));
+                if (items.length === 0) return;
+                bulkAdjustMutation.mutate({
+                  mode: 'SET',
+                  quantity: 0,
+                  items,
+                  defaultNote: 'Bulk marked Out of Stock by Admin',
+                });
+              }}
               disabled={bulkAdjustMutation.isPending}
             >
-              -1 All
+              <Ban className="h-3.5 w-3.5 mr-1 text-rose-600" /> Out of Stock All ({selectedCount})
             </Button>
           </BulkActionsBar>
         </>

@@ -223,12 +223,14 @@ function CheckoutPageContent() {
 
   const grandTotal = subtotal + deliveryCharge;
 
-  // When state changes, reset cityId and city name in form
+  // When state changes to a different state, reset cityId and city name in form
+  const prevSelectedStateId = useRef<string | undefined>(selectedStateId);
   useEffect(() => {
-    if (selectedStateId) {
+    if (prevSelectedStateId.current !== undefined && prevSelectedStateId.current !== selectedStateId) {
       form.setValue('cityId', '');
       form.setValue('city', '');
     }
+    prevSelectedStateId.current = selectedStateId;
   }, [selectedStateId, form]);
 
   const placeOrderMutation = useMutation({
@@ -329,7 +331,7 @@ function CheckoutPageContent() {
           ? {
               address: data.address!.trim(),
               stateId: data.stateId ? Number(data.stateId) : undefined,
-              cityId: data.cityId ? Number(data.cityId) : undefined,
+              cityId: data.cityId && !isNaN(Number(data.cityId)) ? Number(data.cityId) : undefined,
               state: selectedState?.name || '',
               city: selectedCity?.name || data.city || '',
               area: data.area?.trim() || undefined,
@@ -508,8 +510,12 @@ function CheckoutPageContent() {
                         onChange={(e) => {
                           const val = e.target.value;
                           form.setValue('cityId', val, { shouldValidate: true });
-                          const found = cities.find((c) => c.id === Number(val));
-                          if (found) form.setValue('city', found.name);
+                          if (val === 'OTHER') {
+                            form.setValue('city', '', { shouldValidate: true });
+                          } else {
+                            const found = cities.find((c) => c.id === Number(val));
+                            if (found) form.setValue('city', found.name, { shouldValidate: true });
+                          }
                         }}
                         className="w-full h-11 px-3.5 rounded-xl border border-neutral-200 dark:border-[#282828] bg-white dark:bg-[#181818] text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white focus:border-neutral-900 dark:focus:border-white cursor-pointer shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
                       >
@@ -525,7 +531,26 @@ function CheckoutPageContent() {
                             {ct.name}
                           </option>
                         ))}
+                        {selectedStateId && !isCitiesLoading && (
+                          <option value="OTHER" className="bg-white dark:bg-[#181818] text-foreground font-semibold">
+                            {locale === 'ta' ? 'மற்றவை (நகரத்தை உள்ளிடவும்)' : 'Other / Enter City Manually'}
+                          </option>
+                        )}
                       </select>
+
+                      {/* Manual City Input if "OTHER" selected or state has no pre-listed cities */}
+                      {(form.watch('cityId') === 'OTHER' || (Boolean(selectedStateId) && !isCitiesLoading && cities.length === 0)) && (
+                        <div className="mt-2.5 animate-fade-in">
+                          <input
+                            type="text"
+                            placeholder={locale === 'ta' ? 'உங்கள் நகரத்தின் பெயரை உள்ளிடவும்' : 'Type your City / Town name'}
+                            value={form.watch('city') || ''}
+                            onChange={(e) => form.setValue('city', e.target.value, { shouldValidate: true })}
+                            className="w-full h-11 px-3.5 rounded-xl border border-neutral-200 dark:border-[#282828] bg-white dark:bg-[#181818] text-xs font-medium text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white focus:border-neutral-900 dark:focus:border-white shadow-xs"
+                            autoFocus
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
 

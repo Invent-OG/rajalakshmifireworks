@@ -129,6 +129,21 @@ export function QuickOrderContent({
     };
   }, []);
 
+  // Helper to determine if product is strictly a Combo or Gift Box
+  const isComboItem = (p: ProductItem): boolean => {
+    const catName = (p.category?.name || '').toLowerCase();
+    const catSlug = (p.category?.slug || '').toLowerCase();
+    return Boolean(
+      p.isCombo ||
+      catName === 'combo' ||
+      catName === 'gift box' ||
+      catName.includes('combo') ||
+      catName.includes('gift') ||
+      catSlug.includes('combo') ||
+      catSlug.includes('gift')
+    );
+  };
+
   // Category counts computation
   const categoryCounts = useMemo(() => {
     const map = new Map<string, number>();
@@ -136,7 +151,7 @@ export function QuickOrderContent({
     let combos = 0;
     let bestseller = 0;
     products.forEach((p) => {
-      if (p.isFeatured || p.isCombo) combos++;
+      if (isComboItem(p)) combos++;
       if (p.isBestseller) bestseller++;
       if (p.category?.slug) {
         map.set(p.category.slug, (map.get(p.category.slug) || 0) + 1);
@@ -229,7 +244,7 @@ export function QuickOrderContent({
         // Category
         if (selectedCategory !== 'all') {
           if (selectedCategory === 'combos') {
-            if (!p.isFeatured && !p.isCombo) return false;
+            if (!isComboItem(p)) return false;
           } else if (selectedCategory === 'bestseller') {
             if (!p.isBestseller) return false;
           } else if (p.category?.slug !== selectedCategory) {
@@ -241,7 +256,7 @@ export function QuickOrderContent({
         if (filterType === 'in_stock' && p.stockQuantity <= 0) {
           return false;
         }
-        if (filterType === 'combos' && !p.isFeatured && !p.isCombo) {
+        if (filterType === 'combos' && !isComboItem(p)) {
           return false;
         }
         if (filterType === 'bestseller' && !p.isBestseller) {

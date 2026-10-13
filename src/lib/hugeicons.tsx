@@ -148,6 +148,7 @@ export const Warehouse: React.FC<IconProps> = createIcon(HugeIcons.WarehouseIcon
 export const Wind: React.FC<IconProps> = createIcon(HugeIcons.FastWindIcon);
 export const X: React.FC<IconProps> = createIcon(HugeIcons.Cancel01Icon);
 export const XCircle: React.FC<IconProps> = createIcon(HugeIcons.CancelCircleIcon);
+export const Ban: React.FC<IconProps> = createIcon(HugeIcons.CancelCircleIcon);
 export const Building: React.FC<IconProps> = createIcon(HugeIcons.Building01Icon);
 export const Medal: React.FC<IconProps> = createIcon(HugeIcons.Medal01Icon);
 export const Target: React.FC<IconProps> = createIcon(HugeIcons.Target01Icon);
@@ -276,6 +277,7 @@ export default {
   Wind,
   X,
   XCircle,
+  Ban,
   Building,
   Medal,
   Target,

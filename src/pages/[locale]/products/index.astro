@@ -34,7 +34,7 @@ const url = Astro.url;
 const search = url.searchParams.get('search') || '';
 const sort = url.searchParams.get('sort') || 'newest';
 const isCombos = url.searchParams.get('combos') === 'true' || url.searchParams.get('combo') === 'true';
-const featured = isCombos || url.searchParams.get('featured') === 'true';
+const featured = isCombos ? false : url.searchParams.get('featured') === 'true';
 const bestseller = url.searchParams.get('bestseller') === 'true';
 const categorySlug = url.searchParams.get('category') || '';
 
@@ -43,6 +43,21 @@ const [categoryList, allActiveProducts] = await Promise.all([
   getCachedCategories(),
   getCachedAllActiveProducts(),
 ]);
+
+// Helper to determine if a product is strictly a Combo or Gift Box
+const isComboProduct = (p: any): boolean => {
+  const catName = (p.category?.name || '').toLowerCase();
+  const catSlug = (p.category?.slug || '').toLowerCase();
+  return Boolean(
+    p.isCombo ||
+    catName === 'combo' ||
+    catName === 'gift box' ||
+    catName.includes('combo') ||
+    catName.includes('gift') ||
+    catSlug.includes('combo') ||
+    catSlug.includes('gift')
+  );
+};
 
 // Compute counts instantly from memory
 const totalActiveCount = allActiveProducts.length;
@@ -54,12 +69,7 @@ for (const p of allActiveProducts) {
   if (p.categoryId) {
     categoryCountMap.set(p.categoryId, (categoryCountMap.get(p.categoryId) || 0) + 1);
   }
-  const isComboItem = Boolean(
-    p.isCombo ||
-    p.isFeatured ||
-    (p.name && /combo|gift/i.test(p.name))
-  );
-  if (isComboItem) comboTotalCount++;
+  if (isComboProduct(p)) comboTotalCount++;
   if (p.isBestseller) bestsellerTotalCount++;
 }
 
@@ -85,9 +95,7 @@ if (search.trim()) {
 }
 
 if (isCombos) {
-  filtered = filtered.filter((p) =>
-    Boolean(p.isCombo || p.isFeatured || (p.name && /combo|gift/i.test(p.name)))
-  );
+  filtered = filtered.filter((p) => isComboProduct(p));
 } else if (featured) {
   filtered = filtered.filter((p) => Boolean(p.isFeatured));
 }
@@ -125,13 +133,15 @@ const tCommon = getTranslations(locale, 'common');
 
 const pageHeading = activeCategory
   ? getLocalizedName(activeCategory, locale)
-  : featured
+  : isCombos
     ? tNav('combos')
-    : bestseller
-      ? (locale === 'ta' ? 'அதிகம் விற்பனையான பட்டாசுகள்' : 'Festive Bestsellers')
-      : search
-        ? `${locale === 'ta' ? 'தேடல் முடிவுகள்:' : 'Results for'} "${search}"`
-        : (locale === 'ta' ? 'பிரீமியம் பட்டாசுகள்' : 'Premium Fireworks');
+    : featured
+      ? (locale === 'ta' ? 'சிறப்பு பட்டாசுகள்' : 'Featured Fireworks')
+      : bestseller
+        ? (locale === 'ta' ? 'அதிகம் விற்பனையான பட்டாசுகள்' : 'Festive Bestsellers')
+        : search
+          ? `${locale === 'ta' ? 'தேடல் முடிவுகள்:' : 'Results for'} "${search}"`
+          : (locale === 'ta' ? 'பிரீமியம் பட்டாசுகள்' : 'Premium Fireworks');
 
 const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`);
 ---
@@ -172,7 +182,7 @@ const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`)
         <a
           href={getHref('/products?combos=true')}
           class={`px-4 py-2 sm:py-2.5 rounded-full text-xs font-bold shrink-0 transition-all flex items-center gap-2 ${
-            isCombos || featured
+            isCombos
               ? 'bg-amber-400 text-neutral-950 shadow-xs ring-1 ring-amber-500/30'
               : 'bg-white dark:bg-[#141414] text-neutral-700 dark:text-neutral-200 border border-neutral-200/90 dark:border-[#282828] hover:bg-neutral-50 dark:hover:bg-[#1a1a1a] shadow-2xs'
           }`}
@@ -180,7 +190,7 @@ const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`)
           <span>{tNav('combos')}</span>
           <span
             class={`text-[11px] px-2 py-0.5 rounded-full font-bold ${
-              isCombos || featured
+              isCombos
                 ? 'bg-black/15 text-neutral-950'
                 : 'bg-neutral-100 dark:bg-[#202020] text-neutral-500 dark:text-neutral-400'
             }`}
@@ -279,7 +289,7 @@ const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`)
             <a
               href={getHref('/products?combos=true')}
               class={`flex items-center justify-between px-3.5 py-2 rounded-full text-xs font-semibold transition-all ${
-                isCombos || featured
+                isCombos
                   ? 'bg-neutral-900 text-white dark:bg-white dark:text-black shadow-xs'
                   : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-[#202020] hover:text-neutral-900 dark:hover:text-white'
               }`}

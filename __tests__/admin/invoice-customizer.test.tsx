@@ -70,4 +70,25 @@ describe('InvoiceCustomizer Component', () => {
     expect(html).toContain('customupi@hdfc');
     expect(html).toContain('Custom terms testing warranty and dispatch');
   });
+
+  it('controls CONSIGNMENT section visibility via showConsignment toggle and settings', () => {
+    const orderWithBoxes = {
+      ...mockOrder,
+      packageCount: 3,
+    };
+
+    // By default, showConsignment is false, so CONSIGNMENT: is not shown automatically
+    const defaultHtml = renderToString(<InvoiceCustomizer order={orderWithBoxes} />);
+    expect(defaultHtml).not.toContain('CONSIGNMENT:');
+
+    // When INVOICE_SHOW_CONSIGNMENT is 'true', CONSIGNMENT: is shown
+    const consignmentHtml = renderToString(
+      <InvoiceCustomizer
+        order={orderWithBoxes}
+        initialSettings={{ INVOICE_SHOW_CONSIGNMENT: 'true' }}
+      />
+    );
+    expect(consignmentHtml).toContain('CONSIGNMENT:');
+    expect(consignmentHtml).toContain('3 Boxes / Cases');
+  });
 });

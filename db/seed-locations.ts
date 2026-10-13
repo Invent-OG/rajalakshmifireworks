@@ -1212,11 +1212,9 @@ export async function seedLocations() {
   console.log('🎉 Location & Delivery Partner database seeding completed!');
 }
 
-if (require.main === module || process.argv[1]?.includes('seed-locations')) {
-  seedLocations()
-    .then(() => process.exit(0))
-    .catch((err) => {
-      console.error('❌ Seeding error:', err);
-      process.exit(1);
-    });
-}
+seedLocations()
+  .then(() => process.exit(0))
+  .catch((err) => {
+    console.error('❌ Seeding error:', err);
+    process.exit(1);
+  });

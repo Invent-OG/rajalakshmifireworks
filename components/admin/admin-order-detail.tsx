@@ -60,6 +60,7 @@ import {
   type WhatsAppProcessType,
   type WhatsAppOrderData,
 } from '@/lib/services/whatsapp-service';
+import { TransporterBillView, type TransporterBillData } from './transporter-bill';
 
 interface WhatsAppMessageEntry {
   id: number;
@@ -212,6 +213,9 @@ function AdminOrderDetailPageContent({
     },
   });
 
+  // Transporter Bill Auto-Generated State
+  const [isTransporterBillOpen, setIsTransporterBillOpen] = useState<boolean>(false);
+
   // Assign / Reassign Delivery Partner Mutation
   const assignDeliveryMutation = useMutation({
     mutationFn: async ({ partnerId, note }: { partnerId: number; note?: string }) => {
@@ -230,10 +234,12 @@ function AdminOrderDetailPageContent({
       queryClient.invalidateQueries({ queryKey: queryKeys.admin.orders.detail(orderId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.admin.orders.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.admin.dashboard() });
-      toast.success('Delivery partner assigned successfully');
+      toast.success('Delivery partner assigned! Transporter bill auto-generated.');
       setSelectedWhatsAppProcess('ORDER_ASSIGNED');
       setIsReassigning(false);
       setSelectedPartnerId('');
+      // Auto-generates and opens the transporter bill!
+      setIsTransporterBillOpen(true);
     },
     onError: (error: Error) => {
       toast.error(error.message);
@@ -619,6 +625,35 @@ function AdminOrderDetailPageContent({
     trackingUrl,
   };
 
+  const transporterBillData: TransporterBillData = {
+    orderId: order.id,
+    invoiceNumber: order.invoiceNumber || `FW-${order.id}`,
+    customerName: order.customerNameSnapshot || 'Valued Customer',
+    customerMobile: order.customerMobileSnapshot || '',
+    customerEmail: order.customer?.email || null,
+    shippingAddress: order.addressSnapshot
+      ? {
+          address: streetAddress || '',
+          city: cityName || '',
+          state: stateName || '',
+          pincode: address?.pincode || '',
+        }
+      : null,
+    customerNotes: order.notes || null,
+    packageCount: order.packageCount || packageCountInput || 1,
+    totalAmount: toNumber(order.totalAmount),
+    paymentStatus: order.paymentStatus || 'PENDING',
+    paymentMethod: order.paymentMethod || null,
+    placedAt: order.placedAt,
+    carrierName: assignedPartner?.name || carriageDetailsInput || order.carriageDetails || 'Assigned Delivery Partner',
+    driverMobile: assignedPartner?.mobileNumber || null,
+    vehicleType: assignedPartner?.vehicleType || null,
+    vehicleNumber: assignedPartner?.vehicleNumber || null,
+    lrNumber: lrNumberInput || order.lrNumber || null,
+    carriageDetails: carriageDetailsInput || order.carriageDetails || null,
+    itemsCount: order.items?.length || 0,
+  };
+
   // Fetch store settings for configurable WhatsApp templates
   const { data: settingsData } = useQuery<{ settings: Record<string, string> }>({
     queryKey: ['admin', 'settings'],
@@ -961,6 +996,15 @@ function AdminOrderDetailPageContent({
           >
             <Printer className="h-4 w-4 mr-1.5 text-muted-foreground" /> Print / Edit Slip
           </a>
+
+          <button
+            type="button"
+            onClick={() => setIsTransporterBillOpen(true)}
+            className="inline-flex items-center gap-1.5 h-10 px-4 rounded-full border border-border bg-card hover:bg-muted text-xs sm:text-sm font-semibold text-foreground transition-all cursor-pointer shadow-xs"
+            title="Auto-Generated Transporter Bill & Box Paste Slip"
+          >
+            <Truck className="h-4 w-4 mr-1 text-black dark:text-white" /> Transporter Bill
+          </button>
 
           <a
             href={getProcessShareUrl(
@@ -1790,25 +1834,41 @@ function AdminOrderDetailPageContent({
                 </div>
 
                 {assignedPartner && !isReassigning ? (
-                  <div className="p-4 rounded-xl bg-muted/40 border border-border/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs sm:text-sm">
-                    <div className="space-y-1">
-                      <p className="font-bold text-foreground text-base">
-                        {assignedPartner.name || assignedPartner.fullName}
-                      </p>
-                      <p className="font-mono text-muted-foreground flex items-center gap-1.5">
-                        <Phone className="h-3.5 w-3.5 text-muted-foreground" /> {assignedPartner.mobileNumber}
-                      </p>
-                      {(assignedPartner.vehicleType || assignedPartner.vehicleNumber) && (
-                        <p className="text-muted-foreground flex items-center gap-1.5">
-                          <Car className="h-3.5 w-3.5" />
-                          <span>{assignedPartner.vehicleType || 'Vehicle'}</span>
-                          {assignedPartner.vehicleNumber && <span className="font-mono font-semibold">({assignedPartner.vehicleNumber})</span>}
+                  <div className="p-4 rounded-xl bg-muted/40 border border-border/80 space-y-3 text-xs sm:text-sm">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div className="space-y-1">
+                        <p className="font-bold text-foreground text-base">
+                          {assignedPartner.name || assignedPartner.fullName}
                         </p>
-                      )}
+                        <p className="font-mono text-muted-foreground flex items-center gap-1.5">
+                          <Phone className="h-3.5 w-3.5 text-muted-foreground" /> {assignedPartner.mobileNumber}
+                        </p>
+                        {(assignedPartner.vehicleType || assignedPartner.vehicleNumber) && (
+                          <p className="text-muted-foreground flex items-center gap-1.5">
+                            <Car className="h-3.5 w-3.5" />
+                            <span>{assignedPartner.vehicleType || 'Vehicle'}</span>
+                            {assignedPartner.vehicleNumber && <span className="font-mono font-semibold">({assignedPartner.vehicleNumber})</span>}
+                          </p>
+                        )}
+                      </div>
+                      <span className="self-start sm:self-auto text-xs font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                        Active Partner
+                      </span>
                     </div>
-                    <span className="self-start sm:self-auto text-xs font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
-                      Active Partner
-                    </span>
+
+                    <div className="pt-2.5 border-t border-border/60 flex items-center justify-between gap-2 flex-wrap">
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                        <span>Transporter Bill is auto-generated for this assignment</span>
+                      </div>
+                      <Button
+                        size="sm"
+                        onClick={() => setIsTransporterBillOpen(true)}
+                        className="h-8.5 px-3.5 text-xs font-bold rounded-full bg-black text-white hover:bg-neutral-800 cursor-pointer shadow-xs"
+                      >
+                        <Printer className="h-3.5 w-3.5 mr-1" /> View / Print Transporter Bill
+                      </Button>
+                    </div>
                   </div>
                 ) : (
                   <div className="space-y-3">
@@ -3256,6 +3316,17 @@ function AdminOrderDetailPageContent({
             </div>
           </div>
         </Portal>
+      )}
+
+      {/* 9. TRANSPORTER BILL MODAL (AUTO-GENERATED ON DELIVERY PARTNER ASSIGNMENT) */}
+      {isTransporterBillOpen && (
+        <TransporterBillView
+          data={transporterBillData}
+          storeSettings={settingsData?.settings || {}}
+          isOpen={isTransporterBillOpen}
+          onClose={() => setIsTransporterBillOpen(false)}
+          isModal={true}
+        />
       )}
     </div>
   );

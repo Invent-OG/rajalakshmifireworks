@@ -69,6 +69,11 @@ export interface InvoiceCustomizerConfig {
   showTaxOrSavings: boolean;
   showTerms: boolean;
   showGstin: boolean;
+  showConsignment: boolean;
+  showLrTransport: boolean;
+
+  // Consignment & Transport
+  consignmentText: string;
 
   // Bank & Payment Info
   bankName: string;
@@ -127,6 +132,9 @@ const DEFAULT_INVOICE_CONFIG: InvoiceCustomizerConfig = {
   showTaxOrSavings: true,
   showTerms: true,
   showGstin: true,
+  showConsignment: false,
+  showLrTransport: false,
+  consignmentText: '',
   bankName: 'State Bank of India',
   accountName: 'Rajalakshmi Fireworks',
   accountNumber: '0123 4567 8901',
@@ -352,6 +360,18 @@ function InvoiceCustomizerContent({
       termsAndConditions: initialSettings['INVOICE_TERMS'] !== undefined ? initialSettings['INVOICE_TERMS'] : resolvedTerms,
       notes: initialSettings['INVOICE_SAFETY_NOTICE'] !== undefined ? initialSettings['INVOICE_SAFETY_NOTICE'] : (savedConfig.notes ?? DEFAULT_INVOICE_CONFIG.notes),
       showTerms: savedConfig.showTerms !== false,
+      showConsignment:
+        initialSettings['INVOICE_SHOW_CONSIGNMENT'] !== undefined
+          ? initialSettings['INVOICE_SHOW_CONSIGNMENT'] === 'true'
+          : (savedConfig.showConsignment !== undefined ? savedConfig.showConsignment : false),
+      showLrTransport:
+        initialSettings['INVOICE_SHOW_LR_TRANSPORT'] !== undefined
+          ? initialSettings['INVOICE_SHOW_LR_TRANSPORT'] === 'true'
+          : (savedConfig.showLrTransport !== undefined ? savedConfig.showLrTransport : false),
+      consignmentText:
+        savedConfig.consignmentText !== undefined
+          ? savedConfig.consignmentText
+          : (order?.packageCount ? `${order.packageCount} ${order.packageCount === 1 ? 'Box / Case' : 'Boxes / Cases'}` : ''),
     };
   });
 
@@ -391,6 +411,8 @@ function InvoiceCustomizerContent({
         showPaymentInfo: s.INVOICE_SHOW_PAYMENT_INFO !== undefined ? s.INVOICE_SHOW_PAYMENT_INFO !== 'false' : prev.showPaymentInfo,
         showTaxOrSavings: s.INVOICE_SHOW_TAX_SAVINGS !== undefined ? s.INVOICE_SHOW_TAX_SAVINGS !== 'false' : prev.showTaxOrSavings,
         showTerms: s.INVOICE_SHOW_TERMS !== undefined ? s.INVOICE_SHOW_TERMS !== 'false' : prev.showTerms,
+        showConsignment: s.INVOICE_SHOW_CONSIGNMENT !== undefined ? s.INVOICE_SHOW_CONSIGNMENT === 'true' : prev.showConsignment,
+        showLrTransport: s.INVOICE_SHOW_LR_TRANSPORT !== undefined ? s.INVOICE_SHOW_LR_TRANSPORT === 'true' : prev.showLrTransport,
         logoImageUrl: s.INVOICE_CUSTOM_LOGO !== undefined ? (s.INVOICE_CUSTOM_LOGO || null) : prev.logoImageUrl,
         signatureImageUrl: s.INVOICE_CUSTOM_SIGNATURE !== undefined ? (s.INVOICE_CUSTOM_SIGNATURE || null) : prev.signatureImageUrl,
       }));
@@ -526,6 +548,8 @@ function InvoiceCustomizerContent({
         INVOICE_SHOW_PAYMENT_INFO: config.showPaymentInfo ? 'true' : 'false',
         INVOICE_SHOW_TAX_SAVINGS: config.showTaxOrSavings ? 'true' : 'false',
         INVOICE_SHOW_TERMS: config.showTerms ? 'true' : 'false',
+        INVOICE_SHOW_CONSIGNMENT: config.showConsignment ? 'true' : 'false',
+        INVOICE_SHOW_LR_TRANSPORT: config.showLrTransport ? 'true' : 'false',
       };
 
       if (config.logoImageUrl) {
@@ -565,6 +589,9 @@ function InvoiceCustomizerContent({
         invoiceNumber: order?.invoiceNumber || '01234',
         invoiceDate: formatDateDots(order?.placedAt),
         customerName: order?.customerNameSnapshot || 'Valued Customer',
+        showConsignment: false,
+        showLrTransport: false,
+        consignmentText: '',
       });
       if (typeof window !== 'undefined') {
         localStorage.removeItem('raj_invoice_config_v2');
@@ -942,6 +969,9 @@ function InvoiceCustomizerContent({
                   {[
                     { key: 'showLogo', label: 'Show Header Logo / Circle Monogram' },
                     { key: 'showSignature', label: 'Show Signature Block' },
+                    { key: 'showConsignment', label: 'Show Consignment (Boxes / Cases)' },
+                    { key: 'showLrTransport', label: 'Show Lorry Transport & LR No' },
+                    { key: 'showGstin', label: 'Show Store GSTIN' },
                     { key: 'showPaymentInfo', label: 'Show Bank / Payment Info' },
                     { key: 'showTaxOrSavings', label: 'Show Discount / Festive Savings' },
                     { key: 'showTerms', label: 'Show Terms & Compliance Notes' },
@@ -959,6 +989,24 @@ function InvoiceCustomizerContent({
                       />
                     </label>
                   ))}
+
+                  {config.showConsignment && (
+                    <div className="p-3 rounded-xl bg-muted/40 border border-border space-y-1.5 mt-2">
+                      <label className="font-bold text-xs text-foreground block">
+                        Consignment Display Text:
+                      </label>
+                      <input
+                        type="text"
+                        value={config.consignmentText}
+                        onChange={(e) => handleUpdate('consignmentText', e.target.value)}
+                        placeholder={order?.packageCount ? `${order.packageCount} ${order.packageCount === 1 ? 'Box / Case' : 'Boxes / Cases'}` : '1 Box / Case'}
+                        className="w-full px-3 py-2 rounded-lg border border-border bg-card text-foreground font-mono text-xs focus:border-neutral-900 outline-none"
+                      />
+                      <p className="text-[11px] text-muted-foreground">
+                        Custom count or package label to print (e.g. 1 Box / Case, 2 Cartons).
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -1410,18 +1458,18 @@ function InvoiceCustomizerContent({
                 </div>
               )}
 
-              {Boolean(order?.packageCount) && (
+              {config.showConsignment && (config.consignmentText || order?.packageCount) && (
                 <div className="flex sm:justify-end gap-3 items-baseline">
                   <span className={`font-bold uppercase tracking-wider text-neutral-900 ${fontSizes.heading}`}>
                     CONSIGNMENT:
                   </span>
                   <span className={`font-mono font-bold text-neutral-800 ${fontSizes.body}`}>
-                    {order.packageCount} {order.packageCount === 1 ? 'Box / Case' : 'Boxes / Cases'}
+                    {config.consignmentText || `${order?.packageCount || 1} ${order?.packageCount === 1 ? 'Box / Case' : 'Boxes / Cases'}`}
                   </span>
                 </div>
               )}
 
-              {Boolean(order?.lrNumber) && (
+              {config.showLrTransport && Boolean(order?.lrNumber) && (
                 <div className="flex sm:justify-end gap-3 items-baseline">
                   <span className={`font-bold uppercase tracking-wider text-neutral-900 ${fontSizes.heading}`}>
                     LR NO:
@@ -1432,7 +1480,7 @@ function InvoiceCustomizerContent({
                 </div>
               )}
 
-              {Boolean(order?.carriageDetails) && (
+              {config.showLrTransport && Boolean(order?.carriageDetails) && (
                 <div className="flex sm:justify-end gap-3 items-baseline">
                   <span className={`font-bold uppercase tracking-wider text-neutral-900 ${fontSizes.heading}`}>
                     TRANSPORT:
