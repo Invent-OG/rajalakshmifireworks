@@ -30,18 +30,29 @@ Astro.response.headers.set(
   "public, max-age=0, s-maxage=30, stale-while-revalidate=120",
 );
 
-const [allCategories, allActiveProducts, heroConfigRaw] = await Promise.all([
-  getCachedCategories(),
-  getCachedAllActiveProducts(),
-  getCachedHeroConfig(),
-]);
+let allCategories: any[] = [];
+let allActiveProducts: any[] = [];
+let heroConfigRaw: string | null = null;
 
-const categoryList = allCategories.slice(0, 8);
-const featuredProducts = allActiveProducts
-  .filter((p) => p.isFeatured)
+try {
+  const [cats, prods, hero] = await Promise.all([
+    getCachedCategories(),
+    getCachedAllActiveProducts(),
+    getCachedHeroConfig(),
+  ]);
+  allCategories = cats || [];
+  allActiveProducts = prods || [];
+  heroConfigRaw = hero || null;
+} catch (err) {
+  console.error('[index.astro] Error loading catalog data:', err);
+}
+
+const categoryList = (allCategories || []).slice(0, 8);
+const featuredProducts = (allActiveProducts || [])
+  .filter((p) => p?.isFeatured)
   .slice(0, 12);
-const bestsellerProducts = allActiveProducts
-  .filter((p) => p.isBestseller)
+const bestsellerProducts = (allActiveProducts || [])
+  .filter((p) => p?.isBestseller)
   .slice(0, 12);
 
 const heroConfig = parseHeroConfig(heroConfigRaw);

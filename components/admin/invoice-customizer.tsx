@@ -1409,6 +1409,39 @@ function InvoiceCustomizerContent({
                   </span>
                 </div>
               )}
+
+              {Boolean(order?.packageCount) && (
+                <div className="flex sm:justify-end gap-3 items-baseline">
+                  <span className={`font-bold uppercase tracking-wider text-neutral-900 ${fontSizes.heading}`}>
+                    CONSIGNMENT:
+                  </span>
+                  <span className={`font-mono font-bold text-neutral-800 ${fontSizes.body}`}>
+                    {order.packageCount} {order.packageCount === 1 ? 'Box / Case' : 'Boxes / Cases'}
+                  </span>
+                </div>
+              )}
+
+              {Boolean(order?.lrNumber) && (
+                <div className="flex sm:justify-end gap-3 items-baseline">
+                  <span className={`font-bold uppercase tracking-wider text-neutral-900 ${fontSizes.heading}`}>
+                    LR NO:
+                  </span>
+                  <span className={`font-mono font-bold text-neutral-800 ${fontSizes.body}`}>
+                    {order.lrNumber}
+                  </span>
+                </div>
+              )}
+
+              {Boolean(order?.carriageDetails) && (
+                <div className="flex sm:justify-end gap-3 items-baseline">
+                  <span className={`font-bold uppercase tracking-wider text-neutral-900 ${fontSizes.heading}`}>
+                    TRANSPORT:
+                  </span>
+                  <span className={`text-neutral-800 ${fontSizes.body}`}>
+                    {order.carriageDetails}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 

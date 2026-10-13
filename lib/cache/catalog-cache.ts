@@ -25,53 +25,87 @@ export function invalidateCatalogCache(): void {
 }
 
 /**
- * Get all active categories with 60s memory caching
+ * Helper to retry a database query up to 2 times for transient DNS or connection drops
  */
-export async function getCachedCategories() {
+async function queryWithRetry<T>(fn: () => Promise<T>, retries = 2, delayMs = 250): Promise<T> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      return await fn();
+    } catch (err: any) {
+      lastError = err;
+      const isTransient =
+        err?.code === 'ENOTFOUND' ||
+        err?.code === 'ECONNRESET' ||
+        err?.code === 'ETIMEDOUT' ||
+        err?.code === 'EAI_AGAIN' ||
+        err?.message?.includes('ENOTFOUND') ||
+        err?.message?.includes('Connection terminated');
+
+      if (attempt < retries && isTransient) {
+        await new Promise((resolve) => setTimeout(resolve, delayMs * (attempt + 1)));
+        continue;
+      }
+      break;
+    }
+  }
+  throw lastError;
+}
+
+/**
+ * Get all active categories with 60s memory caching and resilient error fallback
+ */
+export async function getCachedCategories(): Promise<any[]> {
   const now = Date.now();
   if (cachedCategories && now - cachedCategories.timestamp < TTL_MS) {
     return cachedCategories.data;
   }
 
   try {
-    const data = await db.query.categories.findMany({
-      where: eq(categories.isActive, true),
-      orderBy: (c, { asc }) => [asc(c.sortOrder), asc(c.name)],
-    });
+    const data = await queryWithRetry(() =>
+      db.query.categories.findMany({
+        where: eq(categories.isActive, true),
+        orderBy: (c, { asc }) => [asc(c.sortOrder), asc(c.name)],
+      })
+    );
     cachedCategories = { data, timestamp: now };
     return data;
   } catch (error) {
-    if (cachedCategories) return cachedCategories.data; // fallback to stale on error
-    throw error;
+    console.warn('[catalog-cache] Failed to fetch categories from database (transient network/db issue):', error instanceof Error ? error.message : error);
+    if (cachedCategories) return cachedCategories.data;
+    return [];
   }
 }
 
 /**
- * Get all active products (with media and category) with 60s memory caching
+ * Get all active products (with media and category) with 60s memory caching and resilient error fallback
  */
-export async function getCachedAllActiveProducts() {
+export async function getCachedAllActiveProducts(): Promise<any[]> {
   const now = Date.now();
   if (cachedAllActiveProducts && now - cachedAllActiveProducts.timestamp < TTL_MS) {
     return cachedAllActiveProducts.data;
   }
 
   try {
-    const data = await db.query.products.findMany({
-      where: eq(products.isActive, true),
-      with: {
-        category: true,
-        media: {
-          orderBy: (m, { asc }) => [asc(m.sortOrder)],
-          limit: 1,
+    const data = await queryWithRetry(() =>
+      db.query.products.findMany({
+        where: eq(products.isActive, true),
+        with: {
+          category: true,
+          media: {
+            orderBy: (m, { asc }) => [asc(m.sortOrder)],
+            limit: 1,
+          },
         },
-      },
-      orderBy: [desc(products.createdAt)],
-    });
+        orderBy: [desc(products.createdAt)],
+      })
+    );
     cachedAllActiveProducts = { data, timestamp: now };
     return data;
   } catch (error) {
+    console.warn('[catalog-cache] Failed to fetch active products from database (transient network/db issue):', error instanceof Error ? error.message : error);
     if (cachedAllActiveProducts) return cachedAllActiveProducts.data;
-    throw error;
+    return [];
   }
 }
 
@@ -85,7 +119,7 @@ export async function getCachedSettingsMap(): Promise<Map<string, string>> {
   }
 
   try {
-    const rows = await db.query.settings.findMany();
+    const rows = await queryWithRetry(() => db.query.settings.findMany());
     const map = new Map<string, string>();
     for (const r of rows) {
       if (r.key && r.value !== undefined) {
@@ -95,6 +129,7 @@ export async function getCachedSettingsMap(): Promise<Map<string, string>> {
     cachedSettingsMap = { data: map, timestamp: now };
     return map;
   } catch (error) {
+    console.warn('[catalog-cache] Failed to fetch settings from database:', error instanceof Error ? error.message : error);
     if (cachedSettingsMap) return cachedSettingsMap.data;
     return new Map<string, string>();
   }
@@ -110,13 +145,16 @@ export async function getCachedHeroConfig(): Promise<string | null> {
   }
 
   try {
-    const row = await db.query.settings.findFirst({
-      where: eq(settings.key, 'HERO_SLIDES_CONFIG'),
-    });
+    const row = await queryWithRetry(() =>
+      db.query.settings.findFirst({
+        where: eq(settings.key, 'HERO_SLIDES_CONFIG'),
+      })
+    );
     const val = row?.value ?? null;
     cachedHeroConfig = { data: val, timestamp: now };
     return val;
   } catch (error) {
+    console.warn('[catalog-cache] Failed to fetch hero config from database:', error instanceof Error ? error.message : error);
     if (cachedHeroConfig) return cachedHeroConfig.data;
     return null;
   }

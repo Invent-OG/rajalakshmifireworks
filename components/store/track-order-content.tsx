@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { StatusBadge } from '@/components/ui/badge';
 import { EmptyState } from '@/components/ui/empty-state';
 import { formatCurrency, formatDateTime, toNumber } from '@/lib/utils/format';
-import { Search, Package, CheckCircle2, Clock, Truck } from 'lucide-react';
+import { Search, Package, CheckCircle2, Clock, Truck, Store } from 'lucide-react';
 import { useGSAP } from '@gsap/react';
 import { gsap, isReducedMotion } from '@/lib/motion';
 import { useTranslations, useLocale } from '@/lib/i18n/context';
@@ -23,19 +23,95 @@ interface TrackedOrder {
   totalAmount: string;
   customerName: string;
   placedAt: string;
+  lrNumber?: string | null;
+  carriageDetails?: string | null;
+  lrCopyUrl?: string | null;
+  packageCount?: number | null;
   items: Array<{ productName: string; quantity: number; sellingPrice: string; lineTotal: string }>;
   statusHistory: Array<{ status: string; note: string | null; createdAt: string }>;
 }
 
 const statusIcons: Record<string, typeof Clock> = {
+  NEW: Clock,
   PENDING: Clock,
   CONFIRMED: CheckCircle2,
   PROCESSING: Package,
-  READY: Package,
-  READY_FOR_PICKUP: Package,
+  PACKED: Package,
+  ASSIGNED: Truck,
   OUT_FOR_DELIVERY: Truck,
+  READY_FOR_PICKUP: Store,
+  PICKED_UP: CheckCircle2,
+  DELIVERED: CheckCircle2,
   COMPLETED: CheckCircle2,
+  CANCELLED: Clock,
 };
+
+function getFulfillmentMilestones(fulfillmentType: string, currentStatus: string) {
+  if (currentStatus === 'CANCELLED') {
+    return [
+      { key: 'NEW', label: 'Order Placed', icon: Clock, isCompleted: true, isCurrent: false },
+      { key: 'CANCELLED', label: 'Order Cancelled', icon: Clock, isCompleted: true, isCurrent: true },
+    ];
+  }
+
+  if (fulfillmentType === 'PICKUP') {
+    const steps = [
+      { key: 'NEW', label: 'Placed', icon: Clock },
+      { key: 'CONFIRMED', label: 'Confirmed', icon: CheckCircle2 },
+      { key: 'PACKED', label: 'Packed', icon: Package },
+      { key: 'READY_FOR_PICKUP', label: 'Ready for Pickup', icon: Store },
+      { key: 'PICKED_UP', label: 'Picked Up', icon: CheckCircle2 },
+      { key: 'COMPLETED', label: 'Completed', icon: CheckCircle2 },
+    ];
+
+    const orderRanks: Record<string, number> = {
+      NEW: 0,
+      CONFIRMED: 1,
+      PROCESSING: 1,
+      PACKED: 2,
+      READY_FOR_PICKUP: 3,
+      PICKED_UP: 4,
+      DELIVERED: 4,
+      COMPLETED: 5,
+    };
+
+    const currentRank = orderRanks[currentStatus] ?? 0;
+
+    return steps.map((s, idx) => ({
+      ...s,
+      isCompleted: idx < currentRank,
+      isCurrent: idx === currentRank,
+    }));
+  }
+
+  const steps = [
+    { key: 'NEW', label: 'Placed', icon: Clock },
+    { key: 'CONFIRMED', label: 'Confirmed', icon: CheckCircle2 },
+    { key: 'PACKED', label: 'Packed', icon: Package },
+    { key: 'OUT_FOR_DELIVERY', label: 'Dispatched', icon: Truck },
+    { key: 'DELIVERED', label: 'Delivered', icon: CheckCircle2 },
+    { key: 'COMPLETED', label: 'Completed', icon: CheckCircle2 },
+  ];
+
+  const orderRanks: Record<string, number> = {
+    NEW: 0,
+    CONFIRMED: 1,
+    PROCESSING: 1,
+    PACKED: 2,
+    ASSIGNED: 2,
+    OUT_FOR_DELIVERY: 3,
+    DELIVERED: 4,
+    COMPLETED: 5,
+  };
+
+  const currentRank = orderRanks[currentStatus] ?? 0;
+
+  return steps.map((s, idx) => ({
+    ...s,
+    isCompleted: idx < currentRank,
+    isCurrent: idx === currentRank,
+  }));
+}
 
 import { Providers } from '@/components/providers';
 
@@ -181,6 +257,40 @@ function TrackOrderPageContent() {
                 </div>
               </div>
 
+              {/* Lorry Receipt (LR) & Carriage Details Card */}
+              {(order.lrNumber || order.carriageDetails) && (
+                <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/25 space-y-1.5">
+                  <div className="flex items-center gap-2 text-amber-700 dark:text-amber-300 font-bold text-xs uppercase tracking-wider">
+                    <Truck className="h-4 w-4" /> Lorry Receipt (LR / Carriage Details)
+                  </div>
+                  {order.lrNumber && (
+                    <p className="text-sm font-mono font-bold text-foreground">
+                      LR Number: <span className="text-brand font-extrabold">{order.lrNumber}</span>
+                    </p>
+                  )}
+                  {order.carriageDetails && (
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      Carriage / Transport: <span className="text-foreground font-medium">{order.carriageDetails}</span>
+                    </p>
+                  )}
+                  {order.packageCount && (
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      Total Consignment: <span className="text-foreground font-semibold">{order.packageCount} {Number(order.packageCount) === 1 ? 'Case / Box' : 'Cases / Boxes'}</span>
+                    </p>
+                  )}
+                  {order.lrCopyUrl && (
+                    <a
+                      href={order.lrCopyUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-brand hover:underline pt-1"
+                    >
+                      View Lorry Receipt Copy &rarr;
+                    </a>
+                  )}
+                </div>
+              )}
+
               {/* Items Summary */}
               <div>
                 <h4 className="text-xs uppercase font-semibold text-muted-foreground tracking-wider mb-3">
@@ -207,6 +317,56 @@ function TrackOrderPageContent() {
                   {formatCurrency(toNumber(order.totalAmount))}
                 </span>
               </div>
+
+              {/* Visual Milestone Stepper (Fulfillment Pipeline) */}
+              {(() => {
+                const milestones = getFulfillmentMilestones(order.fulfillmentType, order.orderStatus);
+                return (
+                  <div className="pt-4 border-t border-border space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-xs uppercase font-semibold text-muted-foreground tracking-wider">
+                        {order.fulfillmentType === 'PICKUP' ? 'Store Pickup Journey' : 'Doorstep Delivery Journey'}
+                      </h4>
+                      <span className="text-[11px] font-medium text-muted-foreground font-mono">
+                        {order.orderStatus.replace(/_/g, ' ')}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
+                      {milestones.map((m, mIdx) => {
+                        const MIcon = m.icon;
+                        const isDone = m.isCompleted;
+                        const isCurrent = m.isCurrent;
+                        return (
+                          <div
+                            key={mIdx}
+                            className={`p-2 rounded-xl border flex items-center gap-2 transition-all ${
+                              isCurrent
+                                ? 'bg-brand/10 border-brand text-brand font-bold shadow-2xs'
+                                : isDone
+                                ? 'bg-muted/60 border-border text-foreground font-medium'
+                                : 'bg-muted/20 border-border/40 text-muted-foreground/50 opacity-60'
+                            }`}
+                          >
+                            <div
+                              className={`h-5 w-5 rounded-full flex items-center justify-center shrink-0 text-xs ${
+                                isCurrent
+                                  ? 'bg-brand text-brand-foreground ring-2 ring-brand/20'
+                                  : isDone
+                                  ? 'bg-emerald-600 text-white'
+                                  : 'bg-muted text-muted-foreground'
+                              }`}
+                            >
+                              <MIcon className="h-2.5 w-2.5" />
+                            </div>
+                            <span className="text-[11px] truncate leading-tight">{m.label}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* Status Machine Timeline */}
               {order.statusHistory.length > 0 && (

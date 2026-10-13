@@ -145,6 +145,19 @@ async function _PATCH(
       if (body.paymentReference !== undefined) updateData.paymentReference = body.paymentReference;
     }
 
+    // Handle Carriage & LR (Lorry Receipt) details
+    if (body.lrNumber !== undefined) updateData.lrNumber = body.lrNumber ? String(body.lrNumber).trim() : null;
+    if (body.carriageDetails !== undefined) updateData.carriageDetails = body.carriageDetails ? String(body.carriageDetails).trim() : null;
+    if (body.lrCopyUrl !== undefined) updateData.lrCopyUrl = body.lrCopyUrl ? String(body.lrCopyUrl).trim() : null;
+
+    // Handle Cases / Boxes Count
+    if (body.packageCount !== undefined) {
+      const parsedCount = parseInt(String(body.packageCount), 10);
+      if (!isNaN(parsedCount) && parsedCount > 0) {
+        updateData.packageCount = parsedCount;
+      }
+    }
+
     // 1. Handle Customer Details Update
     let customerDetailsChanged = false;
     if (body.customerDetails && typeof body.customerDetails === 'object') {
@@ -410,14 +423,26 @@ async function _PATCH(
         case 'CONFIRMED':
           notificationType = 'ORDER_CONFIRMED';
           break;
+        case 'PACKED':
+          notificationType = 'ORDER_PACKED';
+          break;
         case 'ASSIGNED':
           notificationType = 'ORDER_ASSIGNED';
           break;
         case 'OUT_FOR_DELIVERY':
           notificationType = 'ORDER_OUT_FOR_DELIVERY';
           break;
+        case 'READY_FOR_PICKUP':
+          notificationType = 'ORDER_READY_FOR_PICKUP';
+          break;
+        case 'PICKED_UP':
+          notificationType = 'ORDER_PICKED_UP';
+          break;
         case 'DELIVERED':
           notificationType = 'ORDER_DELIVERED';
+          break;
+        case 'COMPLETED':
+          notificationType = 'ORDER_COMPLETED';
           break;
         case 'CANCELLED':
           notificationType = 'ORDER_CANCELLED';
@@ -439,6 +464,15 @@ async function _PATCH(
         oldStatus: currentStatus,
         newStatus,
         changedBy: session.email,
+      });
+    }
+
+    if (paymentChanged && body.paymentStatus === 'PAID') {
+      whatsAppService.sendOrderNotification(orderId, 'PAYMENT_VERIFIED').catch((err) => {
+        logger.error('admin.orders.payment', 'Background WhatsApp dispatch failed on payment verification', {
+          orderId,
+          error: (err as Error).message,
+        });
       });
     }
 

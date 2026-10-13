@@ -42,7 +42,7 @@ async function _POST(
       return Response.json({ message: 'Order not found' }, { status: 404 });
     }
 
-    if (order.orderStatus === 'CANCELLED' || order.orderStatus === 'DELIVERED') {
+    if (order.orderStatus === 'CANCELLED' || order.orderStatus === 'DELIVERED' || order.orderStatus === 'COMPLETED') {
       return Response.json(
         { message: `Cannot assign delivery to a ${order.orderStatus.toLowerCase()} order` },
         { status: 400 }

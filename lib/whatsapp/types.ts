@@ -5,10 +5,14 @@
 export type WhatsAppMessageType =
   | 'ORDER_RECEIVED'
   | 'ORDER_CONFIRMED'
-  | 'ORDER_ASSIGNED'
+  | 'PAYMENT_VERIFIED'
   | 'ORDER_PACKED'
+  | 'ORDER_ASSIGNED'
   | 'ORDER_OUT_FOR_DELIVERY'
+  | 'ORDER_READY_FOR_PICKUP'
+  | 'ORDER_PICKED_UP'
   | 'ORDER_DELIVERED'
+  | 'ORDER_COMPLETED'
   | 'ORDER_CANCELLED';
 
 export type WhatsAppMessageStatus = 'PENDING' | 'SENT' | 'DELIVERED' | 'READ' | 'FAILED';
@@ -188,5 +192,8 @@ export interface WhatsAppOrderDetails {
     vehicleType?: string | null;
     vehicleNumber?: string | null;
   } | null;
+  packageCount?: number | null;
+  carriageDetails?: string | null;
+  lrNumber?: string | null;
   placedAt?: Date | string;
 }

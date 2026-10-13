@@ -14,10 +14,14 @@ import type {
 export const WHATSAPP_TEMPLATES = {
   ORDER_RECEIVED: process.env.WHATSAPP_TEMPLATE_ORDER_RECEIVED || 'order_received',
   ORDER_CONFIRMED: process.env.WHATSAPP_TEMPLATE_ORDER_CONFIRMED || 'order_confirmed',
-  ORDER_ASSIGNED: process.env.WHATSAPP_TEMPLATE_ORDER_ASSIGNED || 'order_assigned',
+  PAYMENT_VERIFIED: process.env.WHATSAPP_TEMPLATE_PAYMENT_VERIFIED || 'payment_verified',
   ORDER_PACKED: process.env.WHATSAPP_TEMPLATE_ORDER_PACKED || 'order_packed',
+  ORDER_ASSIGNED: process.env.WHATSAPP_TEMPLATE_ORDER_ASSIGNED || 'order_assigned',
   ORDER_OUT_FOR_DELIVERY: process.env.WHATSAPP_TEMPLATE_OUT_FOR_DELIVERY || 'order_out_for_delivery',
+  ORDER_READY_FOR_PICKUP: process.env.WHATSAPP_TEMPLATE_READY_FOR_PICKUP || 'order_ready_for_pickup',
+  ORDER_PICKED_UP: process.env.WHATSAPP_TEMPLATE_ORDER_PICKED_UP || 'order_picked_up',
   ORDER_DELIVERED: process.env.WHATSAPP_TEMPLATE_ORDER_DELIVERED || 'order_delivered',
+  ORDER_COMPLETED: process.env.WHATSAPP_TEMPLATE_ORDER_COMPLETED || 'order_completed',
   ORDER_CANCELLED: process.env.WHATSAPP_TEMPLATE_ORDER_CANCELLED || 'order_cancelled',
 } as const;
 
@@ -198,6 +202,60 @@ export function buildTemplateComponents(
             { type: 'text', text: customerName },
             { type: 'text', text: invoiceNumber },
             { type: 'text', text: storeText },
+          ],
+        },
+      ];
+    }
+
+    case 'PAYMENT_VERIFIED': {
+      return [
+        {
+          type: 'body',
+          parameters: [
+            { type: 'text', text: customerName },
+            { type: 'text', text: invoiceNumber },
+            { type: 'text', text: totalAmount },
+            { type: 'text', text: storeName },
+          ],
+        },
+      ];
+    }
+
+    case 'ORDER_READY_FOR_PICKUP': {
+      return [
+        {
+          type: 'body',
+          parameters: [
+            { type: 'text', text: customerName },
+            { type: 'text', text: invoiceNumber },
+            { type: 'text', text: 'Rajalakshmi Fireworks Sivakasi Counter' },
+            { type: 'text', text: totalAmount },
+          ],
+        },
+      ];
+    }
+
+    case 'ORDER_PICKED_UP': {
+      return [
+        {
+          type: 'body',
+          parameters: [
+            { type: 'text', text: customerName },
+            { type: 'text', text: invoiceNumber },
+            { type: 'text', text: storeName },
+          ],
+        },
+      ];
+    }
+
+    case 'ORDER_COMPLETED': {
+      return [
+        {
+          type: 'body',
+          parameters: [
+            { type: 'text', text: customerName },
+            { type: 'text', text: invoiceNumber },
+            { type: 'text', text: storeName },
           ],
         },
       ];

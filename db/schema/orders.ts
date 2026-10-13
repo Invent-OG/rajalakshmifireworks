@@ -24,9 +24,14 @@ import { salesAgents } from './sales-agents';
 export type OrderStatus =
   | 'NEW'
   | 'CONFIRMED'
+  | 'PROCESSING'
+  | 'PACKED'
   | 'ASSIGNED'
   | 'OUT_FOR_DELIVERY'
+  | 'READY_FOR_PICKUP'
+  | 'PICKED_UP'
   | 'DELIVERED'
+  | 'COMPLETED'
   | 'CANCELLED';
 
 export type FulfillmentType = 'DELIVERY' | 'PICKUP';
@@ -45,6 +50,10 @@ export const orders = pgTable(
     deliveryPartnerId: integer('delivery_partner_id').references(() => deliveryPartners.id),
     assignedAt: timestamp('assigned_at', { withTimezone: true }),
     assignedBy: varchar('assigned_by', { length: 255 }),
+    lrNumber: varchar('lr_number', { length: 100 }),
+    carriageDetails: text('carriage_details'),
+    lrCopyUrl: text('lr_copy_url'),
+    packageCount: integer('package_count').default(1),
     orderStatus: varchar('order_status', { length: 30 }).notNull().default('NEW'),
     fulfillmentType: varchar('fulfillment_type', { length: 20 }).notNull(), // 'DELIVERY' | 'PICKUP'
     subtotal: numeric('subtotal', { precision: 12, scale: 2 }).notNull(),
@@ -67,7 +76,12 @@ export const orders = pgTable(
     idempotencyKey: varchar('idempotency_key', { length: 100 }),
     placedAt: timestamp('placed_at', { withTimezone: true }).notNull().defaultNow(),
     confirmedAt: timestamp('confirmed_at', { withTimezone: true }),
+    packedAt: timestamp('packed_at', { withTimezone: true }),
+    dispatchedAt: timestamp('dispatched_at', { withTimezone: true }),
+    readyForPickupAt: timestamp('ready_for_pickup_at', { withTimezone: true }),
+    pickedUpAt: timestamp('picked_up_at', { withTimezone: true }),
     deliveredAt: timestamp('delivered_at', { withTimezone: true }),
+    completedAt: timestamp('completed_at', { withTimezone: true }),
     cancelledAt: timestamp('cancelled_at', { withTimezone: true }),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),

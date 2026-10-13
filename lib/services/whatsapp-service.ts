@@ -32,6 +32,10 @@ export interface WhatsAppOrderData {
     pincode?: string;
   } | null;
   deliveryPartner?: WhatsAppDeliveryPartnerInfo | null;
+  carriageDetails?: string | null;
+  lrNumber?: string | null;
+  lrCopyUrl?: string | null;
+  packageCount?: number | null;
   trackingUrl?: string;
 }
 
@@ -154,17 +158,27 @@ export function buildOrderAssignedMessage(order: WhatsAppOrderData): string {
   lines.push(`Dear *${order.customerName || 'Valued Customer'}*,`);
   lines.push(`Great news! Your fireworks order *${order.invoiceNumber}* has been packed and handed over to our delivery logistics partner.`);
   lines.push(``);
-  lines.push(`📦 *Logistics Partner Details:*`);
-  lines.push(`• *Carrier / Partner:* ${order.deliveryPartner?.name || 'Express Logistics Partner'}`);
+  lines.push(`📦 *Carriage & Logistics Details:*`);
+  if (order.carriageDetails) {
+    lines.push(`• *Carriage / Transport:* ${order.carriageDetails}`);
+  }
+  lines.push(`• *Carrier / Partner:* ${order.deliveryPartner?.name || 'Sivakasi Parcel Transport'}`);
   if (order.deliveryPartner?.mobileNumber) {
     lines.push(`• *Partner Contact:* ${order.deliveryPartner.mobileNumber}`);
   }
   if (order.deliveryPartner?.vehicleNumber) {
     lines.push(`• *Vehicle Number:* ${order.deliveryPartner.vehicleNumber}`);
   }
+  if (order.lrNumber) {
+    lines.push(`• *Lorry Receipt (LR) No:* ${order.lrNumber}`);
+  }
+  if (order.lrCopyUrl) {
+    lines.push(`• *LR Copy Link:* ${order.lrCopyUrl}`);
+  }
 
   const itemsCount = (order.items || []).reduce((acc, i) => acc + (i.quantity || 1), 0);
   lines.push(`• *Total Items:* ${itemsCount} items (${(order.items || []).length} products)`);
+  lines.push(`• *Boxes / Cases:* ${order.packageCount || 1} Box(es) / Case(s)`);
   lines.push(`• *Order Amount:* ${formatCurrency(order.totalAmount || 0)}`);
 
   if (order.address?.city) {
@@ -200,7 +214,16 @@ export function buildOrderOutForDeliveryMessage(order: WhatsAppOrderData): strin
   lines.push(``);
   lines.push(`📦 *Consignment Summary:*`);
   const itemsCount = (order.items || []).reduce((acc, i) => acc + (i.quantity || 1), 0);
-  lines.push(`• Total: ${itemsCount} items | Amount: *${formatCurrency(order.totalAmount || 0)}*`);
+  lines.push(`• Total: ${itemsCount} items | *${order.packageCount || 1} Box(es) / Case(s)* | Amount: *${formatCurrency(order.totalAmount || 0)}*`);
+  if (order.carriageDetails) {
+    lines.push(`• *Carriage / Transport:* ${order.carriageDetails}`);
+  }
+  if (order.lrNumber) {
+    lines.push(`• *Lorry Receipt (LR) No:* ${order.lrNumber}`);
+  }
+  if (order.lrCopyUrl) {
+    lines.push(`• *LR Copy Link:* ${order.lrCopyUrl}`);
+  }
 
   if (order.address) {
     const formattedAddr = formatOrderAddress(order.address);
@@ -211,7 +234,7 @@ export function buildOrderOutForDeliveryMessage(order: WhatsAppOrderData): strin
   }
 
   lines.push(``);
-  lines.push(`🔔 *Please Note:* Kindly ensure an adult is available at the delivery address with a valid mobile phone to receive the package.`);
+  lines.push(`🔔 *Please Note:* Kindly carry a copy/photo of the LR (Lorry Receipt) when collecting crackers from the transport office.`);
 
   if (order.trackingUrl) {
     lines.push(``);
@@ -235,12 +258,15 @@ export function buildOrderDeliveredMessage(order: WhatsAppOrderData): string {
   const lines: string[] = [];
 
   lines.push(`✨ *${storeName.toUpperCase()}* ✨`);
-  lines.push(`✅ *ORDER DELIVERED SUCCESSFULLY!*`);
+  lines.push(`✅ *ORDER DELIVERED / COLLECTED SUCCESSFULLY!*`);
   lines.push(`━━━━━━━━━━━━━━━━━━━━━`);
   lines.push(`Dear *${order.customerName || 'Valued Customer'}*,`);
-  lines.push(`Your fireworks package for order *${order.invoiceNumber}* has been delivered! 🎉`);
+  lines.push(`Your fireworks package for order *${order.invoiceNumber}* has been delivered / collected! 🎉`);
   lines.push(``);
   lines.push(`📦 *Summary:* ${(order.items || []).length} products | *${formatCurrency(order.totalAmount || 0)}*`);
+  if (order.lrNumber) {
+    lines.push(`• *LR Receipt Ref:* ${order.lrNumber}`);
+  }
   lines.push(``);
   lines.push(`🎆 May this festive season bring immense brightness, peace, and prosperity to you and your loved ones!`);
   lines.push(``);

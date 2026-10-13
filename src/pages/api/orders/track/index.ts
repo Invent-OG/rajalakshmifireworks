@@ -38,33 +38,59 @@ async function _POST(request: NextRequest) {
       limit: 20,
     });
 
-    // Don't expose internal IDs
-    const safeOrders = orderList.map((order) => ({
-      invoiceNumber: order.invoiceNumber,
-      orderStatus: order.orderStatus,
-      fulfillmentType: order.fulfillmentType,
-      subtotal: order.subtotal,
-      discountAmount: order.discountAmount,
-      deliveryCharge: order.deliveryCharge,
-      totalAmount: order.totalAmount,
-      customerName: order.customerNameSnapshot,
-      address: order.addressSnapshot,
-      placedAt: order.placedAt,
-      confirmedAt: order.confirmedAt,
-      deliveredAt: order.deliveredAt,
-      items: order.items.map((item) => ({
-        productName: item.productNameSnapshot,
-        quantity: item.quantity,
-        mrp: item.mrpSnapshot,
-        sellingPrice: item.sellingPriceSnapshot,
-        lineTotal: item.lineTotal,
-      })),
-      statusHistory: order.statusHistory.map((h) => ({
-        status: h.newStatus,
-        note: h.note,
-        createdAt: h.createdAt,
-      })),
-    }));
+    // Don't expose internal IDs or sensitive full address without invoice verification
+    const safeOrders = orderList.map((order) => {
+      const address = (order.addressSnapshot as Record<string, any>) || {};
+      const isVerifiedWithInvoice = Boolean(invoiceNumber && invoiceNumber.trim().toUpperCase() === order.invoiceNumber.toUpperCase());
+      
+      // Protect customer privacy against mobile-only scanning:
+      // If invoice number is not provided, only expose city/state, not complete street address
+      const safeAddress = isVerifiedWithInvoice
+        ? order.addressSnapshot
+        : {
+            city: address.city || address.deliveryCityName || '',
+            state: address.state || address.deliveryStateName || '',
+            pincode: address.pincode ? `${String(address.pincode).slice(0, 3)}***` : '',
+          };
+
+      return {
+        invoiceNumber: order.invoiceNumber,
+        orderStatus: order.orderStatus,
+        fulfillmentType: order.fulfillmentType,
+        subtotal: order.subtotal,
+        discountAmount: order.discountAmount,
+        deliveryCharge: order.deliveryCharge,
+        totalAmount: order.totalAmount,
+        customerName: isVerifiedWithInvoice
+          ? order.customerNameSnapshot
+          : order.customerNameSnapshot.slice(0, 2) + '***',
+        address: safeAddress,
+        placedAt: order.placedAt,
+        confirmedAt: order.confirmedAt,
+        packedAt: order.packedAt,
+        dispatchedAt: order.dispatchedAt,
+        readyForPickupAt: order.readyForPickupAt,
+        pickedUpAt: order.pickedUpAt,
+        deliveredAt: order.deliveredAt,
+        completedAt: order.completedAt,
+        lrNumber: order.lrNumber,
+        carriageDetails: order.carriageDetails,
+        lrCopyUrl: order.lrCopyUrl,
+        packageCount: order.packageCount || 1,
+        items: order.items.map((item) => ({
+          productName: item.productNameSnapshot,
+          quantity: item.quantity,
+          mrp: item.mrpSnapshot,
+          sellingPrice: item.sellingPriceSnapshot,
+          lineTotal: item.lineTotal,
+        })),
+        statusHistory: order.statusHistory.map((h) => ({
+          status: h.newStatus,
+          note: h.note,
+          createdAt: h.createdAt,
+        })),
+      };
+    });
 
     return Response.json({ orders: safeOrders });
   } catch (error) {

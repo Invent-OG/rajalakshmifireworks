@@ -17,7 +17,11 @@ export function getNextStatuses(
   const allowed = VALID_TRANSITIONS[currentStatus] || [];
 
   return allowed.filter((status) => {
-    // Pickup orders bypass ASSIGNED and OUT_FOR_DELIVERY directly to DELIVERED
+    // Delivery orders cannot transition to pickup-specific statuses
+    if (fulfillmentType === 'DELIVERY' && (status === 'READY_FOR_PICKUP' || status === 'PICKED_UP')) {
+      return false;
+    }
+    // Pickup orders bypass delivery assignment and dispatch steps
     if (fulfillmentType === 'PICKUP' && (status === 'ASSIGNED' || status === 'OUT_FOR_DELIVERY')) {
       return false;
     }
@@ -30,17 +34,27 @@ export function canCancel(status: OrderStatus): boolean {
 }
 
 export function isTerminalStatus(status: OrderStatus): boolean {
-  return status === 'DELIVERED' || status === 'CANCELLED';
+  return status === 'COMPLETED' || status === 'CANCELLED';
 }
 
 export function getStatusTimestampField(status: OrderStatus): string | null {
   switch (status) {
     case 'CONFIRMED':
       return 'confirmedAt';
+    case 'PACKED':
+      return 'packedAt';
     case 'ASSIGNED':
       return 'assignedAt';
+    case 'OUT_FOR_DELIVERY':
+      return 'dispatchedAt';
+    case 'READY_FOR_PICKUP':
+      return 'readyForPickupAt';
+    case 'PICKED_UP':
+      return 'pickedUpAt';
     case 'DELIVERED':
       return 'deliveredAt';
+    case 'COMPLETED':
+      return 'completedAt';
     case 'CANCELLED':
       return 'cancelledAt';
     default:
@@ -65,9 +79,20 @@ export function validateTransition(
     return null;
   }
 
+  // Prevent delivery-specific statuses on pickup orders
+  if (fulfillmentType === 'PICKUP' && (newStatus === 'ASSIGNED' || newStatus === 'OUT_FOR_DELIVERY')) {
+    return `Cannot assign delivery or dispatch for counter pickup orders.`;
+  }
+
+  // Prevent pickup-specific statuses on delivery orders
+  if (fulfillmentType === 'DELIVERY' && (newStatus === 'READY_FOR_PICKUP' || newStatus === 'PICKED_UP')) {
+    return `Cannot set pickup status for doorstep delivery orders.`;
+  }
+
   if (!isValidTransition(currentStatus, newStatus)) {
     return `Cannot transition from ${currentStatus} to ${newStatus}.`;
   }
 
   return null;
 }
+

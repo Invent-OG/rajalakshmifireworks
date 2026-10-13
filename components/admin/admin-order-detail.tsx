@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/query/keys';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { StatusBadge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { formatCurrency, formatDateTime, toNumber } from '@/lib/utils/format';
@@ -167,12 +167,28 @@ function AdminOrderDetailPageContent({
   });
 
   // Status Progression Mutation
+  const [packageCountInput, setPackageCountInput] = useState<number>(1);
+  const [isPackModalOpen, setIsPackModalOpen] = useState<boolean>(false);
+  const [packNoteInput, setPackNoteInput] = useState<string>('');
+
   const statusMutation = useMutation({
-    mutationFn: async ({ newStatus, note }: { newStatus: string; note?: string }) => {
+    mutationFn: async ({
+      newStatus,
+      note,
+      packageCount,
+    }: {
+      newStatus: string;
+      note?: string;
+      packageCount?: number;
+    }) => {
       const res = await fetch(`/api/admin/orders/${orderId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ newStatus, note }),
+        body: JSON.stringify({
+          newStatus,
+          note,
+          ...(packageCount !== undefined ? { packageCount } : {}),
+        }),
       });
       if (!res.ok) {
         const err = await res.json();
@@ -185,6 +201,7 @@ function AdminOrderDetailPageContent({
       queryClient.invalidateQueries({ queryKey: queryKeys.admin.orders.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.admin.dashboard() });
       toast.success('Order status updated');
+      setIsPackModalOpen(false);
       if (variables.newStatus === 'CONFIRMED') setSelectedWhatsAppProcess('ORDER_CONFIRMED');
       else if (variables.newStatus === 'ASSIGNED') setSelectedWhatsAppProcess('ORDER_ASSIGNED');
       else if (variables.newStatus === 'OUT_FOR_DELIVERY') setSelectedWhatsAppProcess('ORDER_OUT_FOR_DELIVERY');
@@ -307,6 +324,73 @@ function AdminOrderDetailPageContent({
     },
     onError: (err: any) => {
       toast.error(err.message || 'Failed to update customer details');
+    },
+  });
+
+  // Carriage & LR (Lorry Receipt) State & Mutation
+  const [carriageDetailsInput, setCarriageDetailsInput] = useState<string>('');
+  const [lrNumberInput, setLrNumberInput] = useState<string>('');
+  const [lrCopyUrlInput, setLrCopyUrlInput] = useState<string>('');
+  const [isCarriageFormOpen, setIsCarriageFormOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (data?.order) {
+      setCarriageDetailsInput(data.order.carriageDetails || '');
+      setLrNumberInput(data.order.lrNumber || '');
+      setLrCopyUrlInput(data.order.lrCopyUrl || '');
+      if (typeof data.order.packageCount === 'number' && data.order.packageCount > 0) {
+        setPackageCountInput(data.order.packageCount);
+      }
+    }
+  }, [data?.order?.carriageDetails, data?.order?.lrNumber, data?.order?.lrCopyUrl, data?.order?.packageCount]);
+
+  const updateCarriageMutation = useMutation({
+    mutationFn: async ({
+      carriageDetails,
+      lrNumber,
+      lrCopyUrl,
+      packageCount,
+      newStatus,
+      note,
+    }: {
+      carriageDetails?: string;
+      lrNumber?: string;
+      lrCopyUrl?: string;
+      packageCount?: number;
+      newStatus?: string;
+      note?: string;
+    }) => {
+      const res = await fetch(`/api/admin/orders/${orderId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          carriageDetails: carriageDetails !== undefined ? carriageDetails : carriageDetailsInput,
+          lrNumber: lrNumber !== undefined ? lrNumber : lrNumberInput,
+          lrCopyUrl: lrCopyUrl !== undefined ? lrCopyUrl : lrCopyUrlInput,
+          packageCount: packageCount !== undefined ? packageCount : packageCountInput,
+          ...(newStatus ? { newStatus, note } : {}),
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || 'Failed to update transport and LR details');
+      }
+      return res.json();
+    },
+    onSuccess: (resData, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.orders.detail(orderId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.orders.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.dashboard() });
+      toast.success('Transport & LR details saved successfully');
+      setIsCarriageFormOpen(false);
+      if (variables?.newStatus === 'OUT_FOR_DELIVERY') {
+        setSelectedWhatsAppProcess('ORDER_OUT_FOR_DELIVERY');
+      } else if (variables?.newStatus === 'DELIVERED') {
+        setSelectedWhatsAppProcess('ORDER_DELIVERED');
+      }
+    },
+    onError: (err: any) => {
+      toast.error(err.message || 'Failed to update transport & LR details');
     },
   });
 
@@ -484,9 +568,14 @@ function AdminOrderDetailPageContent({
   const statusIcons: Record<string, typeof Clock> = {
     NEW: Clock,
     CONFIRMED: CheckCircle2,
+    PROCESSING: Package,
+    PACKED: Package,
     ASSIGNED: Truck,
     OUT_FOR_DELIVERY: Truck,
+    READY_FOR_PICKUP: Store,
+    PICKED_UP: CheckCircle2,
     DELIVERED: CheckCircle2,
+    COMPLETED: CheckCircle2,
     CANCELLED: XCircle,
   };
 
@@ -508,6 +597,10 @@ function AdminOrderDetailPageContent({
     deliveryCharge: toNumber(order.deliveryCharge),
     totalAmount: toNumber(order.totalAmount),
     fulfillmentType: (order.fulfillmentType || 'DELIVERY') as 'DELIVERY' | 'PICKUP',
+    packageCount: order.packageCount || packageCountInput || 1,
+    carriageDetails: order.carriageDetails || carriageDetailsInput || null,
+    lrNumber: order.lrNumber || lrNumberInput || null,
+    lrCopyUrl: order.lrCopyUrl || lrCopyUrlInput || null,
     address: order.addressSnapshot
       ? {
           address: streetAddress || '',
@@ -637,23 +730,26 @@ function AdminOrderDetailPageContent({
     { id: 'REVIEW', stepNum: 1, label: 'Review order', desc: 'Placed by customer', icon: FileText },
     { id: 'PAYMENT', stepNum: 2, label: 'Check payment', desc: isPaid ? 'Payment verified' : 'Payment pending', icon: CreditCard },
     { id: 'CONFIRMED', stepNum: 3, label: 'Confirm order', desc: currentStatus !== 'NEW' ? 'Confirmed by store' : 'Stock reserved', icon: ShieldCheck },
-    { id: 'ASSIGNED', stepNum: 4, label: 'Delivery partner', desc: assignedPartner ? (assignedPartner.name || assignedPartner.fullName) : 'Partner assignment', icon: Truck },
-    { id: 'OUT_FOR_DELIVERY', stepNum: 5, label: 'Shipping', desc: 'Out for delivery', icon: Package },
-    { id: 'DELIVERED', stepNum: 6, label: 'Delivered', desc: 'Received by customer', icon: CheckCircle2 },
+    { id: 'PACKED', stepNum: 4, label: 'Packed', desc: (currentStatus === 'PACKED' || currentStatus === 'ASSIGNED' || currentStatus === 'OUT_FOR_DELIVERY' || currentStatus === 'DELIVERED' || currentStatus === 'COMPLETED') ? 'Boxes packed & ready' : 'Awaiting packing', icon: Package },
+    { id: 'ASSIGNED', stepNum: 5, label: 'Carriage assigned', desc: order.carriageDetails || (assignedPartner ? (assignedPartner.name || assignedPartner.fullName) : 'Transport / Carrier details'), icon: Truck },
+    { id: 'OUT_FOR_DELIVERY', stepNum: 6, label: 'Dispatched (LR)', desc: order.lrNumber ? `LR #${order.lrNumber}` : 'Out for delivery', icon: Package },
+    { id: 'DELIVERED', stepNum: 7, label: 'Delivered', desc: currentStatus === 'COMPLETED' ? 'Completed & verified' : 'Delivered to customer', icon: CheckCircle2 },
   ];
 
   const pickupSteps = [
     { id: 'REVIEW', stepNum: 1, label: 'Review order', desc: 'Placed by customer', icon: FileText },
     { id: 'PAYMENT', stepNum: 2, label: 'Check payment', desc: isPaid ? 'Payment verified' : 'Payment pending', icon: CreditCard },
     { id: 'CONFIRMED', stepNum: 3, label: 'Confirm order', desc: currentStatus !== 'NEW' ? 'Confirmed by store' : 'Stock reserved', icon: ShieldCheck },
-    { id: 'READY', stepNum: 4, label: 'Ready for pickup', desc: 'Counter ready in Sivakasi', icon: Store },
-    { id: 'DELIVERED', stepNum: 5, label: 'Delivered', desc: 'Collected at counter', icon: CheckCircle2 },
+    { id: 'PACKED', stepNum: 4, label: 'Packed', desc: (currentStatus === 'PACKED' || currentStatus === 'READY_FOR_PICKUP' || currentStatus === 'PICKED_UP' || currentStatus === 'COMPLETED') ? 'Boxes packed & ready' : 'Awaiting packing', icon: Package },
+    { id: 'READY', stepNum: 5, label: 'Ready for pickup', desc: 'Counter ready in Sivakasi', icon: Store },
+    { id: 'DELIVERED', stepNum: 6, label: 'Delivered', desc: currentStatus === 'COMPLETED' ? 'Completed & verified' : 'Collected at counter', icon: CheckCircle2 },
   ];
 
   const activeSteps = fulfillmentType === 'DELIVERY' ? deliverySteps : pickupSteps;
 
   const getStepState = (stepId: string): 'completed' | 'current' | 'upcoming' | 'locked' | 'cancelled' => {
     if (currentStatus === 'CANCELLED') return 'cancelled';
+    if (currentStatus === 'COMPLETED') return 'completed';
 
     if (stepId === 'REVIEW') {
       return 'completed';
@@ -670,24 +766,26 @@ function AdminOrderDetailPageContent({
       return 'completed';
     }
 
-    if (stepId === 'ASSIGNED') {
+    if (stepId === 'PACKED') {
       if (currentStatus === 'NEW' || !isPaid) return 'locked';
-      if (currentStatus === 'CONFIRMED') {
-        return assignedPartner ? 'completed' : 'current';
-      }
+      if (currentStatus === 'CONFIRMED' || currentStatus === 'PROCESSING') return 'current';
+      return 'completed';
+    }
+
+    if (stepId === 'ASSIGNED') {
+      if (currentStatus === 'NEW' || currentStatus === 'CONFIRMED' || currentStatus === 'PROCESSING' || !isPaid) return 'locked';
+      if (currentStatus === 'PACKED') return (assignedPartner || order.carriageDetails) ? 'completed' : 'current';
       return 'completed';
     }
 
     if (stepId === 'READY') {
-      if (currentStatus === 'NEW' || !isPaid) return 'locked';
-      if (currentStatus === 'CONFIRMED' || currentStatus === 'ASSIGNED') {
-        return 'current';
-      }
+      if (currentStatus === 'NEW' || currentStatus === 'CONFIRMED' || currentStatus === 'PROCESSING' || !isPaid) return 'locked';
+      if (currentStatus === 'PACKED') return 'current';
       return 'completed';
     }
 
     if (stepId === 'OUT_FOR_DELIVERY') {
-      if (currentStatus === 'NEW' || currentStatus === 'CONFIRMED' || !isPaid) return 'locked';
+      if (currentStatus === 'NEW' || currentStatus === 'CONFIRMED' || currentStatus === 'PROCESSING' || currentStatus === 'PACKED' || !isPaid) return 'locked';
       if (currentStatus === 'ASSIGNED') return 'current';
       return 'completed';
     }
@@ -695,11 +793,11 @@ function AdminOrderDetailPageContent({
     if (stepId === 'DELIVERED') {
       if (fulfillmentType === 'DELIVERY') {
         if (currentStatus === 'OUT_FOR_DELIVERY') return 'current';
-        if (currentStatus === 'DELIVERED') return 'completed';
+        if (currentStatus === 'DELIVERED' || currentStatus === 'COMPLETED') return 'completed';
         return 'locked';
       } else {
-        if (currentStatus === 'DELIVERED') return 'completed';
-        if ((currentStatus === 'CONFIRMED' || currentStatus === 'ASSIGNED') && isPaid) return 'upcoming';
+        if (currentStatus === 'READY_FOR_PICKUP') return 'current';
+        if (currentStatus === 'PICKED_UP' || currentStatus === 'DELIVERED' || currentStatus === 'COMPLETED') return 'completed';
         return 'locked';
       }
     }
@@ -827,6 +925,14 @@ function AdminOrderDetailPageContent({
 
               {/* Order Status Pill */}
               <StatusBadge status={currentStatus} className="text-xs px-3 py-1 font-bold" />
+
+              {/* Package / Cases Count Pill */}
+              {Boolean(order.packageCount) && (
+                <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-blue-50 text-blue-800 dark:bg-blue-950/70 dark:text-blue-300 border border-blue-300 dark:border-blue-800 shadow-2xs">
+                  <Package className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                  {order.packageCount} {order.packageCount === 1 ? 'Box / Case' : 'Boxes / Cases'}
+                </span>
+              )}
             </div>
 
             <p className="text-xs sm:text-sm text-muted-foreground mt-1 flex items-center gap-2 flex-wrap">
@@ -1028,14 +1134,14 @@ function AdminOrderDetailPageContent({
               <div className="flex items-start gap-4">
                 <div
                   className={`h-11 w-11 rounded-2xl flex items-center justify-center shrink-0 shadow-2xs mt-0.5 ${
-                    currentStatus === 'DELIVERED'
+                    currentStatus === 'COMPLETED' || currentStatus === 'DELIVERED'
                       ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
                       : currentStatus === 'CANCELLED'
                       ? 'bg-destructive/15 text-destructive border border-destructive/30'
                       : 'bg-brand/20 text-foreground border border-brand/40'
                   }`}
                 >
-                  {currentStatus === 'DELIVERED' ? (
+                  {currentStatus === 'COMPLETED' || currentStatus === 'DELIVERED' ? (
                     <CheckCircle2 className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
                   ) : currentStatus === 'CANCELLED' ? (
                     <XCircle className="h-6 w-6 text-destructive" />
@@ -1043,29 +1149,36 @@ function AdminOrderDetailPageContent({
                     <CreditCard className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
                   ) : currentStatus === 'NEW' ? (
                     <ShieldCheck className="h-6 w-6 text-brand-foreground" />
-                  ) : currentStatus === 'CONFIRMED' && isPaid && !assignedPartner ? (
+                  ) : currentStatus === 'CONFIRMED' ? (
+                    <Package className="h-6 w-6 text-foreground" />
+                  ) : currentStatus === 'PACKED' ? (
                     <Truck className="h-6 w-6 text-foreground" />
                   ) : currentStatus === 'ASSIGNED' ? (
-                    <Package className="h-6 w-6 text-foreground" />
-                  ) : (
                     <Truck className="h-6 w-6 text-foreground" />
+                  ) : (
+                    <Package className="h-6 w-6 text-foreground" />
                   )}
                 </div>
 
                 <div className="space-y-1 min-w-0 flex-1">
                   <div className="flex items-center gap-2.5 flex-wrap">
                     <h3 className="font-bold text-sm sm:text-base text-foreground leading-snug">
-                      {currentStatus === 'DELIVERED' && 'Order Fulfilled & Delivered'}
+                      {currentStatus === 'COMPLETED' && 'Order Successfully Completed'}
+                      {currentStatus === 'DELIVERED' && 'Step 7: Parcel Delivered (Customer Handover)'}
+                      {currentStatus === 'PICKED_UP' && 'Step 6: Customer Collected Parcel at Counter'}
                       {currentStatus === 'CANCELLED' && 'Order Cancelled'}
-                      {currentStatus === 'NEW' && !isPaid && 'Step 2: Check & Verify Payment'}
-                      {currentStatus === 'NEW' && isPaid && 'Step 3: Confirm Order & Reserve Inventory'}
-                      {currentStatus === 'CONFIRMED' && !isPaid && 'Step 2: Check & Verify Payment'}
-                      {currentStatus === 'CONFIRMED' && isPaid && fulfillmentType === 'DELIVERY' && (!assignedPartner ? 'Step 4: Assign Delivery Partner' : 'Step 5: Ready for Dispatch')}
-                      {currentStatus === 'CONFIRMED' && isPaid && fulfillmentType === 'PICKUP' && 'Step 4: Ready for Counter Pickup'}
-                      {currentStatus === 'ASSIGNED' && (isPaid ? 'Step 5: Handover & Out for Delivery' : 'Step 2: Check & Verify Payment')}
-                      {currentStatus === 'OUT_FOR_DELIVERY' && 'Step 6: Out for Delivery Handover'}
+                      {currentStatus === 'NEW' && !isPaid && 'Step 2: Check & Verify Payment Received'}
+                      {currentStatus === 'NEW' && isPaid && 'Step 3: Confirm Order & Reserve Stock'}
+                      {currentStatus === 'CONFIRMED' && !isPaid && 'Step 2: Check & Verify Payment Received'}
+                      {currentStatus === 'CONFIRMED' && isPaid && 'Step 4: Pack Order Items'}
+                      {currentStatus === 'PROCESSING' && 'Step 4: Pack Order Items'}
+                      {currentStatus === 'PACKED' && fulfillmentType === 'DELIVERY' && 'Step 5: Assign Carriage / Transport Details'}
+                      {currentStatus === 'PACKED' && fulfillmentType === 'PICKUP' && 'Step 5: Mark Ready for Sivakasi Counter Pickup'}
+                      {currentStatus === 'ASSIGNED' && (isPaid ? 'Step 6: Record LR & Dispatch Order' : 'Step 2: Check & Verify Payment Received')}
+                      {currentStatus === 'OUT_FOR_DELIVERY' && 'Step 7: Dispatched with LR (Mark Delivered)'}
+                      {currentStatus === 'READY_FOR_PICKUP' && 'Step 6: Ready for Counter Collection'}
                     </h3>
-                    {currentStatus !== 'DELIVERED' && currentStatus !== 'CANCELLED' && (
+                    {currentStatus !== 'COMPLETED' && currentStatus !== 'CANCELLED' && (
                       <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-brand/20 text-foreground font-bold shrink-0">
                         Action Required
                       </span>
@@ -1073,15 +1186,18 @@ function AdminOrderDetailPageContent({
                   </div>
 
                   <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                    {currentStatus === 'DELIVERED' && 'All crackers delivered and received by customer. Fulfilled successfully.'}
-                    {currentStatus === 'CANCELLED' && 'This order has been cancelled and will not be dispatched.'}
-                    {currentStatus === 'NEW' && !isPaid && 'Verify customer payment (UPI/Cash/Bank) before confirming the order.'}
-                    {currentStatus === 'NEW' && isPaid && 'Payment verified (PAID). Confirm order to reserve warehouse inventory.'}
-                    {currentStatus === 'CONFIRMED' && !isPaid && 'Order is confirmed. Verify and record payment (UPI/Cash/Bank) to unlock dispatch.'}
-                    {currentStatus === 'CONFIRMED' && isPaid && fulfillmentType === 'DELIVERY' && (!assignedPartner ? 'Payment verified (PAID). Select an active delivery partner for dispatch.' : `Partner ${assignedPartner.name} assigned. Ready to dispatch.`)}
-                    {currentStatus === 'CONFIRMED' && isPaid && fulfillmentType === 'PICKUP' && 'Payment verified (PAID). Crackers are packed and ready at Sivakasi counter.'}
-                    {currentStatus === 'ASSIGNED' && (isPaid ? `Cracker parcel is ready with partner ${assignedPartner?.name || ''}. Mark out for delivery.` : 'Payment verification is required before dispatching.')}
-                    {currentStatus === 'OUT_FOR_DELIVERY' && 'Fireworks parcel is on the way. Mark delivered upon customer handover.'}
+                    {currentStatus === 'NEW' && 'Customer order placed. Review items and confirm order upon payment receipt.'}
+                    {currentStatus === 'CONFIRMED' && 'Order confirmed. Pack crackers in standard safety cartons.'}
+                    {currentStatus === 'PROCESSING' && 'Order is being assembled and packed in the warehouse.'}
+                    {currentStatus === 'PACKED' && fulfillmentType === 'DELIVERY' && 'Order packed. Assign parcel lorry transport (ARC/KRS/MSS) or delivery partner.'}
+                    {currentStatus === 'PACKED' && fulfillmentType === 'PICKUP' && 'Order packed. Mark ready for customer collection at Sivakasi counter.'}
+                    {currentStatus === 'ASSIGNED' && 'Carriage details assigned. Record Lorry Receipt (LR) number and dispatch.'}
+                    {currentStatus === 'OUT_FOR_DELIVERY' && 'Consignment dispatched with LR copy. Mark delivered when parcel arrives at hub/customer.'}
+                    {currentStatus === 'READY_FOR_PICKUP' && 'Crackers packed and ready for customer collection at Sivakasi counter.'}
+                    {currentStatus === 'PICKED_UP' && 'Customer has collected the parcel from the counter. Complete the order to finalize.'}
+                    {currentStatus === 'DELIVERED' && 'Fireworks parcel successfully delivered to customer. Complete the order to finalize.'}
+                    {currentStatus === 'COMPLETED' && 'Order lifecycle is completed and verified.'}
+                    {currentStatus === 'CANCELLED' && 'This order has been cancelled and warehouse stock has been restored.'}
                   </p>
                 </div>
               </div>
@@ -1089,11 +1205,11 @@ function AdminOrderDetailPageContent({
               {/* Bottom: Dedicated Action Row with Clean Separation */}
               <div className="flex items-center justify-between gap-3 pt-3 border-t border-border/60 flex-wrap">
                 <div>
-                  {currentStatus !== 'CANCELLED' && currentStatus !== 'DELIVERED' && (
+                  {currentStatus !== 'CANCELLED' && currentStatus !== 'COMPLETED' && currentStatus !== 'DELIVERED' && currentStatus !== 'PICKED_UP' && (
                     <button
                       type="button"
                       onClick={() => {
-                        if (confirm('Are you sure you want to cancel this order?')) {
+                        if (confirm('Are you sure you want to cancel this order? This will restore reserved stock to inventory.')) {
                           statusMutation.mutate({ newStatus: 'CANCELLED', note: 'Cancelled by admin' });
                         }
                       }}
@@ -1107,149 +1223,315 @@ function AdminOrderDetailPageContent({
 
                 <div className="flex items-center gap-2.5 flex-wrap ml-auto">
 
-                {/* 1. NEW & Unpaid -> Check & Mark as Paid (with option to confirm without payment) */}
-                {currentStatus === 'NEW' && !isPaid && (
+                {/* 1. NEW STATE: Accept Order & Verify Payment */}
+                {currentStatus === 'NEW' && (
                   <>
+                    {!isPaid && (
+                      <Button
+                        variant="outline"
+                        className="w-full md:w-auto h-11 px-5 rounded-full font-bold text-xs sm:text-sm shadow-sm cursor-pointer"
+                        onClick={() => {
+                          setPaymentMethodInput(order.paymentMethod || 'UPI');
+                          setPaymentRefInput(order.paymentReference || '');
+                          setIsPaymentModalOpen(true);
+                        }}
+                        disabled={paymentMutation.isPending}
+                      >
+                        <CreditCard className="h-4 w-4 mr-1.5" /> Check & Mark as Paid
+                      </Button>
+                    )}
                     <Button
-                      variant="outline"
-                      className="w-full md:w-auto h-11 px-5 rounded-full font-bold text-xs sm:text-sm shadow-sm cursor-pointer"
+                      className="w-full md:w-auto h-11 px-6 rounded-full font-bold text-sm bg-brand text-brand-foreground hover:brightness-105 shadow-sm cursor-pointer"
                       onClick={() => statusMutation.mutate({ newStatus: 'CONFIRMED' })}
                       disabled={statusMutation.isPending}
                     >
-                      <CheckCircle2 className="h-4 w-4 mr-1.5" /> Confirm Without Payment
-                    </Button>
-                    <Button
-                      className="w-full md:w-auto h-11 px-6 rounded-full font-bold text-sm bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm cursor-pointer"
-                      onClick={() => {
-                        setPaymentMethodInput(order.paymentMethod || 'UPI');
-                        setPaymentRefInput(order.paymentReference || '');
-                        setIsPaymentModalOpen(true);
-                      }}
-                      disabled={paymentMutation.isPending}
-                    >
-                      <CreditCard className="h-4 w-4 mr-1.5" /> Check & Mark as Paid
+                      <CheckCircle2 className="h-4 w-4 mr-1.5" /> Confirm Order
                       <ChevronRight className="h-4 w-4 ml-1" />
                     </Button>
                   </>
                 )}
 
-                {/* 2. NEW & Paid -> Confirm Order */}
-                {currentStatus === 'NEW' && isPaid && (
-                  <Button
-                    className="w-full md:w-auto h-11 px-6 rounded-full font-bold text-sm bg-brand text-brand-foreground hover:brightness-105 shadow-sm cursor-pointer"
-                    onClick={() => statusMutation.mutate({ newStatus: 'CONFIRMED' })}
-                    disabled={statusMutation.isPending}
-                  >
-                    <CheckCircle2 className="h-4 w-4 mr-1.5" /> Confirm Order
-                    <ChevronRight className="h-4 w-4 ml-1" />
-                  </Button>
+                {/* 2. CONFIRMED STATE: Start Processing / Mark as Packed */}
+                {currentStatus === 'CONFIRMED' && (
+                  <>
+                    {!isPaid && (
+                      <Button
+                        className="w-full md:w-auto h-11 px-6 rounded-full font-bold text-sm bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm cursor-pointer"
+                        onClick={() => {
+                          setPaymentMethodInput(order.paymentMethod || 'UPI');
+                          setPaymentRefInput(order.paymentReference || '');
+                          setIsPaymentModalOpen(true);
+                        }}
+                        disabled={paymentMutation.isPending}
+                      >
+                        <CreditCard className="h-4 w-4 mr-1.5" /> Check & Mark as Paid
+                        <ChevronRight className="h-4 w-4 ml-1" />
+                      </Button>
+                    )}
+                    {fulfillmentType === 'DELIVERY' && isPaid && !assignedPartner && (
+                      <Button
+                        variant="outline"
+                        className="w-full md:w-auto h-11 px-5 rounded-full font-bold text-xs sm:text-sm shadow-sm cursor-pointer"
+                        onClick={() => {
+                          setIsCarriageFormOpen(true);
+                          setIsReassigning(true);
+                          const el = document.getElementById('delivery-partner-section');
+                          if (el) el.scrollIntoView({ behavior: 'smooth' });
+                        }}
+                      >
+                        <Truck className="h-4 w-4 mr-1.5" /> Assign Delivery Partner
+                      </Button>
+                    )}
+                    <Button
+                      variant="outline"
+                      className="w-full md:w-auto h-11 px-5 rounded-full font-bold text-xs sm:text-sm shadow-sm cursor-pointer"
+                      onClick={() => statusMutation.mutate({ newStatus: 'PROCESSING' })}
+                      disabled={statusMutation.isPending}
+                    >
+                      <Package className="h-4 w-4 mr-1.5" /> Start Processing
+                    </Button>
+                    <Button
+                      className="w-full md:w-auto h-11 px-6 rounded-full font-bold text-sm bg-brand text-brand-foreground hover:brightness-105 shadow-sm cursor-pointer"
+                      onClick={() => {
+                        setPackageCountInput(order.packageCount || 1);
+                        setPackNoteInput('');
+                        setIsPackModalOpen(true);
+                      }}
+                      disabled={statusMutation.isPending}
+                    >
+                      <CheckCircle2 className="h-4 w-4 mr-1.5" /> Mark as Packed
+                      <ChevronRight className="h-4 w-4 ml-1" />
+                    </Button>
+                  </>
                 )}
 
-                {/* 3. Confirmed & Unpaid -> Check & Mark as Paid */}
-                {currentStatus === 'CONFIRMED' && !isPaid && (
-                  <Button
-                    className="w-full md:w-auto h-11 px-6 rounded-full font-bold text-sm bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm cursor-pointer"
-                    onClick={() => {
-                      setPaymentMethodInput(order.paymentMethod || 'UPI');
-                      setPaymentRefInput(order.paymentReference || '');
-                      setIsPaymentModalOpen(true);
-                    }}
-                    disabled={paymentMutation.isPending}
-                  >
-                    <CreditCard className="h-4 w-4 mr-1.5" /> Check & Mark as Paid
-                    <ChevronRight className="h-4 w-4 ml-1" />
-                  </Button>
+                {/* 3. PROCESSING STATE: Mark as Packed */}
+                {currentStatus === 'PROCESSING' && (
+                  <>
+                    {!isPaid && (
+                      <Button
+                        variant="outline"
+                        className="w-full md:w-auto h-11 px-5 rounded-full font-bold text-xs sm:text-sm shadow-sm cursor-pointer"
+                        onClick={() => {
+                          setPaymentMethodInput(order.paymentMethod || 'UPI');
+                          setPaymentRefInput(order.paymentReference || '');
+                          setIsPaymentModalOpen(true);
+                        }}
+                        disabled={paymentMutation.isPending}
+                      >
+                        <CreditCard className="h-4 w-4 mr-1.5" /> Verify Payment
+                      </Button>
+                    )}
+                    <Button
+                      className="w-full md:w-auto h-11 px-6 rounded-full font-bold text-sm bg-brand text-brand-foreground hover:brightness-105 shadow-sm cursor-pointer"
+                      onClick={() => {
+                        setPackageCountInput(order.packageCount || 1);
+                        setPackNoteInput('');
+                        setIsPackModalOpen(true);
+                      }}
+                      disabled={statusMutation.isPending}
+                    >
+                      <CheckCircle2 className="h-4 w-4 mr-1.5" /> Mark as Packed
+                      <ChevronRight className="h-4 w-4 ml-1" />
+                    </Button>
+                  </>
                 )}
 
-                {/* 3. Confirmed & Paid (Delivery) & No Partner -> Assign Partner */}
-                {currentStatus === 'CONFIRMED' && isPaid && fulfillmentType === 'DELIVERY' && !assignedPartner && (
-                  <Button
-                    className="w-full md:w-auto h-11 px-6 rounded-full font-bold text-sm bg-brand text-brand-foreground hover:brightness-105 shadow-sm cursor-pointer"
-                    onClick={() => {
-                      setIsReassigning(true);
-                      const el = document.getElementById('delivery-partner-section');
-                      if (el) el.scrollIntoView({ behavior: 'smooth' });
-                    }}
-                  >
-                    <Truck className="h-4 w-4 mr-1.5" /> Assign Delivery Partner
-                    <ChevronRight className="h-4 w-4 ml-1" />
-                  </Button>
+                {/* 4. PACKED STATE (DELIVERY): Assign Carriage Details or Dispatch */}
+                {currentStatus === 'PACKED' && fulfillmentType === 'DELIVERY' && (
+                  <>
+                    {!isPaid && (
+                      <Button
+                        variant="outline"
+                        className="w-full md:w-auto h-11 px-5 rounded-full font-bold text-xs sm:text-sm shadow-sm cursor-pointer"
+                        onClick={() => {
+                          setPaymentMethodInput(order.paymentMethod || 'UPI');
+                          setPaymentRefInput(order.paymentReference || '');
+                          setIsPaymentModalOpen(true);
+                        }}
+                        disabled={paymentMutation.isPending}
+                      >
+                        <CreditCard className="h-4 w-4 mr-1.5" /> Verify Payment
+                      </Button>
+                    )}
+                    <Button
+                      variant="outline"
+                      className="w-full md:w-auto h-11 px-5 rounded-full font-bold text-xs sm:text-sm shadow-sm cursor-pointer"
+                      onClick={() => {
+                        setIsCarriageFormOpen(true);
+                        setIsReassigning(true);
+                        const el = document.getElementById('delivery-partner-section');
+                        if (el) el.scrollIntoView({ behavior: 'smooth' });
+                      }}
+                    >
+                      <Truck className="h-4 w-4 mr-1.5" /> Assign Carriage Details
+                    </Button>
+                    <Button
+                      className="w-full md:w-auto h-11 px-6 rounded-full font-bold text-sm bg-brand text-brand-foreground hover:brightness-105 shadow-sm cursor-pointer"
+                      onClick={() => statusMutation.mutate({ newStatus: 'OUT_FOR_DELIVERY' })}
+                      disabled={statusMutation.isPending}
+                    >
+                      <Truck className="h-4 w-4 mr-1.5" /> Dispatch with LR
+                      <ChevronRight className="h-4 w-4 ml-1" />
+                    </Button>
+                  </>
                 )}
 
-                {/* 3. Confirmed & Paid (Delivery) & Has Partner -> Out for Delivery */}
-                {currentStatus === 'CONFIRMED' && isPaid && fulfillmentType === 'DELIVERY' && assignedPartner && (
-                  <Button
-                    className="w-full md:w-auto h-11 px-6 rounded-full font-bold text-sm bg-brand text-brand-foreground hover:brightness-105 shadow-sm cursor-pointer"
-                    onClick={() => statusMutation.mutate({ newStatus: 'OUT_FOR_DELIVERY' })}
-                    disabled={statusMutation.isPending}
-                  >
-                    <Truck className="h-4 w-4 mr-1.5" /> Mark Out for Delivery
-                    <ChevronRight className="h-4 w-4 ml-1" />
-                  </Button>
+                {/* 4. PACKED STATE (PICKUP): Ready for Pickup */}
+                {currentStatus === 'PACKED' && fulfillmentType === 'PICKUP' && (
+                  <>
+                    {!isPaid && (
+                      <Button
+                        variant="outline"
+                        className="w-full md:w-auto h-11 px-5 rounded-full font-bold text-xs sm:text-sm shadow-sm cursor-pointer"
+                        onClick={() => {
+                          setPaymentMethodInput(order.paymentMethod || 'UPI');
+                          setPaymentRefInput(order.paymentReference || '');
+                          setIsPaymentModalOpen(true);
+                        }}
+                        disabled={paymentMutation.isPending}
+                      >
+                        <CreditCard className="h-4 w-4 mr-1.5" /> Verify Payment
+                      </Button>
+                    )}
+                    <Button
+                      className="w-full md:w-auto h-11 px-6 rounded-full font-bold text-sm bg-sky-600 hover:bg-sky-700 text-white shadow-sm cursor-pointer"
+                      onClick={() => statusMutation.mutate({ newStatus: 'READY_FOR_PICKUP' })}
+                      disabled={statusMutation.isPending}
+                    >
+                      <Store className="h-4 w-4 mr-1.5" /> Ready for Pickup
+                      <ChevronRight className="h-4 w-4 ml-1" />
+                    </Button>
+                  </>
                 )}
 
-                {/* 3. Confirmed & Paid (Pickup) -> Complete Counter Pickup */}
-                {currentStatus === 'CONFIRMED' && isPaid && fulfillmentType === 'PICKUP' && (
-                  <Button
-                    className="w-full md:w-auto h-11 px-6 rounded-full font-bold text-sm bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm cursor-pointer"
-                    onClick={() =>
-                      statusMutation.mutate({
-                        newStatus: 'DELIVERED',
-                        note: 'Customer collected crackers from counter',
-                      })
-                    }
-                    disabled={statusMutation.isPending}
-                  >
-                    <CheckCircle2 className="h-4 w-4 mr-1.5" /> Complete Counter Pickup
-                    <ChevronRight className="h-4 w-4 ml-1" />
-                  </Button>
+                {/* 5. ASSIGNED STATE: Dispatch Order with LR */}
+                {currentStatus === 'ASSIGNED' && (
+                  <>
+                    {!isPaid && (
+                      <Button
+                        variant="outline"
+                        className="w-full md:w-auto h-11 px-5 rounded-full font-bold text-xs sm:text-sm shadow-sm cursor-pointer"
+                        onClick={() => {
+                          setPaymentMethodInput(order.paymentMethod || 'UPI');
+                          setPaymentRefInput(order.paymentReference || '');
+                          setIsPaymentModalOpen(true);
+                        }}
+                        disabled={paymentMutation.isPending}
+                      >
+                        <CreditCard className="h-4 w-4 mr-1.5" /> Verify Payment
+                      </Button>
+                    )}
+                    <Button
+                      className="w-full md:w-auto h-11 px-6 rounded-full font-bold text-sm bg-brand text-brand-foreground hover:brightness-105 shadow-sm cursor-pointer"
+                      onClick={() => statusMutation.mutate({ newStatus: 'OUT_FOR_DELIVERY' })}
+                      disabled={statusMutation.isPending}
+                    >
+                      <Truck className="h-4 w-4 mr-1.5" /> Dispatch with LR
+                      <ChevronRight className="h-4 w-4 ml-1" />
+                    </Button>
+                  </>
                 )}
 
-                {/* 4. Assigned & Unpaid -> Must Check Payment */}
-                {currentStatus === 'ASSIGNED' && !isPaid && (
-                  <Button
-                    className="w-full md:w-auto h-11 px-6 rounded-full font-bold text-sm bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm cursor-pointer"
-                    onClick={() => {
-                      setPaymentMethodInput(order.paymentMethod || 'UPI');
-                      setPaymentRefInput(order.paymentReference || '');
-                      setIsPaymentModalOpen(true);
-                    }}
-                    disabled={paymentMutation.isPending}
-                  >
-                    <CreditCard className="h-4 w-4 mr-1.5" /> Check & Mark as Paid
-                    <ChevronRight className="h-4 w-4 ml-1" />
-                  </Button>
-                )}
-
-                {/* 4. Assigned & Paid -> Mark Out for Delivery */}
-                {currentStatus === 'ASSIGNED' && isPaid && (
-                  <Button
-                    className="w-full md:w-auto h-11 px-6 rounded-full font-bold text-sm bg-brand text-brand-foreground hover:brightness-105 shadow-sm cursor-pointer"
-                    onClick={() => statusMutation.mutate({ newStatus: 'OUT_FOR_DELIVERY' })}
-                    disabled={statusMutation.isPending}
-                  >
-                    <Truck className="h-4 w-4 mr-1.5" /> Mark Out for Delivery
-                    <ChevronRight className="h-4 w-4 ml-1" />
-                  </Button>
-                )}
-
-                {/* 5. Out For Delivery -> Mark Delivered */}
+                {/* 6. OUT FOR DELIVERY STATE: Mark as Delivered with LR */}
                 {currentStatus === 'OUT_FOR_DELIVERY' && (
-                  <Button
-                    className="w-full md:w-auto h-11 px-6 rounded-full font-bold text-sm bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm cursor-pointer"
-                    onClick={() => statusMutation.mutate({ newStatus: 'DELIVERED' })}
-                    disabled={statusMutation.isPending}
-                  >
-                    <CheckCircle2 className="h-4 w-4 mr-1.5" /> Mark Delivered
-                    <ChevronRight className="h-4 w-4 ml-1" />
-                  </Button>
+                  <>
+                    {!isPaid && (
+                      <Button
+                        variant="outline"
+                        className="w-full md:w-auto h-11 px-5 rounded-full font-bold text-xs sm:text-sm shadow-sm cursor-pointer"
+                        onClick={() => {
+                          setPaymentMethodInput(order.paymentMethod || 'UPI');
+                          setPaymentRefInput(order.paymentReference || '');
+                          setIsPaymentModalOpen(true);
+                        }}
+                        disabled={paymentMutation.isPending}
+                      >
+                        <CreditCard className="h-4 w-4 mr-1.5" /> Verify Payment
+                      </Button>
+                    )}
+                    <Button
+                      className="w-full md:w-auto h-11 px-6 rounded-full font-bold text-sm bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm cursor-pointer"
+                      onClick={() => statusMutation.mutate({ newStatus: 'DELIVERED' })}
+                      disabled={statusMutation.isPending}
+                    >
+                      <CheckCircle2 className="h-4 w-4 mr-1.5" /> Mark Delivered (LR Sent)
+                      <ChevronRight className="h-4 w-4 ml-1" />
+                    </Button>
+                  </>
                 )}
 
-                {/* 6. Delivered -> Success Badge */}
-                {currentStatus === 'DELIVERED' && (
+                {/* 7. READY FOR PICKUP STATE: Mark as Picked Up */}
+                {currentStatus === 'READY_FOR_PICKUP' && (
+                  <>
+                    {!isPaid && (
+                      <Button
+                        variant="outline"
+                        className="w-full md:w-auto h-11 px-5 rounded-full font-bold text-xs sm:text-sm shadow-sm cursor-pointer"
+                        onClick={() => {
+                          setPaymentMethodInput(order.paymentMethod || 'UPI');
+                          setPaymentRefInput(order.paymentReference || '');
+                          setIsPaymentModalOpen(true);
+                        }}
+                        disabled={paymentMutation.isPending}
+                      >
+                        <CreditCard className="h-4 w-4 mr-1.5" /> Verify Payment
+                      </Button>
+                    )}
+                    <Button
+                      className="w-full md:w-auto h-11 px-6 rounded-full font-bold text-sm bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm cursor-pointer"
+                      onClick={() =>
+                        statusMutation.mutate({
+                          newStatus: 'PICKED_UP',
+                          note: 'Customer collected crackers from counter',
+                        })
+                      }
+                      disabled={statusMutation.isPending}
+                    >
+                      <CheckCircle2 className="h-4 w-4 mr-1.5" /> Mark as Picked Up
+                      <ChevronRight className="h-4 w-4 ml-1" />
+                    </Button>
+                  </>
+                )}
+
+                {/* 8. PICKED_UP or DELIVERED STATE: Customer Received -> Complete Order */}
+                {(currentStatus === 'PICKED_UP' || currentStatus === 'DELIVERED') && (
+                  <>
+                    {!isPaid && (
+                      <Button
+                        variant="outline"
+                        className="w-full md:w-auto h-11 px-5 rounded-full font-bold text-xs sm:text-sm shadow-sm cursor-pointer"
+                        onClick={() => {
+                          setPaymentMethodInput(order.paymentMethod || 'UPI');
+                          setPaymentRefInput(order.paymentReference || '');
+                          setIsPaymentModalOpen(true);
+                        }}
+                        disabled={paymentMutation.isPending}
+                      >
+                        <CreditCard className="h-4 w-4 mr-1.5" /> Verify Payment
+                      </Button>
+                    )}
+                    <Button
+                      className="w-full md:w-auto h-11 px-6 rounded-full font-bold text-sm bg-emerald-700 hover:bg-emerald-800 text-white shadow-sm cursor-pointer"
+                      onClick={() =>
+                        statusMutation.mutate({
+                          newStatus: 'COMPLETED',
+                          note: 'Order received by customer - completed',
+                        })
+                      }
+                      disabled={statusMutation.isPending}
+                    >
+                      <CheckCircle2 className="h-4 w-4 mr-1.5" /> Customer Received (Complete Order)
+                      <ChevronRight className="h-4 w-4 ml-1" />
+                    </Button>
+                  </>
+                )}
+
+                {/* 9. COMPLETED STATE */}
+                {currentStatus === 'COMPLETED' && (
                   <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-emerald-500 text-white font-bold text-xs sm:text-sm shadow-md shadow-emerald-500/20">
                     <CheckCircle2 className="h-4 w-4 stroke-[2.5]" />
-                    Delivered Successfully
+                    Order Completed
                   </div>
                 )}
                 </div>
@@ -1257,124 +1539,319 @@ function AdminOrderDetailPageContent({
             </div>
           </div>
 
-          {/* B. DELIVERY PARTNER ASSIGNMENT CARD (Only shown once payment is verified or partner is already assigned) */}
-          {fulfillmentType === 'DELIVERY' && (isPaid || assignedPartner) && (currentStatus === 'CONFIRMED' || currentStatus === 'ASSIGNED' || isReassigning) && (
-            <div id="delivery-partner-section" className="p-6 rounded-2xl bg-card border border-border shadow-xs space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-border">
-                <div className="flex items-center gap-2">
-                  <Truck className="h-5 w-5 text-brand" />
-                  <h2 className="font-bold text-sm uppercase tracking-wider text-foreground">
-                    {assignedPartner && !isReassigning ? 'Assigned Delivery Partner' : 'Assign Delivery Partner'}
-                  </h2>
+          {/* B. CARRIAGE LOGISTICS & DELIVERY PARTNER SECTION */}
+          {fulfillmentType === 'DELIVERY' && (isPaid || assignedPartner || currentStatus === 'OUT_FOR_DELIVERY' || currentStatus === 'DELIVERED' || currentStatus === 'COMPLETED') && (
+            <div id="delivery-partner-section" className="p-6 rounded-2xl bg-card border border-border shadow-xs space-y-6">
+              <div className="flex items-center justify-between pb-3 border-b border-border flex-wrap gap-2">
+                <div className="flex items-center gap-2.5">
+                  <div className="h-9 w-9 rounded-xl bg-brand/15 text-foreground flex items-center justify-center shrink-0">
+                    <Truck className="h-5 w-5 text-brand" />
+                  </div>
+                  <div>
+                    <h2 className="font-bold text-sm uppercase tracking-wider text-foreground">
+                      {assignedPartner && !isReassigning ? 'Assigned Delivery Partner' : 'Assign Delivery Partner'}
+                    </h2>
+                    <p className="text-xs text-muted-foreground">
+                      Manage parcel lorry transport, LLR / LR receipt numbers, and assigned delivery partners.
+                    </p>
+                  </div>
                 </div>
-                {assignedPartner && !isReassigning ? (
-                  <button
-                    onClick={() => setIsReassigning(true)}
-                    className="text-xs font-semibold text-brand hover:underline flex items-center gap-1 cursor-pointer"
-                  >
-                    <RotateCcw className="h-3 w-3" /> Change Partner
-                  </button>
-                ) : isReassigning && assignedPartner ? (
-                  <button
-                    onClick={() => setIsReassigning(false)}
-                    className="text-xs font-semibold text-muted-foreground hover:text-foreground cursor-pointer"
-                  >
-                    Cancel
-                  </button>
+              </div>
+
+              {/* 1. LORRY RECEIPT (LR) & CARRIAGE DETAILS CARD */}
+              <div className="p-4 sm:p-5 rounded-xl bg-muted/30 border border-border/80 space-y-4">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-4 w-4 text-brand" />
+                    <h3 className="font-bold text-xs uppercase tracking-wider text-foreground">
+                      Lorry Transport & LR (Lorry Receipt)
+                    </h3>
+                  </div>
+                  {(order.lrNumber || order.carriageDetails) && !isCarriageFormOpen && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setIsCarriageFormOpen(true)}
+                      className="h-7 px-2.5 text-xs font-semibold rounded-full border-border/80"
+                    >
+                      <Edit className="h-3 w-3 mr-1" /> Edit Transport / LR
+                    </Button>
+                  )}
+                </div>
+
+                {/* Display Saved Carriage / LR Details if available and not currently editing */}
+                {(order.lrNumber || order.carriageDetails || order.lrCopyUrl) && !isCarriageFormOpen ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 p-3.5 rounded-lg bg-card border border-border text-xs">
+                    <div>
+                      <p className="text-[11px] font-semibold text-muted-foreground uppercase">Cases / Boxes</p>
+                      <p className="font-bold text-foreground text-sm mt-0.5 flex items-center gap-1.5">
+                        <Package className="h-3.5 w-3.5 text-brand" />
+                        {order.packageCount || 1} {order.packageCount === 1 ? 'Case / Box' : 'Cases / Boxes'}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-semibold text-muted-foreground uppercase">Carriage / Transport</p>
+                      <p className="font-bold text-foreground text-sm mt-0.5">
+                        {order.carriageDetails || 'Not specified'}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-semibold text-muted-foreground uppercase">LR / LLR Number</p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="font-mono font-bold text-sm text-foreground">
+                          {order.lrNumber || 'Not recorded'}
+                        </span>
+                        {order.lrNumber && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (typeof navigator !== 'undefined' && navigator.clipboard) {
+                                navigator.clipboard.writeText(order.lrNumber);
+                                toast.success('LR number copied');
+                              }
+                            }}
+                            className="text-muted-foreground hover:text-brand cursor-pointer p-0.5"
+                            title="Copy LR number"
+                          >
+                            <Copy className="h-3 w-3" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-semibold text-muted-foreground uppercase">LR Copy Receipt</p>
+                      {order.lrCopyUrl ? (
+                        <a
+                          href={order.lrCopyUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 font-semibold text-brand hover:underline mt-0.5 text-xs"
+                        >
+                          View LR Receipt Slip <ExternalLink className="h-3 w-3" />
+                        </a>
+                      ) : (
+                        <p className="text-muted-foreground text-xs mt-0.5">No copy link attached</p>
+                      )}
+                    </div>
+                  </div>
+                ) : null}
+
+                {/* Edit / Input Form for Carriage & LR Details */}
+                {(!order.lrNumber && !order.carriageDetails && !order.lrCopyUrl) || isCarriageFormOpen ? (
+                  <div className="space-y-3 pt-1">
+                    <p className="text-xs text-muted-foreground">
+                      In Sivakasi, fireworks are dispatched via parcel lorry carriers (ARC, KRS, MSS, VRL, etc.). Record the consignment boxes, transport details, and LR receipt number once booked:
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                      <div>
+                        <label className="text-[11px] font-bold text-muted-foreground uppercase block mb-1">
+                          Cases / Boxes Count
+                        </label>
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => setPackageCountInput((prev) => Math.max(1, (prev || 1) - 1))}
+                            className="h-10 w-10 flex items-center justify-center rounded-lg border border-border bg-muted/40 hover:bg-muted text-foreground cursor-pointer font-bold shrink-0"
+                            title="Decrease boxes"
+                          >
+                            <Minus className="h-3.5 w-3.5" />
+                          </button>
+                          <input
+                            type="number"
+                            min="1"
+                            value={packageCountInput}
+                            onChange={(e) => setPackageCountInput(Math.max(1, parseInt(e.target.value, 10) || 1))}
+                            className="w-full h-10 px-2 text-center rounded-lg border border-border bg-card text-xs font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-brand/20 shadow-2xs"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setPackageCountInput((prev) => (prev || 1) + 1)}
+                            className="h-10 w-10 flex items-center justify-center rounded-lg border border-border bg-muted/40 hover:bg-muted text-foreground cursor-pointer font-bold shrink-0"
+                            title="Increase boxes"
+                          >
+                            <Plus className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-[11px] font-bold text-muted-foreground uppercase block mb-1">
+                          Carriage / Transport Name & Hub
+                        </label>
+                        <input
+                          type="text"
+                          value={carriageDetailsInput}
+                          onChange={(e) => setCarriageDetailsInput(e.target.value)}
+                          placeholder="e.g. ARC Parcel Service - Sivakasi Godown"
+                          className="w-full h-10 px-3 rounded-lg border border-border bg-card text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-brand/20 shadow-2xs"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[11px] font-bold text-muted-foreground uppercase block mb-1">
+                          LR / LLR Receipt Number
+                        </label>
+                        <input
+                          type="text"
+                          value={lrNumberInput}
+                          onChange={(e) => setLrNumberInput(e.target.value)}
+                          placeholder="e.g. LR-894215"
+                          className="w-full h-10 px-3 rounded-lg border border-border bg-card text-xs text-foreground font-mono focus:outline-none focus:ring-2 focus:ring-brand/20 shadow-2xs"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[11px] font-bold text-muted-foreground uppercase block mb-1">
+                          LR Slip Photo / Link (Optional)
+                        </label>
+                        <input
+                          type="text"
+                          value={lrCopyUrlInput}
+                          onChange={(e) => setLrCopyUrlInput(e.target.value)}
+                          placeholder="https://... (scanned LR slip link)"
+                          className="w-full h-10 px-3 rounded-lg border border-border bg-card text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-brand/20 shadow-2xs"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 pt-1 flex-wrap">
+                      <Button
+                        size="sm"
+                        disabled={updateCarriageMutation.isPending}
+                        onClick={() => {
+                          updateCarriageMutation.mutate({
+                            carriageDetails: carriageDetailsInput,
+                            lrNumber: lrNumberInput,
+                            lrCopyUrl: lrCopyUrlInput,
+                            packageCount: packageCountInput,
+                          });
+                        }}
+                        className="h-9 px-4 rounded-full font-bold text-xs bg-brand text-brand-foreground hover:brightness-105 cursor-pointer shadow-2xs"
+                      >
+                        <Save className="h-3.5 w-3.5 mr-1" />
+                        {updateCarriageMutation.isPending ? 'Saving...' : 'Save Transport & LR'}
+                      </Button>
+
+                      {(currentStatus === 'PACKED' || currentStatus === 'ASSIGNED') && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={updateCarriageMutation.isPending}
+                          onClick={() => {
+                            updateCarriageMutation.mutate({
+                              carriageDetails: carriageDetailsInput,
+                              lrNumber: lrNumberInput,
+                              lrCopyUrl: lrCopyUrlInput,
+                              packageCount: packageCountInput,
+                              newStatus: 'OUT_FOR_DELIVERY',
+                              note: `Dispatched ${packageCountInput} box(es) with LR #${lrNumberInput || 'N/A'} via ${carriageDetailsInput || 'Carriage'}`,
+                            });
+                          }}
+                          className="h-9 px-4 rounded-full font-bold text-xs border-emerald-600/40 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/10 cursor-pointer shadow-2xs"
+                        >
+                          <Truck className="h-3.5 w-3.5 mr-1" /> Save & Dispatch (Set Out for Delivery)
+                        </Button>
+                      )}
+
+                      {isCarriageFormOpen && (order.lrNumber || order.carriageDetails) && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setIsCarriageFormOpen(false)}
+                          className="h-9 px-3 rounded-full text-xs font-semibold text-muted-foreground"
+                        >
+                          Cancel
+                        </Button>
+                      )}
+                    </div>
+                  </div>
                 ) : null}
               </div>
 
-              {/* Locked Notice if Payment Pending */}
-              {!isPaid && (
-                <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/25 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-amber-900 dark:text-amber-200">
-                  <div className="flex items-center gap-2.5">
-                    <div className="h-8 w-8 rounded-full bg-amber-500/20 flex items-center justify-center shrink-0 text-amber-700 dark:text-amber-300">
-                      <Lock className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <p className="font-bold">Step Locked: Payment Verification Required</p>
-                      <p className="text-[11px] text-amber-800/80 dark:text-amber-300/80">
-                        Check and mark payment as PAID before assigning a delivery partner.
-                      </p>
-                    </div>
-                  </div>
-                  <Button
-                    size="sm"
-                    className="h-8 px-4 rounded-full text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white shrink-0 cursor-pointer shadow-2xs"
-                    onClick={() => {
-                      setPaymentMethodInput(order.paymentMethod || 'UPI');
-                      setPaymentRefInput(order.paymentReference || '');
-                      setIsPaymentModalOpen(true);
-                    }}
-                  >
-                    <CreditCard className="h-3.5 w-3.5 mr-1" /> Mark Paid Now
-                  </Button>
-                </div>
-              )}
-
-              {assignedPartner && !isReassigning ? (
-                <div className="p-4 rounded-xl bg-muted/40 border border-border/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs sm:text-sm">
-                  <div className="space-y-1">
-                    <p className="font-bold text-foreground text-base">
-                      {assignedPartner.name || assignedPartner.fullName}
-                    </p>
-                    <p className="font-mono text-muted-foreground flex items-center gap-1.5">
-                      <Phone className="h-3.5 w-3.5 text-muted-foreground" /> {assignedPartner.mobileNumber}
-                    </p>
-                    {(assignedPartner.vehicleType || assignedPartner.vehicleNumber) && (
-                      <p className="text-muted-foreground flex items-center gap-1.5">
-                        <Car className="h-3.5 w-3.5" />
-                        <span>{assignedPartner.vehicleType || 'Vehicle'}</span>
-                        {assignedPartner.vehicleNumber && <span className="font-mono font-semibold">({assignedPartner.vehicleNumber})</span>}
-                      </p>
-                    )}
-                  </div>
-                  <span className="self-start sm:self-auto text-xs font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
-                    Active Partner
-                  </span>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  <p className="text-xs text-muted-foreground">
-                    Select a delivery partner to dispatch this order across India:
-                  </p>
-                  <div className="flex flex-col sm:flex-row items-center gap-3">
-                    <select
-                      value={selectedPartnerId}
-                      onChange={(e) => setSelectedPartnerId(e.target.value)}
-                      disabled={!isPaid}
-                      className="w-full sm:flex-1 h-11 px-4 rounded-full border border-border bg-card text-xs sm:text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-brand/20 cursor-pointer shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
+              {/* 2. LOCAL DELIVERY DRIVER / PARTNER SECTION */}
+              <div className="space-y-3 pt-2">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-bold text-xs uppercase tracking-wider text-foreground flex items-center gap-1.5">
+                    <User className="h-3.5 w-3.5 text-muted-foreground" />
+                    Local Delivery Driver / Partner {assignedPartner ? '' : '(Optional)'}
+                  </h3>
+                  {assignedPartner && !isReassigning ? (
+                    <button
+                      onClick={() => setIsReassigning(true)}
+                      className="text-xs font-semibold text-brand hover:underline flex items-center gap-1 cursor-pointer"
                     >
-                      <option value="">-- Select Active Delivery Partner --</option>
-                      {deliveryPartners.map((p) => {
-                        const coversArea =
-                          orderArea &&
-                          Array.isArray(p.serviceableAreas) &&
-                          p.serviceableAreas.some(
-                            (a: string) => a.toLowerCase().trim() === orderArea.toLowerCase().trim()
+                      <RotateCcw className="h-3 w-3" /> Change Partner
+                    </button>
+                  ) : isReassigning && assignedPartner ? (
+                    <button
+                      onClick={() => setIsReassigning(false)}
+                      className="text-xs font-semibold text-muted-foreground hover:text-foreground cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                  ) : null}
+                </div>
+
+                {assignedPartner && !isReassigning ? (
+                  <div className="p-4 rounded-xl bg-muted/40 border border-border/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs sm:text-sm">
+                    <div className="space-y-1">
+                      <p className="font-bold text-foreground text-base">
+                        {assignedPartner.name || assignedPartner.fullName}
+                      </p>
+                      <p className="font-mono text-muted-foreground flex items-center gap-1.5">
+                        <Phone className="h-3.5 w-3.5 text-muted-foreground" /> {assignedPartner.mobileNumber}
+                      </p>
+                      {(assignedPartner.vehicleType || assignedPartner.vehicleNumber) && (
+                        <p className="text-muted-foreground flex items-center gap-1.5">
+                          <Car className="h-3.5 w-3.5" />
+                          <span>{assignedPartner.vehicleType || 'Vehicle'}</span>
+                          {assignedPartner.vehicleNumber && <span className="font-mono font-semibold">({assignedPartner.vehicleNumber})</span>}
+                        </p>
+                      )}
+                    </div>
+                    <span className="self-start sm:self-auto text-xs font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                      Active Partner
+                    </span>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <p className="text-xs text-muted-foreground">
+                      Select an assigned delivery person if delivering locally or within regional hubs:
+                    </p>
+                    <div className="flex flex-col sm:flex-row items-center gap-3">
+                      <select
+                        value={selectedPartnerId}
+                        onChange={(e) => setSelectedPartnerId(e.target.value)}
+                        className="w-full sm:flex-1 h-11 px-4 rounded-full border border-border bg-card text-xs sm:text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-brand/20 cursor-pointer shadow-xs"
+                      >
+                        <option value="">-- Select Active Delivery Partner (Optional) --</option>
+                        {deliveryPartners.map((p) => {
+                          const coversArea =
+                            orderArea &&
+                            Array.isArray(p.serviceableAreas) &&
+                            p.serviceableAreas.some(
+                              (a: string) => a.toLowerCase().trim() === orderArea.toLowerCase().trim()
+                            );
+                          return (
+                            <option key={p.id} value={p.id}>
+                              {p.name || p.fullName} ({p.mobileNumber}) {p.vehicleType ? `• ${p.vehicleType}` : ''} {coversArea ? '★ Covers Area' : ''}
+                            </option>
                           );
-                        return (
-                          <option key={p.id} value={p.id}>
-                            {p.name || p.fullName} ({p.mobileNumber}) {p.vehicleType ? `• ${p.vehicleType}` : ''} {coversArea ? '★ Covers Area' : ''}
-                          </option>
-                        );
-                      })}
-                    </select>
+                        })}
+                      </select>
 
-                    <Button
-                      className="w-full sm:w-auto h-11 px-5 rounded-full font-semibold text-xs sm:text-sm"
-                      disabled={!isPaid || !selectedPartnerId || assignDeliveryMutation.isPending}
-                      onClick={() => {
-                        if (!selectedPartnerId) return;
-                        assignDeliveryMutation.mutate({ partnerId: Number(selectedPartnerId) });
-                      }}
-                    >
-                      <Truck className="h-4 w-4 mr-1.5" />
-                      {assignDeliveryMutation.isPending ? 'Assigning...' : 'Confirm Assignment'}
-                    </Button>
+                      <Button
+                        className="w-full sm:w-auto h-11 px-5 rounded-full font-semibold text-xs sm:text-sm"
+                        disabled={!selectedPartnerId || assignDeliveryMutation.isPending}
+                        onClick={() => {
+                          if (!selectedPartnerId) return;
+                          assignDeliveryMutation.mutate({ partnerId: Number(selectedPartnerId) });
+                        }}
+                      >
+                        <Truck className="h-4 w-4 mr-1.5" />
+                        {assignDeliveryMutation.isPending ? 'Assigning...' : 'Assign Partner'}
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           )}
 
@@ -2630,6 +3107,150 @@ function AdminOrderDetailPageContent({
                 >
                   <CheckCircle2 className="h-4 w-4 mr-1.5 shrink-0 !text-white" />
                   {updateTotalAmountMutation.isPending ? 'Updating...' : 'Save New Total'}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Portal>
+      )}
+
+      {/* 8. PACK ORDER & RECORD CASES / BOXES MODAL */}
+      {isPackModalOpen && (
+        <Portal>
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div
+              className="fixed inset-0 bg-black/60 backdrop-blur-xs animate-fade-in"
+              onClick={() => setIsPackModalOpen(false)}
+            />
+            <div className="relative w-full max-w-md rounded-3xl bg-card border border-border p-6 shadow-2xl space-y-5 animate-scale-in z-10">
+              {/* Header */}
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-2xl bg-brand/15 text-foreground flex items-center justify-center shrink-0">
+                    <Package className="h-5 w-5 text-brand" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-base text-foreground">
+                      Confirm Packing & Package Count
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      Order-{order.invoiceNumber} • {order.customerNameSnapshot}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setIsPackModalOpen(false)}
+                  className="p-1 rounded-full text-muted-foreground hover:bg-muted cursor-pointer"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Instructions */}
+              <div className="p-3.5 rounded-2xl bg-muted/40 border border-border/80 text-xs text-muted-foreground leading-relaxed">
+                Enter the number of <strong className="text-foreground">Cases / Boxes</strong> this order is packed into. This count is recorded on the transport consignment, printed on the dispatch slip, and shared with the customer.
+              </div>
+
+              {/* Box Counter Section */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-foreground uppercase tracking-wider block">
+                  Number of Cases / Boxes <span className="text-rose-500">*</span>
+                </label>
+                <div className="flex items-center justify-between gap-3 p-2 rounded-2xl bg-background border-2 border-border">
+                  <button
+                    type="button"
+                    onClick={() => setPackageCountInput((prev) => Math.max(1, (prev || 1) - 1))}
+                    disabled={packageCountInput <= 1}
+                    className="h-12 w-12 rounded-xl border border-border bg-card hover:bg-muted text-foreground flex items-center justify-center cursor-pointer font-bold disabled:opacity-40 disabled:cursor-not-allowed shadow-xs transition-colors"
+                    title="Decrease count"
+                  >
+                    <Minus className="h-5 w-5" />
+                  </button>
+
+                  <div className="text-center flex-1">
+                    <input
+                      type="number"
+                      min="1"
+                      value={packageCountInput}
+                      onChange={(e) => setPackageCountInput(Math.max(1, parseInt(e.target.value, 10) || 1))}
+                      className="w-full text-center font-mono text-2xl font-black text-foreground bg-transparent border-0 focus:outline-hidden"
+                    />
+                    <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+                      {packageCountInput === 1 ? 'Case / Box' : 'Cases / Boxes'}
+                    </span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setPackageCountInput((prev) => (prev || 1) + 1)}
+                    className="h-12 w-12 rounded-xl border border-border bg-card hover:bg-muted text-foreground flex items-center justify-center cursor-pointer font-bold shadow-xs transition-colors"
+                    title="Increase count"
+                  >
+                    <Plus className="h-5 w-5" />
+                  </button>
+                </div>
+
+                {/* Quick Presets */}
+                <div className="flex items-center gap-1.5 pt-1">
+                  {[1, 2, 3, 4, 5].map((count) => (
+                    <button
+                      key={count}
+                      type="button"
+                      onClick={() => setPackageCountInput(count)}
+                      className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer border ${
+                        packageCountInput === count
+                          ? 'bg-brand text-brand-foreground border-brand shadow-xs'
+                          : 'bg-card text-muted-foreground border-border hover:bg-muted'
+                      }`}
+                    >
+                      {count} {count === 1 ? 'Box' : 'Boxes'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Optional Packing Notes */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-foreground uppercase tracking-wider block">
+                  Packing Notes <span className="text-muted-foreground font-normal">(optional)</span>
+                </label>
+                <input
+                  type="text"
+                  value={packNoteInput}
+                  onChange={(e) => setPackNoteInput(e.target.value)}
+                  placeholder="e.g. 2 heavy safety cartons, sealed with yellow tape"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-background border border-border focus:border-brand focus:outline-hidden text-xs sm:text-sm text-foreground transition-all"
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center gap-3 pt-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsPackModalOpen(false)}
+                  disabled={statusMutation.isPending}
+                  className="flex-1 h-11 rounded-full text-xs font-bold cursor-pointer"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => {
+                    const count = Math.max(1, packageCountInput || 1);
+                    statusMutation.mutate({
+                      newStatus: 'PACKED',
+                      packageCount: count,
+                      note: packNoteInput
+                        ? `Packed in ${count} ${count === 1 ? 'case/box' : 'cases/boxes'}. Note: ${packNoteInput}`
+                        : `Packed in ${count} ${count === 1 ? 'case/box' : 'cases/boxes'}`,
+                    });
+                  }}
+                  disabled={statusMutation.isPending}
+                  className="flex-1 h-11 rounded-full font-bold text-sm bg-brand text-brand-foreground hover:brightness-105 cursor-pointer shadow-md transition-all border-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <CheckCircle2 className="h-4 w-4 mr-1.5 shrink-0" />
+                  {statusMutation.isPending
+                    ? 'Updating...'
+                    : `Mark as Packed (${packageCountInput || 1} ${packageCountInput === 1 ? 'Box' : 'Boxes'})`}
                 </Button>
               </div>
             </div>
