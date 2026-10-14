@@ -255,7 +255,7 @@ ${data.driverMobile ? `Driver: ${data.driverMobile}` : ''}
         <div className="space-y-0.5">
           <div className="flex items-center gap-2">
             <span className="bg-black text-white px-2 py-0.5 font-black uppercase tracking-wider text-[11px] rounded-xs">
-              Sivakasi Parcel Logistics
+              {storeName || 'Rajalakshmi Fireworks'}
             </span>
             <span className="font-bold text-[10px] text-neutral-600 uppercase tracking-wider">
               Waybill / Transport Challan

@@ -40,7 +40,7 @@ interface ProductOption {
   sku?: string | null;
   mrp: string | number;
   sellingPrice: string | number;
-  category?: { name: string };
+  category?: { id: number; name: string; slug?: string } | null;
   media?: Array<{ url: string }>;
 }
 

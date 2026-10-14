@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -151,7 +151,7 @@ function CheckoutPageContent() {
         setAttributionSource('LINK');
         validateCode(code.toUpperCase());
       }
-    } catch (e) {}
+    } catch (e) { }
   }, []);
 
   const fulfillmentType = useWatch({
@@ -329,14 +329,14 @@ function CheckoutPageContent() {
       address:
         data.fulfillmentType === 'DELIVERY'
           ? {
-              address: data.address!.trim(),
-              stateId: data.stateId ? Number(data.stateId) : undefined,
-              cityId: data.cityId && !isNaN(Number(data.cityId)) ? Number(data.cityId) : undefined,
-              state: selectedState?.name || '',
-              city: selectedCity?.name || data.city || '',
-              area: data.area?.trim() || undefined,
-              pincode: data.pincode!.trim(),
-            }
+            address: data.address!.trim(),
+            stateId: data.stateId ? Number(data.stateId) : undefined,
+            cityId: data.cityId && !isNaN(Number(data.cityId)) ? Number(data.cityId) : undefined,
+            state: selectedState?.name || '',
+            city: selectedCity?.name || data.city || '',
+            area: data.area?.trim() || undefined,
+            pincode: data.pincode!.trim(),
+          }
           : undefined,
       notes: data.notes?.trim() || undefined,
       referralCode: data.referralCode?.trim() ? data.referralCode.trim().toUpperCase() : undefined,
@@ -408,11 +408,10 @@ function CheckoutPageContent() {
               {/* Radio Selector for Transport vs Pickup */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <label
-                  className={`flex items-start gap-3.5 p-4 rounded-2xl border-2 transition-all cursor-pointer ${
-                    fulfillmentType === 'DELIVERY'
+                  className={`flex items-start gap-3.5 p-4 rounded-2xl border-2 transition-all cursor-pointer ${fulfillmentType === 'DELIVERY'
                       ? 'border-neutral-900 bg-neutral-50/70 dark:border-white dark:bg-[#1f1f1f] shadow-xs'
                       : 'border-neutral-200 bg-white hover:border-neutral-300 dark:border-[#282828] dark:bg-[#141414] dark:hover:border-[#383838]'
-                  }`}
+                    }`}
                 >
                   <input
                     type="radio"
@@ -421,11 +420,10 @@ function CheckoutPageContent() {
                     {...form.register('fulfillmentType')}
                   />
                   <div
-                    className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
-                      fulfillmentType === 'DELIVERY'
+                    className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${fulfillmentType === 'DELIVERY'
                         ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-950'
                         : 'bg-neutral-200 text-neutral-600 dark:bg-[#282828] dark:text-neutral-400'
-                    }`}
+                      }`}
                   >
                     <Truck className="h-4.5 w-4.5" />
                   </div>
@@ -440,11 +438,10 @@ function CheckoutPageContent() {
                 </label>
 
                 <label
-                  className={`flex items-start gap-3.5 p-4 rounded-2xl border-2 transition-all cursor-pointer ${
-                    fulfillmentType === 'PICKUP'
+                  className={`flex items-start gap-3.5 p-4 rounded-2xl border-2 transition-all cursor-pointer ${fulfillmentType === 'PICKUP'
                       ? 'border-neutral-900 bg-neutral-50/70 dark:border-white dark:bg-[#1f1f1f] shadow-xs'
                       : 'border-neutral-200 bg-white hover:border-neutral-300 dark:border-[#282828] dark:bg-[#141414] dark:hover:border-[#383838]'
-                  }`}
+                    }`}
                 >
                   <input
                     type="radio"
@@ -453,11 +450,10 @@ function CheckoutPageContent() {
                     {...form.register('fulfillmentType')}
                   />
                   <div
-                    className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
-                      fulfillmentType === 'PICKUP'
+                    className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${fulfillmentType === 'PICKUP'
                         ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-950'
                         : 'bg-neutral-200 text-neutral-600 dark:bg-[#282828] dark:text-neutral-400'
-                    }`}
+                      }`}
                   >
                     <Store className="h-4.5 w-4.5" />
                   </div>
@@ -523,8 +519,8 @@ function CheckoutPageContent() {
                           {!selectedStateId
                             ? 'Select State First'
                             : isCitiesLoading
-                            ? 'Loading cities...'
-                            : 'Select City'}
+                              ? 'Loading cities...'
+                              : 'Select City'}
                         </option>
                         {cities.map((ct) => (
                           <option key={ct.id} value={ct.id} className="bg-white dark:bg-[#181818] text-foreground">
@@ -582,8 +578,8 @@ function CheckoutPageContent() {
                           {isAreasLoading
                             ? 'Loading delivery areas...'
                             : locale === 'ta'
-                            ? '-- உங்கள் டெலிவரி பகுதியைத் தேர்ந்தெடுக்கவும் --'
-                            : '-- Select Available Delivery Area --'}
+                              ? '-- உங்கள் டெலிவரி பகுதியைத் தேர்ந்தெடுக்கவும் --'
+                              : '-- Select Available Delivery Area --'}
                         </option>
                         {deliveryAreas.map((areaName, idx) => (
                           <option key={idx} value={areaName} className="bg-white dark:bg-[#121212] text-foreground">

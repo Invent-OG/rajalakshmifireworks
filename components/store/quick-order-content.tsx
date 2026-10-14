@@ -130,7 +130,7 @@ export function QuickOrderContent({
   }, []);
 
   // Helper to determine if product is strictly a Combo or Gift Box
-  const isComboItem = (p: ProductItem): boolean => {
+  const isComboItem = (p: QuickOrderProduct): boolean => {
     const catName = (p.category?.name || '').toLowerCase();
     const catSlug = (p.category?.slug || '').toLowerCase();
     return Boolean(
