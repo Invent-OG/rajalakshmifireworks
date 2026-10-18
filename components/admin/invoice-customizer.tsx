@@ -114,10 +114,10 @@ const DEFAULT_INVOICE_CONFIG: InvoiceCustomizerConfig = {
   customerMobile: '',
   customerEmail: '',
   storeName: APP_CONFIG.STORE_NAME || 'Rajalakshmi Fireworks',
-  storeTagline: 'Factory Direct Sivakasi Fireworks',
-  storeAddress: '123 Factory Road, Sivakasi, Tamil Nadu 626123',
+  storeTagline: APP_CONFIG.STORE_TAGLINE || 'Factory Direct Sivakasi Fireworks',
+  storeAddress: APP_CONFIG.STORE_ADDRESS || 'Sivakasi, Tamil Nadu',
   storePhone: APP_CONFIG.STORE_PHONE || '+91 98421 00001',
-  storeEmail: APP_CONFIG.STORE_EMAIL || 'sales@rajalakshmifireworks.com',
+  storeEmail: APP_CONFIG.STORE_EMAIL || 'info@rajalakshmifireworks.com',
   storeGstin: '',
   storeLicenseNo: '',
   logoImageUrl: null,
@@ -302,12 +302,42 @@ function InvoiceCustomizerContent({
   const signatureInputRef = useRef<HTMLInputElement>(null);
 
   const address = order?.addressSnapshot as {
+    deliveryStateName?: string;
+    deliveryCityName?: string;
+    deliveryAddress?: string;
     address?: string;
     city?: string;
-    pincode?: string;
+    state?: string;
     area?: string;
     deliveryArea?: string;
+    pincode?: string;
   } | null;
+
+  const streetAddress =
+    address?.deliveryAddress ||
+    address?.address ||
+    (order?.fulfillmentType === 'PICKUP' ? 'Counter Pickup' : '');
+  const cityName =
+    address?.deliveryCityName || address?.city || order?.city?.name || '';
+  const stateName =
+    address?.deliveryStateName || address?.state || order?.state?.name || '';
+  const areaName = address?.deliveryArea || address?.area || '';
+  const pincode = address?.pincode || '';
+  const cityStateParts = [areaName, cityName, stateName, pincode].filter(Boolean);
+  const cityState =
+    cityStateParts.length > 0
+      ? cityStateParts.join(' · ')
+      : order?.fulfillmentType === 'PICKUP'
+        ? 'Sivakasi Depot'
+        : '';
+
+  const resolvedCustomerName =
+    order?.customerNameSnapshot ||
+    order?.customer?.name ||
+    (order?.id ? `Customer #${order.id}` : 'Customer');
+  const resolvedCustomerMobile =
+    order?.customerMobileSnapshot || order?.customer?.mobile || '';
+  const resolvedCustomerEmail = order?.customer?.email || '';
 
   const [config, setConfig] = useState<InvoiceCustomizerConfig>(() => {
     let savedLocalLogo: string | null = null;
@@ -321,14 +351,18 @@ function InvoiceCustomizerContent({
       if (savedStr) {
         try {
           savedConfig = JSON.parse(savedStr);
+          // Never let localStorage override customer-specific order details
+          delete (savedConfig as any).customerName;
+          delete (savedConfig as any).customerCompany;
+          delete (savedConfig as any).customerAddress;
+          delete (savedConfig as any).customerCityState;
+          delete (savedConfig as any).customerMobile;
+          delete (savedConfig as any).customerEmail;
+          delete (savedConfig as any).invoiceNumber;
+          delete (savedConfig as any).invoiceDate;
         } catch {}
       }
     }
-
-    const areaName = address?.area || address?.deliveryArea;
-    const cityState = address
-      ? [areaName, address.city, address.pincode].filter(Boolean).join(' · ')
-      : 'Sivakasi, Tamil Nadu';
 
     const resolvedTerms =
       (savedConfig.termsAndConditions && savedConfig.termsAndConditions.trim().length > 0)
@@ -341,13 +375,14 @@ function InvoiceCustomizerContent({
       ...DEFAULT_INVOICE_CONFIG,
       ...savedConfig,
       documentTitle: initialSettings['INVOICE_DEFAULT_TITLE'] !== undefined && initialSettings['INVOICE_DEFAULT_TITLE'] !== '' ? initialSettings['INVOICE_DEFAULT_TITLE'] : (savedConfig.documentTitle || DEFAULT_INVOICE_CONFIG.documentTitle),
-      invoiceNumber: order?.invoiceNumber || '01234',
+      invoiceNumber: order?.invoiceNumber || (order?.id ? `FW-${order.id}` : ''),
       invoiceDate: formatDateDots(order?.placedAt),
-      customerName: order?.customerNameSnapshot || 'Valued Customer',
-      customerAddress: address?.address || 'Direct counter pickup / Sivakasi Depot',
+      customerName: resolvedCustomerName,
+      customerCompany: order?.customerCompany || '',
+      customerAddress: streetAddress,
       customerCityState: cityState,
-      customerMobile: order?.customerMobileSnapshot ? `+91 ${order.customerMobileSnapshot}` : '',
-      customerEmail: order?.customer?.email || '',
+      customerMobile: resolvedCustomerMobile ? `+91 ${resolvedCustomerMobile}` : '',
+      customerEmail: resolvedCustomerEmail,
       logoImageUrl: savedLocalLogo || savedConfig.logoImageUrl || null,
       signatureImageUrl: savedLocalSignature || savedConfig.signatureImageUrl || null,
       storeGstin: initialSettings['INVOICE_GSTIN'] !== undefined ? initialSettings['INVOICE_GSTIN'] : (savedConfig.storeGstin !== undefined ? savedConfig.storeGstin : ''),
@@ -374,6 +409,62 @@ function InvoiceCustomizerContent({
           : (order?.packageCount ? `${order.packageCount} ${order.packageCount === 1 ? 'Box / Case' : 'Boxes / Cases'}` : ''),
     };
   });
+
+  // Always keep customer details synced whenever the order prop changes
+  useEffect(() => {
+    if (!order) return;
+
+    const addressObj = order?.addressSnapshot as {
+      deliveryStateName?: string;
+      deliveryCityName?: string;
+      deliveryAddress?: string;
+      address?: string;
+      city?: string;
+      state?: string;
+      area?: string;
+      deliveryArea?: string;
+      pincode?: string;
+    } | null;
+
+    const street =
+      addressObj?.deliveryAddress ||
+      addressObj?.address ||
+      (order.fulfillmentType === 'PICKUP' ? 'Counter Pickup' : '');
+    const city =
+      addressObj?.deliveryCityName || addressObj?.city || order.city?.name || '';
+    const state =
+      addressObj?.deliveryStateName || addressObj?.state || order.state?.name || '';
+    const area = addressObj?.deliveryArea || addressObj?.area || '';
+    const pin = addressObj?.pincode || '';
+    const parts = [area, city, state, pin].filter(Boolean);
+    const loc =
+      parts.length > 0
+        ? parts.join(' · ')
+        : order.fulfillmentType === 'PICKUP'
+          ? 'Sivakasi Depot'
+          : '';
+
+    const name =
+      order.customerNameSnapshot ||
+      order.customer?.name ||
+      (order.id ? `Customer #${order.id}` : 'Customer');
+    const mobile = order.customerMobileSnapshot || order.customer?.mobile || '';
+
+    setConfig((prev) => ({
+      ...prev,
+      invoiceNumber: order.invoiceNumber || (order.id ? `FW-${order.id}` : ''),
+      invoiceDate: formatDateDots(order.placedAt),
+      customerName: name,
+      customerCompany: order.customerCompany || '',
+      customerAddress: street,
+      customerCityState: loc,
+      customerMobile: mobile ? `+91 ${mobile}` : '',
+      customerEmail: order.customer?.email || '',
+      consignmentText: order.packageCount
+        ? `${order.packageCount} ${order.packageCount === 1 ? 'Box / Case' : 'Boxes / Cases'}`
+        : prev.consignmentText,
+    }));
+  }, [order]);
 
   // Fetch store settings via TanStack Query
   const { data: storeSettingsData } = useQuery<{ settings?: Record<string, string> }>({
@@ -514,9 +605,19 @@ function InvoiceCustomizerContent({
   const handleSaveDefaults = async () => {
     try {
       setIsSaving(true);
-      // 1. Save to local storage for instant offline/session cache
+      // 1. Save to local storage for instant offline/session cache (branding & styling only, no customer data)
       if (typeof window !== 'undefined') {
-        localStorage.setItem('raj_invoice_config_v2', JSON.stringify(config));
+        const configToSave = { ...config };
+        delete (configToSave as any).customerName;
+        delete (configToSave as any).customerCompany;
+        delete (configToSave as any).customerAddress;
+        delete (configToSave as any).customerCityState;
+        delete (configToSave as any).customerMobile;
+        delete (configToSave as any).customerEmail;
+        delete (configToSave as any).invoiceNumber;
+        delete (configToSave as any).invoiceDate;
+
+        localStorage.setItem('raj_invoice_config_v2', JSON.stringify(configToSave));
         if (config.logoImageUrl) {
           localStorage.setItem('raj_invoice_custom_logo', config.logoImageUrl);
         } else {
@@ -586,9 +687,14 @@ function InvoiceCustomizerContent({
     if (confirm('Reset invoice layout to original template?')) {
       setConfig({
         ...DEFAULT_INVOICE_CONFIG,
-        invoiceNumber: order?.invoiceNumber || '01234',
+        invoiceNumber: order?.invoiceNumber || (order?.id ? `FW-${order.id}` : ''),
         invoiceDate: formatDateDots(order?.placedAt),
-        customerName: order?.customerNameSnapshot || 'Valued Customer',
+        customerName: resolvedCustomerName,
+        customerCompany: order?.customerCompany || '',
+        customerAddress: streetAddress,
+        customerCityState: cityState,
+        customerMobile: resolvedCustomerMobile ? `+91 ${resolvedCustomerMobile}` : '',
+        customerEmail: resolvedCustomerEmail,
         showConsignment: false,
         showLrTransport: false,
         consignmentText: '',
@@ -1131,7 +1237,7 @@ function InvoiceCustomizerContent({
                     value={config.customerCompany}
                     onChange={(e) => handleUpdate('customerCompany', e.target.value)}
                     className="w-full px-3 py-2 rounded-lg border border-border bg-card text-foreground focus:border-neutral-900 outline-none"
-                    placeholder="e.g. Thynk Unlimited"
+                    placeholder="e.g. Fireworks Traders"
                   />
                 </div>
 

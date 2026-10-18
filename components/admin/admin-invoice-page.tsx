@@ -8,57 +8,45 @@ import { withAdminShell } from './admin-shell';
 
 const DEMO_TEMPLATE_ORDER = {
   id: 0,
-  invoiceNumber: '01234',
-  customerNameSnapshot: 'Helene Paquet',
-  customerCompany: 'Thynk Unlimited',
-  customerMobileSnapshot: '9842100001',
+  invoiceNumber: '00001',
+  customerNameSnapshot: 'Customer Name',
+  customerCompany: '',
+  customerMobileSnapshot: '',
   orderStatus: 'CONFIRMED',
+  fulfillmentType: 'DELIVERY',
   placedAt: new Date().toISOString(),
   addressSnapshot: {
-    address: '123 Anywhere St., Sivakasi Depot',
-    city: 'Sivakasi',
+    deliveryAddress: 'Customer Delivery Address',
+    deliveryCityName: 'Sivakasi',
+    deliveryStateName: 'Tamil Nadu',
     pincode: '626123',
   },
-  subtotal: '900.00',
+  subtotal: '2500.00',
   discountAmount: '0.00',
   deliveryCharge: '0.00',
-  totalAmount: '990.00',
-  finalAmount: '990.00',
+  totalAmount: '2500.00',
+  finalAmount: '2500.00',
   items: [
     {
       id: 1,
-      productNameSnapshot: 'Social Media Strategy Plan',
-      quantity: 1,
-      sellingPriceSnapshot: '100.00',
-      lineTotal: '100.00',
+      productNameSnapshot: '10cm Electric Sparklers (1 Box)',
+      quantity: 2,
+      sellingPriceSnapshot: '150.00',
+      lineTotal: '300.00',
     },
     {
       id: 2,
-      productNameSnapshot: 'Content Creation (5 posts)',
+      productNameSnapshot: 'Ground Chakkar Special (1 Box)',
       quantity: 5,
-      sellingPriceSnapshot: '100.00',
-      lineTotal: '500.00',
+      sellingPriceSnapshot: '240.00',
+      lineTotal: '1200.00',
     },
     {
       id: 3,
-      productNameSnapshot: 'Scheduling & Reporting',
-      quantity: 1,
-      sellingPriceSnapshot: '100.00',
-      lineTotal: '100.00',
-    },
-    {
-      id: 4,
-      productNameSnapshot: 'Instagram Story Design (3 slides)',
-      quantity: 3,
-      sellingPriceSnapshot: '50.00',
-      lineTotal: '150.00',
-    },
-    {
-      id: 5,
-      productNameSnapshot: 'Hashtag Research',
-      quantity: 1,
-      sellingPriceSnapshot: '50.00',
-      lineTotal: '50.00',
+      productNameSnapshot: 'Flower Pots Giant (1 Box)',
+      quantity: 2,
+      sellingPriceSnapshot: '500.00',
+      lineTotal: '1000.00',
     },
   ],
 };
@@ -70,7 +58,7 @@ function AdminInvoicePageContent() {
       const id = params.get('orderId');
       if (id) return id;
     }
-    return 'demo';
+    return '';
   });
 
   const [shouldAutoPrint, setShouldAutoPrint] = useState<boolean>(() => {
@@ -84,7 +72,7 @@ function AdminInvoicePageContent() {
   const printedRef = useRef(false);
 
   // Fetch recent orders so admin can preview live orders in the customizer
-  const { data: ordersData } = useQuery({
+  const { data: ordersData, isLoading: isLoadingRecent } = useQuery({
     queryKey: ['admin', 'orders', 'list', { limit: 15 }],
     queryFn: () => fetch('/api/admin/orders?limit=15').then((r) => r.json()),
   });
@@ -93,7 +81,7 @@ function AdminInvoicePageContent() {
   const { data: specificOrderData, isLoading: isLoadingSpecific } = useQuery({
     queryKey: ['admin', 'orders', selectedOrderId],
     queryFn: () => fetch(`/api/admin/orders/${selectedOrderId}`).then((r) => r.json()),
-    enabled: selectedOrderId !== 'demo' && !isNaN(parseInt(selectedOrderId, 10)),
+    enabled: Boolean(selectedOrderId && selectedOrderId !== 'demo'),
   });
 
   // Fetch store settings for initial defaults
@@ -105,24 +93,82 @@ function AdminInvoicePageContent() {
   const recentOrders = ordersData?.orders || [];
   const settingsMap = settingsData?.settings || {};
 
-  const specificOrder = specificOrderData?.order;
-  const currentOrder =
-    selectedOrderId === 'demo'
-      ? DEMO_TEMPLATE_ORDER
-      : specificOrder ||
-        recentOrders.find((o: any) => String(o.id) === selectedOrderId) ||
-        DEMO_TEMPLATE_ORDER;
-
-  // Auto-trigger print if ?print=true was passed in URL and order has finished loading
+  // Auto-select latest real order if none was specified in URL
   useEffect(() => {
-    if (shouldAutoPrint && !printedRef.current && (!isLoadingSpecific || selectedOrderId === 'demo')) {
+    if (!selectedOrderId && recentOrders.length > 0) {
+      setSelectedOrderId(String(recentOrders[0].id));
+    }
+  }, [selectedOrderId, recentOrders]);
+
+  const specificOrder = specificOrderData?.order;
+  const orderFromRecent = recentOrders.find(
+    (o: any) => String(o.id) === selectedOrderId || o.invoiceNumber === selectedOrderId
+  );
+
+  const isWaitingForSpecificOrder = Boolean(
+    selectedOrderId &&
+    selectedOrderId !== 'demo' &&
+    isLoadingSpecific &&
+    !specificOrder &&
+    !orderFromRecent
+  );
+
+  const currentOrder =
+    specificOrder ||
+    orderFromRecent ||
+    (selectedOrderId === 'demo' ? DEMO_TEMPLATE_ORDER : recentOrders[0] || DEMO_TEMPLATE_ORDER);
+
+  // Auto-trigger print if ?print=true was passed in URL and real order has finished loading
+  useEffect(() => {
+    if (
+      shouldAutoPrint &&
+      !printedRef.current &&
+      !isWaitingForSpecificOrder &&
+      currentOrder &&
+      currentOrder.id !== 0
+    ) {
       printedRef.current = true;
       const timer = setTimeout(() => {
-        printInvoiceSheet(currentOrder.invoiceNumber ? `Invoice #${currentOrder.invoiceNumber}` : 'Invoice', currentOrder.invoiceNumber);
+        printInvoiceSheet(
+          currentOrder.invoiceNumber ? `Invoice #${currentOrder.invoiceNumber}` : 'Invoice',
+          currentOrder.invoiceNumber
+        );
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [shouldAutoPrint, isLoadingSpecific, selectedOrderId, currentOrder]);
+  }, [shouldAutoPrint, isWaitingForSpecificOrder, currentOrder]);
+
+  if (isWaitingForSpecificOrder) {
+    return (
+      <div className="flex flex-col items-center justify-center p-20 space-y-4">
+        <RefreshCw className="h-8 w-8 animate-spin text-primary" />
+        <p className="text-sm text-muted-foreground font-medium">Loading order details...</p>
+      </div>
+    );
+  }
+
+  const isNotFound = Boolean(
+    selectedOrderId &&
+    selectedOrderId !== 'demo' &&
+    !isLoadingSpecific &&
+    !specificOrder &&
+    !orderFromRecent
+  );
+
+  if (isNotFound) {
+    return (
+      <div className="flex flex-col items-center justify-center p-16 space-y-4 text-center">
+        <p className="text-lg font-bold text-foreground">Order #{selectedOrderId} Not Found</p>
+        <p className="text-xs text-muted-foreground">The requested order could not be located in the database.</p>
+        <a
+          href="/admin/orders"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-semibold"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" /> Back to Orders
+        </a>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-fade-in pb-16 print:space-y-0 print:pb-0">
@@ -140,7 +186,7 @@ function AdminInvoicePageContent() {
             <div>
               <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight flex items-center gap-2">
                 <span>Invoice & Dispatch Slip Editor</span>
-                {selectedOrderId !== 'demo' && currentOrder?.invoiceNumber && (
+                {currentOrder?.invoiceNumber && currentOrder.id !== 0 && (
                   <span className="text-xs px-2.5 py-0.5 rounded-full bg-primary/10 text-primary font-mono font-bold">
                     #{currentOrder.invoiceNumber}
                   </span>
@@ -159,12 +205,11 @@ function AdminInvoicePageContent() {
             Selected Order:
           </label>
           <select
-            value={selectedOrderId}
+            value={selectedOrderId || (currentOrder ? String(currentOrder.id) : 'demo')}
             onChange={(e) => {
               setSelectedOrderId(e.target.value);
-              // Update URL without full page reload
               const url = new URL(window.location.href);
-              if (e.target.value === 'demo') {
+              if (e.target.value === 'demo' || !e.target.value) {
                 url.searchParams.delete('orderId');
                 url.searchParams.delete('print');
               } else {
@@ -174,7 +219,6 @@ function AdminInvoicePageContent() {
             }}
             className="h-10 px-4 rounded-full border border-border bg-card text-xs sm:text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-neutral-900/20 cursor-pointer shadow-2xs"
           >
-            <option value="demo">Demo Template Order (#01234)</option>
             {specificOrder && !recentOrders.some((o: any) => String(o.id) === String(specificOrder.id)) && (
               <option value={String(specificOrder.id)}>
                 Order #{specificOrder.invoiceNumber} — {specificOrder.customerNameSnapshot || 'Customer'}
@@ -182,9 +226,10 @@ function AdminInvoicePageContent() {
             )}
             {recentOrders.map((o: any) => (
               <option key={o.id} value={String(o.id)}>
-                Order #{o.invoiceNumber} — {o.customerNameSnapshot}
+                Order #{o.invoiceNumber} — {o.customerNameSnapshot || 'Customer'}
               </option>
             ))}
+            <option value="demo">Sample Template Preview</option>
           </select>
         </div>
       </div>
@@ -192,6 +237,7 @@ function AdminInvoicePageContent() {
       {/* Embedded Live Invoice Customizer */}
       <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-xs print:border-none print:shadow-none print:rounded-none print:bg-transparent print:p-0 print:overflow-visible">
         <InvoiceCustomizer
+          key={currentOrder ? `${currentOrder.id}-${currentOrder.invoiceNumber}` : 'empty'}
           order={currentOrder}
           initialSettings={settingsMap}
           isModal={false}

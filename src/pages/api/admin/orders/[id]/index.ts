@@ -30,15 +30,17 @@ async function _GET(
   }
 
   const { id } = await params;
-  const orderId = parseInt(id, 10);
+  const rawId = (id || '').trim();
+  const orderId = parseInt(rawId, 10);
+  const isNumeric = !isNaN(orderId) && orderId > 0;
 
-  if (isNaN(orderId) || orderId <= 0) {
+  if (!rawId) {
     return Response.json({ message: 'Invalid order ID' }, { status: 400 });
   }
 
   try {
     const order = await db.query.orders.findFirst({
-      where: eq(orders.id, orderId),
+      where: isNumeric ? eq(orders.id, orderId) : eq(orders.invoiceNumber, rawId),
       with: {
         items: true,
         customer: true,

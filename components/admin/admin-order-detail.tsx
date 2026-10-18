@@ -421,12 +421,18 @@ function AdminOrderDetailPageContent({
 
   const filteredCatalogProducts = useMemo(() => {
     if (!itemSearchQuery.trim()) return allCatalogProducts;
-    const q = itemSearchQuery.toLowerCase();
-    return allCatalogProducts.filter((p: any) =>
-      (p.name && p.name.toLowerCase().includes(q)) ||
-      (p.sku && p.sku.toLowerCase().includes(q)) ||
-      (p.category && p.category.toLowerCase().includes(q))
-    );
+    const q = itemSearchQuery.trim().toLowerCase();
+    return allCatalogProducts.filter((p: any) => {
+      const name = typeof p?.name === 'string' ? p.name.toLowerCase() : '';
+      const sku = typeof p?.sku === 'string' ? p.sku.toLowerCase() : '';
+      const categoryName =
+        typeof p?.category === 'string'
+          ? p.category.toLowerCase()
+          : typeof p?.category?.name === 'string'
+            ? p.category.name.toLowerCase()
+            : '';
+      return name.includes(q) || sku.includes(q) || categoryName.includes(q);
+    });
   }, [allCatalogProducts, itemSearchQuery]);
 
   const updateOrderItemsMutation = useMutation({
@@ -828,11 +834,11 @@ function AdminOrderDetailPageContent({
     if (stepId === 'DELIVERED') {
       if (fulfillmentType === 'DELIVERY') {
         if (currentStatus === 'OUT_FOR_DELIVERY') return 'current';
-        if (currentStatus === 'DELIVERED' || currentStatus === 'COMPLETED') return 'completed';
+        if (currentStatus === 'DELIVERED') return 'completed';
         return 'locked';
       } else {
         if (currentStatus === 'READY_FOR_PICKUP') return 'current';
-        if (currentStatus === 'PICKED_UP' || currentStatus === 'DELIVERED' || currentStatus === 'COMPLETED') return 'completed';
+        if (currentStatus === 'PICKED_UP' || currentStatus === 'DELIVERED') return 'completed';
         return 'locked';
       }
     }
@@ -1887,7 +1893,7 @@ function AdminOrderDetailPageContent({
                             orderArea &&
                             Array.isArray(p.serviceableAreas) &&
                             p.serviceableAreas.some(
-                              (a: string) => a.toLowerCase().trim() === orderArea.toLowerCase().trim()
+                              (a: any) => typeof a === 'string' && a.toLowerCase().trim() === String(orderArea).toLowerCase().trim()
                             );
                           return (
                             <option key={p.id} value={p.id}>
