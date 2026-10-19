@@ -16,7 +16,7 @@ export function StoreFooter({ pathname, locale }: StoreFooterProps = {}) {
   return (
     <Providers>
       <StickyFooter />
-      <QuickCartMobileFloating />
+      <QuickCartMobileFloating pathname={pathname} locale={locale} />
       <MobileBottomNav pathname={pathname} locale={locale} />
       <FloatingWhatsAppButton locale={locale} />
     </Providers>

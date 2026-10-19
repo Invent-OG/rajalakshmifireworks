@@ -20,11 +20,18 @@ export function QuickCartSidebar({ locale }: { locale?: string } = {}) {
   );
 }
 
-export function QuickCartMobileFloating() {
-  const pathname = usePathname();
+export function QuickCartMobileFloating({
+  pathname: propPathname,
+  locale: propLocale,
+}: {
+  pathname?: string;
+  locale?: string;
+} = {}) {
+  const hookPathname = usePathname();
+  const contextLocale = useLocale();
+  const locale = propLocale || contextLocale || 'en';
   const { itemCount, subtotal } = useCart();
   const isHydrated = useIsHydrated();
-  const locale = useLocale();
   const tCart = useTranslations('cart');
   const [isOpen, setIsOpen] = useState(false);
   const [isRendered, setIsRendered] = useState(false);
@@ -33,6 +40,32 @@ export function QuickCartMobileFloating() {
   const barRef = useRef<HTMLDivElement>(null);
 
   const isClosingRef = useRef(false);
+
+  const initialPath =
+    propPathname ||
+    (typeof window !== 'undefined' ? window.location.pathname : hookPathname) ||
+    '/';
+  const [currentPath, setCurrentPath] = useState(initialPath);
+
+  useEffect(() => {
+    if (propPathname) {
+      setCurrentPath(propPathname);
+    }
+  }, [propPathname]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const update = () => setCurrentPath(window.location.pathname);
+    update();
+    window.addEventListener('popstate', update);
+    document.addEventListener('astro:page-load', update);
+    document.addEventListener('astro:after-swap', update);
+    return () => {
+      window.removeEventListener('popstate', update);
+      document.removeEventListener('astro:page-load', update);
+      document.removeEventListener('astro:after-swap', update);
+    };
+  }, []);
 
   // Prevent background body scroll only while mobile drawer modal is actively open
   useEffect(() => {
@@ -68,7 +101,7 @@ export function QuickCartMobileFloating() {
     if (isOpen || isRendered) {
       closeDrawer();
     }
-  }, [pathname]);
+  }, [currentPath, hookPathname]);
 
   // If all products are removed while the drawer is open, auto-close cleanly after a brief moment
   useEffect(() => {
@@ -168,14 +201,22 @@ export function QuickCartMobileFloating() {
     { dependencies: [itemCount > 0] }
   );
 
-  // Don't show floating cart on Cart or Checkout pages, or when cart is empty
-  const isCartOrCheckout =
-    pathname === '/cart' ||
-    pathname === '/checkout' ||
-    pathname === `/${locale}/cart` ||
-    pathname === `/${locale}/checkout`;
+  // Normalize path removing locale prefix and trailing slashes for robust route matching
+  const normalizePath = (p: string) => {
+    if (!p) return '/';
+    const clean = p.split('?')[0].split('#')[0];
+    const withoutLocale = clean.replace(/^\/(?:en|ta)(?=\/|$)/, '') || '/';
+    return withoutLocale.length > 1 && withoutLocale.endsWith('/')
+      ? withoutLocale.slice(0, -1)
+      : withoutLocale || '/';
+  };
 
-  if (isCartOrCheckout) return null;
+  const activePath = normalizePath(currentPath || hookPathname);
+  const isHome = activePath === '/';
+  const isCartOrCheckout = activePath === '/cart' || activePath === '/checkout';
+
+  // Don't show floating checkout popup on Home, Cart or Checkout pages
+  if (isHome || isCartOrCheckout) return null;
   if (!isHydrated) return null;
 
   // Don't render anything if cart is empty AND drawer is neither open nor closing

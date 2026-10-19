@@ -51,7 +51,13 @@ export function usePathname() {
     setPathname(window.location.pathname);
     const onLocationChange = () => setPathname(window.location.pathname);
     window.addEventListener('popstate', onLocationChange);
-    return () => window.removeEventListener('popstate', onLocationChange);
+    document.addEventListener('astro:page-load', onLocationChange);
+    document.addEventListener('astro:after-swap', onLocationChange);
+    return () => {
+      window.removeEventListener('popstate', onLocationChange);
+      document.removeEventListener('astro:page-load', onLocationChange);
+      document.removeEventListener('astro:after-swap', onLocationChange);
+    };
   }, []);
 
   return pathname;
@@ -69,7 +75,13 @@ export function useSearchParams() {
     setParams(new URLSearchParams(window.location.search));
     const onLocationChange = () => setParams(new URLSearchParams(window.location.search));
     window.addEventListener('popstate', onLocationChange);
-    return () => window.removeEventListener('popstate', onLocationChange);
+    document.addEventListener('astro:page-load', onLocationChange);
+    document.addEventListener('astro:after-swap', onLocationChange);
+    return () => {
+      window.removeEventListener('popstate', onLocationChange);
+      document.removeEventListener('astro:page-load', onLocationChange);
+      document.removeEventListener('astro:after-swap', onLocationChange);
+    };
   }, []);
 
   return params;

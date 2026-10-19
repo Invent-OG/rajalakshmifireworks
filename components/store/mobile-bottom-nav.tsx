@@ -36,11 +36,23 @@ export function MobileBottomNav({
 
   // Sync client-side route changes dynamically
   useEffect(() => {
+    if (propPathname) {
+      setCurrentPath(propPathname);
+    }
+  }, [propPathname]);
+
+  useEffect(() => {
     if (typeof window === 'undefined') return;
     const update = () => setCurrentPath(window.location.pathname + window.location.search);
     update();
     window.addEventListener('popstate', update);
-    return () => window.removeEventListener('popstate', update);
+    document.addEventListener('astro:page-load', update);
+    document.addEventListener('astro:after-swap', update);
+    return () => {
+      window.removeEventListener('popstate', update);
+      document.removeEventListener('astro:page-load', update);
+      document.removeEventListener('astro:after-swap', update);
+    };
   }, []);
 
   useEffect(() => {
@@ -62,13 +74,16 @@ export function MobileBottomNav({
   // Normalize path removing locale prefix and trailing slashes for robust route matching
   const normalizePath = (p: string) => {
     if (!p) return '/';
-    const withoutLocale = p.replace(/^\/(?:en|ta)(?=\/|$)/, '') || '/';
+    const clean = p.split('?')[0].split('#')[0];
+    const withoutLocale = clean.replace(/^\/(?:en|ta)(?=\/|$)/, '') || '/';
     return withoutLocale.length > 1 && withoutLocale.endsWith('/')
       ? withoutLocale.slice(0, -1)
       : withoutLocale || '/';
   };
 
   const activePath = normalizePath(currentPath || hookPathname);
+  const isHome = activePath === '/';
+  const hideNav = hasItems && !isHome;
 
   // Always generate localized URLs matching the application router (e.g. /en/products, /en/cart)
   const getHref = (path: string) => {
@@ -230,7 +245,7 @@ export function MobileBottomNav({
   return (
     <div
       className={`md:hidden fixed bottom-4 left-0 right-0 z-50 px-4 pointer-events-none transition-all duration-300 ease-in-out ${
-        hasItems
+        hideNav
           ? 'translate-y-28 opacity-0 pointer-events-none'
           : 'translate-y-0 opacity-100'
       }`}
@@ -239,7 +254,7 @@ export function MobileBottomNav({
         ref={navRef}
         aria-label="Mobile Navigation"
         className={`relative mx-auto max-w-[340px] w-full h-16 flex items-center justify-between px-3 ${
-          hasItems ? 'pointer-events-none' : 'pointer-events-auto'
+          hideNav ? 'pointer-events-none' : 'pointer-events-auto'
         }`}
       >
         {/* Curved Border-Bending SVG Background with Center Scoop Notch */}

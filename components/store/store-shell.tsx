@@ -11,18 +11,22 @@ import { MobileBottomNav } from '@/components/store/mobile-bottom-nav';
 
 export function StoreShell({
   children,
+  pathname,
+  locale,
 }: {
   children: React.ReactNode;
+  pathname?: string;
+  locale?: string;
 }) {
   return (
     <Providers>
       <SmoothScrollProvider>
         <StoreBanner />
-        <FloatingNavbar />
+        <FloatingNavbar pathname={pathname} locale={locale} />
         <main className="flex-1 pb-12 md:pb-6">{children}</main>
         <StickyFooter />
-        <QuickCartMobileFloating />
-        <MobileBottomNav />
+        <QuickCartMobileFloating pathname={pathname} locale={locale} />
+        <MobileBottomNav pathname={pathname} locale={locale} />
       </SmoothScrollProvider>
     </Providers>
   );
