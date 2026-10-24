@@ -1,8 +1,6 @@
 ---
 import StoreLayout from '@/src/layouts/StoreLayout.astro';
-import { db } from '@/db';
-import { products } from '@/db/schema';
-import { eq } from 'drizzle-orm';
+import { getCachedProductBySlug } from '@/lib/cache/catalog-cache';
 import { formatCurrency, toNumber } from '@/lib/utils/format';
 import { ProductDetailClient } from '@/components/store/product-detail-client';
 import { ProductMediaGallery } from '@/components/store/product-media-gallery';
@@ -29,24 +27,7 @@ Astro.response.headers.set(
   'public, max-age=0, s-maxage=60, stale-while-revalidate=300'
 );
 
-const product = await db.query.products.findFirst({
-  where: eq(products.slug, slug),
-  with: {
-    category: true,
-    media: { orderBy: (m) => [m.sortOrder] },
-    comboItems: {
-      with: {
-        product: {
-          with: {
-            category: true,
-            media: { orderBy: (m) => [m.sortOrder], limit: 1 },
-          },
-        },
-      },
-      orderBy: (ci) => [ci.sortOrder],
-    },
-  },
-});
+const product = await getCachedProductBySlug(slug);
 
 if (!product || !product.isActive) {
   return Astro.redirect(`/${locale}/products`);

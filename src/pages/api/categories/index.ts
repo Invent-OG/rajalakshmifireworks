@@ -1,14 +1,9 @@
 import { wrapHandler } from '@/src/lib/astro-api';
-import { db } from '@/db';
-import { categories } from '@/db/schema';
-import { eq, asc } from 'drizzle-orm';
+import { getCachedCategories } from '@/lib/cache/catalog-cache';
 
 async function _GET() {
   try {
-    const categoryList = await db.query.categories.findMany({
-      where: eq(categories.isActive, true),
-      orderBy: [asc(categories.sortOrder), asc(categories.name)],
-    });
+    const categoryList = await getCachedCategories();
 
     return Response.json(
       { categories: categoryList },

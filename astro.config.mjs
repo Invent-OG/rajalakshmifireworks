@@ -17,8 +17,8 @@ export default defineConfig({
   adapter: isNodeStandalone ? node({ mode: 'standalone' }) : vercel(),
   integrations: [react()],
   prefetch: {
-    prefetchAll: true,
-    defaultStrategy: 'hover',
+    prefetchAll: false,
+    defaultStrategy: 'tap',
   },
   vite: {
     plugins: [tailwindcss()],

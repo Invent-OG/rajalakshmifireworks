@@ -1,16 +1,42 @@
 import { useState, useEffect, useCallback } from 'react';
 
-export function useRouter() {
-  const push = useCallback((url: string) => {
-    if (typeof window !== 'undefined') {
+function clientNavigate(url: string, options?: { history?: 'auto' | 'push' | 'replace' }) {
+  if (typeof window === 'undefined') return;
+  // If Astro ClientRouter is mounted on window, use it; otherwise fallback to window.location
+  try {
+    import('astro:transitions/client')
+      .then(({ navigate }) => {
+        if (typeof navigate === 'function') {
+          navigate(url, options);
+        } else if (options?.history === 'replace') {
+          window.location.replace(url);
+        } else {
+          window.location.href = url;
+        }
+      })
+      .catch(() => {
+        if (options?.history === 'replace') {
+          window.location.replace(url);
+        } else {
+          window.location.href = url;
+        }
+      });
+  } catch {
+    if (options?.history === 'replace') {
+      window.location.replace(url);
+    } else {
       window.location.href = url;
     }
+  }
+}
+
+export function useRouter() {
+  const push = useCallback((url: string) => {
+    clientNavigate(url);
   }, []);
 
   const replace = useCallback((url: string) => {
-    if (typeof window !== 'undefined') {
-      window.location.replace(url);
-    }
+    clientNavigate(url, { history: 'replace' });
   }, []);
 
   const back = useCallback(() => {

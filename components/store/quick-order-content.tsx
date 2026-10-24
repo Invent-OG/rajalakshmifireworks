@@ -92,13 +92,22 @@ export function QuickOrderContent({
   const [filterType, setFilterType] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('default');
 
-  // Dropdown Open States & Refs
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
   const categoryRef = useRef<HTMLDivElement>(null);
   const filtersRef = useRef<HTMLDivElement>(null);
   const sortRef = useRef<HTMLDivElement>(null);
+
+  // Responsive device check to prevent mounting 286 duplicate table rows & cards
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile, { passive: true });
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Close dropdowns on outside click or escape
   useEffect(() => {
@@ -733,53 +742,51 @@ export function QuickOrderContent({
                   {locale === 'ta' ? 'அனைத்து பட்டாசுகளையும் காட்டு' : 'Show All Fireworks'}
                 </button>
               </div>
+            ) : isMobile ? (
+              /* ── Mobile Quick Order Card List ── */
+              <div className="space-y-3">
+                {filteredProducts.map((p) => {
+                  return (
+                    <MobileCard
+                      key={p.id}
+                      product={p}
+                      locale={locale}
+                      addItem={addItem}
+                      updateQuantity={updateQuantity}
+                      removeItem={removeItem}
+                    />
+                  );
+                })}
+              </div>
             ) : (
-              <>
-                {/* ── Desktop Quick Order Table ── */}
-                <div className="hidden md:block bg-white dark:bg-[#141414] border border-neutral-200/90 dark:border-[#242424] rounded-[24px] shadow-xs overflow-hidden">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="border-b border-neutral-200 dark:border-[#242424] bg-neutral-50/80 dark:bg-[#181818] text-[11px] font-black uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
-                        <th className="py-3 px-4 w-[38%]">{locale === 'ta' ? 'தயாரிப்பு' : 'PRODUCT'}</th>
-                        <th className="py-3 px-3 w-[16%]">{locale === 'ta' ? 'விவரம்' : 'LABEL'}</th>
-                        <th className="py-3 px-3 w-[16%]">{locale === 'ta' ? 'விலை' : 'PRICE'}</th>
-                        <th className="py-3 px-3 w-[18%] text-center">{locale === 'ta' ? 'அளவு' : 'QUANTITY'}</th>
-                        <th className="py-3 px-4 w-[12%] text-right">{locale === 'ta' ? 'மொத்தம்' : 'TOTAL'}</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-neutral-100 dark:divide-[#202020] text-xs sm:text-sm">
-                      {filteredProducts.map((p) => {
-                        return (
-                          <TableRow
-                            key={p.id}
-                            product={p}
-                            locale={locale}
-                            addItem={addItem}
-                            updateQuantity={updateQuantity}
-                            removeItem={removeItem}
-                          />
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* ── Mobile Quick Order Card List ── */}
-                <div className="md:hidden space-y-3">
-                  {filteredProducts.map((p) => {
-                    return (
-                      <MobileCard
-                        key={p.id}
-                        product={p}
-                        locale={locale}
-                        addItem={addItem}
-                        updateQuantity={updateQuantity}
-                        removeItem={removeItem}
-                      />
-                    );
-                  })}
-                </div>
-              </>
+              /* ── Desktop Quick Order Table ── */
+              <div className="bg-white dark:bg-[#141414] border border-neutral-200/90 dark:border-[#242424] rounded-[24px] shadow-xs overflow-hidden">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-neutral-200 dark:border-[#242424] bg-neutral-50/80 dark:bg-[#181818] text-[11px] font-black uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+                      <th className="py-3 px-4 w-[38%]">{locale === 'ta' ? 'தயாரிப்பு' : 'PRODUCT'}</th>
+                      <th className="py-3 px-3 w-[16%]">{locale === 'ta' ? 'விவரம்' : 'LABEL'}</th>
+                      <th className="py-3 px-3 w-[16%]">{locale === 'ta' ? 'விலை' : 'PRICE'}</th>
+                      <th className="py-3 px-3 w-[18%] text-center">{locale === 'ta' ? 'அளவு' : 'QUANTITY'}</th>
+                      <th className="py-3 px-4 w-[12%] text-right">{locale === 'ta' ? 'மொத்தம்' : 'TOTAL'}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-neutral-100 dark:divide-[#202020] text-xs sm:text-sm">
+                    {filteredProducts.map((p) => {
+                      return (
+                        <TableRow
+                          key={p.id}
+                          product={p}
+                          locale={locale}
+                          addItem={addItem}
+                          updateQuantity={updateQuantity}
+                          removeItem={removeItem}
+                        />
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             )}
           </main>
 

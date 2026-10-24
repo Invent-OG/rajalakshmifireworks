@@ -7,12 +7,13 @@ interface CacheEntry<T> {
   timestamp: number;
 }
 
-const TTL_MS = 60 * 1000; // 60-second memory cache TTL
+const TTL_MS = 5 * 60 * 1000; // 5-minute memory cache TTL
 
 let cachedCategories: CacheEntry<any[]> | null = null;
 let cachedAllActiveProducts: CacheEntry<any[]> | null = null;
 let cachedSettingsMap: CacheEntry<Map<string, string>> | null = null;
 let cachedHeroConfig: CacheEntry<string | null> | null = null;
+const cachedProductSlugMap = new Map<string, CacheEntry<any>>();
 
 /**
  * Invalidate all catalog memory caches (called on admin updates / imports)
@@ -22,6 +23,7 @@ export function invalidateCatalogCache(): void {
   cachedAllActiveProducts = null;
   cachedSettingsMap = null;
   cachedHeroConfig = null;
+  cachedProductSlugMap.clear();
 }
 
 /**
@@ -156,6 +158,49 @@ export async function getCachedHeroConfig(): Promise<string | null> {
   } catch (error) {
     console.warn('[catalog-cache] Failed to fetch hero config from database:', error instanceof Error ? error.message : error);
     if (cachedHeroConfig) return cachedHeroConfig.data;
+    return null;
+  }
+}
+
+/**
+ * Get single active product by slug with full relations and memory caching
+ */
+export async function getCachedProductBySlug(slug: string): Promise<any | null> {
+  const now = Date.now();
+  const cached = cachedProductSlugMap.get(slug);
+  if (cached && now - cached.timestamp < TTL_MS) {
+    return cached.data;
+  }
+
+  try {
+    const data = await queryWithRetry(() =>
+      db.query.products.findFirst({
+        where: eq(products.slug, slug),
+        with: {
+          category: true,
+          media: { orderBy: (m) => [m.sortOrder] },
+          comboItems: {
+            with: {
+              product: {
+                with: {
+                  category: true,
+                  media: { orderBy: (m) => [m.sortOrder], limit: 1 },
+                },
+              },
+            },
+            orderBy: (ci) => [ci.sortOrder],
+          },
+        },
+      })
+    );
+
+    if (data) {
+      cachedProductSlugMap.set(slug, { data, timestamp: now });
+    }
+    return data ?? null;
+  } catch (error) {
+    console.warn(`[catalog-cache] Failed to fetch product for slug "${slug}":`, error instanceof Error ? error.message : error);
+    if (cached) return cached.data;
     return null;
   }
 }

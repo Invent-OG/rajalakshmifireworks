@@ -1,7 +1,5 @@
 import { wrapHandler } from '@/src/lib/astro-api';
-import { db } from '@/db';
-import { products, categories } from '@/db/schema';
-import { eq, and, or, ilike, sql, desc, asc, lte, gte } from 'drizzle-orm';
+import { getCachedAllActiveProducts, getCachedCategories } from '@/lib/cache/catalog-cache';
 
 async function _GET(request: any) {
   try {
@@ -9,106 +7,95 @@ async function _GET(request: any) {
     const page = Math.max(1, parseInt(searchParams.get('page') || '1'));
     const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') || '20')));
     const offset = (page - 1) * limit;
-    const search = searchParams.get('search')?.trim();
+    const search = searchParams.get('search')?.trim().toLowerCase();
     const categorySlug = searchParams.get('category');
     const sort = searchParams.get('sort') || 'newest';
     const featured = searchParams.get('featured');
     const bestseller = searchParams.get('bestseller');
-    const minPrice = searchParams.get('minPrice');
-    const maxPrice = searchParams.get('maxPrice');
+    const minPrice = searchParams.get('minPrice') ? Number(searchParams.get('minPrice')) : null;
+    const maxPrice = searchParams.get('maxPrice') ? Number(searchParams.get('maxPrice')) : null;
+    const combo = searchParams.get('combo') || searchParams.get('isCombo');
 
-    // Build conditions
-    const conditions = [eq(products.isActive, true)];
+    const [allProducts, allCategories] = await Promise.all([
+      getCachedAllActiveProducts(),
+      categorySlug ? getCachedCategories() : Promise.resolve([]),
+    ]);
+
+    let filtered = allProducts;
 
     if (categorySlug) {
-      const category = await db.query.categories.findFirst({
-        where: eq(categories.slug, categorySlug),
-      });
-      if (category) {
-        conditions.push(eq(products.categoryId, category.id));
+      const cat = allCategories.find((c: any) => c.slug === categorySlug);
+      if (cat) {
+        filtered = filtered.filter((p: any) => p.categoryId === cat.id);
+      } else {
+        filtered = [];
       }
     }
 
     if (search) {
-      conditions.push(
-        or(
-          ilike(products.name, `%${search}%`),
-          ilike(products.nameTa, `%${search}%`),
-          ilike(products.description, `%${search}%`),
-          ilike(products.descriptionTa, `%${search}%`)
-        )!
+      filtered = filtered.filter((p: any) =>
+        (p.name && p.name.toLowerCase().includes(search)) ||
+        (p.nameTa && p.nameTa.toLowerCase().includes(search)) ||
+        (p.description && p.description.toLowerCase().includes(search)) ||
+        (p.descriptionTa && p.descriptionTa.toLowerCase().includes(search))
       );
     }
 
-    const combo = searchParams.get('combo') || searchParams.get('isCombo');
     if (combo === 'true') {
-      conditions.push(eq(products.isCombo, true));
+      filtered = filtered.filter((p: any) => {
+        const catName = (p.category?.name || '').toLowerCase();
+        const catSlug = (p.category?.slug || '').toLowerCase();
+        return Boolean(
+          p.isCombo ||
+          catName === 'combo' ||
+          catName === 'gift box' ||
+          catName.includes('combo') ||
+          catName.includes('gift') ||
+          catSlug.includes('combo') ||
+          catSlug.includes('gift')
+        );
+      });
     }
 
     if (featured === 'true') {
-      conditions.push(eq(products.isFeatured, true));
+      filtered = filtered.filter((p: any) => Boolean(p.isFeatured));
     }
 
     if (bestseller === 'true') {
-      conditions.push(eq(products.isBestseller, true));
+      filtered = filtered.filter((p: any) => Boolean(p.isBestseller));
     }
 
-    if (minPrice) {
-      conditions.push(gte(products.sellingPrice, minPrice));
+    if (minPrice !== null && !isNaN(minPrice)) {
+      filtered = filtered.filter((p: any) => Number(p.sellingPrice) >= minPrice);
     }
 
-    if (maxPrice) {
-      conditions.push(lte(products.sellingPrice, maxPrice));
+    if (maxPrice !== null && !isNaN(maxPrice)) {
+      filtered = filtered.filter((p: any) => Number(p.sellingPrice) <= maxPrice);
     }
 
-    // Sort
-    let orderBy;
-    switch (sort) {
-      case 'price_asc':
-        orderBy = asc(products.sellingPrice);
-        break;
-      case 'price_desc':
-        orderBy = desc(products.sellingPrice);
-        break;
-      case 'name_asc':
-        orderBy = asc(products.name);
-        break;
-      case 'name_desc':
-        orderBy = desc(products.name);
-        break;
-      case 'newest':
-      default:
-        orderBy = desc(products.createdAt);
-        break;
-    }
+    // Sort in-memory
+    const sorted = [...filtered].sort((a: any, b: any) => {
+      switch (sort) {
+        case 'price_asc':
+          return Number(a.sellingPrice || 0) - Number(b.sellingPrice || 0);
+        case 'price_desc':
+          return Number(b.sellingPrice || 0) - Number(a.sellingPrice || 0);
+        case 'name_asc':
+          return (a.name || '').localeCompare(b.name || '');
+        case 'name_desc':
+          return (b.name || '').localeCompare(a.name || '');
+        case 'newest':
+        default:
+          return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+      }
+    });
 
-    const whereClause = and(...conditions);
-
-    const [productList, countResult] = await Promise.all([
-      db.query.products.findMany({
-        where: whereClause,
-        with: {
-          category: { columns: { id: true, name: true, nameTa: true, slug: true } },
-          media: {
-            orderBy: (m: any) => [asc(m.sortOrder)],
-            limit: 1,
-          },
-        },
-        orderBy: () => [orderBy],
-        limit,
-        offset,
-      }),
-      db
-        .select({ count: sql<number>`count(*)` })
-        .from(products)
-        .where(whereClause),
-    ]);
-
-    const total = Number(countResult[0]?.count ?? 0);
+    const total = sorted.length;
+    const paginated = sorted.slice(offset, offset + limit);
 
     return Response.json(
       {
-        products: productList,
+        products: paginated,
         pagination: {
           page,
           limit,
@@ -118,7 +105,7 @@ async function _GET(request: any) {
       },
       {
         headers: {
-          'Cache-Control': 'public, max-age=30, s-maxage=120, stale-while-revalidate=300',
+          'Cache-Control': 'public, max-age=60, s-maxage=300, stale-while-revalidate=600',
         },
       }
     );
