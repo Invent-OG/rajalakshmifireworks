@@ -731,14 +731,28 @@ select option {
   border: 1px solid rgba(0, 0, 0, 0.06);
   background-color: #ffffff;
   color: #171717;
-  transition: box-shadow 0.3s ease, transform 0.3s ease;
   position: relative;
   height: 100%;
+  contain: layout style;
 }
 
-._card:hover {
-  box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.12);
-  transform: translateY(-2px);
+@media (hover: hover) and (pointer: fine) {
+  ._card {
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+  }
+  ._card:hover {
+    box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+  }
+  ._card:hover ._thumbnail-stack img {
+    transform: scale(1.06);
+  }
+}
+
+.slider-card-item {
+  content-visibility: auto;
+  contain-intrinsic-size: 270px 420px;
+  contain: layout style;
 }
 
 ._card-header-grid {
@@ -764,10 +778,6 @@ select option {
   object-fit: cover;
   border-radius: var(--_inner-radius);
   transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1);
-}
-
-._card:hover ._thumbnail-stack img {
-  transform: scale(1.06);
 }
 
 ._card ._category {
@@ -1050,13 +1060,18 @@ astro-slot {
 
 /* ── Homepage Smooth Reveal Sections ── */
 .reveal-section {
-  contain: paint;
-  will-change: transform, opacity;
+  contain: layout style;
 }
 
-@media (prefers-reduced-motion: reduce) {
+@media (min-width: 768px) {
   .reveal-section {
-    will-change: auto;
+    will-change: transform, opacity;
+  }
+}
+
+@media (prefers-reduced-motion: reduce), (max-width: 767px) {
+  .reveal-section {
+    will-change: auto !important;
     opacity: 1 !important;
     transform: none !important;
     filter: none !important;

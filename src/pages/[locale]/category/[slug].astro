@@ -1,119 +1,14 @@
 ---
-import StoreLayout from '@/src/layouts/StoreLayout.astro';
-import {
-  getCachedCategories,
-  getCachedAllActiveProducts,
-} from '@/lib/cache/catalog-cache';
-import { ProductsCatalogGrid } from '@/components/store/products-catalog-grid';
-import { EmptyState } from '@/components/ui/empty-state';
-import { QuickCartSidebar } from '@/components/store/quick-cart-drawer';
-import { SectionTag } from '@/components/ui/section-tag';
-import { ArrowLeft } from 'lucide-react';
-import { getCategory3DImage } from '@/components/ui/category-icon';
 import { isValidLocale } from '@/lib/i18n/config';
-import { getTranslations } from '@/lib/i18n/server';
-import { getLocalizedName, getLocalizedDescription } from '@/lib/i18n/formatters';
 
 const { locale = 'en', slug } = Astro.params;
-if (!isValidLocale(locale)) {
-  return Astro.redirect('/en');
-}
+const targetLocale = isValidLocale(locale) ? locale : 'en';
 
 if (!slug) {
-  return Astro.redirect(`/${locale}/products`);
+  return Astro.redirect(`/${targetLocale}/products`);
 }
 
-// Edge & Browser Cache: 30s fresh, 120s stale-while-revalidate
-Astro.response.headers.set(
-  'Cache-Control',
-  'public, max-age=0, s-maxage=30, stale-while-revalidate=120'
-);
-
-// Retrieve cached catalog in parallel (< 0.2ms)
-const [allCategories, allActiveProducts] = await Promise.all([
-  getCachedCategories(),
-  getCachedAllActiveProducts(),
-]);
-
-const category = allCategories.find(
-  (c) =>
-    c.slug?.toLowerCase() === slug.toLowerCase() ||
-    c.name?.toLowerCase() === slug.toLowerCase().replace(/-/g, ' ')
-);
-if (!category) {
-  return Astro.redirect(`/${locale}/products`);
-}
-
-const productList = allActiveProducts.filter((p) => p.categoryId === category.id);
-
-const displayName = getLocalizedName(category, locale);
-const displayDescription = getLocalizedDescription(category, locale);
-const tNav = getTranslations(locale, 'navigation');
-const tProd = getTranslations(locale, 'products');
-
-const getHref = (path: string) => `/${locale}${path === '/' ? '' : path.startsWith('/') ? path : `/${path}`}`;
+const search = Astro.url.search || '';
+const cleanSearch = search ? (search.startsWith('?') ? `&${search.slice(1)}` : `&${search}`) : '';
+return Astro.redirect(`/${targetLocale}/products?category=${slug}${cleanSearch}`);
 ---
-
-<StoreLayout
-  title={`${displayName} | Rajalakshmi Fireworks`}
-  description={displayDescription || `Browse authentic ${displayName} fireworks directly from Sivakasi.`}
-  locale={locale}
->
-  <div class="w-full px-4 sm:px-8 lg:px-12 py-8 animate-fade-in space-y-8 font-sans">
-    {/* Category Hero Banner */}
-    <div class="rounded-[36px] sm:rounded-[40px] bg-white dark:bg-[#141414] dark:border dark:border-[#282828] p-6 sm:p-8 shadow-sm dark:shadow-none">
-      <a
-        href={getHref('/products')}
-        class="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold px-4.5 py-2 rounded-full bg-neutral-100 dark:bg-[#202020] text-neutral-800 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-[#2c2c2c] hover:text-neutral-950 dark:hover:text-white dark:border dark:border-[#333333] mb-6 transition-all shadow-xs active:scale-95"
-      >
-        <ArrowLeft className="h-4 w-4" /> {locale === 'ta' ? 'அனைத்து பட்டாசுகள் பகுதிக்கு செல்ல' : 'Back to All Fireworks'}
-      </a>
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-        <div class="flex items-start sm:items-center gap-5">
-          <div class="h-20 w-20 sm:h-24 sm:w-24 rounded-[24px] sm:rounded-[28px] overflow-hidden bg-neutral-100 dark:bg-[#202020] shrink-0 relative shadow-sm">
-            <img
-              src={getCategory3DImage(category.name)}
-              alt={displayName}
-              class="w-full h-full object-cover"
-            />
-          </div>
-          <div class="space-y-2">
-            <SectionTag label={locale === 'ta' ? 'அசல் சிவகாசி தொகுப்பு' : 'Original Sivakasi Collection'} size="sm" />
-            <h1 class="text-2xl sm:text-4xl font-extrabold text-foreground tracking-tight font-heading">
-              {displayName}
-            </h1>
-            {displayDescription && (
-              <p class="text-sm text-muted-foreground mt-1.5 max-w-2xl leading-relaxed">
-                {displayDescription}
-              </p>
-            )}
-          </div>
-        </div>
-        <div class="self-start sm:self-center px-4 py-2 rounded-full bg-neutral-100 dark:bg-[#202020] text-xs sm:text-sm font-bold text-foreground dark:text-white shadow-xs font-mono dark:border dark:border-[#2c2c2c]">
-          {productList.length} {locale === 'ta' ? 'பட்டாசுகள்' : productList.length === 1 ? 'item' : 'items'}
-        </div>
-      </div>
-    </div>
-
-    {/* Main Content Layout with Products & Quick Cart */}
-    <div class="flex gap-6 items-start">
-      {/* Products Grid */}
-      <div class="flex-1 min-w-0">
-        {productList.length > 0 ? (
-          <ProductsCatalogGrid client:load products={productList} locale={locale as any} />
-        ) : (
-          <EmptyState
-            client:load
-            title={tProd('noProducts')}
-            description={locale === 'ta' ? 'இப்பிரிவில் தற்போது பட்டாசுகள் எதுவும் இல்லை. விரைவில் புதுப்பிக்கப்படும்.' : 'Check back soon! We are replenishing fresh inventory to this category regularly.'}
-            actionLabel={tNav('allProducts')}
-            actionHref={getHref('/products')}
-          />
-        )}
-      </div>
-
-      {/* Desktop Quick Cart Widget */}
-      <QuickCartSidebar client:load locale={locale as any} />
-    </div>
-  </div>
-</StoreLayout>

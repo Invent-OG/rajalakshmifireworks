@@ -85,7 +85,7 @@ export function OrganicCategoriesGrid({
         title: getLocalizedName(categories[0], locale),
         badgeText: getLocalizedName(categories[0], locale).toUpperCase(),
         subtitle: getLocalizedDescription(categories[0], locale) || (locale === 'ta' ? 'சிவகாசி நேரடி சிறப்பு பட்டாசு தயாரிப்புகள்' : 'Handcrafted celebration crackers from Sivakasi'),
-        link: getHref(`/category/${categories[0].slug}`),
+        link: getHref(`/products?category=${categories[0].slug}`),
         image: categories[0].image || getCategory3DImage(categories[0].name),
         bgColor: '#fef3c7',
       }
@@ -93,7 +93,7 @@ export function OrganicCategoriesGrid({
         title: locale === 'ta' ? 'கிஃப்ட் பாக்ஸ் & காம்போ' : 'Gift Boxes & Combos',
         badgeText: locale === 'ta' ? 'சிறப்பு காம்போ' : 'FESTIVE SPECIALS',
         subtitle: locale === 'ta' ? 'சிவகாசியிலிருந்து நேரடியாகப் பெறப்படும் குடும்ப காம்போ பேக்!' : 'Handpicked celebration boxes direct from Sivakasi!',
-        link: getHref('/category/gift-boxes'),
+        link: getHref('/products?combos=true'),
         image: '/images/3d/cat-gift-boxes.jpg',
         bgColor: '#fef3c7',
       };
@@ -105,13 +105,13 @@ export function OrganicCategoriesGrid({
       ? {
         title: getLocalizedName(categories[1], locale),
         badgeText: getLocalizedName(categories[1], locale).toUpperCase(),
-        link: getHref(`/category/${categories[1].slug}`),
+        link: getHref(`/products?category=${categories[1].slug}`),
         image: categories[1].image || getCategory3DImage(categories[1].name),
       }
       : {
         title: locale === 'ta' ? 'கம்பி மத்தாப்பு' : 'Sparklers',
         badgeText: locale === 'ta' ? 'மத்தாப்பு' : 'SPARKLERS',
-        link: getHref('/category/sparklers'),
+        link: getHref('/products?category=sparklers'),
         image: '/images/3d/cat-sparklers.jpg',
       };
 
@@ -122,13 +122,13 @@ export function OrganicCategoriesGrid({
       ? {
         title: getLocalizedName(categories[2], locale),
         badgeText: getLocalizedName(categories[2], locale).toUpperCase(),
-        link: getHref(`/category/${categories[2].slug}`),
+        link: getHref(`/products?category=${categories[2].slug}`),
         image: categories[2].image || getCategory3DImage(categories[2].name),
       }
       : {
         title: locale === 'ta' ? 'பூந்தொட்டி' : 'Flower Pots',
         badgeText: locale === 'ta' ? 'பூந்தொட்டி' : 'FLOWER POTS',
-        link: getHref('/category/flower-pots'),
+        link: getHref('/products?category=flower-pots'),
         image: '/images/3d/cat-flower-pots.jpg',
       };
 
@@ -139,13 +139,13 @@ export function OrganicCategoriesGrid({
       ? {
         title: getLocalizedName(categories[3], locale),
         badgeText: getLocalizedName(categories[3], locale).toUpperCase(),
-        link: getHref(`/category/${categories[3].slug}`),
+        link: getHref(`/products?category=${categories[3].slug}`),
         image: categories[3].image || getCategory3DImage(categories[3].name),
       }
       : {
         title: locale === 'ta' ? 'சரவெடி & வெடி' : 'Sound Crackers',
         badgeText: locale === 'ta' ? 'சரவெடி' : 'SOUND CRACKERS',
-        link: getHref('/category/sound-crackers'),
+        link: getHref('/products?category=sound-crackers'),
         image: '/images/3d/cat-sound-crackers.jpg',
       };
 
@@ -156,13 +156,13 @@ export function OrganicCategoriesGrid({
       ? {
         title: getLocalizedName(categories[4], locale),
         badgeText: getLocalizedName(categories[4], locale).toUpperCase(),
-        link: getHref(`/category/${categories[4].slug}`),
+        link: getHref(`/products?category=${categories[4].slug}`),
         image: categories[4].image || getCategory3DImage(categories[4].name),
       }
       : {
         title: locale === 'ta' ? 'ராக்கெட் & ஃபேன்ஸி' : 'Rockets & Aerial',
         badgeText: locale === 'ta' ? 'ராக்கெட்' : 'ROCKETS',
-        link: getHref('/category/rockets'),
+        link: getHref('/products?category=rockets'),
         image: '/images/3d/cat-rockets.jpg',
       };
 

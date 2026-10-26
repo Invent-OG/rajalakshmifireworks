@@ -74,9 +74,14 @@ for (const p of allActiveProducts) {
 }
 
 // Active category if category filter is set
-let activeCategory: { id: number; name: string; nameTa?: string | null } | undefined;
+let activeCategory: { id: number; name: string; nameTa?: string | null; slug?: string } | undefined;
 if (categorySlug) {
-  activeCategory = categoryList.find((c) => c.slug === categorySlug);
+  const norm = categorySlug.toLowerCase();
+  activeCategory = categoryList.find(
+    (c) =>
+      c.slug?.toLowerCase() === norm ||
+      c.name?.toLowerCase() === norm.replace(/-/g, ' ')
+  );
 }
 
 // Filter products in memory
@@ -106,6 +111,13 @@ if (bestseller) {
 
 if (activeCategory) {
   filtered = filtered.filter((p) => p.categoryId === activeCategory!.id);
+} else if (categorySlug) {
+  const norm = categorySlug.toLowerCase();
+  filtered = filtered.filter((p) => {
+    const catSlug = (p.category?.slug || '').toLowerCase();
+    const catName = (p.category?.name || '').toLowerCase();
+    return catSlug === norm || catName === norm.replace(/-/g, ' ');
+  });
 }
 
 // Sort in memory
@@ -225,7 +237,7 @@ const getHref = (path: string) => `/${locale}${path === '/' ? '' : path.startsWi
 
       {/* Categories */}
       {categoryList.map((cat) => {
-        const isSelected = categorySlug === cat.slug;
+        const isSelected = categorySlug.toLowerCase() === (cat.slug || '').toLowerCase() || activeCategory?.id === cat.id;
         const count = categoryCountMap.get(cat.id) || 0;
         return (
           <a

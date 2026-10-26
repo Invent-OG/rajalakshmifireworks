@@ -6,7 +6,6 @@ import {
   getCachedHeroConfig,
 } from "@/lib/cache/catalog-cache";
 import { FeaturedProductsSlider } from "@/components/store/featured-products-slider";
-import Featured_05 from "@/components/ui/globe-feature-section";
 import { HomeMotion } from "@/components/store/home-motion";
 import { OrganicHero } from "@/components/store/organic-hero";
 import { OrganicCategoriesGrid } from "@/components/store/organic-categories-grid";
@@ -68,11 +67,11 @@ const tSeo = getTranslations(locale, "seo");
 >
   <!-- ── WebGL Mesh Drift Background (Red, Orange, Yellow, White) ── -->
   <div
-    class="fixed inset-0 pointer-events-none z-0 overflow-hidden"
+    class="fixed inset-0 pointer-events-none z-0 overflow-hidden hidden md:block"
     aria-hidden="true"
   >
     <ShaderBackground
-      client:idle
+      client:media="(min-width: 768px)"
       className="w-full h-full opacity-90 dark:opacity-40"
     />
   </div>
@@ -106,7 +105,7 @@ const tSeo = getTranslations(locale, "seo");
         bestsellerProducts.length > 0 && (
           <section class="reveal-section w-full">
             <FeaturedProductsSlider
-              client:visible
+              client:idle
               products={bestsellerProducts}
               locale={locale as any}
               title={
@@ -143,7 +142,7 @@ const tSeo = getTranslations(locale, "seo");
         featuredProducts.length > 0 && (
           <section class="reveal-section w-full">
             <FeaturedProductsSlider
-              client:visible
+              client:idle
               products={featuredProducts}
               locale={locale as any}
               title={
@@ -176,13 +175,6 @@ const tSeo = getTranslations(locale, "seo");
       {/* ── 5. Testimonial 02 Blaze ─── */}
       <section class="reveal-section w-full">
         <Testimonial02Blaze client:visible />
-      </section>
-
-      {/* ── 6. Globe Feature Showcase ─── */}
-      <section
-        class="reveal-section w-full max-w-[1280px] mx-auto px-4 sm:px-8 md:px-[80px]"
-      >
-        <Featured_05 client:visible />
       </section>
     </div>
   </HomeMotion>

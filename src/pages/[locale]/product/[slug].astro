@@ -1,9 +1,13 @@
 ---
 import StoreLayout from '@/src/layouts/StoreLayout.astro';
-import { getCachedProductBySlug } from '@/lib/cache/catalog-cache';
+import {
+  getCachedProductBySlug,
+  getCachedAllActiveProducts,
+} from '@/lib/cache/catalog-cache';
 import { formatCurrency, toNumber } from '@/lib/utils/format';
 import { ProductDetailClient } from '@/components/store/product-detail-client';
 import { ProductMediaGallery } from '@/components/store/product-media-gallery';
+import { FeaturedProductsSlider } from '@/components/store/featured-products-slider';
 import { PriceDisplay } from '@/components/ui/price-display';
 import { StatusBadge } from '@/components/ui/badge';
 import { ProductVisualPlaceholder } from '@/components/ui/category-icon';
@@ -27,11 +31,23 @@ Astro.response.headers.set(
   'public, max-age=0, s-maxage=60, stale-while-revalidate=300'
 );
 
-const product = await getCachedProductBySlug(slug);
+const [product, allActiveProducts] = await Promise.all([
+  getCachedProductBySlug(slug),
+  getCachedAllActiveProducts(),
+]);
 
 if (!product || !product.isActive) {
   return Astro.redirect(`/${locale}/products`);
 }
+
+// Compute suggested products: same category first, then other popular crackers
+const sameCategoryProducts = (allActiveProducts || []).filter(
+  (p: any) => p.id !== product.id && p.categoryId === product.categoryId
+);
+const otherProducts = (allActiveProducts || []).filter(
+  (p: any) => p.id !== product.id && p.categoryId !== product.categoryId
+);
+const suggestedProducts = [...sameCategoryProducts, ...otherProducts].slice(0, 10);
 
 const tProd = getTranslations(locale, 'products');
 const tNav = getTranslations(locale, 'navigation');
@@ -67,7 +83,7 @@ const getHref = (path: string) => `/${locale}${path === '/' ? '' : path.startsWi
       {product.category && (
         <>
           <span>/</span>
-          <a href={getHref(`/category/${product.category.slug}`)} class="hover:text-foreground transition-colors">
+          <a href={getHref(`/products?category=${product.category.slug}`)} class="hover:text-foreground transition-colors">
             {categoryDisplayName}
           </a>
         </>
@@ -295,5 +311,26 @@ const getHref = (path: string) => `/${locale}${path === '/' ? '' : path.startsWi
         </div>
       </div>
     </div>
+
+    {/* ── Suggested Products Section ── */}
+    {suggestedProducts.length > 0 && (
+      <section class="pt-8 sm:pt-12 border-t border-neutral-100 dark:border-[#282828] space-y-6">
+        <FeaturedProductsSlider
+          client:visible
+          products={suggestedProducts}
+          locale={locale as any}
+          title={locale === 'ta' ? 'பரிந்துரைக்கப்பட்ட பட்டாசுகள்' : 'Suggested Fireworks'}
+          subtitle={
+            locale === 'ta'
+              ? `${categoryDisplayName ? `${categoryDisplayName} வகையிலான` : 'சிறப்பு'} சிவகாசி பட்டாசுகளின் தேர்ந்தெடுக்கப்பட்ட தொகுப்பு.`
+              : `Customers who viewed ${displayName} also explored these authentic Sivakasi cracker specials.`
+          }
+          tagLabel={locale === 'ta' ? 'பரிந்துரைகள்' : 'You May Also Like'}
+          viewAllHref={getHref(product.category ? `/products?category=${product.category.slug}` : '/products')}
+          viewAllLabel={locale === 'ta' ? 'அனைத்தையும் பார்க்க' : 'View All'}
+          scrollDrift="left"
+        />
+      </section>
+    )}
   </div>
 </StoreLayout>

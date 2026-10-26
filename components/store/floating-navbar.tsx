@@ -204,13 +204,13 @@ export function FloatingNavbar({ pathname: propPathname, locale: propLocale }: F
         items: activeCategories.map((cat) => ({
           title: getLocalizedName(cat, locale),
           description: getLocalizedDescription(cat, locale) || (locale === 'ta' ? 'சிவகாசி தொழிற்சாலையிலிருந்து நேரடி பசுமை பட்டாசுகள்.' : 'Authentic factory-sealed crackers direct from Sivakasi.'),
-          href: getHref(`/category/${cat.slug}`),
+          href: getHref(`/products?category=${cat.slug}`),
         })),
         featuredSectionTitle: tNav('featuredCollections'),
         featuredCards: activeCategories.slice(0, 2).map((cat) => ({
           title: `${getLocalizedName(cat, locale)}`,
           description: getLocalizedDescription(cat, locale) || (locale === 'ta' ? 'உயர்தர ஒளி, பிரகாசம் மற்றும் பாதுகாப்பிற்கு உத்தரவாதம்.' : 'Tested for supreme sparkle, vibrant colors, and safety.'),
-          href: getHref(`/category/${cat.slug}`),
+          href: getHref(`/products?category=${cat.slug}`),
           image: cat.image || getCategory3DImage(cat.name),
           badge: locale === 'ta' ? 'சிவகாசி நேரடி' : 'Direct Sivakasi',
         })),
@@ -768,7 +768,7 @@ export function FloatingNavbar({ pathname: propPathname, locale: propLocale }: F
                     {activeCategories.map((cat) => (
                       <Link
                         key={cat.id}
-                        href={getHref(`/category/${cat.slug}`)}
+                        href={getHref(`/products?category=${cat.slug}`)}
                         onClick={() => setMobileMenuOpen(false)}
                         className="text-xs font-medium text-neutral-800 dark:text-neutral-200 hover:text-neutral-950 dark:hover:text-white transition-colors truncate py-0.5"
                       >

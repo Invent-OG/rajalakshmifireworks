@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, memo } from 'react';
 import Link from '@/components/ui/link';
 import { useCart, useCartItemQuantity } from '@/hooks/use-cart';
 import { toNumber, formatCurrency } from '@/lib/utils/format';
@@ -31,7 +31,7 @@ interface ProductCardProps {
   locale?: string;
 }
 
-export function ProductCard({ product, locale: propLocale }: ProductCardProps) {
+export const ProductCard = memo(function ProductCard({ product, locale: propLocale }: ProductCardProps) {
   const detectedLocale = useLocale();
   const locale = (propLocale && (propLocale === 'ta' || propLocale === 'en') ? propLocale : detectedLocale) as any;
   const tProducts = useTranslations('products');
@@ -142,7 +142,7 @@ export function ProductCard({ product, locale: propLocale }: ProductCardProps) {
           {/* Curved Inset Category Badge */}
           <p className="_category">{categoryName}</p>
 
-          {/* ── 2. Header Grid (Heading + Price Pill) ── */}
+          {/* ── 2. Header Grid (Heading + Highlighted Price & Discount Badge) ── */}
           <div className="_card-header-grid mt-3">
             <Link href={`/${locale}/product/${product.slug}`} className="block min-w-0">
               <h2 className="_heading line-clamp-2 min-h-[2.6em] group-hover:text-amber-600 transition-colors" title={displayName}>
@@ -150,9 +150,25 @@ export function ProductCard({ product, locale: propLocale }: ProductCardProps) {
               </h2>
             </Link>
 
-            {/* Neutral Price Badge with Tabular Numbers */}
-            <div className="_price shrink-0 self-start">
-              {formatCurrency(price)}
+            {/* Highlighted Price Badge with MRP Strikeout and Discount */}
+            <div className="shrink-0 self-start text-right">
+              <div className="inline-flex flex-col items-end px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-[16px] sm:rounded-[18px] bg-gradient-to-br from-amber-500/10 via-amber-500/15 to-orange-500/10 dark:from-amber-950/40 dark:via-amber-900/30 dark:to-orange-950/30 border border-amber-500/25 dark:border-amber-500/35 shadow-xs">
+                <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap justify-end">
+                  {mrp > price && (
+                    <span className="text-[10px] sm:text-xs text-neutral-400 dark:text-neutral-500 line-through tabular-nums font-medium">
+                      {formatCurrency(mrp)}
+                    </span>
+                  )}
+                  <span className="text-xs sm:text-sm md:text-base font-black text-amber-600 dark:text-amber-400 tabular-nums tracking-tight">
+                    {formatCurrency(price)}
+                  </span>
+                </div>
+                {discount > 0 && (
+                  <span className="text-[9px] sm:text-[10px] font-black tracking-wider text-amber-700 dark:text-amber-300 uppercase leading-none mt-0.5">
+                    {discount}% OFF
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 
@@ -163,11 +179,21 @@ export function ProductCard({ product, locale: propLocale }: ProductCardProps) {
 
           {/* ── 4. Tag List (Single row uniform height) ── */}
           <ul className="_tag-list h-7 overflow-hidden flex flex-nowrap gap-1.5 mt-2">
-            {tags.slice(0, 3).map((tag, idx) => (
-              <li key={idx} className="_tag whitespace-nowrap shrink-0">
-                {tag}
-              </li>
-            ))}
+            {tags.slice(0, 3).map((tag, idx) => {
+              const isDiscountTag = tag.includes('%') || tag.toLowerCase().includes('off');
+              return (
+                <li
+                  key={idx}
+                  className={
+                    isDiscountTag
+                      ? '_tag !bg-amber-500/15 !text-amber-700 dark:!text-amber-300 !border !border-amber-500/30 font-bold'
+                      : '_tag'
+                  }
+                >
+                  {tag}
+                </li>
+              );
+            })}
           </ul>
         </div>
 
@@ -220,4 +246,4 @@ export function ProductCard({ product, locale: propLocale }: ProductCardProps) {
         </div>
       </section>
   );
-}
+});

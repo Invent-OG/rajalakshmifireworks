@@ -58,11 +58,14 @@ export function FeaturedProductsSlider({
   const finalViewAllLabel = viewAllLabel || (locale === 'ta' ? 'அனைத்தையும் பார்க்க' : 'View All');
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const progressBarRef = useRef<HTMLDivElement>(null);
+  const canScrollLeftRef = useRef(false);
+  const canScrollRightRef = useRef(true);
+
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
-  const [scrollProgress, setScrollProgress] = useState(0);
 
-  // Drag to scroll state
+  // Drag to scroll state (desktop mouse only)
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeftState, setScrollLeftState] = useState(0);
@@ -73,10 +76,25 @@ export function FeaturedProductsSlider({
     if (!el) return;
     const { scrollLeft, scrollWidth, clientWidth } = el;
     const maxScroll = scrollWidth - clientWidth;
-    setCanScrollLeft(scrollLeft > 15);
-    setCanScrollRight(scrollLeft < maxScroll - 15);
-    if (maxScroll > 0) {
-      setScrollProgress(Math.min(1, Math.max(0, scrollLeft / maxScroll)));
+
+    const nextCanLeft = scrollLeft > 15;
+    const nextCanRight = scrollLeft < maxScroll - 15;
+
+    // Only update state if boolean value changed (prevents re-render storm)
+    if (canScrollLeftRef.current !== nextCanLeft) {
+      canScrollLeftRef.current = nextCanLeft;
+      setCanScrollLeft(nextCanLeft);
+    }
+    if (canScrollRightRef.current !== nextCanRight) {
+      canScrollRightRef.current = nextCanRight;
+      setCanScrollRight(nextCanRight);
+    }
+
+    // Direct DOM style update for progress bar (zero React re-renders during swipe/scroll)
+    if (progressBarRef.current && maxScroll > 0) {
+      const progress = Math.min(1, Math.max(0, scrollLeft / maxScroll));
+      const widthPct = Math.max(15, Math.min(100, progress * 100));
+      progressBarRef.current.style.width = `${widthPct}%`;
     }
   }, []);
 
@@ -85,12 +103,23 @@ export function FeaturedProductsSlider({
     if (!el) return;
 
     checkScrollability();
-    el.addEventListener('scroll', checkScrollability, { passive: true });
-    window.addEventListener('resize', checkScrollability);
+
+    let rafId: number | null = null;
+    const handleScroll = () => {
+      if (rafId !== null) return;
+      rafId = requestAnimationFrame(() => {
+        checkScrollability();
+        rafId = null;
+      });
+    };
+
+    el.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleScroll);
 
     return () => {
-      el.removeEventListener('scroll', checkScrollability);
-      window.removeEventListener('resize', checkScrollability);
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      el.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
     };
   }, [checkScrollability, products.length]);
 
@@ -109,9 +138,12 @@ export function FeaturedProductsSlider({
     setTimeout(checkScrollability, 350);
   };
 
-  // Mouse / Pointer Drag to Scroll handlers (for desktop)
+  // Mouse / Pointer Drag to Scroll handlers (desktop only - ignored on touch devices)
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.button !== 0) return;
+    if (typeof window !== 'undefined' && window.matchMedia && !window.matchMedia('(pointer: fine)').matches) {
+      return;
+    }
     const el = scrollContainerRef.current;
     if (!el) return;
     setIsDragging(true);
@@ -215,7 +247,7 @@ export function FeaturedProductsSlider({
           onMouseUp={handleMouseUp}
           onMouseMove={handleMouseMove}
           onClickCapture={handleClickCapture}
-          className={`flex items-stretch gap-4 sm:gap-6 overflow-x-auto no-scrollbar snap-x snap-mandatory py-4 -my-4 px-4 sm:px-8 md:px-12 xl:px-[max(2rem,calc((100vw-1280px)/2+80px))] scroll-pl-4 sm:scroll-pl-8 overscroll-x-contain touch-pan-x touch-pan-y ${
+          className={`flex items-stretch gap-4 sm:gap-6 overflow-x-auto no-scrollbar snap-x snap-mandatory py-4 -my-4 px-4 sm:px-8 md:px-12 xl:px-[max(2rem,calc((100vw-1280px)/2+80px))] scroll-pl-4 sm:scroll-pl-8 overscroll-x-contain ${
             isDragging ? 'cursor-grabbing' : 'cursor-grab'
           }`}
           style={{
@@ -223,6 +255,8 @@ export function FeaturedProductsSlider({
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',
             touchAction: 'pan-x pan-y',
+            overscrollBehaviorX: 'contain',
+            overscrollBehaviorY: 'auto',
             scrollSnapType: isDragging ? 'none' : 'x mandatory',
           }}
         >
@@ -230,7 +264,7 @@ export function FeaturedProductsSlider({
           {products.map((product) => (
             <div
               key={product.id}
-              className="slider-card-item snap-start shrink-0 w-[270px] sm:w-[310px] md:w-[340px] flex flex-col h-auto self-stretch transition-transform duration-300 hover:scale-[1.02]"
+              className="slider-card-item snap-start shrink-0 w-[270px] sm:w-[310px] md:w-[340px] flex flex-col h-auto self-stretch sm:transition-transform sm:duration-300 sm:hover:scale-[1.02]"
             >
               <ProductCard product={product} locale={locale} />
             </div>
@@ -240,7 +274,7 @@ export function FeaturedProductsSlider({
           <div className="slider-card-item snap-start shrink-0 w-[240px] sm:w-[280px] md:w-[300px] flex flex-col h-auto self-stretch">
             <Link
               href={viewAllHref}
-              className="group h-full rounded-[32px] p-6 sm:p-8 bg-neutral-900 hover:bg-neutral-950 text-white flex flex-col justify-between items-start transition-all duration-300 shadow-md hover:shadow-xl hover:scale-[1.02] border-2 border-neutral-800"
+              className="group h-full rounded-[32px] p-6 sm:p-8 bg-neutral-900 hover:bg-neutral-950 text-white flex flex-col justify-between items-start sm:transition-all sm:duration-300 shadow-md hover:shadow-xl sm:hover:scale-[1.02] border-2 border-neutral-800"
             >
               {/* Top Icon Badge */}
               <div className="space-y-3">
@@ -280,11 +314,12 @@ export function FeaturedProductsSlider({
         {/* ── Subdued Minimalist Capsule Scroll Progress Track ── */}
         <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-8 md:px-[80px] mt-6 flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <div className="w-24 sm:w-36 h-1 rounded-full bg-neutral-200/80 overflow-hidden">
+            <div className="w-24 sm:w-36 h-1 rounded-full bg-neutral-200/80 dark:bg-neutral-800 overflow-hidden">
               <div
-                className="h-full bg-neutral-950 rounded-full transition-all duration-300 ease-out"
+                ref={progressBarRef}
+                className="h-full bg-neutral-950 dark:bg-white rounded-full transition-all duration-150 ease-out"
                 style={{
-                  width: `${Math.max(15, Math.min(100, scrollProgress * 100))}%`,
+                  width: '15%',
                 }}
               />
             </div>
