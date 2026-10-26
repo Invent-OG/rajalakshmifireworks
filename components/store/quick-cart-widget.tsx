@@ -120,14 +120,14 @@ export function QuickCartWidget({ className = '', onClose, locale: propLocale }:
       )}
 
       {/* ── 1. Header ─── */}
-      <div className="qcart-header flex items-center justify-between pb-3.5 sm:pb-4 border-b border-neutral-100 dark:border-[#282828]">
-        <div className="flex items-center gap-2.5">
+      <div className="qcart-header flex min-w-0 items-center justify-between gap-2 pb-3.5 sm:pb-4 border-b border-neutral-100 dark:border-[#282828]">
+        <div className="flex min-w-0 flex-1 items-center gap-2.5">
           <div className="h-9 w-9 rounded-full bg-neutral-100 dark:bg-[#202020] flex items-center justify-center text-neutral-900 dark:text-white">
             <ShoppingCart className="h-4.5 w-4.5" />
           </div>
-          <div>
-            <div className="flex items-center gap-1.5">
-              <span className="font-bold text-base tracking-tight text-neutral-900 dark:text-white">
+          <div className="min-w-0">
+            <div className="flex min-w-0 items-center gap-1.5">
+              <span className="min-w-0 font-bold text-sm sm:text-base leading-tight tracking-tight text-neutral-900 dark:text-white">
                 {t('title')}
               </span>
               <span className="qcart-badge h-5 px-2 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-black text-[11px] font-bold flex items-center justify-center font-mono">
@@ -141,7 +141,7 @@ export function QuickCartWidget({ className = '', onClose, locale: propLocale }:
           {itemCount > 0 && (
             <Link
               href={locale === 'en' ? '/cart' : `/${locale}/cart`}
-              className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 hover:text-neutral-950 dark:hover:text-white transition-colors flex items-center gap-1 py-1 px-3 rounded-full hover:bg-neutral-100 dark:hover:bg-[#202020]"
+              className="shrink-0 whitespace-nowrap text-[11px] font-semibold text-neutral-500 dark:text-neutral-400 hover:text-neutral-950 dark:hover:text-white transition-colors flex items-center gap-1 py-1 px-2 rounded-full hover:bg-neutral-100 dark:hover:bg-[#202020]"
             >
               {t('orderSummary')} <ArrowRight className="h-3 w-3" />
             </Link>
@@ -188,7 +188,7 @@ export function QuickCartWidget({ className = '', onClose, locale: propLocale }:
         <div
           ref={listRef}
           data-lenis-prevent
-          className="my-3.5 space-y-2.5 max-h-[48vh] sm:max-h-[360px] overflow-y-auto pr-1 no-scrollbar overscroll-contain touch-pan-y"
+          className="my-3.5 min-h-0 flex-1 space-y-2.5 overflow-y-auto pr-1 no-scrollbar overscroll-contain touch-pan-y"
         >
           {items.map((item) => {
             const lineTotal = item.sellingPrice * item.quantity;
