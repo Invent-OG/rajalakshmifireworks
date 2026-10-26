@@ -2,7 +2,7 @@
 import StoreLayout from '@/src/layouts/StoreLayout.astro';
 import {
   getCachedProductBySlug,
-  getCachedAllActiveProducts,
+  getCachedRecommendationProducts,
 } from '@/lib/cache/catalog-cache';
 import { formatCurrency, toNumber } from '@/lib/utils/format';
 import { ProductDetailClient } from '@/components/store/product-detail-client';
@@ -33,7 +33,7 @@ Astro.response.headers.set(
 
 const [product, allActiveProducts] = await Promise.all([
   getCachedProductBySlug(slug),
-  getCachedAllActiveProducts(),
+  getCachedRecommendationProducts(),
 ]);
 
 if (!product || !product.isActive) {

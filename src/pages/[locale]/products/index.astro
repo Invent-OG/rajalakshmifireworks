@@ -266,7 +266,7 @@ const getHref = (path: string) => `/${locale}${path === '/' ? '' : path.startsWi
     {/* ── Compact Controls Toolbar: Search + Sort Dropdown + View Toggle (Matches Screenshot) ── */}
     <div>
       <ProductsCatalogToolbar
-        client:load
+        client:idle
         currentSort={sort}
         initialSearch={search}
         placeholder={locale === 'ta' ? 'பட்டாசுகளைத் தேடுங்கள்...' : 'Search fireworks...'}
@@ -349,7 +349,7 @@ const getHref = (path: string) => `/${locale}${path === '/' ? '' : path.startsWi
       {/* Product Grid Area */}
       <div class="flex-1 min-w-0">
         {productList.length > 0 ? (
-          <ProductsCatalogGrid client:load products={productList} locale={locale as any} />
+          <ProductsCatalogGrid client:idle products={productList} locale={locale as any} />
         ) : (
           <EmptyState
             client:load
@@ -370,7 +370,7 @@ const getHref = (path: string) => `/${locale}${path === '/' ? '' : path.startsWi
       </div>
 
       {/* Desktop Quick Cart Widget */}
-      <QuickCartSidebar client:load locale={locale as any} />
+      <QuickCartSidebar client:idle locale={locale as any} />
     </div>
   </div>
 </StoreLayout>

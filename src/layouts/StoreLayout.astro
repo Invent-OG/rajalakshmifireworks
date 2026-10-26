@@ -29,7 +29,7 @@ const pathname = Astro.url.pathname;
       'w-full z-50',
       headerOverlay ? 'fixed top-0 left-0 right-0 pointer-events-none [&>*]:pointer-events-auto' : 'sticky top-0'
     ]}>
-      <StoreHeader client:load pathname={pathname} locale={locale} />
+      <StoreHeader client:idle pathname={pathname} locale={locale} />
     </header>
     <main class="flex-1 pb-12 md:pb-6">
       <slot />

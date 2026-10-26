@@ -12,6 +12,7 @@ const TTL_MS = 5 * 60 * 1000; // 5-minute memory cache TTL
 let cachedCategories: CacheEntry<any[]> | null = null;
 let cachedAllActiveProducts: CacheEntry<any[]> | null = null;
 let cachedHomeProducts: CacheEntry<any[]> | null = null;
+let cachedRecommendationProducts: CacheEntry<any[]> | null = null;
 let cachedSettingsMap: CacheEntry<Map<string, string>> | null = null;
 let cachedHeroConfig: CacheEntry<string | null> | null = null;
 const cachedProductSlugMap = new Map<string, CacheEntry<any>>();
@@ -23,6 +24,7 @@ export function invalidateCatalogCache(): void {
   cachedCategories = null;
   cachedAllActiveProducts = null;
   cachedHomeProducts = null;
+  cachedRecommendationProducts = null;
   cachedSettingsMap = null;
   cachedHeroConfig = null;
   cachedProductSlugMap.clear();
@@ -142,6 +144,34 @@ export async function getCachedHomeProducts(): Promise<any[]> {
   } catch (error) {
     console.warn('[catalog-cache] Failed to fetch home products:', error instanceof Error ? error.message : error);
     if (cachedHomeProducts) return cachedHomeProducts.data;
+    return [];
+  }
+}
+
+/** Small product set for related-item sections on product detail pages. */
+export async function getCachedRecommendationProducts(): Promise<any[]> {
+  const now = Date.now();
+  if (cachedRecommendationProducts && now - cachedRecommendationProducts.timestamp < TTL_MS) {
+    return cachedRecommendationProducts.data;
+  }
+
+  try {
+    const data = await queryWithRetry(() =>
+      db.query.products.findMany({
+        where: eq(products.isActive, true),
+        with: {
+          category: true,
+          media: { orderBy: (m, { asc }) => [asc(m.sortOrder)], limit: 1 },
+        },
+        orderBy: [desc(products.isBestseller), desc(products.createdAt)],
+        limit: 30,
+      }),
+    );
+    cachedRecommendationProducts = { data, timestamp: now };
+    return data;
+  } catch (error) {
+    console.warn('[catalog-cache] Failed to fetch recommendation products:', error instanceof Error ? error.message : error);
+    if (cachedRecommendationProducts) return cachedRecommendationProducts.data;
     return [];
   }
 }
