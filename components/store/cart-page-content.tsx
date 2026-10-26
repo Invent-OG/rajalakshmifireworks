@@ -195,7 +195,7 @@ function CartPageContent() {
 
         {/* Right Column: Order Summary & Checkout Trigger */}
         <div className="lg:col-span-4">
-          <div className="p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white dark:bg-[#141414] dark:border dark:border-[#282828] sticky top-24 space-y-6 shadow-sm dark:shadow-none">
+          <div className="p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white dark:bg-[#141414] dark:border dark:border-[#282828] sticky top-36 space-y-6 shadow-sm dark:shadow-none">
             <h2 className="font-bold text-base text-foreground dark:text-white tracking-tight pb-3 border-b border-neutral-100 dark:border-[#282828] font-heading">
               {t('orderSummary')}
             </h2>

@@ -710,7 +710,7 @@ function CheckoutPageContent() {
 
           {/* Right: Order Summary Breakdown */}
           <div className="lg:col-span-5">
-            <div className="p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white dark:bg-[#141414] dark:border dark:border-[#282828] sticky top-24 space-y-6 shadow-sm dark:shadow-none">
+            <div className="p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white dark:bg-[#141414] dark:border dark:border-[#282828] sticky top-36 space-y-6 shadow-sm dark:shadow-none">
               <h2 className="font-bold text-base text-foreground tracking-tight pb-3 border-b border-neutral-100 dark:border-[#282828] font-heading">
                 {t('orderSummary')} ({itemCount} {itemCount === 1 ? tCart('item') : tCart('items')})
               </h2>

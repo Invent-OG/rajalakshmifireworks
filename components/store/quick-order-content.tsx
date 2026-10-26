@@ -374,7 +374,7 @@ export function QuickOrderContent({
           {/* ═══════════════════════════════════════════════════
               LEFT COLUMN: Category Sidebar (Same as Products Page)
              ═══════════════════════════════════════════════════ */}
-          <aside className="hidden lg:block w-56 shrink-0 bg-white dark:bg-[#141414] dark:border dark:border-[#282828] rounded-[28px] sm:rounded-[32px] p-5 sticky top-24 shadow-sm dark:shadow-none">
+          <aside className="hidden lg:block w-56 shrink-0 bg-white dark:bg-[#141414] dark:border dark:border-[#282828] rounded-[28px] sm:rounded-[32px] p-5 sticky top-36 max-h-[calc(100vh-10rem)] overflow-y-auto no-scrollbar shadow-sm dark:shadow-none">
             <div className="flex items-center gap-2 pb-3 mb-3 border-b border-neutral-100 dark:border-[#282828] font-bold text-xs uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
               <Filter className="h-3.5 w-3.5 text-[#e24000]" />
               <span>{locale === 'ta' ? 'வகைகள்' : 'Categories'}</span>
@@ -793,8 +793,8 @@ export function QuickOrderContent({
           {/* ═══════════════════════════════════════════════════
               RIGHT COLUMN: Bag Section (Same as Products Page)
              ═══════════════════════════════════════════════════ */}
-          <aside className="hidden xl:block w-80 shrink-0 sticky top-24 z-20">
-            <QuickCartWidget />
+          <aside className="hidden xl:block w-80 shrink-0 sticky top-36 z-20 h-[calc(100vh-10rem)] max-h-[740px] min-h-[360px]">
+            <QuickCartWidget className="h-full min-h-0" />
           </aside>
         </div>
       </div>

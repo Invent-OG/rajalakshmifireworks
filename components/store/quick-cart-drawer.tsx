@@ -14,7 +14,7 @@ import { useTranslations, useLocale } from '@/lib/i18n/context';
 
 export function QuickCartSidebar({ locale }: { locale?: string } = {}) {
   return (
-    <aside className="hidden xl:block w-80 shrink-0 sticky top-28 z-20 h-[calc(100vh-8rem)] max-h-[760px] min-h-[360px]">
+    <aside className="hidden xl:block w-80 shrink-0 sticky top-36 z-20 h-[calc(100vh-10rem)] max-h-[740px] min-h-[360px]">
       <QuickCartWidget locale={locale} className="h-full min-h-0" />
     </aside>
   );
