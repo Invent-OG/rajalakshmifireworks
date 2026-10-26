@@ -840,7 +840,7 @@ function InvoiceCustomizerContent({
               className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-neutral-700 transition-colors cursor-pointer shadow-2xs"
               title="Upload your custom store logo image"
             >
-              <ImageIcon className="h-3.5 w-3.5 text-indigo-500" />
+              <ImageIcon className="h-3.5 w-3.5 text-[#e24000]" />
               <span>{config.logoImageUrl ? 'Change Logo' : 'Upload Logo'}</span>
             </button>
 
@@ -1124,7 +1124,7 @@ function InvoiceCustomizerContent({
                 <div className="p-4 rounded-xl border border-border bg-card space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-foreground flex items-center gap-1.5">
-                      <ImageIcon className="h-4 w-4 text-indigo-500" />
+                      <ImageIcon className="h-4 w-4 text-[#e24000]" />
                       Brand Logo
                     </span>
                     {config.logoImageUrl && (

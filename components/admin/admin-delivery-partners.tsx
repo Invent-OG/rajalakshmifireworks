@@ -266,7 +266,7 @@ function AdminDeliveryPartnersPageContent() {
       </div>
 
       {/* Quick Summary Cards */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
         <div className="p-5 rounded-2xl bg-card border border-border shadow-xs">
           <p className="text-xs font-bold uppercase text-muted-foreground tracking-wider">Total Partners</p>
           <p className="text-3xl font-bold text-foreground mt-1.5">{totalCount}</p>

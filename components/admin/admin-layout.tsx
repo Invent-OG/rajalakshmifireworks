@@ -80,12 +80,12 @@ function NotificationBell({
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className="w-10 h-10 rounded-full bg-white dark:bg-[#161824] border border-neutral-200/80 dark:border-white/10 flex items-center justify-center text-neutral-600 dark:text-neutral-300 relative shadow-xs hover:bg-neutral-50 dark:hover:bg-white/5 transition-colors cursor-pointer shrink-0"
+        className="w-10 h-10 rounded-full bg-white dark:bg-[#1D1916] border border-neutral-200/80 dark:border-white/10 flex items-center justify-center text-neutral-600 dark:text-neutral-300 relative shadow-xs hover:bg-neutral-50 dark:hover:bg-white/5 transition-colors cursor-pointer shrink-0"
         title={count > 0 ? `Notifications (${count} unread)` : 'No new notifications'}
       >
         <Bell className="h-4.5 w-4.5" />
         {count > 0 && (
-          <span className="absolute -top-1 -right-1 min-w-4.5 h-4.5 px-1 bg-[#EF4444] text-white text-[10px] font-extrabold rounded-full flex items-center justify-center border-2 border-white dark:border-[#161824] shadow-xs">
+          <span className="absolute -top-1 -right-1 min-w-4.5 h-4.5 px-1 bg-[#EF4444] text-white text-[10px] font-extrabold rounded-full flex items-center justify-center border-2 border-white dark:border-[#1D1916] shadow-xs">
             {count}
           </span>
         )}
@@ -94,7 +94,7 @@ function NotificationBell({
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 mt-2 w-72 rounded-2xl bg-white dark:bg-[#161824] border border-neutral-200/80 dark:border-white/10 shadow-2xl p-3 z-50 space-y-2 text-xs">
+          <div className="absolute right-0 mt-2 w-72 rounded-2xl bg-white dark:bg-[#1D1916] border border-neutral-200/80 dark:border-white/10 shadow-2xl p-3 z-50 space-y-2 text-xs">
             <div className="flex items-center justify-between pb-2 border-b border-neutral-100 dark:border-white/5 font-bold">
               <span className="text-neutral-900 dark:text-white">Store Notifications</span>
               <span className="text-[10px] font-semibold text-neutral-400">
@@ -228,31 +228,31 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       : activeNavItem?.label || 'Dashboard';
 
   return (
-    <div className="min-h-screen lg:h-screen lg:max-h-screen lg:overflow-hidden p-2.5 sm:p-4 flex flex-col font-sans text-neutral-900 dark:text-neutral-100 selection:text-white bg-[#F4F6FA] dark:bg-[#10121A] print:h-auto print:max-h-none print:min-h-0 print:overflow-visible print:bg-white print:p-0">
+    <div className="admin-panel min-h-screen xl:h-screen xl:max-h-screen xl:overflow-hidden p-2 sm:p-3 xl:p-4 flex flex-col font-sans text-neutral-900 dark:text-neutral-100 selection:text-white bg-[#F6F4F1] dark:bg-[#12100F] print:h-auto print:max-h-none print:min-h-0 print:overflow-visible print:bg-white print:p-0">
       {/* Mobile Drawer Backdrop */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 lg:hidden print:hidden"
+          className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 xl:hidden print:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Main Unified Cockpit App Frame */}
-      <div className="w-full max-w-[1720px] mx-auto gap-5 overflow-hidden bg-[#F4F6FA] dark:bg-[#10121A] flex flex-col lg:flex-row flex-1 min-h-[calc(100vh-2.5rem)] lg:h-[calc(100vh-2.5rem)] lg:max-h-[calc(100vh-2.5rem)] print:overflow-visible print:max-w-none print:h-auto print:max-h-none print:min-h-0 print:bg-white print:p-0 print:gap-0">
+      <div className="w-full max-w-[1720px] mx-auto gap-3 xl:gap-5 overflow-hidden bg-[#F6F4F1] dark:bg-[#12100F] flex flex-col xl:flex-row flex-1 min-h-[calc(100dvh-1.5rem)] xl:min-h-0 xl:h-[calc(100dvh-2rem)] xl:max-h-[calc(100dvh-2rem)] print:overflow-visible print:max-w-none print:h-auto print:max-h-none print:min-h-0 print:bg-white print:p-0 print:gap-0">
         {/* Left Dark Sidebar - Fixed to cockpit viewport so it never scrolls away */}
         <aside
           className={`
-            fixed lg:static top-0 left-0 z-50 h-full lg:h-full w-68 bg-[#0D0E15] text-white
-            flex flex-col justify-between shrink-0 p-5 lg:rounded-[32px] border-r border-white/5
+            fixed xl:static top-0 left-0 z-50 h-[100dvh] xl:h-full w-[min(17rem,88vw)] bg-[#17120F] text-white
+            flex flex-col justify-between shrink-0 p-4 sm:p-5 xl:rounded-[28px] border-r border-white/10
             overflow-y-auto scrollbar-none transition-transform duration-200 shadow-2xl print:hidden invoice-no-print
-            ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+            ${sidebarOpen ? 'translate-x-0' : '-translate-x-full xl:translate-x-0'}
           `}
         >
           {/* Top Brand Logo */}
           <div className="space-y-6">
             <div className="flex items-center justify-between px-2 pt-1">
               <Link href="/admin" className="flex items-center gap-2.5 group">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#e24000] to-indigo-500 flex items-center justify-center text-white shadow-md shadow-blue-500/30 group-hover:scale-105 transition-transform">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#e24000] to-[#ff9b45] flex items-center justify-center text-white shadow-md shadow-[#e24000]/25 group-hover:scale-105 transition-transform">
                   <ShoppingCart className="h-5 w-5 stroke-[2.5]" />
                 </div>
                 <div className="flex flex-col">
@@ -266,7 +266,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </Link>
 
               <button
-                className="lg:hidden p-2 rounded-xl text-neutral-400 hover:text-white hover:bg-white/10 cursor-pointer"
+                className="xl:hidden p-2 rounded-xl text-neutral-400 hover:text-white hover:bg-white/10 cursor-pointer"
                 onClick={() => setSidebarOpen(false)}
                 aria-label="Close Sidebar"
               >
@@ -369,12 +369,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
           {/* Sidebar Bottom Profile Card */}
           <div className="pt-6 relative">
-            <div className="bg-[#161824] border border-white/5 rounded-2xl p-2.5 flex items-center justify-between gap-3 shadow-inner">
+            <div className="bg-[#1D1916] border border-white/5 rounded-2xl p-2.5 flex items-center justify-between gap-3 shadow-inner">
               <Link
                 href="/admin/profile"
                 className="flex items-center gap-3 flex-1 min-w-0"
               >
-                <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-600 ring-2 ring-white/10 flex items-center justify-center font-bold text-xs text-white shrink-0">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#e24000] to-[#ff9b45] ring-2 ring-white/10 flex items-center justify-center font-bold text-xs text-white shrink-0">
                   AD
                 </div>
                 <div className="flex flex-col min-w-0">
@@ -425,28 +425,28 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </aside>
 
         {/* Right Main Operations Workspace */}
-        <div className="flex-1 flex flex-col min-w-0 lg:h-full lg:overflow-y-auto overflow-x-hidden dark:bg-[#0E1017] print:overflow-visible print:h-auto print:max-h-none print:bg-white print:p-0">
+        <div className="flex-1 flex flex-col min-w-0 xl:h-full xl:overflow-y-auto overflow-x-hidden dark:bg-[#151210] print:overflow-visible print:h-auto print:max-h-none print:bg-white print:p-0">
           {/* Top Header Bar */}
-          <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0 sticky py-5 top-0 z-20 bg-[#F4F6FA]/90 dark:bg-[#0E1017]/90 backdrop-blur-md print:hidden invoice-no-print">
+          <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 px-1 sm:px-0 py-3 sm:py-4 xl:py-5 shrink-0 sticky top-0 z-20 bg-[#F6F4F1]/90 dark:bg-[#151210]/90 backdrop-blur-md print:hidden invoice-no-print">
             {/* Title & Mobile Hamburger */}
-            <div className="flex items-center gap-3.5">
+            <div className="flex min-w-0 items-center gap-3.5">
               <button
-                className="lg:hidden w-10 h-10 rounded-full border border-neutral-300 dark:border-white/10 bg-white dark:bg-[#161824] text-neutral-800 dark:text-neutral-200 cursor-pointer shadow-xs flex items-center justify-center shrink-0"
+                className="xl:hidden w-10 h-10 rounded-full border border-neutral-300 dark:border-white/10 bg-white dark:bg-[#1D1916] text-neutral-800 dark:text-neutral-200 cursor-pointer shadow-xs flex items-center justify-center shrink-0"
                 onClick={() => setSidebarOpen(true)}
                 aria-label="Open sidebar"
               >
                 <Menu className="h-5 w-5" />
               </button>
 
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 dark:text-white tracking-tight">
+              <div className="min-w-0">
+                <h1 className="truncate text-xl sm:text-2xl xl:text-3xl font-extrabold text-neutral-900 dark:text-white tracking-tight">
                   {pageTitle}
                 </h1>
               </div>
             </div>
 
             {/* Header Right Controls */}
-            <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="flex max-w-full flex-wrap items-center gap-2 sm:gap-2.5 sm:justify-end">
               {pathname === '/admin/products' ? (
                 <>
                   {/* Dynamic Notification Bell */}
@@ -459,7 +459,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   {/* Import Button */}
                   <Link
                     href="/admin/products/bulk-upload"
-                    className="inline-flex items-center gap-1.5 h-10 px-4 py-2 rounded-full border border-neutral-200/80 dark:border-white/10 bg-white dark:bg-[#161824] hover:bg-neutral-50 dark:hover:bg-white/5 text-xs sm:text-sm font-semibold text-neutral-700 dark:text-neutral-200 shadow-xs transition-colors shrink-0"
+                    className="inline-flex items-center gap-1.5 h-10 px-4 py-2 rounded-full border border-neutral-200/80 dark:border-white/10 bg-white dark:bg-[#1D1916] hover:bg-neutral-50 dark:hover:bg-white/5 text-xs sm:text-sm font-semibold text-neutral-700 dark:text-neutral-200 shadow-xs transition-colors shrink-0"
                   >
                     <Download className="h-4 w-4 text-neutral-400" />
                     <span>Import</span>
@@ -468,7 +468,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   {/* Add Product Button */}
                   <Link
                     href="/admin/products/new"
-                    className="inline-flex items-center gap-1.5 h-10 px-4.5 sm:px-5 py-2 rounded-full bg-[#4F75FF] hover:bg-[#3D64F0] text-white text-xs sm:text-sm font-semibold shadow-md shadow-blue-500/25 transition-all shrink-0"
+                    className="inline-flex items-center gap-1.5 h-10 px-4.5 sm:px-5 py-2 rounded-full bg-[#E24000] hover:bg-[#C93800] text-white text-xs sm:text-sm font-semibold shadow-md shadow-[#E24000]/20 transition-all shrink-0"
                   >
                     <Plus className="h-4 w-4 stroke-[2.5]" />
                     <span>Add Product</span>
@@ -482,7 +482,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     <input
                       type="text"
                       placeholder="Search"
-                      className="w-60 lg:w-72 h-10 pl-10 pr-4 bg-white dark:bg-[#161824] rounded-full border border-neutral-200/80 dark:border-white/10 text-xs sm:text-sm font-semibold text-neutral-800 dark:text-neutral-200 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-[#4F75FF]/30 transition-all shadow-xs"
+                      className="w-60 lg:w-72 h-10 pl-10 pr-4 bg-white dark:bg-[#1D1916] rounded-full border border-neutral-200/80 dark:border-white/10 text-xs sm:text-sm font-semibold text-neutral-800 dark:text-neutral-200 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-[#E24000]/30 transition-all shadow-xs"
                     />
                   </div>
 
@@ -499,13 +499,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <button
                 type="button"
                 onClick={toggleTheme}
-                className="w-10 h-10 rounded-full bg-white dark:bg-[#161824] border border-neutral-200/80 dark:border-white/10 flex items-center justify-center text-neutral-600 dark:text-neutral-300 shadow-xs hover:bg-neutral-50 dark:hover:bg-white/5 transition-colors cursor-pointer shrink-0"
+                className="w-10 h-10 rounded-full bg-white dark:bg-[#1D1916] border border-neutral-200/80 dark:border-white/10 flex items-center justify-center text-neutral-600 dark:text-neutral-300 shadow-xs hover:bg-neutral-50 dark:hover:bg-white/5 transition-colors cursor-pointer shrink-0"
                 title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} mode`}
               >
                 {theme === 'dark' ? (
                   <Sun className="h-4.5 w-4.5 text-amber-400" />
                 ) : (
-                  <Moon className="h-4.5 w-4.5 text-indigo-500" />
+                  <Moon className="h-4.5 w-4.5 text-[#e24000]" />
                 )}
               </button>
 
@@ -513,7 +513,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <Link
                 href="/"
                 target="_blank"
-                className="hidden sm:inline-flex items-center gap-1.5 h-10 px-4 py-2 rounded-full border border-neutral-200/80 dark:border-white/10 bg-white dark:bg-[#161824] hover:bg-neutral-50 dark:hover:bg-white/5 text-xs sm:text-sm font-semibold text-neutral-700 dark:text-neutral-300 shadow-xs transition-colors shrink-0"
+                className="hidden sm:inline-flex items-center gap-1.5 h-10 px-4 py-2 rounded-full border border-neutral-200/80 dark:border-white/10 bg-white dark:bg-[#1D1916] hover:bg-neutral-50 dark:hover:bg-white/5 text-xs sm:text-sm font-semibold text-neutral-700 dark:text-neutral-300 shadow-xs transition-colors shrink-0"
               >
                 <span>Store</span>
                 <ExternalLink className="h-3.5 w-3.5 text-neutral-400" />

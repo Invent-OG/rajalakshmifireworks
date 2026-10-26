@@ -233,7 +233,7 @@ function AdminSettingsPageContent() {
           <div className="flex items-center gap-4">
             <div className="h-12 w-12 rounded-xl bg-muted text-foreground flex items-center justify-center shrink-0 border border-border">
               {theme === 'dark' ? (
-                <Moon className="h-6 w-6 text-indigo-400" />
+                <Moon className="h-6 w-6 text-[#e24000]" />
               ) : (
                 <Sun className="h-6 w-6 text-amber-500" />
               )}
@@ -269,7 +269,7 @@ function AdminSettingsPageContent() {
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              <Moon className={`h-4 w-4 ${theme === 'dark' ? 'text-indigo-400' : 'text-muted-foreground'}`} />
+              <Moon className={`h-4 w-4 ${theme === 'dark' ? 'text-[#e24000]' : 'text-muted-foreground'}`} />
               <span>Dark Mode</span>
             </button>
           </div>

@@ -138,6 +138,63 @@
   --shadow-level-3: 0 12px 32px -4px rgba(0, 0, 0, 0.9), 0 4px 12px -2px rgba(0, 0, 0, 0.8);
 }
 
+/* Admin workspace palette: warm neutral surfaces with a consistent Sivakasi orange accent. */
+.admin-panel {
+  --background: #f6f4f1;
+  --background-secondary: #f6f4f1;
+  --foreground: #1c1714;
+  --foreground-secondary: #6f625a;
+  --foreground-muted: #897d75;
+  --card: #ffffff;
+  --card-foreground: #1c1714;
+  --card-muted: #fbf8f4;
+  --muted: #f1ece7;
+  --muted-foreground: #746960;
+  --border: #e6ded7;
+  --border-subtle: #eee8e2;
+  --ring: #e24000;
+  --brand: #e24000;
+  --brand-hover: #c93800;
+  --brand-foreground: #ffffff;
+  --brand-light: #fff0e7;
+  --brand-border: #ffd0bb;
+  --primary: #e24000;
+  --primary-hover: #c93800;
+  --primary-foreground: #ffffff;
+  --primary-light: #fff0e7;
+  --secondary: #f1ece7;
+  --secondary-hover: #e8dfd7;
+  --secondary-foreground: #1c1714;
+}
+
+.dark .admin-panel {
+  --background: #12100f;
+  --background-secondary: #12100f;
+  --foreground: #f7f3f0;
+  --foreground-secondary: #c4b8b0;
+  --foreground-muted: #a4978f;
+  --card: #1d1916;
+  --card-foreground: #f7f3f0;
+  --card-muted: #24201d;
+  --muted: #2a2420;
+  --muted-foreground: #b1a49c;
+  --border: #3a302a;
+  --border-subtle: #302823;
+  --ring: #ff7a36;
+  --brand: #f05a20;
+  --brand-hover: #ff7840;
+  --brand-foreground: #ffffff;
+  --brand-light: #351a10;
+  --brand-border: #713018;
+  --primary: #f05a20;
+  --primary-hover: #ff7840;
+  --primary-foreground: #ffffff;
+  --primary-light: #351a10;
+  --secondary: #2a2420;
+  --secondary-hover: #37302a;
+  --secondary-foreground: #f7f3f0;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-background-secondary: var(--background-secondary);

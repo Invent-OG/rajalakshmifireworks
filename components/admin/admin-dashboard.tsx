@@ -95,7 +95,7 @@ function KpiValueCounter({
 function SparklineWave({ color }: { color: 'green' | 'blue' | 'red' | 'yellow' }) {
   const strokes = {
     green: '#22C55E',
-    blue: '#4F75FF',
+    blue: '#E24000',
     red: '#F43F5E',
     yellow: '#EAB308',
   };
@@ -221,12 +221,12 @@ function TrafficSourceDonutChart({
 
       {/* Floating Tooltip Pill from the Mockup */}
       <div className="absolute top-2 right-2 sm:right-6 flex items-center gap-1.5 bg-[#0F111A] text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg border border-white/10 z-10 animate-fade-in">
-        <span className="w-2 h-2 rounded-full bg-[#4F75FF]" />
+        <span className="w-2 h-2 rounded-full bg-[#E24000]" />
         <span>₹42,824</span>
       </div>
 
       {/* Anchor point on the slice */}
-      <div className="absolute top-[28px] right-[46px] sm:right-[62px] w-2.5 h-2.5 rounded-full bg-[#4F75FF] ring-2 ring-white dark:ring-[#161826] shadow-xs pointer-events-none" />
+      <div className="absolute top-[28px] right-[46px] sm:right-[62px] w-2.5 h-2.5 rounded-full bg-[#E24000] ring-2 ring-white dark:ring-[#1D1916] shadow-xs pointer-events-none" />
     </div>
   );
 }
@@ -291,7 +291,7 @@ function CapsuleBarChart({
               >
                 {/* Royal Blue Solid Fill */}
                 <div
-                  className="w-full bg-[#4F75FF] rounded-b-full rounded-t-[18px] relative transition-all duration-500 ease-out"
+                  className="w-full bg-[#E24000] rounded-b-full rounded-t-[18px] relative transition-all duration-500 ease-out"
                   style={{ height: `${fillPercent}%` }}
                 >
                   {/* Subtle Top Cap Divider */}
@@ -467,7 +467,7 @@ function AdminDashboardPageContent() {
   ];
 
   const trafficSources = d?.trafficSources ?? [
-    { name: 'Direct Store', percent: 38, value: 42824, color: '#4F75FF' },
+    { name: 'Direct Store', percent: 38, value: 42824, color: '#E24000' },
     { name: 'WhatsApp Orders', percent: 27, value: 31250, color: '#93C5FD' },
     { name: 'Organic Search', percent: 21, value: 24100, color: '#FDE047' },
     { name: 'Repeat / Referral', percent: 14, value: 16200, color: '#94A3B8', isPattern: true },
@@ -481,7 +481,7 @@ function AdminDashboardPageContent() {
       {/* 4 KPI Cards Matching the Mockup Design Pattern */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Card 1: Total Orders */}
-        <div className="admin-kpi-card bg-white dark:bg-[#161826] rounded-[20px] p-5 border border-neutral-200/60 dark:border-white/5 shadow-xs flex flex-col justify-between">
+        <div className="admin-kpi-card bg-white dark:bg-[#1D1916] rounded-[20px] p-5 border border-neutral-200/60 dark:border-white/5 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between mb-4">
             <div className="w-10 h-10 rounded-full border border-neutral-200/80 dark:border-white/10 flex items-center justify-center text-neutral-600 dark:text-neutral-300 bg-neutral-50/50 dark:bg-white/5">
               <ShoppingCart01Icon className="h-5 w-5 stroke-[1.8]" />
@@ -499,7 +499,7 @@ function AdminDashboardPageContent() {
         </div>
 
         {/* Card 2: Total Customers */}
-        <div className="admin-kpi-card bg-white dark:bg-[#161826] rounded-[20px] p-5 border border-neutral-200/60 dark:border-white/5 shadow-xs flex flex-col justify-between">
+        <div className="admin-kpi-card bg-white dark:bg-[#1D1916] rounded-[20px] p-5 border border-neutral-200/60 dark:border-white/5 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between mb-4">
             <div className="w-10 h-10 rounded-full border border-neutral-200/80 dark:border-white/10 flex items-center justify-center text-neutral-600 dark:text-neutral-300 bg-neutral-50/50 dark:bg-white/5">
               <UserIcon className="h-5 w-5 stroke-[1.8]" />
@@ -517,7 +517,7 @@ function AdminDashboardPageContent() {
         </div>
 
         {/* Card 3: Items Sold */}
-        <div className="admin-kpi-card bg-white dark:bg-[#161826] rounded-[20px] p-5 border border-neutral-200/60 dark:border-white/5 shadow-xs flex flex-col justify-between">
+        <div className="admin-kpi-card bg-white dark:bg-[#1D1916] rounded-[20px] p-5 border border-neutral-200/60 dark:border-white/5 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between mb-4">
             <div className="w-10 h-10 rounded-full border border-neutral-200/80 dark:border-white/10 flex items-center justify-center text-neutral-600 dark:text-neutral-300 bg-neutral-50/50 dark:bg-white/5">
               <Package01Icon className="h-5 w-5 stroke-[1.8]" />
@@ -535,7 +535,7 @@ function AdminDashboardPageContent() {
         </div>
 
         {/* Card 4: Total Revenue */}
-        <div className="admin-kpi-card bg-white dark:bg-[#161826] rounded-[20px] p-5 border border-neutral-200/60 dark:border-white/5 shadow-xs flex flex-col justify-between">
+        <div className="admin-kpi-card bg-white dark:bg-[#1D1916] rounded-[20px] p-5 border border-neutral-200/60 dark:border-white/5 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between mb-4">
             <div className="w-10 h-10 rounded-full border border-neutral-200/80 dark:border-white/10 flex items-center justify-center text-neutral-600 dark:text-neutral-300 bg-neutral-50/50 dark:bg-white/5">
               <Money01Icon className="h-5 w-5 stroke-[1.8]" />
@@ -559,7 +559,7 @@ function AdminDashboardPageContent() {
       {/* Middle Row: Sales by traffic source & Revenue analytics */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         {/* Left Card: Sales by traffic source (Col span 5) */}
-        <div className="admin-analytics-card lg:col-span-5 bg-white dark:bg-[#161826] rounded-[24px] p-6 border border-neutral-200/60 dark:border-white/5 shadow-xs flex flex-col justify-between">
+        <div className="admin-analytics-card lg:col-span-5 bg-white dark:bg-[#1D1916] rounded-[24px] p-6 border border-neutral-200/60 dark:border-white/5 shadow-xs flex flex-col justify-between">
           {/* Card Header */}
           <div className="flex items-start justify-between">
             <div>
@@ -578,7 +578,7 @@ function AdminDashboardPageContent() {
               title="Refresh Analytics"
             >
               <ArrowReloadHorizontalIcon
-                className={`h-4 w-4 ${isFetching ? 'animate-spin text-[#4F75FF]' : ''}`}
+                className={`h-4 w-4 ${isFetching ? 'animate-spin text-[#E24000]' : ''}`}
               />
             </button>
           </div>
@@ -613,7 +613,7 @@ function AdminDashboardPageContent() {
         </div>
 
         {/* Right Card: Revenue analytics (Col span 7) */}
-        <div className="admin-analytics-card lg:col-span-7 bg-white dark:bg-[#161826] rounded-[24px] p-6 border border-neutral-200/60 dark:border-white/5 shadow-xs flex flex-col justify-between">
+        <div className="admin-analytics-card lg:col-span-7 bg-white dark:bg-[#1D1916] rounded-[24px] p-6 border border-neutral-200/60 dark:border-white/5 shadow-xs flex flex-col justify-between">
           {/* Card Header */}
           <div className="flex items-start justify-between">
             <div>
@@ -632,7 +632,7 @@ function AdminDashboardPageContent() {
               title="Refresh Analytics"
             >
               <ArrowReloadHorizontalIcon
-                className={`h-4 w-4 ${isFetching ? 'animate-spin text-[#4F75FF]' : ''}`}
+                className={`h-4 w-4 ${isFetching ? 'animate-spin text-[#E24000]' : ''}`}
               />
             </button>
           </div>
@@ -643,7 +643,7 @@ function AdminDashboardPageContent() {
       </div>
 
       {/* Bottom Section: Recent Orders Card */}
-      <div className="admin-table-card bg-white dark:bg-[#161826] rounded-[24px] p-6 border border-neutral-200/60 dark:border-white/5 shadow-xs space-y-5">
+      <div className="admin-table-card bg-white dark:bg-[#1D1916] rounded-[24px] p-6 border border-neutral-200/60 dark:border-white/5 shadow-xs space-y-5">
         {/* Table Card Header with Controls */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -665,7 +665,7 @@ function AdminDashboardPageContent() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search"
-                className="pl-9 pr-3.5 py-1.5 bg-[#F8FAFC] dark:bg-[#10121A] rounded-full border border-neutral-200/80 dark:border-white/10 text-xs text-neutral-800 dark:text-neutral-200 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-[#4F75FF]/30 transition-all w-36 sm:w-48"
+                className="pl-9 pr-3.5 py-1.5 bg-[#FBF8F4] dark:bg-[#12100F] rounded-full border border-neutral-200/80 dark:border-white/10 text-xs text-neutral-800 dark:text-neutral-200 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-[#E24000]/30 transition-all w-36 sm:w-48"
               />
             </div>
 
@@ -674,14 +674,14 @@ function AdminDashboardPageContent() {
               <button
                 type="button"
                 onClick={() => setSortDropdownOpen(!sortDropdownOpen)}
-                className="flex items-center gap-1.5 h-9 px-3.5 py-1.5 rounded-full border border-neutral-200/80 dark:border-white/10 bg-white dark:bg-[#10121A] hover:bg-neutral-50 dark:hover:bg-white/5 text-xs sm:text-sm font-semibold text-neutral-600 dark:text-neutral-300 transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 h-9 px-3.5 py-1.5 rounded-full border border-neutral-200/80 dark:border-white/10 bg-white dark:bg-[#12100F] hover:bg-neutral-50 dark:hover:bg-white/5 text-xs sm:text-sm font-semibold text-neutral-600 dark:text-neutral-300 transition-colors cursor-pointer"
               >
                 <span>Sort by</span>
                 <SortByDown01Icon className="h-3.5 w-3.5 text-neutral-400" />
               </button>
 
               {sortDropdownOpen && (
-                <div className="absolute right-0 top-10 w-36 bg-white dark:bg-[#161826] border border-neutral-200 dark:border-white/10 rounded-2xl shadow-xl p-1.5 z-30 space-y-0.5 text-xs">
+                <div className="absolute right-0 top-10 w-36 bg-white dark:bg-[#1D1916] border border-neutral-200 dark:border-white/10 rounded-2xl shadow-xl p-1.5 z-30 space-y-0.5 text-xs">
                   <button
                     type="button"
                     onClick={() => {
@@ -690,7 +690,7 @@ function AdminDashboardPageContent() {
                     }}
                     className={`w-full text-left px-3 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-colors ${
                       sortBy === 'date'
-                        ? 'bg-[#4F75FF] text-white font-semibold'
+                        ? 'bg-[#E24000] text-white font-semibold'
                         : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/5'
                     }`}
                   >
@@ -704,7 +704,7 @@ function AdminDashboardPageContent() {
                     }}
                     className={`w-full text-left px-3 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-colors ${
                       sortBy === 'amount'
-                        ? 'bg-[#4F75FF] text-white font-semibold'
+                        ? 'bg-[#E24000] text-white font-semibold'
                         : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/5'
                     }`}
                   >
@@ -718,7 +718,7 @@ function AdminDashboardPageContent() {
                     }}
                     className={`w-full text-left px-3 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-colors ${
                       sortBy === 'items'
-                        ? 'bg-[#4F75FF] text-white font-semibold'
+                        ? 'bg-[#E24000] text-white font-semibold'
                         : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/5'
                     }`}
                   >
@@ -737,7 +737,7 @@ function AdminDashboardPageContent() {
                   onClick={() => setStatusFilter(st)}
                   className={`h-9 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
                     statusFilter === st
-                      ? 'bg-[#4F75FF] text-white shadow-xs'
+                      ? 'bg-[#E24000] text-white shadow-xs'
                       : 'text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-white/5'
                   }`}
                 >
@@ -789,7 +789,7 @@ function AdminDashboardPageContent() {
                       <td className="py-4 font-semibold text-neutral-900 dark:text-white">
                         <Link
                           href={`/admin/orders/${order.id}`}
-                          className="hover:text-[#4F75FF] transition-colors"
+                          className="hover:text-[#E24000] transition-colors"
                         >
                           #{order.invoiceNumber ? order.invoiceNumber.replace('INV-', '') : order.id}
                         </Link>
@@ -859,7 +859,7 @@ function AdminDashboardPageContent() {
 
                           <Link
                             href={`/admin/orders/${order.id}`}
-                            className="inline-flex items-center h-8.5 px-3.5 py-1 rounded-full bg-[#4F75FF] hover:bg-[#3D64F0] text-white text-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-2xs"
+                            className="inline-flex items-center h-8.5 px-3.5 py-1 rounded-full bg-[#E24000] hover:bg-[#C93800] text-white text-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-2xs"
                           >
                             View
                           </Link>

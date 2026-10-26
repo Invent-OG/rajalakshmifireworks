@@ -211,7 +211,7 @@ function AdminAgentDashboardContent() {
             <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
               Sales Agents
             </span>
-            <div className="h-9 w-9 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+            <div className="h-9 w-9 rounded-xl bg-orange-500/10 text-orange-700 dark:text-orange-300 flex items-center justify-center">
               <Users className="h-4.5 w-4.5" />
             </div>
           </div>
@@ -245,7 +245,7 @@ function AdminAgentDashboardContent() {
             <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
               Attributed Orders
             </span>
-            <div className="h-9 w-9 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+            <div className="h-9 w-9 rounded-xl bg-amber-500/10 text-amber-700 dark:text-amber-300 flex items-center justify-center">
               <ShoppingCart className="h-4.5 w-4.5" />
             </div>
           </div>

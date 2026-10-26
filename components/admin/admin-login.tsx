@@ -65,7 +65,7 @@ function AdminLoginPageContent() {
             </>
           ) : (
             <>
-              <Moon className="h-4 w-4 text-indigo-400" />
+              <Moon className="h-4 w-4 text-[#e24000]" />
               <span>Dark Mode</span>
             </>
           )}

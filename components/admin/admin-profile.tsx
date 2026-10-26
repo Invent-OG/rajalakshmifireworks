@@ -359,7 +359,7 @@ function AdminProfilePageContent() {
                               : passwordScore === 2
                               ? 'w-2/4 bg-amber-500'
                               : passwordScore === 3
-                              ? 'w-3/4 bg-blue-500'
+                              ? 'w-3/4 bg-[#e24000]'
                               : 'w-full bg-emerald-500'
                           }`}
                         />
