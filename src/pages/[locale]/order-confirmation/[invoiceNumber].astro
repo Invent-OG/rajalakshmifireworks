@@ -37,7 +37,7 @@ if (!order) {
 const tNav = getTranslations(locale, 'navigation');
 const tTrack = getTranslations(locale, 'trackOrder');
 const tCart = getTranslations(locale, 'cart');
-const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`);
+const getHref = (path: string) => `/${locale}${path === '/' ? '' : path.startsWith('/') ? path : `/${path}`}`;
 
 const addressSnapshot = order.addressSnapshot as {
   address?: string;

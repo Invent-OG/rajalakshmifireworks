@@ -35,7 +35,11 @@ const [allCategories, allActiveProducts] = await Promise.all([
   getCachedAllActiveProducts(),
 ]);
 
-const category = allCategories.find((c) => c.slug === slug);
+const category = allCategories.find(
+  (c) =>
+    c.slug?.toLowerCase() === slug.toLowerCase() ||
+    c.name?.toLowerCase() === slug.toLowerCase().replace(/-/g, ' ')
+);
 if (!category) {
   return Astro.redirect(`/${locale}/products`);
 }
@@ -47,7 +51,7 @@ const displayDescription = getLocalizedDescription(category, locale);
 const tNav = getTranslations(locale, 'navigation');
 const tProd = getTranslations(locale, 'products');
 
-const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`);
+const getHref = (path: string) => `/${locale}${path === '/' ? '' : path.startsWith('/') ? path : `/${path}`}`;
 ---
 
 <StoreLayout

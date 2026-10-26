@@ -68,15 +68,24 @@ export function OrganicCategoriesGrid({
     : 'Discover authentic Sivakasi cracker categories & festive specials');
   const finalAllCategoriesText = allCategoriesText || (locale === 'ta' ? 'அனைத்து வகைகள்' : 'ALL CATEGORIES');
 
+  const getHref = (path: string) => {
+    if (!path) return `/${locale}`;
+    if (path.startsWith('http') || path.startsWith('#')) return path;
+    if (path.startsWith(`/${locale}/`) || path === `/${locale}`) return path;
+    const clean = path.startsWith('/') ? path : `/${path}`;
+    return `/${locale}${clean === '/' ? '' : clean}`;
+  };
+
   // If live backend categories are provided, resolve cards dynamically
   const resolvedMainCard: CategoryCardData =
-    mainCard ||
-    (categories.length > 0
+    mainCard
+      ? { ...mainCard, link: getHref(mainCard.link) }
+      : categories.length > 0
       ? {
         title: getLocalizedName(categories[0], locale),
         badgeText: getLocalizedName(categories[0], locale).toUpperCase(),
         subtitle: getLocalizedDescription(categories[0], locale) || (locale === 'ta' ? 'சிவகாசி நேரடி சிறப்பு பட்டாசு தயாரிப்புகள்' : 'Handcrafted celebration crackers from Sivakasi'),
-        link: `/category/${categories[0].slug}`,
+        link: getHref(`/category/${categories[0].slug}`),
         image: categories[0].image || getCategory3DImage(categories[0].name),
         bgColor: '#fef3c7',
       }
@@ -84,74 +93,78 @@ export function OrganicCategoriesGrid({
         title: locale === 'ta' ? 'கிஃப்ட் பாக்ஸ் & காம்போ' : 'Gift Boxes & Combos',
         badgeText: locale === 'ta' ? 'சிறப்பு காம்போ' : 'FESTIVE SPECIALS',
         subtitle: locale === 'ta' ? 'சிவகாசியிலிருந்து நேரடியாகப் பெறப்படும் குடும்ப காம்போ பேக்!' : 'Handpicked celebration boxes direct from Sivakasi!',
-        link: '/category/gift-boxes',
+        link: getHref('/category/gift-boxes'),
         image: '/images/3d/cat-gift-boxes.jpg',
         bgColor: '#fef3c7',
-      });
+      };
 
   const resolvedTopMiddle1: CategoryCardData =
-    topMiddleCard1 ||
-    (categories.length > 1
+    topMiddleCard1
+      ? { ...topMiddleCard1, link: getHref(topMiddleCard1.link) }
+      : categories.length > 1
       ? {
         title: getLocalizedName(categories[1], locale),
         badgeText: getLocalizedName(categories[1], locale).toUpperCase(),
-        link: `/category/${categories[1].slug}`,
+        link: getHref(`/category/${categories[1].slug}`),
         image: categories[1].image || getCategory3DImage(categories[1].name),
       }
       : {
         title: locale === 'ta' ? 'கம்பி மத்தாப்பு' : 'Sparklers',
         badgeText: locale === 'ta' ? 'மத்தாப்பு' : 'SPARKLERS',
-        link: '/category/sparklers',
+        link: getHref('/category/sparklers'),
         image: '/images/3d/cat-sparklers.jpg',
-      });
+      };
 
   const resolvedTopMiddle2: CategoryCardData =
-    topMiddleCard2 ||
-    (categories.length > 2
+    topMiddleCard2
+      ? { ...topMiddleCard2, link: getHref(topMiddleCard2.link) }
+      : categories.length > 2
       ? {
         title: getLocalizedName(categories[2], locale),
         badgeText: getLocalizedName(categories[2], locale).toUpperCase(),
-        link: `/category/${categories[2].slug}`,
+        link: getHref(`/category/${categories[2].slug}`),
         image: categories[2].image || getCategory3DImage(categories[2].name),
       }
       : {
         title: locale === 'ta' ? 'பூந்தொட்டி' : 'Flower Pots',
         badgeText: locale === 'ta' ? 'பூந்தொட்டி' : 'FLOWER POTS',
-        link: '/category/flower-pots',
+        link: getHref('/category/flower-pots'),
         image: '/images/3d/cat-flower-pots.jpg',
-      });
+      };
 
   const resolvedBottomMiddle: CategoryCardData =
-    bottomMiddleCard ||
-    (categories.length > 3
+    bottomMiddleCard
+      ? { ...bottomMiddleCard, link: getHref(bottomMiddleCard.link) }
+      : categories.length > 3
       ? {
         title: getLocalizedName(categories[3], locale),
         badgeText: getLocalizedName(categories[3], locale).toUpperCase(),
-        link: `/category/${categories[3].slug}`,
+        link: getHref(`/category/${categories[3].slug}`),
         image: categories[3].image || getCategory3DImage(categories[3].name),
       }
       : {
         title: locale === 'ta' ? 'சரவெடி & வெடி' : 'Sound Crackers',
         badgeText: locale === 'ta' ? 'சரவெடி' : 'SOUND CRACKERS',
-        link: '/category/sound-crackers',
+        link: getHref('/category/sound-crackers'),
         image: '/images/3d/cat-sound-crackers.jpg',
-      });
+      };
 
   const resolvedRightCard: CategoryCardData =
-    rightCard ||
-    (categories.length > 4
+    rightCard
+      ? { ...rightCard, link: getHref(rightCard.link) }
+      : categories.length > 4
       ? {
         title: getLocalizedName(categories[4], locale),
         badgeText: getLocalizedName(categories[4], locale).toUpperCase(),
-        link: `/category/${categories[4].slug}`,
+        link: getHref(`/category/${categories[4].slug}`),
         image: categories[4].image || getCategory3DImage(categories[4].name),
       }
       : {
         title: locale === 'ta' ? 'ராக்கெட் & ஃபேன்ஸி' : 'Rockets & Aerial',
         badgeText: locale === 'ta' ? 'ராக்கெட்' : 'ROCKETS',
-        link: '/category/rockets',
+        link: getHref('/category/rockets'),
         image: '/images/3d/cat-rockets.jpg',
-      });
+      };
 
   return (
     <section className="w-full py-4 sm:py-6 bg-[#0b0606] items-center justify-center lg:py-8">
@@ -271,7 +284,7 @@ export function OrganicCategoriesGrid({
         {/* ── 4. Bottom Centered CTA: ALL CATEGORIES ── */}
         <div className="mt-8 md:mt-[48px] flex justify-center items-center">
           <Link
-            href={allCategoriesLink}
+            href={getHref(allCategoriesLink)}
             className="inline-flex items-center gap-3 h-12 px-8 rounded-full bg-white dark:bg-[#141414] dark:border dark:border-[#282828] shadow-sm hover:shadow-lg transition-all duration-300 group select-none cursor-pointer"
           >
             <span className="font-extrabold text-xs sm:text-[13px] tracking-widest uppercase text-neutral-950 dark:text-white">

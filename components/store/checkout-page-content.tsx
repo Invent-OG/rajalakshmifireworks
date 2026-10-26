@@ -285,7 +285,7 @@ function CheckoutPageContent() {
 
   const submitting = placeOrderMutation.isPending;
 
-  const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`);
+  const getHref = (path: string) => `/${locale}${path === '/' ? '' : path.startsWith('/') ? path : `/${path}`}`;
 
   if (items.length === 0 && !submitting && !isOrderPlaced) {
     return (

@@ -45,7 +45,7 @@ const [categoryList, results] = await Promise.all([
 
 const tNav = getTranslations(locale, 'navigation');
 const tProd = getTranslations(locale, 'products');
-const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`);
+const getHref = (path: string) => `/${locale}${path === '/' ? '' : path.startsWith('/') ? path : `/${path}`}`;
 ---
 
 <StoreLayout title={`${tNav('search')} | Rajalakshmi Fireworks`} locale={locale}>

@@ -74,7 +74,7 @@ function CartPageContent() {
   const remaining = Math.max(0, minOrderValue - subtotal);
   const progressPercent = Math.min(100, Math.round((subtotal / minOrderValue) * 100));
 
-  const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`);
+  const getHref = (path: string) => `/${locale}${path === '/' ? '' : path.startsWith('/') ? path : `/${path}`}`;
 
   if (items.length === 0) {
     return (

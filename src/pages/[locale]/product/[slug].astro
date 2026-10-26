@@ -50,7 +50,7 @@ const categoryDisplayName = product.category ? getLocalizedName(product.category
 const isComboProduct = Boolean(product.isCombo) || (product.comboItems && product.comboItems.length > 0);
 const totalComboPieces = product.comboItems?.reduce((sum, item) => sum + item.quantity, 0) || 0;
 
-const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`);
+const getHref = (path: string) => `/${locale}${path === '/' ? '' : path.startsWith('/') ? path : `/${path}`}`;
 ---
 
 <StoreLayout

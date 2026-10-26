@@ -15,27 +15,46 @@ export const GET: APIRoute = async () => {
       db.query.products.findMany({ where: eq(products.isActive, true) }),
     ]);
 
-    categoryEntries = allCategories.map((c) => ({
-      url: `${baseUrl}/category/${c.slug}`,
-      lastModified: c.updatedAt || new Date(),
-      priority: 0.8,
-    }));
+    categoryEntries = allCategories.flatMap((c) => [
+      {
+        url: `${baseUrl}/en/category/${c.slug}`,
+        lastModified: c.updatedAt || new Date(),
+        priority: 0.8,
+      },
+      {
+        url: `${baseUrl}/ta/category/${c.slug}`,
+        lastModified: c.updatedAt || new Date(),
+        priority: 0.7,
+      },
+    ]);
 
-    productEntries = allProducts.map((p) => ({
-      url: `${baseUrl}/product/${p.slug}`,
-      lastModified: p.updatedAt || new Date(),
-      priority: 0.7,
-    }));
+    productEntries = allProducts.flatMap((p) => [
+      {
+        url: `${baseUrl}/en/product/${p.slug}`,
+        lastModified: p.updatedAt || new Date(),
+        priority: 0.8,
+      },
+      {
+        url: `${baseUrl}/ta/product/${p.slug}`,
+        lastModified: p.updatedAt || new Date(),
+        priority: 0.7,
+      },
+    ]);
   } catch (err) {
     console.error('Error generating sitemap:', err);
   }
 
   const staticUrls = [
-    { url: `${baseUrl}`, priority: 1.0 },
-    { url: `${baseUrl}/products`, priority: 0.9 },
-    { url: `${baseUrl}/about`, priority: 0.8 },
-    { url: `${baseUrl}/quick-order`, priority: 0.8 },
-    { url: `${baseUrl}/track-order`, priority: 0.5 },
+    { url: `${baseUrl}/en`, priority: 1.0 },
+    { url: `${baseUrl}/ta`, priority: 0.9 },
+    { url: `${baseUrl}/en/products`, priority: 0.9 },
+    { url: `${baseUrl}/ta/products`, priority: 0.8 },
+    { url: `${baseUrl}/en/about`, priority: 0.8 },
+    { url: `${baseUrl}/ta/about`, priority: 0.7 },
+    { url: `${baseUrl}/en/quick-order`, priority: 0.8 },
+    { url: `${baseUrl}/ta/quick-order`, priority: 0.7 },
+    { url: `${baseUrl}/en/track-order`, priority: 0.5 },
+    { url: `${baseUrl}/ta/track-order`, priority: 0.5 },
   ];
 
   const allUrls = [

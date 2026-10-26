@@ -143,7 +143,7 @@ const pageHeading = activeCategory
           ? `${locale === 'ta' ? 'தேடல் முடிவுகள்:' : 'Results for'} "${search}"`
           : (locale === 'ta' ? 'பிரீமியம் பட்டாசுகள்' : 'Premium Fireworks');
 
-const getHref = (path: string) => (locale === 'en' ? path : `/${locale}${path}`);
+const getHref = (path: string) => `/${locale}${path === '/' ? '' : path.startsWith('/') ? path : `/${path}`}`;
 ---
 
 <StoreLayout title={`${pageHeading} | Rajalakshmi Fireworks`} locale={locale}>

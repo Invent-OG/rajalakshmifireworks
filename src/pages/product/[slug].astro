@@ -1,0 +1,7 @@
+---
+const { slug } = Astro.params;
+const cookieLocale = Astro.cookies.get('NEXT_LOCALE')?.value;
+const locale = cookieLocale === 'ta' ? 'ta' : 'en';
+const search = Astro.url.search || '';
+return Astro.redirect(`/${locale}/product/${slug}${search}`);
+---
