@@ -34,6 +34,7 @@ interface CartStore {
   addItem: (item: Omit<CartItem, 'quantity'> & { quantity?: number }) => void;
   removeItem: (productId: number) => void;
   updateQuantity: (productId: number, quantity: number) => void;
+  setItemImage: (productId: number, image: string) => void;
   clearCart: () => void;
   getItemCount: () => number;
   getSubtotal: () => number;
@@ -107,7 +108,7 @@ function createCartStore(): CartStore {
         state = {
           items: items.map((i) =>
             i.productId === item.productId
-              ? { ...i, quantity: newQty, nameTa: i.nameTa || item.nameTa }
+              ? { ...i, quantity: newQty, nameTa: i.nameTa || item.nameTa, image: i.image || item.image }
               : i
           ),
         };
@@ -137,6 +138,15 @@ function createCartStore(): CartStore {
           }),
         };
       }
+      emit();
+    },
+    setItemImage: (productId, image) => {
+      if (!image) return;
+      const item = state.items.find((i) => i.productId === productId);
+      if (!item || item.image) return;
+      state = {
+        items: state.items.map((i) => i.productId === productId ? { ...i, image } : i),
+      };
       emit();
     },
     clearCart: () => {
@@ -208,6 +218,7 @@ export function useCart() {
     addItem: store.addItem,
     removeItem: store.removeItem,
     updateQuantity: store.updateQuantity,
+    setItemImage: store.setItemImage,
     clearCart: store.clearCart,
     itemCount,
     subtotal,

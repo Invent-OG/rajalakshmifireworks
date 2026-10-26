@@ -431,14 +431,14 @@ export function FloatingNavbar({ pathname: propPathname, locale: propLocale }: F
             </div>
 
             {/* Desktop Capsule Pill Navigation */}
-            <nav className="hidden md:inline-flex items-center gap-1.5 bg-neutral-100/90 dark:bg-[#242424] p-1.5 rounded-full border border-neutral-200/60 dark:border-[#333333] shadow-inner shrink-0 relative z-30">
+            <nav className="hidden md:inline-flex items-center justify-self-start gap-1 rounded-full bg-transparent p-0 shrink min-w-0 relative z-30">
               <Link
                 href={getHref('/products')}
                 onMouseEnter={closeDropdown}
-                className={`px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 whitespace-nowrap ${
+                className={`px-3 lg:px-3.5 py-2.5 rounded-full text-xs lg:text-[13px] font-semibold transition-all duration-200 whitespace-nowrap ${
                   isCurrentPath('/products') && !activeMenu
-                    ? 'bg-white dark:bg-[#141414] text-neutral-950 dark:text-white shadow-xs'
-                    : 'text-neutral-600 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white hover:bg-white/80 dark:hover:bg-[#2c2c2c]'
+                    ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-950 shadow-sm'
+                    : 'text-neutral-600 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#242424]'
                 }`}
               >
                 {tNav('products')}
@@ -453,17 +453,17 @@ export function FloatingNavbar({ pathname: propPathname, locale: propLocale }: F
                     type="button"
                     onMouseEnter={() => handleMouseEnter(key)}
                     onClick={() => setActiveMenu(activeMenu === key ? null : key)}
-                    className={`px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center gap-1.5 cursor-pointer select-none whitespace-nowrap ${
+                    className={`px-3 lg:px-3.5 py-2.5 rounded-full text-xs lg:text-[13px] font-semibold transition-all duration-200 flex items-center gap-1 cursor-pointer select-none whitespace-nowrap ${
                       isHovered
-                        ? 'bg-white dark:bg-[#141414] text-neutral-950 dark:text-white shadow-xs'
-                        : 'text-neutral-600 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white hover:bg-white/80 dark:hover:bg-[#2c2c2c]'
+                        ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-950 shadow-sm'
+                        : 'text-neutral-600 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#242424]'
                     }`}
                     aria-expanded={isHovered}
                   >
                     <span>{menu.label}</span>
                     <ChevronDown
-                      className={`h-4 w-4 transition-transform duration-200 ${
-                        isHovered ? 'rotate-180 text-neutral-950 dark:text-white' : 'text-neutral-400 dark:text-neutral-400'
+                      className={`h-3.5 w-3.5 transition-transform duration-200 ${
+                        isHovered ? 'rotate-180 text-white dark:text-neutral-950' : 'text-neutral-400 dark:text-neutral-400'
                       }`}
                     />
                   </button>
@@ -473,10 +473,10 @@ export function FloatingNavbar({ pathname: propPathname, locale: propLocale }: F
               <Link
                 href={getHref('/track-order')}
                 onMouseEnter={closeDropdown}
-                className={`px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 whitespace-nowrap ${
+                className={`px-3 lg:px-3.5 py-2.5 rounded-full text-xs lg:text-[13px] font-semibold transition-all duration-200 whitespace-nowrap ${
                   isCurrentPath('/track-order') && !activeMenu
-                    ? 'bg-white dark:bg-[#141414] text-neutral-950 dark:text-white shadow-xs'
-                    : 'text-neutral-600 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white hover:bg-white/80 dark:hover:bg-[#2c2c2c]'
+                    ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-950 shadow-sm'
+                    : 'text-neutral-600 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#242424]'
                 }`}
               >
                 {tNav('trackOrder')}
@@ -543,6 +543,11 @@ export function FloatingNavbar({ pathname: propPathname, locale: propLocale }: F
             {/* Shopping Bag Pill Button */}
             <Link
               href={getHref('/cart')}
+              onClick={(event) => {
+                event.preventDefault();
+                window.dispatchEvent(new Event('store:open-cart'));
+                closeDropdown();
+              }}
               onMouseEnter={closeDropdown}
               className="relative h-12 px-4 sm:px-5 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-black text-xs sm:text-sm font-bold hover:bg-neutral-800 dark:hover:bg-neutral-200 active:scale-95 transition-all flex items-center gap-2 shadow-md whitespace-nowrap cursor-pointer justify-center"
               aria-label={`${tNav('bag')} with ${displayCount} items`}
@@ -829,7 +834,11 @@ export function FloatingNavbar({ pathname: propPathname, locale: propLocale }: F
 
                 <Link
                   href={getHref('/cart')}
-                  onClick={() => setMobileMenuOpen(false)}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    setMobileMenuOpen(false);
+                    window.dispatchEvent(new Event('store:open-cart'));
+                  }}
                   className="inline-flex items-center justify-center gap-2 h-12 px-4 rounded-full bg-neutral-950 dark:bg-white hover:bg-neutral-800 dark:hover:bg-neutral-200 text-xs sm:text-sm font-bold text-white dark:text-black shadow-md transition-all active:scale-95 flex-1"
                 >
                   <ShoppingBag className="h-4 w-4" />

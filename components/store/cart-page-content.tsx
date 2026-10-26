@@ -14,6 +14,7 @@ import { gsap, isReducedMotion } from '@/lib/motion';
 import { formatCurrency } from '@/lib/utils/format';
 import { useTranslations, useLocale } from '@/lib/i18n/context';
 import { getLocalizedName } from '@/lib/i18n/formatters';
+import { useMinimumOrderValue } from '@/hooks/use-minimum-order-value';
 
 import { Providers } from '@/components/providers';
 
@@ -28,7 +29,7 @@ function useIsHydrated() {
 function CartPageContent() {
   const { items, updateQuantity, removeItem, clearCart, subtotal, totalMrp, totalSavings, itemCount } =
     useCart();
-  const minOrderValue = 500;
+  const { minimumOrderValue: minOrderValue, isMinimumOrderValueReady } = useMinimumOrderValue();
   const hydrated = useIsHydrated();
   const containerRef = useRef<HTMLDivElement>(null);
   const t = useTranslations('cart');
@@ -70,9 +71,9 @@ function CartPageContent() {
 
   if (!hydrated) return null;
 
-  const meetsMinOrder = subtotal >= minOrderValue;
+  const meetsMinOrder = isMinimumOrderValueReady && (minOrderValue <= 0 || subtotal >= minOrderValue);
   const remaining = Math.max(0, minOrderValue - subtotal);
-  const progressPercent = Math.min(100, Math.round((subtotal / minOrderValue) * 100));
+  const progressPercent = minOrderValue > 0 ? Math.min(100, Math.round((subtotal / minOrderValue) * 100)) : 100;
 
   const getHref = (path: string) => `/${locale}${path === '/' ? '' : path.startsWith('/') ? path : `/${path}`}`;
 
@@ -294,11 +295,9 @@ function CartPageContent() {
                 </StoreButton>
               </Link>
             ) : (
-              <Link href={getHref('/products')} className="block">
-                <StoreButton size="lg" variant="outline" className="w-full">
-                  {locale === 'ta' ? `இன்னும் ₹${remaining} சேர்க்கவும்` : `Add ₹${remaining} more`}
-                </StoreButton>
-              </Link>
+              <p aria-live="polite" className="rounded-2xl border border-amber-300/80 bg-amber-50 px-4 py-3 text-center text-sm font-bold text-amber-900 shadow-xs dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
+                {t('minOrderRemaining', { amount: new Intl.NumberFormat('en-IN').format(remaining) })}
+              </p>
             )}
 
             <div className="pt-1 flex items-center justify-center gap-2 text-[11px] text-muted-foreground">

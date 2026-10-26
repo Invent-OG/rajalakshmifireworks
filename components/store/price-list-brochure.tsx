@@ -18,7 +18,6 @@ import { formatCurrency, toNumber } from '@/lib/utils/format';
 import { useLocale, useTranslations } from '@/lib/i18n/context';
 import { getLocalizedName, getLocalizedDescription } from '@/lib/i18n/formatters';
 import { useCart } from '@/hooks/use-cart';
-import { toast } from '@/lib/toast';
 
 export interface PriceListProduct {
   id: number;
@@ -151,12 +150,6 @@ export function PriceListBrochure({ categories, combos }: PriceListBrochureProps
       maxStock: p.stockQuantity || 100,
     });
 
-    const displayName = locale === 'ta' && p.nameTa ? p.nameTa : p.name;
-    toast.success(
-      locale === 'ta'
-        ? `${displayName} உங்கள் பையில் சேர்க்கப்பட்டது!`
-        : `${displayName} added to cart`
-    );
   };
 
   return (

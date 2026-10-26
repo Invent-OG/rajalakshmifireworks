@@ -73,7 +73,7 @@ const tSeo = getTranslations(locale, "seo");
       </section> -->
 
       {/* ── Infinite Ribbon Ticker ─── */}
-      <section class="reveal-section bg-[#0b0606] w-full">
+      <section class="reveal-section w-full overflow-hidden rounded-b-[32px] bg-[#0b0606]">
         <InfiniteRibbonPreview client:visible />
         <OrganicCategoriesGrid client:visible categories={categoryList} locale={locale as any} />
       </section>
@@ -170,7 +170,7 @@ const tSeo = getTranslations(locale, "seo");
 <style is:global>
   .home-ambient {
     background:
-      radial-gradient(ellipse at 18% 25%, rgba(255, 86, 31, 0.2), transparent 42%),
-      radial-gradient(ellipse at 82% 18%, rgba(255, 194, 62, 0.14), transparent 38%);
+      radial-gradient(ellipse at 18% 25%, rgba(226, 64, 0, 0.1), transparent 42%),
+      radial-gradient(ellipse at 82% 18%, rgba(251, 146, 60, 0.1), transparent 38%);
   }
 </style>

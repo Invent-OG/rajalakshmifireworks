@@ -194,10 +194,10 @@ export function FeaturedProductsSlider({
             <div className="mb-3 sm:mb-4">
               <SectionTag label={finalTagLabel} />
             </div>
-            <h2 className="text-2xl sm:text-3xl md:text-[44px] lg:text-[50px] font-bold text-neutral-950 dark:text-white leading-[1.15] md:leading-[1.1] tracking-tight">
+            <h2 className="font-heading text-2xl font-bold leading-[1.1] tracking-tight text-neutral-950 dark:text-white sm:text-3xl md:text-[44px] lg:text-[50px]">
               {finalTitle} <span className="text-neutral-400 dark:text-neutral-500 font-light">—</span>
             </h2>
-            <p className="text-[13px] sm:text-[15px] text-neutral-600 dark:text-neutral-300 font-normal leading-relaxed mt-2 max-w-xl">
+            <p className="mt-2 max-w-xl text-[13px] font-normal leading-relaxed text-neutral-600 dark:text-neutral-300 sm:text-[15px]">
               {finalSubtitle}
             </p>
           </div>
@@ -323,11 +323,11 @@ export function FeaturedProductsSlider({
                 }}
               />
             </div>
-            <span className="text-[10px] font-semibold text-neutral-400 uppercase tracking-widest">
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-neutral-700 dark:text-neutral-300">
               {products.length}+ Items
             </span>
           </div>
-          <span className="text-[11px] font-medium text-neutral-400 hidden sm:inline-block">
+          <span className="hidden text-[11px] font-medium text-neutral-700 dark:text-neutral-300 sm:inline-block">
             {locale === 'ta' ? 'நகர்த்த இடது / வலதுபுறம் உருட்டவும்' : 'Swipe or drag to explore'}
           </span>
         </div>

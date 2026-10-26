@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { usePathname } from '@/lib/navigation';
 import { QuickCartWidget } from '@/components/store/quick-cart-widget';
 import { useCart, useIsHydrated } from '@/hooks/use-cart';
+import { useMinimumOrderValue } from '@/hooks/use-minimum-order-value';
 import { ShoppingBag, ChevronUp, CreditCard } from 'lucide-react';
 import { useGSAP } from '@gsap/react';
 import { gsap, isReducedMotion } from '@/lib/motion';
@@ -11,6 +12,7 @@ import { Portal } from '@/components/ui/portal';
 import NumberFlow from '@number-flow/react';
 import Link from '@/components/ui/link';
 import { useTranslations, useLocale } from '@/lib/i18n/context';
+import { formatCurrency } from '@/lib/utils/format';
 
 export function QuickCartSidebar({ locale }: { locale?: string } = {}) {
   return (
@@ -31,10 +33,15 @@ export function QuickCartMobileFloating({
   const contextLocale = useLocale();
   const locale = propLocale || contextLocale || 'en';
   const { itemCount, subtotal } = useCart();
+  const { minimumOrderValue, isMinimumOrderValueReady } = useMinimumOrderValue();
   const isHydrated = useIsHydrated();
   const tCart = useTranslations('cart');
+  const tCommon = useTranslations('common');
+  const meetsMinimumOrder = isMinimumOrderValueReady && (minimumOrderValue <= 0 || subtotal >= minimumOrderValue);
+  const minimumRemaining = Math.max(0, minimumOrderValue - subtotal);
   const [isOpen, setIsOpen] = useState(false);
   const [isRendered, setIsRendered] = useState(false);
+  const [drawerMode, setDrawerMode] = useState<'mobile' | 'desktop'>('mobile');
   const modalRef = useRef<HTMLDivElement>(null);
   const drawerRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
@@ -67,7 +74,38 @@ export function QuickCartMobileFloating({
     };
   }, []);
 
-  // Prevent background body scroll only while mobile drawer modal is actively open
+  // On desktop, cart links open the same cart contents as a right-side drawer.
+  // Mobile links keep their existing route and the floating bottom-sheet behavior.
+  useEffect(() => {
+    const handleCartLink = (event: MouseEvent) => {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      if (!window.matchMedia('(min-width: 1280px)').matches || isOpen) return;
+      const target = event.target as Element | null;
+      const anchor = target?.closest('a[href]') as HTMLAnchorElement | null;
+      if (!anchor || anchor.target === '_blank') return;
+
+      const url = new URL(anchor.href, window.location.href);
+      if (url.origin !== window.location.origin || !/^\/(?:en|ta)?\/?cart\/?$/.test(url.pathname)) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      openDrawer('desktop');
+    };
+
+    document.addEventListener('click', handleCartLink, true);
+    return () => document.removeEventListener('click', handleCartLink, true);
+  }, [isOpen]);
+
+  useEffect(() => {
+    const openFromNavbar = () => {
+      const mode = window.matchMedia('(min-width: 1280px)').matches ? 'desktop' : 'mobile';
+      openDrawer(mode);
+    };
+    window.addEventListener('store:open-cart', openFromNavbar);
+    return () => window.removeEventListener('store:open-cart', openFromNavbar);
+  }, []);
+
+  // Prevent background body scroll while either drawer is open.
   useEffect(() => {
     if (!isOpen) {
       document.body.style.removeProperty('overflow');
@@ -113,8 +151,9 @@ export function QuickCartMobileFloating({
     }
   }, [itemCount, isOpen]);
 
-  const openDrawer = () => {
+  const openDrawer = (mode: 'mobile' | 'desktop' = 'mobile') => {
     isClosingRef.current = false;
+    setDrawerMode(mode);
     setIsRendered(true);
     setIsOpen(true);
   };
@@ -153,14 +192,14 @@ export function QuickCartMobileFloating({
     gsap.killTweensOf([drawerRef.current, modalRef.current]);
 
     gsap.to(drawerRef.current, {
-      y: '100%',
-      duration: 0.22,
-      ease: 'power2.in',
+      [drawerMode === 'desktop' ? 'x' : 'y']: drawerMode === 'desktop' ? '100%' : '100%',
+      duration: 0.26,
+      ease: 'power3.in',
     });
     gsap.to(modalRef.current, {
       opacity: 0,
-      duration: 0.22,
-      ease: 'power2.in',
+      duration: 0.24,
+      ease: 'power2.out',
       onComplete: () => {
         clearTimeout(safetyTimer);
         finishClosing();
@@ -176,16 +215,18 @@ export function QuickCartMobileFloating({
       gsap.fromTo(
         modalRef.current,
         { opacity: 0 },
-        { opacity: 1, duration: 0.25, ease: 'power2.out' }
+        { opacity: 1, duration: 0.24, ease: 'power2.out' }
       );
 
       gsap.fromTo(
         drawerRef.current,
-        { y: '100%', scale: 0.95 },
-        { y: '0%', scale: 1, duration: 0.35, ease: 'back.out(1.2)' }
+        drawerMode === 'desktop' ? { x: '100%' } : { y: '100%', scale: 0.95 },
+        drawerMode === 'desktop'
+          ? { x: '0%', duration: 0.34, ease: 'power3.out' }
+          : { y: '0%', scale: 1, duration: 0.32, ease: 'power3.out' }
       );
     },
-    { dependencies: [isOpen] }
+    { dependencies: [isOpen, drawerMode] }
   );
 
   // GSAP Floating Bar entrance
@@ -216,7 +257,6 @@ export function QuickCartMobileFloating({
   const isCartOrCheckout = activePath === '/cart' || activePath === '/checkout';
 
   // Don't show floating checkout popup on Home, Cart or Checkout pages
-  if (isHome || isCartOrCheckout) return null;
   if (!isHydrated) return null;
 
   // Don't render anything if cart is empty AND drawer is neither open nor closing
@@ -225,26 +265,26 @@ export function QuickCartMobileFloating({
   return (
     <>
       {/* Mobile Floating Bottom Bar - Sticky at bottom only when items exist */}
-      {itemCount > 0 && (
+      {!isHome && !isCartOrCheckout && itemCount > 0 && (
         <div className="xl:hidden fixed bottom-4 md:bottom-6 left-0 right-0 z-40 px-4 pointer-events-none transition-all duration-300">
           <div className="mx-auto max-w-md pointer-events-auto">
             <div
               ref={barRef}
-              className="bg-white/95 dark:bg-[#141414]/95 backdrop-blur-xl text-neutral-900 dark:text-white rounded-full p-2.5 shadow-2xl dark:border dark:border-[#282828] flex items-center justify-between gap-3 transform-gpu font-sans"
+              className="bg-neutral-950 text-white dark:bg-[#141414]/95 dark:text-white backdrop-blur-xl rounded-full p-2.5 shadow-2xl dark:border dark:border-[#282828] flex items-center justify-between gap-3 transform-gpu font-sans"
             >
               <button
                 type="button"
                 onClick={openDrawer}
-                className="flex items-center gap-2.5 px-3 py-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-[#202020] transition-colors text-left cursor-pointer flex-1 min-w-0"
+                className="flex items-center gap-2.5 px-3 py-1.5 rounded-full hover:bg-white/10 dark:hover:bg-[#202020] transition-colors text-left cursor-pointer flex-1 min-w-0"
               >
-                <div className="relative h-9 w-9 rounded-full bg-neutral-100 dark:bg-[#202020] flex items-center justify-center shrink-0 text-neutral-950 dark:text-white">
+                <div className="relative h-9 w-9 rounded-full bg-white/10 dark:bg-[#202020] flex items-center justify-center shrink-0 text-white dark:text-white">
                   <ShoppingBag className="h-4.5 w-4.5" />
-                  <span className="absolute -top-1 -right-1 h-4 min-w-4 px-1 rounded-full bg-neutral-950 dark:bg-white text-[10px] font-bold text-white dark:text-black flex items-center justify-center font-mono">
+                  <span className="absolute -top-1 -right-1 h-4 min-w-4 px-1 rounded-full bg-white text-[10px] font-bold text-neutral-950 dark:bg-white dark:text-black flex items-center justify-center font-mono">
                     {itemCount}
                   </span>
                 </div>
                 <div className="min-w-0">
-                  <div className="text-xs font-bold leading-tight text-neutral-900 dark:text-white font-mono truncate">
+                  <div className="text-xs font-bold leading-tight text-white dark:text-white font-mono truncate">
                     <NumberFlow
                       value={subtotal}
                       format={{
@@ -258,21 +298,32 @@ export function QuickCartMobileFloating({
                       }}
                     />
                   </div>
-                  <p className="text-[10px] text-neutral-500 dark:text-neutral-400 font-medium flex items-center gap-0.5">
+                  <p className="text-[10px] text-neutral-300 dark:text-neutral-400 font-medium flex items-center gap-0.5">
                     {tCart('orderSummary')} <ChevronUp className="h-2.5 w-2.5" />
                   </p>
                 </div>
               </button>
 
-              <Link href={locale === 'en' ? '/checkout' : `/${locale}/checkout`} className="shrink-0">
-                <button
-                  type="button"
-                  className="h-12 px-5 sm:px-6 rounded-full bg-neutral-950 dark:bg-white hover:bg-neutral-800 dark:hover:bg-neutral-200 text-white dark:text-black font-bold text-xs sm:text-sm flex items-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer justify-center"
+              {meetsMinimumOrder ? (
+                <Link href={locale === 'en' ? '/checkout' : `/${locale}/checkout`} className="shrink-0">
+                  <button
+                    type="button"
+                    className="h-12 px-5 sm:px-6 rounded-full bg-white hover:bg-neutral-200 dark:bg-white dark:hover:bg-neutral-200 text-neutral-950 dark:text-black font-bold text-xs sm:text-sm flex items-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer justify-center"
+                  >
+                    <CreditCard className="h-4 w-4" />
+                    <span>{tCart('proceedToCheckout')}</span>
+                  </button>
+                </Link>
+              ) : (
+                <p
+                  aria-live="polite"
+                  className="max-w-[9.5rem] rounded-2xl border border-amber-300/80 bg-amber-50 px-3 py-2 text-center text-[10px] font-bold leading-tight text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200"
                 >
-                  <CreditCard className="h-4 w-4" />
-                  <span>{tCart('proceedToCheckout')}</span>
-                </button>
-              </Link>
+                  {isMinimumOrderValueReady
+                    ? tCart('minOrderRemaining', { amount: new Intl.NumberFormat('en-IN').format(minimumRemaining) })
+                    : tCommon('loading')}
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -284,7 +335,9 @@ export function QuickCartMobileFloating({
           <div
             ref={modalRef}
             data-lenis-prevent
-            className="xl:hidden fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-xs p-4 overscroll-contain"
+            className={drawerMode === 'desktop'
+              ? 'hidden xl:flex fixed inset-0 z-50 items-stretch justify-end bg-black/50 backdrop-blur-xs p-4 overscroll-contain lg:p-6'
+              : 'xl:hidden fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-xs p-4 overscroll-contain'}
           >
             <div
               className="fixed inset-0"
@@ -295,9 +348,17 @@ export function QuickCartMobileFloating({
             <div
               ref={drawerRef}
               data-lenis-prevent
-              className="relative w-full max-w-md z-10 overscroll-contain"
+              className={drawerMode === 'desktop'
+                ? 'relative z-10 h-full max-h-full w-[min(30rem,92vw)] overflow-hidden overscroll-contain rounded-[28px] shadow-2xl transform-gpu'
+                : 'relative z-10 h-[80dvh] max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-hidden overscroll-contain'}
             >
-              <QuickCartWidget onClose={closeDrawer} />
+              <QuickCartWidget
+                onClose={closeDrawer}
+                drawerLayout={drawerMode}
+                className={drawerMode === 'desktop'
+                  ? 'h-full max-h-full overflow-hidden rounded-[28px]'
+                  : 'h-full max-h-full overflow-hidden'}
+              />
             </div>
           </div>
         </Portal>

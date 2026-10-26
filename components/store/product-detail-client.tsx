@@ -3,12 +3,10 @@
 import { useState, useRef } from 'react';
 import { useCart, useCartItemQuantity } from '@/hooks/use-cart';
 import { StoreButton } from '@/components/ui/store-button';
-import { AddToBagButton } from '@/components/ui/add-to-bag-button';
 import { QuantityStepper } from '@/components/ui/quantity-stepper';
 import { Check, ShoppingBag, ArrowRight } from 'lucide-react';
 import { gsap, isReducedMotion } from '@/lib/motion';
 import { useTranslations, useLocale } from '@/lib/i18n/context';
-import { toast } from '@/lib/toast';
 
 interface ProductDetailClientProps {
   product: {
@@ -56,12 +54,6 @@ export function ProductDetailClient({ product, locale: propLocale }: ProductDeta
       quantity: qtyToAdd,
     });
 
-    const displayName = locale === 'ta' && product.nameTa ? product.nameTa : product.name;
-    toast.success(
-      locale === 'ta'
-        ? `${displayName} உங்கள் பையில் சேர்க்கப்பட்டது!`
-        : `${displayName} added to bag`
-    );
   }
 
   function handleProceedToCheckout() {
@@ -156,9 +148,9 @@ export function ProductDetailClient({ product, locale: propLocale }: ProductDeta
         </div>
       ) : (
         <div className="space-y-3">
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          <div className="grid grid-cols-[minmax(7.5rem,9rem)_minmax(0,1fr)] items-end gap-3">
+            <div className="space-y-1.5">
+              <span className="block text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                 {locale === 'ta' ? 'எண்ணிக்கை:' : 'Qty:'}
               </span>
               <QuantityStepper
@@ -167,27 +159,20 @@ export function ProductDetailClient({ product, locale: propLocale }: ProductDeta
                 onIncrement={() => setSelectedQuantity(Math.min(product.stockQuantity, selectedQuantity + 1))}
                 onDecrement={() => setSelectedQuantity(Math.max(1, selectedQuantity - 1))}
                 size="lg"
-                className="w-32"
+                className="w-full"
               />
             </div>
 
-            <AddToBagButton
+            <button
               ref={buttonRef}
-              className="flex-1"
+              type="button"
               onClick={() => handleAddToCart(selectedQuantity)}
+              className="inline-flex h-12 min-w-0 w-full items-center justify-center gap-2 rounded-full bg-neutral-950 px-4 text-sm font-bold text-white shadow-sm transition-colors hover:bg-neutral-800 active:scale-[0.98] dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200 sm:text-base"
             >
-              {t('addToBag')}
-            </AddToBagButton>
+              <ShoppingBag className="h-4 w-4 shrink-0" />
+              <span className="truncate">{t('addToBag')}</span>
+            </button>
           </div>
-
-          <button
-            type="button"
-            onClick={handleProceedToCheckout}
-            className="w-full inline-flex items-center justify-center gap-2 h-12 px-6 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-black font-extrabold text-xs sm:text-sm uppercase tracking-wider shadow-lg shadow-black/15 hover:bg-neutral-800 dark:hover:bg-neutral-200 active:scale-95 transition-all duration-200 cursor-pointer"
-          >
-            <span>{locale === 'ta' ? 'ஆர்டர் முடிக்க செல்ல' : 'Proceed to Checkout'}</span>
-            <ArrowRight className="h-4 w-4" />
-          </button>
         </div>
       )}
     </div>

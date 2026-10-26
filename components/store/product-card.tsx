@@ -8,7 +8,6 @@ import { ProductVisualPlaceholder } from '@/components/ui/category-icon';
 import { Plus, Minus, ShoppingBag } from 'lucide-react';
 import { useLocale, useTranslations } from '@/lib/i18n/context';
 import { getLocalizedName } from '@/lib/i18n/formatters';
-import { toast } from '@/lib/toast';
 
 interface ProductCardProps {
   product: {
@@ -71,11 +70,6 @@ export const ProductCard = memo(function ProductCard({ product, locale: propLoca
       quantity: 1,
     });
 
-    toast.success(
-      locale === 'ta'
-        ? `${displayName} உங்கள் பையில் சேர்க்கப்பட்டது!`
-        : `${displayName} added to cart`
-    );
   }
 
   // Generate contextual tags
@@ -133,44 +127,40 @@ export const ProductCard = memo(function ProductCard({ product, locale: propLoca
           {/* Curved Inset Category Badge */}
           <p className="_category">{categoryName}</p>
 
-          {/* ── 2. Header Grid (Heading + Highlighted Price & Discount Badge) ── */}
-          <div className="_card-header-grid mt-3">
+          {/* ── 2. Product information: name, clear price, then quick facts ── */}
+          <div className="product-card-info mt-3 flex min-w-0 flex-1 flex-col">
             <Link href={`/${locale}/product/${product.slug}`} className="block min-w-0">
               <h2 className="_heading line-clamp-2 min-h-[2.6em] group-hover:text-amber-600 transition-colors" title={displayName}>
                 {displayName}
               </h2>
             </Link>
 
-            {/* Highlighted Price Badge with MRP Strikeout and Discount */}
-            <div className="shrink-0 self-start text-right">
-              <div className="inline-flex flex-col items-end px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-[16px] sm:rounded-[18px] bg-gradient-to-br from-amber-500/10 via-amber-500/15 to-orange-500/10 dark:from-amber-950/40 dark:via-amber-900/30 dark:to-orange-950/30 border border-amber-500/25 dark:border-amber-500/35 shadow-xs">
-                <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap justify-end">
-                  {mrp > price && (
-                    <span className="text-[10px] sm:text-xs text-neutral-400 dark:text-neutral-500 line-through tabular-nums font-medium">
-                      {formatCurrency(mrp)}
-                    </span>
-                  )}
-                  <span className="text-xs sm:text-sm md:text-base font-black text-amber-600 dark:text-amber-400 tabular-nums tracking-tight">
-                    {formatCurrency(price)}
-                  </span>
-                </div>
-                {discount > 0 && (
-                  <span className="text-[9px] sm:text-[10px] font-black tracking-wider text-amber-700 dark:text-amber-300 uppercase leading-none mt-0.5">
-                    {discount}% OFF
+            <div className="product-card-price-row mt-2 flex min-h-12 items-center justify-between gap-2 border-y border-neutral-100 py-2 dark:border-neutral-800">
+              <div className="flex min-w-0 items-baseline gap-2">
+                <span className="product-card-sale-price whitespace-nowrap text-xl font-black leading-none tracking-tight text-neutral-950 dark:text-white sm:text-2xl">
+                  {formatCurrency(price)}
+                </span>
+                {mrp > price && (
+                  <span className="whitespace-nowrap text-xs font-medium tabular-nums text-neutral-400 line-through dark:text-neutral-500">
+                    {formatCurrency(mrp)}
                   </span>
                 )}
               </div>
+              {discount > 0 && (
+                <span className="shrink-0 rounded-full bg-orange-50 px-2.5 py-1 text-[10px] font-extrabold tracking-wide text-orange-700 dark:bg-orange-950/50 dark:text-orange-300 sm:px-3 sm:text-xs">
+                  {discount}% OFF
+                </span>
+              )}
             </div>
-          </div>
 
-          {/* ── 3. Quick product facts ── */}
-          <ul className="_tag-list min-h-7 overflow-hidden flex flex-nowrap gap-1.5 mt-2">
-            {tags.slice(0, 2).map((tag, idx) => (
-              <li key={idx} className={idx === 0 && count ? '_tag _tag-primary' : '_tag'}>
-                {tag}
-              </li>
-            ))}
-          </ul>
+            <ul className="_tag-list mt-2.5 min-h-7 overflow-hidden">
+              {tags.slice(0, 2).map((tag, idx) => (
+                <li key={idx} className={idx === 0 && count ? '_tag _tag-primary' : '_tag'}>
+                  {tag}
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
         {/* ── 5. Action Button (Pure Black Button / Quantity Stepper) ── */}

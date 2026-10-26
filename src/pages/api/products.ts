@@ -7,6 +7,12 @@ async function _GET(request: any) {
     const page = Math.max(1, parseInt(searchParams.get('page') || '1'));
     const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') || '20')));
     const offset = (page - 1) * limit;
+    const requestedIds = new Set(
+      (searchParams.get('ids') || '')
+        .split(',')
+        .map((id) => Number(id))
+        .filter((id) => Number.isSafeInteger(id) && id > 0)
+    );
     const search = searchParams.get('search')?.trim().toLowerCase();
     const categorySlug = searchParams.get('category');
     const sort = searchParams.get('sort') || 'newest';
@@ -22,6 +28,10 @@ async function _GET(request: any) {
     ]);
 
     let filtered = allProducts;
+
+    if (requestedIds.size > 0) {
+      filtered = filtered.filter((product: any) => requestedIds.has(product.id));
+    }
 
     if (categorySlug) {
       const cat = allCategories.find((c: any) => c.slug === categorySlug);

@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import Link from '@/components/ui/link';
 import Image from '@/components/ui/image';
 import NumberFlow from '@number-flow/react';
@@ -12,15 +12,18 @@ import { gsap, isReducedMotion } from '@/lib/motion';
 import { QuantityStepper } from '@/components/ui/quantity-stepper';
 import { useTranslations, useLocale } from '@/lib/i18n/context';
 import { getLocalizedName } from '@/lib/i18n/formatters';
+import { useMinimumOrderValue } from '@/hooks/use-minimum-order-value';
 
 interface QuickCartWidgetProps {
   className?: string;
   onClose?: () => void;
   locale?: string;
+  drawerLayout?: 'mobile' | 'desktop';
 }
 
-export function QuickCartWidget({ className = '', onClose, locale: propLocale }: QuickCartWidgetProps) {
-  const { items, itemCount, subtotal, totalSavings, updateQuantity, removeItem } = useCart();
+export function QuickCartWidget({ className = '', onClose, locale: propLocale, drawerLayout = 'mobile' }: QuickCartWidgetProps) {
+  const { items, itemCount, subtotal, totalSavings, updateQuantity, removeItem, setItemImage } = useCart();
+  const { minimumOrderValue, isMinimumOrderValueReady } = useMinimumOrderValue();
   const isHydrated = useIsHydrated();
   const detectedLocale = useLocale();
   const locale = (propLocale && (propLocale === 'ta' || propLocale === 'en') ? propLocale : detectedLocale) as any;
@@ -29,6 +32,27 @@ export function QuickCartWidget({ className = '', onClose, locale: propLocale }:
   const containerRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const prevItemCount = useRef(itemCount);
+  const meetsMinimumOrder = isMinimumOrderValueReady && (minimumOrderValue <= 0 || subtotal >= minimumOrderValue);
+  const minimumRemaining = Math.max(0, minimumOrderValue - subtotal);
+
+  useEffect(() => {
+    const missingIds = items.filter((item) => !item.image).map((item) => item.productId);
+    if (missingIds.length === 0) return;
+
+    let cancelled = false;
+    fetch(`/api/products?ids=${missingIds.join(',')}&limit=50`)
+      .then((response) => response.ok ? response.json() : null)
+      .then((data) => {
+        if (cancelled || !Array.isArray(data?.products)) return;
+        for (const product of data.products) {
+          const image = product.media?.[0]?.url;
+          if (image) setItemImage(product.id, image);
+        }
+      })
+      .catch(() => {});
+
+    return () => { cancelled = true; };
+  }, [items, setItemImage]);
 
   // GSAP Container & Items Initial Entrance
   useGSAP(
@@ -39,20 +63,20 @@ export function QuickCartWidget({ className = '', onClose, locale: propLocale }:
 
       tl.fromTo(
         '.qcart-header',
-        { opacity: 0, y: -10 },
-        { opacity: 1, y: 0, duration: 0.3 }
+        { opacity: 0, y: -6 },
+        { opacity: 1, y: 0, duration: 0.24 }
       )
         .fromTo(
           '.qcart-item',
-          { opacity: 0, y: -14, scale: 0.95 },
-          { opacity: 1, y: 0, scale: 1, duration: 0.35, ease: 'back.out(1.3)', stagger: 0.05 },
-          '-=0.15'
+          { opacity: 0, y: 10 },
+          { opacity: 1, y: 0, duration: 0.28, ease: 'power3.out', stagger: 0.035 },
+          '-=0.08'
         )
         .fromTo(
           '.qcart-footer',
-          { opacity: 0, y: 10 },
-          { opacity: 1, y: 0, duration: 0.35 },
-          '-=0.2'
+          { opacity: 0, y: 6 },
+          { opacity: 1, y: 0, duration: 0.25 },
+          '-=0.12'
         );
     },
     { dependencies: [isHydrated], scope: containerRef }
@@ -121,27 +145,27 @@ export function QuickCartWidget({ className = '', onClose, locale: propLocale }:
 
       {/* ── 1. Header ─── */}
       <div className="qcart-header flex min-w-0 items-center justify-between gap-2 pb-3.5 sm:pb-4 border-b border-neutral-100 dark:border-[#282828]">
-        <div className="flex min-w-0 flex-1 items-center gap-2.5">
+        <div className="flex min-w-0 items-center gap-2 sm:gap-2.5">
           <div className="h-9 w-9 rounded-full bg-neutral-100 dark:bg-[#202020] flex items-center justify-center text-neutral-900 dark:text-white">
             <ShoppingCart className="h-4.5 w-4.5" />
           </div>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <div className="flex min-w-0 items-center gap-1.5">
-              <span className="min-w-0 font-bold text-sm sm:text-base leading-tight tracking-tight text-neutral-900 dark:text-white">
-                {t('title')}
+              <span className="shrink-0 whitespace-nowrap font-bold text-[13px] leading-tight tracking-tight text-neutral-900 dark:text-white md:text-base">
+                {locale === 'ta' ? 'உங்கள் பை' : 'Your Bag'}
               </span>
-              <span className="qcart-badge h-5 px-2 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-black text-[11px] font-bold flex items-center justify-center font-mono">
+              <span className="qcart-badge h-5 shrink-0 px-2 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-black text-[11px] font-bold flex items-center justify-center font-mono">
                 {itemCount}
               </span>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-1 md:gap-2">
           {itemCount > 0 && (
             <Link
               href={locale === 'en' ? '/cart' : `/${locale}/cart`}
-              className="shrink-0 whitespace-nowrap text-[11px] font-semibold text-neutral-500 dark:text-neutral-400 hover:text-neutral-950 dark:hover:text-white transition-colors flex items-center gap-1 py-1 px-2 rounded-full hover:bg-neutral-100 dark:hover:bg-[#202020]"
+              className="shrink-0 whitespace-nowrap text-[10px] font-semibold text-neutral-500 dark:text-neutral-400 hover:text-neutral-950 dark:hover:text-white transition-colors flex items-center gap-1 py-1 px-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-[#202020] sm:text-[11px] sm:px-2"
             >
               {t('orderSummary')} <ArrowRight className="h-3 w-3" />
             </Link>
@@ -188,7 +212,9 @@ export function QuickCartWidget({ className = '', onClose, locale: propLocale }:
         <div
           ref={listRef}
           data-lenis-prevent
-          className="my-3.5 min-h-0 flex-1 space-y-2.5 overflow-y-auto pr-1 no-scrollbar overscroll-contain touch-pan-y"
+          className={`my-3.5 min-h-0 flex-1 space-y-2.5 overflow-y-auto pr-1 no-scrollbar overscroll-contain touch-pan-y ${
+            onClose && drawerLayout === 'mobile' ? 'max-h-[calc(100dvh-20rem)] sm:max-h-[360px]' : ''
+          }`}
         >
           {items.map((item) => {
             const lineTotal = item.sellingPrice * item.quantity;
@@ -293,15 +319,44 @@ export function QuickCartWidget({ className = '', onClose, locale: propLocale }:
             </div>
           </div>
 
-          <Link href={locale === 'en' ? '/checkout' : `/${locale}/checkout`} className="block w-full">
-            <button
-              type="button"
-              className="w-full h-12 px-6 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-black font-bold text-xs sm:text-sm tracking-wide flex items-center justify-center gap-2 hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-all shadow-md active:scale-98 cursor-pointer"
-            >
-              <CreditCard className="h-4 w-4" />
-              <span>{t('proceedToCheckout')}</span>
-            </button>
-          </Link>
+          <div className={onClose ? 'grid grid-cols-2 gap-2' : !meetsMinimumOrder ? 'space-y-2' : ''}>
+            {onClose && (
+              <Link
+                href={locale === 'en' ? '/products' : `/${locale}/products`}
+                onClick={onClose}
+                className="flex h-12 min-w-0 items-center justify-center gap-1.5 rounded-full border border-neutral-200 bg-white px-2 text-xs font-bold text-neutral-700 transition-colors hover:bg-neutral-100 dark:border-neutral-700 dark:bg-[#202020] dark:text-neutral-200 dark:hover:bg-[#2c2c2c]"
+              >
+                <ShoppingBag className="h-4 w-4 shrink-0" />
+                <span className="truncate">{t('continueShopping')}</span>
+              </Link>
+            )}
+            {!onClose && !meetsMinimumOrder && (
+              <p aria-live="polite" className="rounded-xl border border-amber-300/80 bg-amber-50 px-3 py-2 text-center text-[11px] font-bold leading-snug text-amber-900 shadow-xs dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
+                {isMinimumOrderValueReady
+                  ? t('minOrderRemaining', { amount: new Intl.NumberFormat('en-IN').format(minimumRemaining) })
+                  : tCommon('loading')}
+              </p>
+            )}
+            {meetsMinimumOrder ? (
+              <Link href={locale === 'en' ? '/checkout' : `/${locale}/checkout`} className="block w-full min-w-0">
+                <button
+                  type="button"
+                  className="w-full h-12 px-2 sm:px-6 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-black font-bold text-xs sm:text-sm tracking-wide flex items-center justify-center gap-2 hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-all shadow-md active:scale-98 cursor-pointer"
+                >
+                  <CreditCard className="h-4 w-4 shrink-0" />
+                  <span className="truncate">{t('proceedToCheckout')}</span>
+                </button>
+              </Link>
+            ) : (
+              <button
+                type="button"
+                disabled
+                className="w-full h-12 min-w-0 rounded-full bg-neutral-200 px-2 text-xs font-bold text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400 cursor-not-allowed"
+              >
+                {isMinimumOrderValueReady ? t('proceedToCheckout') : tCommon('loading')}
+              </button>
+            )}
+          </div>
         </div>
       )}
     </div>

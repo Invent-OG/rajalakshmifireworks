@@ -54,7 +54,9 @@ const checkoutFormSchema = z
           data.stateId &&
           Number(data.stateId) > 0 &&
           data.cityId &&
-          Number(data.cityId) > 0 &&
+          (data.cityId === 'OTHER'
+            ? Boolean(data.city && data.city.trim().length >= 2)
+            : Number(data.cityId) > 0) &&
           data.pincode &&
           /^\d{6}$/.test(data.pincode.trim())
         );
@@ -76,6 +78,7 @@ function CheckoutPageContent() {
   const [isOrderPlaced, setIsOrderPlaced] = useState(false);
   const [showNoticeModal, setShowNoticeModal] = useState(false);
   const [pendingFormData, setPendingFormData] = useState<CheckoutFormData | null>(null);
+  const [checkoutStep, setCheckoutStep] = useState(1);
 
   const t = useTranslations('checkout');
   const tCart = useTranslations('cart');
@@ -301,9 +304,47 @@ function CheckoutPageContent() {
     );
   }
 
+  if (items.length > 0 && settingsData === undefined) {
+    return (
+      <div className="w-full px-4 sm:px-8 lg:px-12 py-16 text-center text-sm text-muted-foreground">
+        {tCommon('loading')}
+      </div>
+    );
+  }
+
+  if (!submitting && !isOrderPlaced && minOrderValue > 0 && subtotal < minOrderValue) {
+    const remaining = minOrderValue - subtotal;
+    return (
+      <div className="w-full px-4 sm:px-8 lg:px-12 py-16 font-sans">
+        <EmptyState
+          icon={ShoppingBag}
+          title={locale === 'ta' ? 'குறைந்தபட்ச ஆர்டர் தொகையை அடையுங்கள்' : 'Add more to reach the minimum order'}
+          description={locale === 'ta'
+            ? `குறைந்தபட்ச ஆர்டர் மதிப்பு ${formatCurrency(minOrderValue)}. தொடர ${formatCurrency(remaining)} மதிப்புள்ள பட்டாசுகளைச் சேர்க்கவும்.`
+            : `The minimum order is ${formatCurrency(minOrderValue)}. Add ${formatCurrency(remaining)} more in fireworks to continue.`}
+          actionLabel={tCart('browseProducts')}
+          actionHref={getHref('/products')}
+        />
+      </div>
+    );
+  }
+
   function handleFormSubmit(data: CheckoutFormData) {
     setPendingFormData(data);
     setShowNoticeModal(true);
+  }
+
+  async function continueCheckout() {
+    const fields = checkoutStep === 1
+      ? ['name', 'mobile'] as const
+      : fulfillmentType === 'DELIVERY'
+        ? ['fulfillmentType', 'stateId', 'cityId', 'address', 'pincode'] as const
+        : ['fulfillmentType'] as const;
+
+    if (await form.trigger([...fields])) {
+      setCheckoutStep((step) => Math.min(step + 1, 3));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 
   function executeBooking(data: CheckoutFormData) {
@@ -364,11 +405,50 @@ function CheckoutPageContent() {
       </div>
 
       <form onSubmit={form.handleSubmit(handleFormSubmit)}>
+        <div className="mb-8 rounded-3xl border border-neutral-200 bg-white/80 p-4 shadow-sm dark:border-[#282828] dark:bg-[#141414]/80 sm:p-5">
+          <div className="grid grid-cols-3 gap-2 sm:gap-4">
+            {[
+              { number: 1, label: locale === 'ta' ? 'வாடிக்கையாளர்' : 'Customer' },
+              { number: 2, label: locale === 'ta' ? 'பெறுதல்' : 'Fulfillment' },
+              { number: 3, label: locale === 'ta' ? 'குறிப்புகள்' : 'Instructions' },
+            ].map((step) => {
+              const isComplete = checkoutStep > step.number;
+              const isActive = checkoutStep === step.number;
+              return (
+                <button
+                  key={step.number}
+                  type="button"
+                  disabled={step.number > checkoutStep}
+                  onClick={() => setCheckoutStep(step.number)}
+                  className="group flex min-w-0 items-center gap-2 text-left disabled:cursor-default sm:gap-3"
+                  aria-current={isActive ? 'step' : undefined}
+                >
+                  <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-colors ${
+                    isActive
+                      ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-950'
+                      : isComplete
+                        ? 'bg-emerald-600 text-white'
+                        : 'border border-neutral-300 text-muted-foreground dark:border-[#383838]'
+                  }`}>
+                    {isComplete ? <CheckCircle2 className="h-4 w-4" /> : `0${step.number}`}
+                  </span>
+                  <span className={`truncate text-xs font-semibold sm:text-sm ${isActive ? 'text-foreground' : 'text-muted-foreground'}`}>
+                    {step.label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          <div className="mt-4 h-1 overflow-hidden rounded-full bg-neutral-100 dark:bg-[#282828]">
+            <div className="h-full rounded-full bg-neutral-900 transition-all duration-300 dark:bg-white" style={{ width: `${(checkoutStep / 3) * 100}%` }} />
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Left: Input Details Form */}
           <div className="lg:col-span-7 space-y-6">
             {/* Step 01: Customer Details */}
-            <div className="p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white dark:bg-[#141414] dark:border dark:border-[#282828] shadow-sm dark:shadow-none space-y-4">
+            <div className={`${checkoutStep === 1 ? '' : 'hidden'} p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white dark:bg-[#141414] dark:border dark:border-[#282828] shadow-sm dark:shadow-none space-y-4`}>
               <div className="flex items-center gap-3 pb-1 border-b border-neutral-100 dark:border-[#282828]">
                 <span className="h-7 w-7 rounded-full bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 text-xs font-bold flex items-center justify-center shadow-xs font-mono">
                   01
@@ -395,7 +475,7 @@ function CheckoutPageContent() {
             </div>
 
             {/* Step 02: Fulfillment Mode & Address Selection */}
-            <div className="p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white dark:bg-[#141414] dark:border dark:border-[#282828] shadow-sm dark:shadow-none space-y-4">
+            <div className={`${checkoutStep === 2 ? '' : 'hidden'} p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white dark:bg-[#141414] dark:border dark:border-[#282828] shadow-sm dark:shadow-none space-y-4`}>
               <div className="flex items-center gap-3 pb-1 border-b border-neutral-100 dark:border-[#282828]">
                 <span className="h-7 w-7 rounded-full bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 text-xs font-bold flex items-center justify-center shadow-xs font-mono">
                   02
@@ -617,7 +697,7 @@ function CheckoutPageContent() {
             </div>
 
             {/* Step 03: Delivery Instructions */}
-            <div className="p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white dark:bg-[#141414] dark:border dark:border-[#282828] shadow-sm dark:shadow-none space-y-4">
+            <div className={`${checkoutStep === 3 ? '' : 'hidden'} p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white dark:bg-[#141414] dark:border dark:border-[#282828] shadow-sm dark:shadow-none space-y-4`}>
               <div className="flex items-center gap-3">
                 <span className="h-7 w-7 rounded-full bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 text-xs font-bold flex items-center justify-center shadow-xs font-mono">
                   03
@@ -632,78 +712,25 @@ function CheckoutPageContent() {
               />
             </div>
 
-            {/* Step 04: Sales Agent Referral Code */}
-            <div className="p-6 sm:p-7 rounded-[32px] sm:rounded-[36px] bg-white dark:bg-[#141414] dark:border dark:border-[#282828] shadow-sm dark:shadow-none space-y-4">
-              <div className="flex items-center justify-between pb-1 border-b border-neutral-100 dark:border-[#282828]">
-                <div className="flex items-center gap-3">
-                  <span className="h-7 w-7 rounded-full bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 text-xs font-bold flex items-center justify-center shadow-xs font-mono">
-                    04
-                  </span>
-                  <h2 className="font-bold text-base text-foreground tracking-tight font-heading flex items-center gap-2">
-                    <UserCheck className="h-4 w-4 text-primary" />
-                    {locale === 'ta' ? 'விற்பனை முகவர் பரிந்துரை குறியீடு (விருப்பத்தேர்வு)' : 'Sales Agent Referral Code (Optional)'}
-                  </h2>
-                </div>
-                <span className="text-xs text-muted-foreground font-medium">
-                  {locale === 'ta' ? 'விருப்பத்தேர்வு' : 'Optional'}
-                </span>
-              </div>
-
-              <p className="text-xs text-muted-foreground">
-                {locale === 'ta'
-                  ? 'உங்களுக்கு பரிந்துரைத்த விற்பனை முகவரின் குறியீட்டை உள்ளிடவும். இது முகவர் கண்காணிப்பிற்கு மட்டுமே பயன்படுத்தப்படும் (விலையில் மாற்றம் இருக்காது).'
-                  : 'Enter your sales agent referral code if you were introduced by one. Used strictly for sales tracking; prices remain unchanged.'}
-              </p>
-
-              <div className="flex gap-2 items-start">
-                <div className="flex-1">
-                  <Input
-                    placeholder="e.g. GUNA01, RAJ01"
-                    maxLength={30}
-                    autoCapitalize="characters"
-                    value={form.watch('referralCode') || ''}
-                    onChange={(e) => {
-                      const val = e.target.value.toUpperCase();
-                      form.setValue('referralCode', val);
-                      setAttributionSource('CODE');
-                      if (!val.trim()) {
-                        setRefValidation({ status: 'idle' });
-                      }
-                    }}
-                    className="font-mono uppercase tracking-wider"
-                  />
-                </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="default"
-                  disabled={!form.watch('referralCode')?.trim() || refValidation.status === 'checking'}
-                  onClick={() => validateCode(form.watch('referralCode') || '')}
-                  className="shrink-0 text-xs h-10 px-4"
-                >
-                  {refValidation.status === 'checking'
-                    ? (locale === 'ta' ? 'சரிபார்க்கிறது...' : 'Verifying...')
-                    : (locale === 'ta' ? 'சரிபார்' : 'Verify')}
+            <div className="flex items-center justify-between gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                disabled={checkoutStep === 1}
+                onClick={() => setCheckoutStep((step) => Math.max(step - 1, 1))}
+              >
+                {locale === 'ta' ? 'முந்தையது' : 'Back'}
+              </Button>
+              {checkoutStep < 3 ? (
+                <Button type="button" onClick={continueCheckout} className="min-w-36">
+                  {locale === 'ta' ? 'தொடரவும்' : 'Continue'}
+                  <ArrowRight className="h-4 w-4" />
                 </Button>
-              </div>
-
-              {refValidation.status === 'valid' && (
-                <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
-                  <div>
-                    <span className="font-semibold">{refValidation.message}</span>
-                    <div className="text-[11px] text-emerald-700 dark:text-emerald-400 mt-0.5">
-                      Order will be attributed to this sales agent. Pricing remains standard.
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {refValidation.status === 'invalid' && (
-                <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-xl text-xs text-destructive flex items-center gap-2">
-                  <AlertCircle className="h-4 w-4 shrink-0" />
-                  <span>{refValidation.message}</span>
-                </div>
+              ) : (
+                <StoreButton type="submit" size="lg" variant="primary" loading={submitting} disabled={submitting} className="min-w-48">
+                  {t('submitEnquiry')}
+                  <ArrowRight className="h-4 w-4" />
+                </StoreButton>
               )}
             </div>
           </div>
@@ -730,6 +757,63 @@ function CheckoutPageContent() {
                     </div>
                   );
                 })}
+              </div>
+
+              {/* Optional referral code stays with the enquiry items, outside the checkout steps. */}
+              <div className="rounded-2xl border border-neutral-200 p-4 dark:border-[#282828]">
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <h3 className="flex items-center gap-2 text-sm font-bold text-foreground">
+                    <UserCheck className="h-4 w-4 text-primary" />
+                    {locale === 'ta' ? 'விற்பனை முகவர் பரிந்துரை குறியீடு' : 'Sales Agent Referral Code'}
+                  </h3>
+                  <span className="text-[11px] font-medium text-muted-foreground">
+                    {locale === 'ta' ? 'விருப்பத்தேர்வு' : 'Optional'}
+                  </span>
+                </div>
+                <p className="mb-3 text-xs leading-relaxed text-muted-foreground">
+                  {locale === 'ta'
+                    ? 'உங்களுக்கு பரிந்துரைத்த விற்பனை முகவரின் குறியீட்டை உள்ளிடவும்.'
+                    : 'Enter a sales agent referral code if you were introduced by one.'}
+                </p>
+                <div className="flex items-start gap-2">
+                  <Input
+                    placeholder="e.g. GUNA01, RAJ01"
+                    maxLength={30}
+                    autoCapitalize="characters"
+                    value={form.watch('referralCode') || ''}
+                    onChange={(e) => {
+                      const val = e.target.value.toUpperCase();
+                      form.setValue('referralCode', val);
+                      setAttributionSource('CODE');
+                      if (!val.trim()) setRefValidation({ status: 'idle' });
+                    }}
+                    className="font-mono uppercase tracking-wider"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="default"
+                    disabled={!form.watch('referralCode')?.trim() || refValidation.status === 'checking'}
+                    onClick={() => validateCode(form.watch('referralCode') || '')}
+                    className="h-10 shrink-0 px-4 text-xs"
+                  >
+                    {refValidation.status === 'checking'
+                      ? (locale === 'ta' ? 'சரிபார்க்கிறது...' : 'Verifying...')
+                      : (locale === 'ta' ? 'சரிபார்' : 'Verify')}
+                  </Button>
+                </div>
+                {refValidation.status === 'valid' && (
+                  <div className="mt-3 flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300">
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+                    <span className="font-semibold">{refValidation.message}</span>
+                  </div>
+                )}
+                {refValidation.status === 'invalid' && (
+                  <div className="mt-3 flex items-center gap-2 rounded-xl border border-destructive/20 bg-destructive/10 p-3 text-xs text-destructive">
+                    <AlertCircle className="h-4 w-4 shrink-0" />
+                    <span>{refValidation.message}</span>
+                  </div>
+                )}
               </div>
 
               {/* Price Calculation */}
@@ -777,19 +861,6 @@ function CheckoutPageContent() {
                   {formatCurrency(grandTotal)}
                 </span>
               </div>
-
-              {/* Submit CTA */}
-              <StoreButton
-                type="submit"
-                size="lg"
-                variant="primary"
-                loading={submitting}
-                disabled={submitting}
-                className="w-full"
-              >
-                {t('submitEnquiry')}
-                <ArrowRight className="h-4 w-4" />
-              </StoreButton>
 
               {/* WhatsApp Notice Box */}
               <div className="p-4 rounded-[20px] sm:rounded-[22px] bg-neutral-50 dark:bg-[#181818] dark:border dark:border-[#282828] text-xs text-muted-foreground flex items-start gap-3">

@@ -30,7 +30,6 @@ import { getLocalizedName } from '@/lib/i18n/formatters';
 import { formatCurrency, toNumber } from '@/lib/utils/format';
 import { ProductVisualPlaceholder } from '@/components/ui/category-icon';
 import { APP_CONFIG } from '@/lib/constants/config';
-import { toast } from '@/lib/toast';
 
 export interface QuickOrderProduct {
   id: number;
@@ -917,11 +916,6 @@ function TableRow({ product, locale, addItem, updateQuantity, removeItem }: Tabl
                 maxStock: product.stockQuantity || 100,
                 quantity: 1,
               });
-              toast.success(
-                locale === 'ta'
-                  ? `${displayName} உங்கள் பையில் சேர்க்கப்பட்டது!`
-                  : `${displayName} added to cart`
-              );
             }}
             className="inline-flex items-center justify-center gap-1.5 h-9 px-4 rounded-full bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-900 dark:text-white text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-2xs hover:shadow-xs"
           >
@@ -1053,11 +1047,6 @@ function MobileCard({ product, locale, addItem, updateQuantity, removeItem }: Mo
                 maxStock: product.stockQuantity || 100,
                 quantity: 1,
               });
-              toast.success(
-                locale === 'ta'
-                  ? `${displayName} உங்கள் பையில் சேர்க்கப்பட்டது!`
-                  : `${displayName} added to cart`
-              );
             }}
             className="inline-flex items-center gap-1 h-8 px-3.5 rounded-full bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-900 dark:text-white text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-2xs"
           >

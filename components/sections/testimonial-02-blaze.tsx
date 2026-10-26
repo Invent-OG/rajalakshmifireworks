@@ -55,19 +55,19 @@ export function Testimonial02Blaze() {
             {/* Left Block */}
             <div className="max-w-[600px]">
               {/* Section Tag Row */}
-              <div className="mb-4 sm:mb-6 md:mb-8">
+              <div className="mb-3 sm:mb-4">
                 <SectionTag label={t('badge')} />
               </div>
 
               {/* Heading */}
-              <h2 className="text-2xl sm:text-4xl md:text-[58px] font-medium text-[#111010] dark:text-white leading-[1.15] md:leading-[1.1] tracking-tight font-heading">
+              <h2 className="font-heading text-2xl font-bold leading-[1.1] tracking-tight text-neutral-950 dark:text-white sm:text-3xl md:text-[44px] lg:text-[50px]">
                 {t('title')}
               </h2>
             </div>
 
             {/* Right Block */}
             <div className="w-full md:w-auto md:max-w-[320px] text-left md:text-right pb-1 md:pb-2">
-              <p className="text-[13px] sm:text-[15px] text-[#555455] dark:text-neutral-400 font-normal leading-relaxed">
+              <p className="text-[13px] font-normal leading-relaxed text-neutral-600 dark:text-neutral-300 sm:text-[15px]">
                 {t('subtitle')}
               </p>
             </div>

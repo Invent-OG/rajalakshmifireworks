@@ -352,51 +352,39 @@ p, span, input, select, textarea, button {
 /* ── Rajalakshmi Sivakasi Fireworks Home Page Seamless Gradient Background ── */
 .home-page-gradient {
   background:
-    radial-gradient(ellipse 90% 45% at 50% 0%, rgba(226, 64, 0, 0.12), transparent 70%),
-    radial-gradient(ellipse 70% 35% at 100% 22%, rgba(251, 191, 36, 0.14), transparent 60%),
-    radial-gradient(ellipse 70% 35% at 90% 40%, rgba(220, 38, 38, 0.13), transparent 60%),
-    radial-gradient(ellipse 70% 40% at 0% 65%, rgba(226, 64, 0, 0.15), transparent 65%),
-    radial-gradient(ellipse 85% 40% at 85% 85%, rgba(185, 28, 28, 0.13), transparent 70%),
+    radial-gradient(ellipse 72% 36% at 6% 18%, rgba(234, 68, 22, 0.18), transparent 72%),
+    radial-gradient(ellipse 66% 34% at 96% 30%, rgba(255, 127, 35, 0.24), transparent 68%),
+    radial-gradient(ellipse 78% 38% at 78% 66%, rgba(210, 38, 35, 0.16), transparent 72%),
+    radial-gradient(ellipse 70% 34% at 12% 88%, rgba(255, 111, 25, 0.18), transparent 68%),
     linear-gradient(
-      180deg,
-      #ffffff 0%,
-      #fffbf0 4%,
-      #fef3c7 10%,
-      #ffe8dc 18%,
-      #ffd0bf 28%,
-      #ffa88a 40%,
-      #f26b52 50%,
-      #e24000 60%,
-      #d92929 70%,
-      #f6806d 80%,
-      #ffd3c5 90%,
-      #fff2ec 96%,
-      #ffffff 100%
+      145deg,
+      #fff8f1 0%,
+      #fff0e2 18%,
+      #ffe0c9 35%,
+      #ffc49f 52%,
+      #f9a083 68%,
+      #ffd0ad 84%,
+      #fff6ec 100%
     );
-  background-color: #ffffff;
+  background-color: #fff6ec;
 }
 
 .dark .home-page-gradient {
   background:
-    radial-gradient(ellipse 90% 45% at 50% 0%, rgba(226, 64, 0, 0.22), transparent 70%),
-    radial-gradient(ellipse 70% 35% at 100% 22%, rgba(251, 191, 36, 0.18), transparent 60%),
-    radial-gradient(ellipse 70% 35% at 90% 40%, rgba(220, 38, 38, 0.22), transparent 60%),
-    radial-gradient(ellipse 70% 40% at 0% 65%, rgba(226, 64, 0, 0.25), transparent 65%),
-    radial-gradient(ellipse 85% 40% at 85% 85%, rgba(185, 28, 28, 0.22), transparent 70%),
+    radial-gradient(ellipse 80% 38% at 8% 18%, rgba(226, 64, 0, 0.24), transparent 72%),
+    radial-gradient(ellipse 72% 34% at 92% 32%, rgba(251, 112, 35, 0.2), transparent 68%),
+    radial-gradient(ellipse 80% 36% at 76% 62%, rgba(220, 38, 38, 0.2), transparent 72%),
+    radial-gradient(ellipse 76% 38% at 18% 82%, rgba(226, 64, 0, 0.2), transparent 68%),
     linear-gradient(
-      180deg,
-      #050505 0%,
-      #180802 8%,
-      #2b0c03 18%,
-      #441205 32%,
-      #591605 48%,
-      #6e1205 60%,
-      #4d0d04 74%,
-      #2a0902 86%,
-      #140501 94%,
-      #050505 100%
+      145deg,
+      #090706 0%,
+      #1a0b07 20%,
+      #2c1008 40%,
+      #40150a 58%,
+      #351008 76%,
+      #100807 100%
     );
-  background-color: #050505;
+  background-color: #090706;
 }
 
 /* ── Floating Animated Gradient Orbs Keyframes (Hardware Accelerated translate3d) ── */
@@ -755,13 +743,6 @@ select option {
   contain: layout style;
 }
 
-._card-header-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) max-content;
-  gap: 0.5rem 0.75rem;
-  align-items: center;
-}
-
 ._thumbnail-stack {
   position: relative;
   width: 100%;
@@ -846,19 +827,6 @@ select option {
 ._card ._heading:hover,
 ._card:hover ._heading {
   color: #d97706;
-}
-
-._card ._price {
-  padding: 0.35em 0.85em;
-  border-radius: 9999px;
-  background-color: #f4f4f5;
-  color: #09090b;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  font-variant-numeric: tabular-nums;
-  font-weight: 800;
-  font-size: 0.8125rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-  white-space: nowrap;
 }
 
 ._card ._tag-list {
@@ -995,13 +963,6 @@ select option {
   color: #fbbf24;
 }
 
-.dark ._card ._price {
-  background-color: #242424;
-  color: #ffffff;
-  border: 1px solid #383838;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-}
-
 .dark ._card ._tag {
   background-color: #242424;
   color: #e5e5e5;
@@ -1104,7 +1065,7 @@ astro-slot {
     display: none !important;
   }
 
-  #products-grid-container.is-list-view ._card-header-grid {
+  #products-grid-container.is-list-view .product-card-info {
     margin-top: 0 !important;
   }
 }
