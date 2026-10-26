@@ -11,7 +11,6 @@ interface Props {
   base?: string;           // folder (under /public) that holds the images
   fireworks?: boolean;     // canvas fireworks in the sky
   embers?: boolean;        // drifting golden sparks
-  smoothScroll?: boolean;  // enable Lenis smooth scrolling site-wide
   bg?: string;             // colour the hero fades into at the bottom (match the next section)
 }
 const {
@@ -20,7 +19,6 @@ const {
   base = '/hero',
   fireworks = true,
   embers = true,
-  smoothScroll = true,
   bg = '#0d0807',
 } = Astro.props;
 ---
@@ -28,7 +26,6 @@ const {
 <section
   class="dh"
   data-diwali-hero
-  data-smooth={smoothScroll ? '1' : '0'}
   style={`--dh-bg:${bg}`}
 >
   <div class="dh-vis">
@@ -37,7 +34,7 @@ const {
       <div class="dh-l" data-l="1">
         <div class="dh-pos dh-cover">
           <div class="dh-stg" data-m="5">
-            <img src={`${base}/sky.jpg`} width="1536" height="1024" alt="" fetchpriority="high" decoding="async" />
+          <img src={`${base}/sky.jpg`} width="1536" height="1024" alt="" fetchpriority="auto" decoding="async" />
           </div>
         </div>
       </div>
@@ -140,7 +137,6 @@ const {
 <script>
   import gsap from 'gsap';
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
-  import Lenis from 'lenis';
 
   gsap.registerPlugin(ScrollTrigger);
 
@@ -170,46 +166,13 @@ const {
     if (!reduce) {
       /* ---------- scroll parallax: far layers drop most, near layers least ---------- */
       const tl = gsap.timeline({
-        scrollTrigger: { trigger: root, start: 'top top', end: 'bottom top', scrub: 0.4 },
+        scrollTrigger: { trigger: root, start: 'top top', end: 'bottom top', scrub: true },
       });
       ([['1', 24], ['1b', 22], ['2', 16], ['3', 10], ['3b', 8], ['4', 2]] as const).forEach(([l, y], i) => {
         const els = layers.querySelectorAll(`[data-l="${l}"]`);
         if (els.length) tl.to(els, { yPercent: y, ease: 'none' }, i === 0 ? undefined : '<');
       });
       dispose.push(() => { tl.scrollTrigger?.kill(); tl.kill(); });
-
-      /* ---------- smooth scroll (single instance, desktop-only) ---------- */
-      if (root.dataset.smooth === '1') {
-        const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0 || window.matchMedia('(pointer: coarse)').matches;
-        const hasExistingLenis = Boolean((window as any).__lenis);
-
-        if (!isTouch && !hasExistingLenis) {
-          const lenis = new Lenis({
-            duration: 0.8,
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-            orientation: 'vertical',
-            gestureOrientation: 'vertical',
-            smoothWheel: true,
-            wheelMultiplier: 1.0,
-            autoRaf: false,
-          });
-          (window as any).__lenis = lenis;
-
-          lenis.on('scroll', ScrollTrigger.update);
-          const tick = (time: number) => {
-            lenis.raf(time * 1000);
-          };
-          gsap.ticker.add(tick);
-          gsap.ticker.lagSmoothing(500, 33);
-
-          dispose.push(() => {
-            gsap.ticker.remove(tick);
-            lenis.destroy();
-            delete (window as any).__lenis;
-          });
-        }
-      }
-
 
       /* ---------- mouse depth (rAF-throttled, passive) ---------- */
       const mv = [...root.querySelectorAll<HTMLElement>('[data-m]')].map((el) => ({
@@ -280,8 +243,8 @@ const {
     }
     function frame(ts: number) {
       if (!running || !alive) return;
-      // Cap fireworks to ~30fps to halve canvas drawing cost
-      if (ts - lastFrameTs < 33) { requestAnimationFrame(frame); return; }
+      // Cap fireworks to ~20fps; the particles stay decorative without competing with scroll.
+      if (ts - lastFrameTs < 50) { requestAnimationFrame(frame); return; }
       lastFrameTs = ts;
       const dt = Math.min((ts - (last || ts)) / 16.67, 2.0); last = ts;
       if (!next) next = ts + 400;

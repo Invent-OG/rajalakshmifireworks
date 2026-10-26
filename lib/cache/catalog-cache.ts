@@ -1,6 +1,6 @@
 import { db } from '@/db';
 import { categories, products, settings } from '@/db/schema';
-import { eq, and, asc, desc } from 'drizzle-orm';
+import { eq, and, asc, desc, or } from 'drizzle-orm';
 
 interface CacheEntry<T> {
   data: T;
@@ -11,6 +11,7 @@ const TTL_MS = 5 * 60 * 1000; // 5-minute memory cache TTL
 
 let cachedCategories: CacheEntry<any[]> | null = null;
 let cachedAllActiveProducts: CacheEntry<any[]> | null = null;
+let cachedHomeProducts: CacheEntry<any[]> | null = null;
 let cachedSettingsMap: CacheEntry<Map<string, string>> | null = null;
 let cachedHeroConfig: CacheEntry<string | null> | null = null;
 const cachedProductSlugMap = new Map<string, CacheEntry<any>>();
@@ -21,6 +22,7 @@ const cachedProductSlugMap = new Map<string, CacheEntry<any>>();
 export function invalidateCatalogCache(): void {
   cachedCategories = null;
   cachedAllActiveProducts = null;
+  cachedHomeProducts = null;
   cachedSettingsMap = null;
   cachedHeroConfig = null;
   cachedProductSlugMap.clear();
@@ -107,6 +109,39 @@ export async function getCachedAllActiveProducts(): Promise<any[]> {
   } catch (error) {
     console.warn('[catalog-cache] Failed to fetch active products from database (transient network/db issue):', error instanceof Error ? error.message : error);
     if (cachedAllActiveProducts) return cachedAllActiveProducts.data;
+    return [];
+  }
+}
+
+/** Fetch only products displayed on the home page, avoiding a full catalog scan there. */
+export async function getCachedHomeProducts(): Promise<any[]> {
+  const now = Date.now();
+  if (cachedHomeProducts && now - cachedHomeProducts.timestamp < TTL_MS) {
+    return cachedHomeProducts.data;
+  }
+
+  try {
+    const data = await queryWithRetry(() =>
+      db.query.products.findMany({
+        where: and(
+          eq(products.isActive, true),
+          or(eq(products.isFeatured, true), eq(products.isBestseller, true)),
+        ),
+        with: {
+          category: true,
+          media: {
+            orderBy: (m, { asc }) => [asc(m.sortOrder)],
+            limit: 1,
+          },
+        },
+        orderBy: [desc(products.createdAt)],
+      }),
+    );
+    cachedHomeProducts = { data, timestamp: now };
+    return data;
+  } catch (error) {
+    console.warn('[catalog-cache] Failed to fetch home products:', error instanceof Error ? error.message : error);
+    if (cachedHomeProducts) return cachedHomeProducts.data;
     return [];
   }
 }

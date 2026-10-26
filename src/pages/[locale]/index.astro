@@ -2,18 +2,14 @@
 import StoreLayout from "@/src/layouts/StoreLayout.astro";
 import {
   getCachedCategories,
-  getCachedAllActiveProducts,
-  getCachedHeroConfig,
+  getCachedHomeProducts,
 } from "@/lib/cache/catalog-cache";
 import { FeaturedProductsSlider } from "@/components/store/featured-products-slider";
 import { HomeMotion } from "@/components/store/home-motion";
-import { OrganicHero } from "@/components/store/organic-hero";
 import { OrganicCategoriesGrid } from "@/components/store/organic-categories-grid";
-import { parseHeroConfig } from "@/lib/hero-config";
 import { Testimonial02Blaze } from "@/components/sections/testimonial-02-blaze";
 import { InfiniteRibbonPreview } from "@/components/ui/infinite-ribbon-demo";
 import { DiwaliCountdownBanner } from "@/components/store/diwali-countdown-banner";
-import { ShaderBackground } from "@/components/ui/kk";
 import { isValidLocale } from "@/lib/i18n/config";
 import { getTranslations } from "@/lib/i18n/server";
 import DiwaliHero from "@/components/store/DiwaliHero.astro";
@@ -31,17 +27,14 @@ Astro.response.headers.set(
 
 let allCategories: any[] = [];
 let allActiveProducts: any[] = [];
-let heroConfigRaw: string | null = null;
 
 try {
-  const [cats, prods, hero] = await Promise.all([
+  const [cats, prods] = await Promise.all([
     getCachedCategories(),
-    getCachedAllActiveProducts(),
-    getCachedHeroConfig(),
+    getCachedHomeProducts(),
   ]);
   allCategories = cats || [];
   allActiveProducts = prods || [];
-  heroConfigRaw = hero || null;
 } catch (err) {
   console.error('[index.astro] Error loading catalog data:', err);
 }
@@ -54,7 +47,6 @@ const bestsellerProducts = (allActiveProducts || [])
   .filter((p) => p?.isBestseller)
   .slice(0, 12);
 
-const heroConfig = parseHeroConfig(heroConfigRaw);
 const tSeo = getTranslations(locale, "seo");
 ---
 
@@ -65,16 +57,11 @@ const tSeo = getTranslations(locale, "seo");
   containerClass="home-page-gradient relative"
   headerOverlay={true}
 >
-  <!-- ── WebGL Mesh Drift Background (Red, Orange, Yellow, White) ── -->
+  <!-- Static ambient color keeps the background decorative without a full-screen WebGL render loop. -->
   <div
-    class="fixed inset-0 pointer-events-none z-0 overflow-hidden hidden md:block"
+    class="home-ambient fixed inset-0 pointer-events-none z-0 overflow-hidden hidden md:block"
     aria-hidden="true"
-  >
-    <ShaderBackground
-      client:media="(min-width: 768px)"
-      className="w-full h-full opacity-90 dark:opacity-40"
-    />
-  </div>
+  ></div>
   <HomeMotion client:idle>
     <DiwaliHero />
     <div
@@ -179,3 +166,11 @@ const tSeo = getTranslations(locale, "seo");
     </div>
   </HomeMotion>
 </StoreLayout>
+
+<style is:global>
+  .home-ambient {
+    background:
+      radial-gradient(ellipse at 18% 25%, rgba(255, 86, 31, 0.2), transparent 42%),
+      radial-gradient(ellipse at 82% 18%, rgba(255, 194, 62, 0.14), transparent 38%);
+  }
+</style>
