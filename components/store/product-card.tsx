@@ -7,7 +7,7 @@ import { toNumber, formatCurrency } from '@/lib/utils/format';
 import { ProductVisualPlaceholder } from '@/components/ui/category-icon';
 import { Plus, Minus, ShoppingBag } from 'lucide-react';
 import { useLocale, useTranslations } from '@/lib/i18n/context';
-import { getLocalizedName, getLocalizedDescription } from '@/lib/i18n/formatters';
+import { getLocalizedName } from '@/lib/i18n/formatters';
 import { toast } from '@/lib/toast';
 
 interface ProductCardProps {
@@ -16,8 +16,6 @@ interface ProductCardProps {
     name: string;
     nameTa?: string | null;
     slug: string;
-    description?: string | null;
-    descriptionTa?: string | null;
     piecesPerBox?: number | null;
     boxContent?: number | null;
     contentUnit?: string | null;
@@ -49,11 +47,6 @@ export const ProductCard = memo(function ProductCard({ product, locale: propLoca
   const cardRef = useRef<HTMLElement>(null);
 
   const displayName = getLocalizedName(product, locale);
-  const displayDesc = getLocalizedDescription(product, locale) || (
-    locale === 'ta'
-      ? 'உயர்தர ஒளி மற்றும் வண்ணங்களுடன் பிரகாசிக்கும் பாதுகாப்பான சிவகாசி நேரடி பட்டாசு.'
-      : 'Authentic Sivakasi festive fireworks with vibrant sky bursts, tested safety, and direct wholesale pricing.'
-  );
   const categoryName = getLocalizedName(product.category, locale) || (locale === 'ta' ? 'பட்டாசு' : 'Fireworks');
 
   const discount =
@@ -87,7 +80,6 @@ export const ProductCard = memo(function ProductCard({ product, locale: propLoca
 
   // Generate contextual tags
   const tags: string[] = [];
-  if (discount > 0) tags.push(tCommon('off', { percent: discount }));
   const count = product.boxContent ?? product.piecesPerBox;
   if (count && count > 0) {
     const rawUnit = product.contentUnit || 'Pcs';
@@ -99,10 +91,9 @@ export const ProductCard = memo(function ProductCard({ product, locale: propLoca
       else if (rawUnit.toLowerCase() === 'rolls' || rawUnit.toLowerCase() === 'roll') unitLabel = 'ரோல்';
       else unitLabel = 'பீஸ்';
     }
-    tags.push(`${count} ${unitLabel} / ${locale === 'ta' ? 'பெட்டி' : 'Box'}`);
+    tags.push(`${count} ${unitLabel}`);
   }
   tags.push(locale === 'ta' ? 'பசுமை பட்டாசு' : 'Green Cracker');
-  if (categoryName) tags.push(categoryName);
 
   return (
     <section
@@ -172,28 +163,13 @@ export const ProductCard = memo(function ProductCard({ product, locale: propLoca
             </div>
           </div>
 
-          {/* ── 3. Description (Line-clamped with uniform minimum height) ── */}
-          <p className="_description line-clamp-2 min-h-[2.4em]">
-            {displayDesc}
-          </p>
-
-          {/* ── 4. Tag List (Single row uniform height) ── */}
-          <ul className="_tag-list h-7 overflow-hidden flex flex-nowrap gap-1.5 mt-2">
-            {tags.slice(0, 3).map((tag, idx) => {
-              const isDiscountTag = tag.includes('%') || tag.toLowerCase().includes('off');
-              return (
-                <li
-                  key={idx}
-                  className={
-                    isDiscountTag
-                      ? '_tag !bg-amber-500/15 !text-amber-700 dark:!text-amber-300 !border !border-amber-500/30 font-bold'
-                      : '_tag'
-                  }
-                >
-                  {tag}
-                </li>
-              );
-            })}
+          {/* ── 3. Quick product facts ── */}
+          <ul className="_tag-list min-h-7 overflow-hidden flex flex-nowrap gap-1.5 mt-2">
+            {tags.slice(0, 2).map((tag, idx) => (
+              <li key={idx} className={idx === 0 && count ? '_tag _tag-primary' : '_tag'}>
+                {tag}
+              </li>
+            ))}
           </ul>
         </div>
 

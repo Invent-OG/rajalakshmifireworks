@@ -759,7 +759,7 @@ select option {
   display: grid;
   grid-template-columns: minmax(0, 1fr) max-content;
   gap: 0.5rem 0.75rem;
-  align-items: start;
+  align-items: center;
 }
 
 ._thumbnail-stack {
@@ -861,18 +861,6 @@ select option {
   white-space: nowrap;
 }
 
-._card ._description {
-  font-size: 0.8125rem;
-  color: #737373;
-  line-height: 1.45;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
-  margin-top: 0.35rem;
-  min-height: 2.35rem;
-}
-
 ._card ._tag-list {
   display: flex;
   flex-wrap: nowrap;
@@ -893,6 +881,13 @@ select option {
   letter-spacing: -0.01em;
   white-space: nowrap;
   flex-shrink: 0;
+}
+
+._card ._tag-primary {
+  background-color: rgba(245, 158, 11, 0.12);
+  color: #a34b00;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  font-weight: 700;
 }
 
 /* Purchase Button - Pure Black with Premium Shine Animation */
@@ -1007,14 +1002,16 @@ select option {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
-.dark ._card ._description {
-  color: #a3a3a3;
-}
-
 .dark ._card ._tag {
   background-color: #242424;
   color: #e5e5e5;
   border: 1px solid #333333;
+}
+
+.dark ._card ._tag-primary {
+  background-color: rgba(245, 158, 11, 0.16);
+  color: #fcd34d;
+  border-color: rgba(245, 158, 11, 0.38);
 }
 
 .dark .scope.purchase-button,
@@ -1100,10 +1097,6 @@ astro-slot {
   }
 
   #products-grid-container.is-list-view ._card ._category {
-    display: none !important;
-  }
-
-  #products-grid-container.is-list-view ._card ._description {
     display: none !important;
   }
 
