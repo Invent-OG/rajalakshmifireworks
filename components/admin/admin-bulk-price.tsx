@@ -272,7 +272,7 @@ function BulkPriceUpdatePageContent() {
               </div>
 
               <div className="overflow-x-auto max-h-[500px]">
-                <table className="w-full text-left text-xs sm:text-sm">
+                <table className="admin-data-table w-full text-left text-xs sm:text-sm">
                   <thead className="sticky top-0 bg-card border-b border-border text-[11px] uppercase font-semibold text-muted-foreground">
                     <tr>
                       <th className="px-4 py-3">Product</th>
@@ -327,7 +327,7 @@ function BulkPriceUpdatePageContent() {
               </div>
 
               <div className="overflow-x-auto max-h-[550px]">
-                <table className="w-full text-left text-xs sm:text-sm">
+                <table className="admin-data-table w-full text-left text-xs sm:text-sm">
                   <thead className="sticky top-0 bg-card border-b border-border text-[11px] uppercase font-semibold text-muted-foreground">
                     <tr>
                       <th className="px-4 py-3 w-8"></th>

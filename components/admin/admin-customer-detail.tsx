@@ -164,7 +164,7 @@ function CustomerDetailPageContent({
 
         {customer.orders && customer.orders.length > 0 ? (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs sm:text-sm">
+            <table className="admin-data-table w-full text-left text-xs sm:text-sm">
               <thead className="bg-muted/40 text-muted-foreground border-b border-border text-[11px] uppercase tracking-wider font-semibold">
                 <tr>
                   <th className="px-5 py-3">Invoice</th>

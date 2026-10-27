@@ -342,7 +342,7 @@ function AdminAgentsListContent() {
       {/* Agents Performance Table */}
       <div className="rounded-2xl bg-card border border-border overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs sm:text-sm">
+          <table className="admin-data-table w-full text-left text-xs sm:text-sm">
             <thead className="bg-muted/60 text-muted-foreground border-b border-border text-[11px] uppercase tracking-wider font-bold select-none">
               <tr>
                 <th className="px-5 py-3.5">Agent Profile</th>

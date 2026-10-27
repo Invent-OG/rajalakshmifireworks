@@ -758,7 +758,7 @@ function AdminDashboardPageContent() {
 
         {/* Orders Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs sm:text-sm">
+          <table className="admin-data-table w-full text-left text-xs sm:text-sm">
             <thead className="text-neutral-400 dark:text-neutral-400 border-b border-neutral-100 dark:border-white/5 text-xs font-medium">
               <tr>
                 <th className="pb-3 font-medium">Order Id</th>

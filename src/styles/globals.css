@@ -195,6 +195,62 @@
   --secondary-foreground: #f7f3f0;
 }
 
+/* The shared admin header owns the page title on these screens. */
+.admin-content-title-in-header h1 {
+  display: none;
+}
+
+/* Shared table styling, matched to the Dashboard's Recent Orders table. */
+.admin-panel .admin-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--foreground);
+}
+
+.admin-panel .admin-data-table thead {
+  color: var(--muted-foreground);
+  background-color: transparent;
+  border-bottom: 1px solid var(--border-subtle);
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.admin-panel .admin-data-table th {
+  padding: 0.75rem 1rem;
+  vertical-align: middle;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.admin-panel .admin-data-table thead.sticky {
+  background-color: var(--card);
+}
+
+.admin-panel .admin-data-table td {
+  padding: 0.875rem 1rem;
+  vertical-align: middle;
+}
+
+.admin-panel .admin-data-table tbody tr:not(:last-child) {
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.admin-panel .admin-data-table tbody tr {
+  transition: background-color 150ms ease;
+}
+
+.admin-panel .admin-data-table tbody tr:hover {
+  background-color: color-mix(in srgb, var(--foreground) 3%, transparent);
+}
+
+@media (max-width: 640px) {
+  .admin-panel .admin-data-table th,
+  .admin-panel .admin-data-table td {
+    padding: 0.7rem 0.75rem;
+  }
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-background-secondary: var(--background-secondary);

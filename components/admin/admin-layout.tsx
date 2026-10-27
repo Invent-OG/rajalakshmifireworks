@@ -64,6 +64,54 @@ const salesNavItems: NavItem[] = [
   { href: '/admin/sales/reports', icon: Trophy, label: 'Agent Reports' },
 ];
 
+// Screens with a page-level title should use the shared dashboard header for
+// that title. Their supporting copy and page actions remain in the content.
+function hasPageHeadingInContent(pathname: string) {
+  return [
+    '/admin/categories',
+    '/admin/delivery-partners',
+    '/admin/hero-slides',
+    '/admin/reports',
+    '/admin/invoice-editor',
+    '/admin/settings',
+    '/admin/profile',
+    '/admin/referral-codes',
+    '/admin/products/new',
+    '/admin/products/bulk-upload',
+    '/admin/products/bulk-price',
+    '/admin/sales/tracking',
+    '/admin/sales/agents',
+    '/admin/sales/reports',
+  ].includes(pathname);
+}
+
+function getAdminPageTitle(pathname: string, fallback: string) {
+  const exactTitles: Record<string, string> = {
+    '/admin': 'Dashboard',
+    '/admin/categories': 'Categories',
+    '/admin/delivery-partners': 'Delivery Partners',
+    '/admin/hero-slides': 'Hero Carousel Management',
+    '/admin/reports': 'Reports & Analytics',
+    '/admin/invoice-editor': 'Invoice & Dispatch Slip Editor',
+    '/admin/settings': 'Settings',
+    '/admin/profile': 'Profile & Security',
+    '/admin/referral-codes': 'Referral Codes',
+    '/admin/products/new': 'Add Product',
+    '/admin/products/bulk-upload': 'Bulk Excel Upload',
+    '/admin/products/bulk-price': 'Bulk Price Editor',
+    '/admin/sales/tracking': 'Agent Tracking',
+    '/admin/sales/agents': 'Sales Agents',
+    '/admin/sales/reports': 'Agent Reports',
+  };
+
+  if (exactTitles[pathname]) return exactTitles[pathname];
+  if (pathname.startsWith('/admin/products/')) return 'Edit Product';
+  if (pathname.startsWith('/admin/customers/')) return 'Customer Details';
+  if (pathname.startsWith('/admin/orders/')) return 'Order Details';
+  if (pathname.startsWith('/admin/sales/agents/')) return 'Agent Details';
+  return fallback;
+}
+
 function NotificationBell({
   count,
   pendingOrders,
@@ -222,10 +270,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const activeNavItem = allNavItems.find((item) =>
     item.href === '/admin' ? pathname === '/admin' : pathname.startsWith(item.href)
   );
-  const pageTitle =
-    pathname === '/admin/profile'
-      ? 'Profile & Security'
-      : activeNavItem?.label || 'Dashboard';
+  const pageTitle = getAdminPageTitle(pathname, activeNavItem?.label || 'Dashboard');
+  const pageTitleIsInContent = hasPageHeadingInContent(pathname);
 
   return (
     <div className="admin-panel min-h-screen xl:h-screen xl:max-h-screen xl:overflow-hidden p-2 sm:p-3 xl:p-4 flex flex-col font-sans text-neutral-900 dark:text-neutral-100 selection:text-white bg-[#F6F4F1] dark:bg-[#12100F] print:h-auto print:max-h-none print:min-h-0 print:overflow-visible print:bg-white print:p-0">
@@ -522,8 +568,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </header>
 
           {/* Main Dashboard / Page Body */}
-          <main className="flex-1  overflow-x-hidden">
-            {children}
+          <main className={`admin-page-main flex-1 min-w-0 overflow-x-hidden pt-1 sm:pt-2 ${pageTitleIsInContent ? 'admin-content-title-in-header' : ''}`}>
+            <div className="admin-page-canvas w-full min-w-0">
+              {children}
+            </div>
           </main>
         </div>
       </div>

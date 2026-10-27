@@ -408,7 +408,7 @@ function AdminProductsPageContent() {
       ) : products.length > 0 ? (
         <div className="rounded-2xl bg-card border border-border overflow-hidden shadow-xs">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-base">
+            <table className="admin-data-table w-full text-left text-base">
               <thead className="bg-muted/60 text-muted-foreground border-b border-border text-xs sm:text-sm uppercase tracking-wider font-bold select-none">
                 <tr>
                   <th className="px-5 py-4 w-12 text-center">

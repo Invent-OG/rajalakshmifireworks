@@ -696,7 +696,7 @@ function BulkProductUploadPageContent() {
               {/* Data Preview Table */}
               <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-xs">
                 <div className="overflow-x-auto max-h-[500px]">
-                  <table className="w-full text-left text-xs border-collapse">
+                  <table className="admin-data-table w-full text-left text-xs border-collapse">
                     <thead className="bg-muted/60 sticky top-0 z-10 border-b border-border backdrop-blur-xs text-muted-foreground font-semibold">
                       <tr>
                         <th className="py-2.5 px-3 w-16">Row #</th>

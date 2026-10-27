@@ -195,7 +195,7 @@ function AdminCategoriesPageContent() {
       ) : categories.length > 0 ? (
         <div className="rounded-2xl bg-card border border-border overflow-hidden shadow-xs">
           <div className="overflow-x-auto">
-            <table className="w-full text-left">
+            <table className="admin-data-table w-full text-left">
               <thead className="bg-muted/50 text-muted-foreground border-b border-border text-xs uppercase tracking-wider font-bold">
                 <tr>
                   <th className="px-5 py-4">Sort #</th>

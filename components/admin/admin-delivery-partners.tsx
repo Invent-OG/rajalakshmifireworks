@@ -321,7 +321,7 @@ function AdminDeliveryPartnersPageContent() {
       ) : partners.length > 0 ? (
         <div className="rounded-2xl bg-card border border-border overflow-hidden shadow-xs">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm sm:text-base">
+            <table className="admin-data-table w-full text-left text-sm sm:text-base">
               <thead className="bg-secondary/50 dark:bg-[#242424]/50 text-muted-foreground border-b border-border text-xs uppercase tracking-wider font-bold">
                 <tr>
                   <th className="px-5 py-4">Name</th>

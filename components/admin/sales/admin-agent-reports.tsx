@@ -397,7 +397,7 @@ function AdminAgentReportsContent() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
+          <table className="admin-data-table w-full text-left text-sm">
             <thead className="bg-muted/50 border-b text-xs font-semibold text-muted-foreground">
               <tr>
                 <th className="py-3 px-3 text-center w-12">Rank</th>

@@ -745,7 +745,7 @@ function AdminInventoryPageContent() {
           ) : inventory.length > 0 ? (
             <div className="rounded-2xl bg-card border border-border overflow-hidden shadow-xs">
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-base">
+                <table className="admin-data-table w-full text-left text-base">
                   <thead className="bg-muted/60 text-muted-foreground border-b border-border text-xs sm:text-sm uppercase tracking-wider font-bold">
                     <tr>
                       <th className="w-12 px-5 py-4 text-center">
@@ -951,7 +951,7 @@ function AdminInventoryPageContent() {
           ) : auditLogs.length > 0 ? (
             <div className="rounded-2xl bg-card border border-border overflow-hidden shadow-xs">
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs sm:text-sm">
+                <table className="admin-data-table w-full text-left text-xs sm:text-sm">
                   <thead className="bg-muted/40 text-muted-foreground border-b border-border text-[11px] uppercase tracking-wider font-semibold">
                     <tr>
                       <th className="px-5 py-3.5">Timestamp</th>
@@ -1402,7 +1402,7 @@ function AdminInventoryPageContent() {
 
                   {/* Preview Table */}
                   <div className="max-h-56 overflow-y-auto rounded-xl border border-border bg-card">
-                    <table className="w-full text-left text-xs">
+                    <table className="admin-data-table w-full text-left text-xs">
                       <thead className="bg-muted/50 border-b border-border text-[10px] uppercase font-bold text-muted-foreground sticky top-0">
                         <tr>
                           <th className="px-3 py-2">Row</th>
