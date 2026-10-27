@@ -305,7 +305,7 @@ export function QuickOrderContent({
 
   return (
     <I18nProvider locale={locale}>
-      <div className="w-full min-h-screen bg-[#f8f9fa] dark:bg-[#0c0c0c] text-neutral-900 dark:text-neutral-100 transition-colors duration-200 select-none pb-28 lg:pb-16">
+      <div className="w-full min-h-screen bg-[#F7F4F0] dark:bg-[#101010] text-neutral-900 dark:text-neutral-100 transition-colors duration-200 select-none pb-28 lg:pb-16">
       <div className="max-w-[1500px] mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-5 sm:space-y-6">
 
         {/* ── Top Header Banner: Quick Order & Discount Pill ── */}
@@ -917,7 +917,7 @@ function TableRow({ product, locale, addItem, updateQuantity, removeItem }: Tabl
                 quantity: 1,
               });
             }}
-            className="inline-flex items-center justify-center gap-1.5 h-9 px-4 rounded-full bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-900 dark:text-white text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-2xs hover:shadow-xs"
+            className="inline-flex items-center justify-center gap-1.5 h-9 px-4 rounded-full border border-transparent dark:border-neutral-700 bg-neutral-950 hover:bg-neutral-800 dark:bg-black dark:hover:bg-neutral-900 text-white text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-sm hover:shadow-md"
           >
             <Plus className="h-3.5 w-3.5" />
             <span>{locale === 'ta' ? 'சேர்' : 'Add'}</span>
@@ -1048,7 +1048,7 @@ function MobileCard({ product, locale, addItem, updateQuantity, removeItem }: Mo
                 quantity: 1,
               });
             }}
-            className="inline-flex items-center gap-1 h-8 px-3.5 rounded-full bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-900 dark:text-white text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-2xs"
+            className="inline-flex items-center gap-1 h-8 px-3.5 rounded-full border border-transparent dark:border-neutral-700 bg-neutral-950 hover:bg-neutral-800 dark:bg-black dark:hover:bg-neutral-900 text-white text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-sm hover:shadow-md"
           >
             <Plus className="h-3 w-3" />
             <span>{locale === 'ta' ? 'சேர்' : 'Add'}</span>

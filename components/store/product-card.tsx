@@ -92,10 +92,10 @@ export const ProductCard = memo(function ProductCard({ product, locale: propLoca
   return (
     <section
       ref={cardRef}
-      className="_card group scope product-card select-none h-full flex flex-col justify-between"
+      className="_card group scope product-card select-none h-full flex flex-col justify-start"
     >
       {/* Top & Middle Content Container */}
-      <div className="w-full flex-1 flex flex-col">
+      <div className="w-full flex flex-col">
         {/* ── 1. Thumbnail Stack & Curved Inverted Category Tab ── */}
         <div className="_thumbnail-stack relative">
           {img1 ? (
@@ -127,33 +127,15 @@ export const ProductCard = memo(function ProductCard({ product, locale: propLoca
           {/* Curved Inset Category Badge */}
           <p className="_category">{categoryName}</p>
 
-          {/* ── 2. Product information: name, clear price, then quick facts ── */}
-          <div className="product-card-info mt-3 flex min-w-0 flex-1 flex-col">
+          {/* ── 2. Product information and quick facts ── */}
+          <div className="product-card-info mt-3 flex min-w-0 flex-col">
             <Link href={`/${locale}/product/${product.slug}`} className="block min-w-0">
               <h2 className="_heading line-clamp-2 min-h-[2.6em] group-hover:text-amber-600 transition-colors" title={displayName}>
                 {displayName}
               </h2>
             </Link>
 
-            <div className="product-card-price-row mt-2 flex min-h-12 items-center justify-between gap-2 border-y border-neutral-100 py-2 dark:border-neutral-800">
-              <div className="flex min-w-0 items-baseline gap-2">
-                <span className="product-card-sale-price whitespace-nowrap text-xl font-black leading-none tracking-tight text-neutral-950 dark:text-white sm:text-2xl">
-                  {formatCurrency(price)}
-                </span>
-                {mrp > price && (
-                  <span className="whitespace-nowrap text-xs font-medium tabular-nums text-neutral-400 line-through dark:text-neutral-500">
-                    {formatCurrency(mrp)}
-                  </span>
-                )}
-              </div>
-              {discount > 0 && (
-                <span className="shrink-0 rounded-full bg-orange-50 px-2.5 py-1 text-[10px] font-extrabold tracking-wide text-orange-700 dark:bg-orange-950/50 dark:text-orange-300 sm:px-3 sm:text-xs">
-                  {discount}% OFF
-                </span>
-              )}
-            </div>
-
-            <ul className="_tag-list mt-2.5 min-h-7 overflow-hidden">
+            <ul className="_tag-list mt-2 min-h-7 overflow-hidden">
               {tags.slice(0, 2).map((tag, idx) => (
                 <li key={idx} className={idx === 0 && count ? '_tag _tag-primary' : '_tag'}>
                   {tag}
@@ -163,8 +145,32 @@ export const ProductCard = memo(function ProductCard({ product, locale: propLoca
           </div>
         </div>
 
-        {/* ── 5. Action Button (Pure Black Button / Quantity Stepper) ── */}
-        <div className="_button mt-3 pt-1">
+        {/* Price and purchase action share a compact footer, matching the reference layout. */}
+        <div className="product-card-footer">
+          <div className="product-card-price-info min-w-0">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                {tProducts('price')}
+              </span>
+              {discount > 0 && (
+                <span className="shrink-0 rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-bold tracking-wide text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 sm:text-xs">
+                  {discount}% OFF
+                </span>
+              )}
+            </div>
+            <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
+              <span className="product-card-sale-price whitespace-nowrap text-2xl font-extrabold leading-none tracking-tight bg-gradient-to-tr from-orange-700 via-orange-400 to-orange-500 bg-clip-text text-transparent sm:text-3xl">
+                {formatCurrency(price)}
+              </span>
+              {mrp > price && (
+                <span className="whitespace-nowrap text-xs font-medium tabular-nums text-neutral-400 line-through dark:text-neutral-500">
+                  {formatCurrency(mrp)}
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className="_button product-card-action">
           {isOutOfStock ? (
             <button
               type="button"
@@ -209,6 +215,7 @@ export const ProductCard = memo(function ProductCard({ product, locale: propLoca
               <span>{tProducts('addToBag')}</span>
             </button>
           )}
+          </div>
         </div>
       </section>
   );

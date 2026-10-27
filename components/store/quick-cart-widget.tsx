@@ -13,6 +13,7 @@ import { QuantityStepper } from '@/components/ui/quantity-stepper';
 import { useTranslations, useLocale } from '@/lib/i18n/context';
 import { getLocalizedName } from '@/lib/i18n/formatters';
 import { useMinimumOrderValue } from '@/hooks/use-minimum-order-value';
+import { getCategory3DImage } from '@/components/ui/category-icon';
 
 interface QuickCartWidgetProps {
   className?: string;
@@ -45,7 +46,10 @@ export function QuickCartWidget({ className = '', onClose, locale: propLocale, d
       .then((data) => {
         if (cancelled || !Array.isArray(data?.products)) return;
         for (const product of data.products) {
-          const image = product.media?.[0]?.url;
+          // Catalog records can contain non-image media first (for example a video).
+          const image =
+            product.media?.find((media: { type?: string; url?: string }) => media.type === 'image' && media.url)?.url ||
+            product.media?.find((media: { url?: string }) => Boolean(media.url))?.url;
           if (image) setItemImage(product.id, image);
         }
       })
@@ -219,6 +223,7 @@ export function QuickCartWidget({ className = '', onClose, locale: propLocale, d
           {items.map((item) => {
             const lineTotal = item.sellingPrice * item.quantity;
             const displayName = getLocalizedName(item, locale);
+            const fallbackImage = getCategory3DImage(item.name);
             return (
               <div
                 key={item.productId}
@@ -227,21 +232,21 @@ export function QuickCartWidget({ className = '', onClose, locale: propLocale, d
               >
                 {/* Top Row: Item Details & Remove Button */}
                 <div className="flex items-start gap-2.5 justify-between">
-                  {item.image ? (
-                    <div className="relative h-12 w-12 rounded-[14px] overflow-hidden bg-white dark:bg-[#242424] shrink-0">
-                      <Image
-                        src={item.image}
-                        alt={displayName}
-                        fill
-                        className="object-cover"
-                        sizes="48px"
-                      />
-                    </div>
-                  ) : (
-                    <div className="h-12 w-12 rounded-[14px] bg-white dark:bg-[#242424] flex items-center justify-center shrink-0 text-neutral-400">
-                      <Sparkles className="h-4 w-4 text-neutral-400" />
-                    </div>
-                  )}
+                  <div className="relative h-12 w-12 rounded-[14px] overflow-hidden bg-white dark:bg-[#242424] shrink-0">
+                    <Image
+                      src={item.image || fallbackImage}
+                      alt={displayName}
+                      fill
+                      className="object-cover"
+                      sizes="48px"
+                      onError={(event) => {
+                        const image = event.currentTarget;
+                        if (image.src !== new URL(fallbackImage, window.location.href).href) {
+                          image.src = fallbackImage;
+                        }
+                      }}
+                    />
+                  </div>
 
                   <div className="flex-1 min-w-0">
                     <span className="text-xs font-semibold text-neutral-900 dark:text-white line-clamp-1 leading-snug">

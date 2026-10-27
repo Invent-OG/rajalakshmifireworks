@@ -1,6 +1,7 @@
 'use client';
 
 import Link from '@/components/ui/link';
+import { BrandLogo } from '@/components/ui/brand-logo';
 import { usePathname, useRouter } from '@/lib/navigation';
 import {
   LayoutDashboard,
@@ -296,23 +297,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         >
           {/* Top Brand Logo */}
           <div className="space-y-6">
-            <div className="flex items-center justify-between px-2 pt-1">
-              <Link href="/admin" className="flex items-center gap-2.5 group">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#e24000] to-[#ff9b45] flex items-center justify-center text-white shadow-md shadow-[#e24000]/25 group-hover:scale-105 transition-transform">
-                  <ShoppingCart className="h-5 w-5 stroke-[2.5]" />
-                </div>
-                <div className="flex flex-col">
-                  <span className="font-extrabold text-lg text-white tracking-tight leading-none">
-                    Rajalakshmi
-                  </span>
-                  <span className="text-[10px] text-neutral-400 font-bold uppercase tracking-wider mt-0.5">
-                    Fireworks Desk
-                  </span>
-                </div>
+            <div className="relative flex items-center justify-center px-2 pt-1">
+              <Link href="/admin" className="flex flex-col items-center gap-1.5 group">
+                <BrandLogo
+                  variant="white"
+                  showText={false}
+                  imageClassName="h-12 w-auto max-w-[148px]"
+                  className="transition-transform duration-200 group-hover:scale-[1.03]"
+                />
+                <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-neutral-400">
+                  Admin Panel
+                </span>
               </Link>
 
               <button
-                className="xl:hidden p-2 rounded-xl text-neutral-400 hover:text-white hover:bg-white/10 cursor-pointer"
+                className="absolute right-0 top-0 xl:hidden p-2 rounded-xl text-neutral-400 hover:text-white hover:bg-white/10 cursor-pointer"
                 onClick={() => setSidebarOpen(false)}
                 aria-label="Close Sidebar"
               >

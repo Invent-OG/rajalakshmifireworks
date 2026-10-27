@@ -15,6 +15,7 @@ interface Props {
 
 const { title, description, keywords, locale = 'en', containerClass, bodyClass, headerOverlay = false } = Astro.props;
 const pathname = Astro.url.pathname;
+const isHomePage = pathname === `/${locale}` || pathname === `/${locale}/`;
 ---
 
 <RootLayout
@@ -24,14 +25,17 @@ const pathname = Astro.url.pathname;
   locale={locale}
   bodyClass={bodyClass || 'bg-background'}
 >
-  <div class:list={['min-h-screen flex flex-col text-foreground', containerClass || 'bg-background']}>
+  <div class:list={[
+    'min-h-screen flex flex-col text-foreground',
+    containerClass || (!isHomePage ? 'bg-[#F7F4F0] dark:bg-[#101010]' : 'bg-background'),
+  ]}>
     <header class:list={[
       'w-full z-50',
       headerOverlay ? 'fixed top-0 left-0 right-0 pointer-events-none [&>*]:pointer-events-auto' : 'sticky top-0'
     ]}>
       <StoreHeader client:idle pathname={pathname} locale={locale} />
     </header>
-    <main class="flex-1 pb-12 md:pb-6">
+    <main class:list={['flex-1 pb-12 md:pb-6', !isHomePage && 'bg-[#F7F4F0] dark:bg-[#101010]']}>
       <slot />
     </main>
     <StoreFooter client:idle pathname={pathname} locale={locale} />

@@ -9,12 +9,14 @@ interface ProductsCatalogToolbarProps {
   currentSort?: string;
   initialSearch?: string;
   placeholder?: string;
+  className?: string;
 }
 
 export function ProductsCatalogToolbar({
   currentSort = 'newest',
   initialSearch = '',
   placeholder,
+  className = '',
 }: ProductsCatalogToolbarProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -119,9 +121,9 @@ export function ProductsCatalogToolbar({
   }, [isSortOpen]);
 
   return (
-    <div className="w-full flex items-center gap-2 sm:gap-2.5 py-1">
+    <div className={`min-w-0 flex items-center justify-start gap-1.5 sm:gap-2.5 py-1 ${className}`}>
       {/* ── 1. Compact Pill Search Input ── */}
-      <form onSubmit={handleSearchSubmit} className="relative flex-1 min-w-0">
+      <form onSubmit={handleSearchSubmit} className="relative min-w-0 flex-1">
         <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400 pointer-events-none select-none" />
         <input
           type="text"
@@ -181,7 +183,7 @@ export function ProductsCatalogToolbar({
                     onClick={() => handleSortChange(option.value)}
                     className={`w-full px-3 py-2 text-xs rounded-xl flex items-center justify-between transition-colors text-left font-medium ${
                       isSelected
-                        ? 'bg-amber-400 text-neutral-950 font-bold'
+                        ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-950 font-bold'
                         : 'text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-[#202020]'
                     }`}
                   >
