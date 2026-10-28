@@ -444,6 +444,29 @@ function AdminOrderDetailPageContent({
     },
   });
 
+  // Delete Order State & Mutation
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
+
+  const deleteOrderMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch(`/api/admin/orders/${orderId}`, {
+        method: 'DELETE',
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json.message || 'Failed to delete order');
+      return json;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.orders.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.dashboard() });
+      toast.success('Order deleted successfully');
+      window.location.href = '/admin/orders';
+    },
+    onError: (err: any) => {
+      toast.error(err.message || 'Failed to delete order');
+    },
+  });
+
   // Order Items Alteration Modal State, Query & Mutation
   const [isItemsModalOpen, setIsItemsModalOpen] = useState(false);
   const [editableItems, setEditableItems] = useState<EditableOrderItem[]>([]);
@@ -1083,6 +1106,17 @@ function AdminOrderDetailPageContent({
           >
             <MessageSquare className="h-4 w-4" /> Share WhatsApp
           </a>
+
+          <button
+            type="button"
+            onClick={() => setIsDeleteModalOpen(true)}
+            disabled={deleteOrderMutation.isPending}
+            className="inline-flex items-center gap-1.5 h-10 px-4 rounded-full border border-rose-200 dark:border-rose-900/60 bg-rose-50/70 dark:bg-rose-950/30 text-rose-700 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-950/60 text-xs sm:text-sm font-semibold shadow-2xs transition-colors cursor-pointer"
+            title="Permanently Delete Order"
+          >
+            <Trash2 className="h-4 w-4 text-rose-600 dark:text-rose-400" />
+            <span>Delete</span>
+          </button>
         </div>
       </div>
 
@@ -1309,7 +1343,7 @@ function AdminOrderDetailPageContent({
 
               {/* Bottom: Dedicated Action Row with Clean Separation */}
               <div className="flex items-center justify-between gap-3 pt-3 border-t border-border/60 flex-wrap">
-                <div>
+                <div className="flex items-center gap-3 flex-wrap">
                   {currentStatus !== 'CANCELLED' && currentStatus !== 'COMPLETED' && currentStatus !== 'DELIVERED' && currentStatus !== 'PICKED_UP' && (
                     <button
                       type="button"
@@ -1330,6 +1364,16 @@ function AdminOrderDetailPageContent({
                       <span>Order is cancelled. Stock was returned to warehouse.</span>
                     </div>
                   )}
+                  <button
+                    type="button"
+                    onClick={() => setIsDeleteModalOpen(true)}
+                    disabled={deleteOrderMutation.isPending}
+                    className="text-xs font-semibold text-muted-foreground hover:text-rose-600 dark:hover:text-rose-400 underline-offset-4 hover:underline cursor-pointer transition-colors px-1 py-1.5 flex items-center gap-1"
+                    title="Permanently Delete Order"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    <span>Delete Order</span>
+                  </button>
                 </div>
 
                 <div className="flex items-center gap-2.5 flex-wrap ml-auto">
@@ -3542,6 +3586,61 @@ function AdminOrderDetailPageContent({
                 >
                   <RotateCcw className="h-4 w-4 mr-1.5 shrink-0" />
                   {revokeMutation.isPending ? 'Re-reserving Stock...' : 'Confirm & Undo'}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Portal>
+      )}
+
+      {/* 11. DELETE ORDER CONFIRMATION MODAL */}
+      {isDeleteModalOpen && (
+        <Portal>
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div
+              className="fixed inset-0 bg-black/60 backdrop-blur-xs animate-fade-in"
+              onClick={() => !deleteOrderMutation.isPending && setIsDeleteModalOpen(false)}
+            />
+            <div className="relative w-full max-w-md rounded-3xl bg-card border border-border p-6 shadow-2xl space-y-4 animate-scale-in z-10">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-2xl bg-rose-500/15 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+                  <Trash2 className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-base text-foreground">
+                    Permanently Delete Order?
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    Order-{order.invoiceNumber} • {order.customerNameSnapshot}
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-800 dark:text-rose-300 leading-relaxed">
+                This action <strong className="font-bold">cannot be undone</strong>. This will permanently remove the order, its items, and delivery logs.
+                {currentStatus !== 'CANCELLED' && (
+                  <span className="block mt-1 font-semibold text-rose-900 dark:text-rose-200">
+                    Reserved crackers stock will be safely returned to warehouse inventory.
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-3 pt-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsDeleteModalOpen(false)}
+                  disabled={deleteOrderMutation.isPending}
+                  className="flex-1 h-10 rounded-full text-xs font-bold cursor-pointer"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => deleteOrderMutation.mutate()}
+                  disabled={deleteOrderMutation.isPending}
+                  className="flex-1 h-10 rounded-full font-bold text-xs bg-rose-600 hover:bg-rose-700 text-white cursor-pointer shadow-md transition-all border-0 disabled:opacity-50"
+                >
+                  <Trash2 className="h-3.5 w-3.5 mr-1" />
+                  {deleteOrderMutation.isPending ? 'Deleting...' : 'Delete Order'}
                 </Button>
               </div>
             </div>

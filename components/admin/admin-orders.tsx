@@ -8,6 +8,7 @@ import { Pagination } from '@/components/admin/pagination';
 import { BulkActionsBar } from '@/components/admin/bulk-actions-bar';
 import { Portal } from '@/components/ui/portal';
 import { Select, Textarea } from '@/components/ui/input';
+import { CustomDropdown } from '@/components/ui/custom-dropdown';
 import { formatCurrency, formatDateTime, toNumber } from '@/lib/utils/format';
 import { ORDER_STATUS_LABELS } from '@/lib/constants/order-status';
 import {
@@ -27,6 +28,7 @@ import {
   Edit,
   Sparkles,
   RotateCcw,
+  Trash2,
 } from 'lucide-react';
 import Link from '@/components/ui/link';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -169,6 +171,32 @@ function AdminOrdersPageContent() {
     },
     onError: (err: Error) => {
       toast.error(err.message || 'Failed to undo order cancellation');
+    },
+  });
+
+  // Bulk Delete Orders State & Mutation (deletes selected orders)
+  const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false);
+
+  const bulkDeleteOrdersMutation = useMutation({
+    mutationFn: async (orderIds: number[]) => {
+      const res = await fetch('/api/admin/orders/bulk', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderIds }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.message || 'Failed to delete selected orders');
+      return json;
+    },
+    onSuccess: (res) => {
+      toast.success(`Successfully deleted ${res.deletedCount || selectedIds.length} orders.`);
+      queryClient.invalidateQueries({ queryKey: ['admin', 'orders'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard'] });
+      setSelectedIds([]);
+      setIsBulkDeleteModalOpen(false);
+    },
+    onError: (err: Error) => {
+      toast.error(err.message || 'Failed to delete selected orders');
     },
   });
 
@@ -356,9 +384,9 @@ function AdminOrdersPageContent() {
       </div>
 
       {/* Multi-Dimensional Filter Toolbar */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 p-4 rounded-2xl bg-card border border-border shadow-xs">
+      <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3 p-4 rounded-2xl bg-card border border-border shadow-xs">
         {/* Search Field */}
-        <div className="relative sm:col-span-2 lg:col-span-3">
+        <div className="relative flex-1 min-w-[220px]">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
             type="text"
@@ -372,72 +400,79 @@ function AdminOrdersPageContent() {
           />
         </div>
 
-        {/* Fulfillment Filter */}
-        <div className="lg:col-span-2.5">
-          <select
-            value={fulfillment}
-            onChange={(e) => {
-              setFulfillment(e.target.value);
-              setPage(1);
-            }}
-            className="w-full h-10 px-4 rounded-full border border-border bg-card text-xs sm:text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 cursor-pointer"
-          >
-            <option value="ALL">All Fulfillment Types</option>
-            <option value="DELIVERY">Doorstep Delivery</option>
-            <option value="PICKUP">Store Counter Pickup</option>
-          </select>
-        </div>
+        {/* Dropdowns Row */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 shrink-0 lg:flex lg:items-center">
+          {/* Fulfillment Filter */}
+          <div className="w-full lg:w-44">
+            <CustomDropdown
+              value={fulfillment}
+              onChange={(val) => {
+                setFulfillment(val);
+                setPage(1);
+              }}
+              options={[
+                { value: 'ALL', label: 'All Fulfillment' },
+                { value: 'DELIVERY', label: 'Doorstep Delivery' },
+                { value: 'PICKUP', label: 'Store Pickup' },
+              ]}
+              ariaLabel="Filter by fulfillment"
+            />
+          </div>
 
-        {/* Payment Status Filter */}
-        <div className="lg:col-span-2.5">
-          <select
-            value={paymentStatus}
-            onChange={(e) => {
-              setPaymentStatus(e.target.value);
-              setPage(1);
-            }}
-            className="w-full h-10 px-4 rounded-full border border-border bg-card text-xs sm:text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 cursor-pointer"
-          >
-            <option value="ALL">All Payments</option>
-            <option value="PAID">Paid Only</option>
-            <option value="PENDING">Payment Pending</option>
-          </select>
-        </div>
+          {/* Payment Status Filter */}
+          <div className="w-full lg:w-40">
+            <CustomDropdown
+              value={paymentStatus}
+              onChange={(val) => {
+                setPaymentStatus(val);
+                setPage(1);
+              }}
+              options={[
+                { value: 'ALL', label: 'All Payments' },
+                { value: 'PAID', label: 'Paid Only' },
+                { value: 'PENDING', label: 'Payment Pending' },
+              ]}
+              ariaLabel="Filter by payment status"
+            />
+          </div>
 
-        {/* Date Presets Filter */}
-        <div className="lg:col-span-2">
-          <select
-            value={datePreset}
-            onChange={(e) => {
-              setDatePreset(e.target.value);
-              setPage(1);
-            }}
-            className="w-full h-10 px-4 rounded-full border border-border bg-card text-xs sm:text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 cursor-pointer"
-          >
-            <option value="all">All Dates</option>
-            <option value="today">Today</option>
-            <option value="yesterday">Yesterday</option>
-            <option value="last7days">Last 7 Days</option>
-            <option value="thisMonth">This Month</option>
-          </select>
-        </div>
+          {/* Date Presets Filter */}
+          <div className="w-full lg:w-36">
+            <CustomDropdown
+              value={datePreset}
+              onChange={(val) => {
+                setDatePreset(val);
+                setPage(1);
+              }}
+              options={[
+                { value: 'all', label: 'All Dates' },
+                { value: 'today', label: 'Today' },
+                { value: 'yesterday', label: 'Yesterday' },
+                { value: 'last7days', label: 'Last 7 Days' },
+                { value: 'thisMonth', label: 'This Month' },
+              ]}
+              ariaLabel="Filter by date"
+            />
+          </div>
 
-        {/* Sort Dropdown */}
-        <div className="lg:col-span-2">
-          <select
-            value={sortBy}
-            onChange={(e) => {
-              setSortBy(e.target.value);
-              setPage(1);
-            }}
-            className="w-full h-10 px-4 rounded-full border border-border bg-card text-xs sm:text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-brand/15 cursor-pointer"
-          >
-            <option value="placedAt_desc">Newest Placed</option>
-            <option value="placedAt_asc">Oldest Placed</option>
-            <option value="total_desc">Highest Amount</option>
-            <option value="total_asc">Lowest Amount</option>
-            <option value="invoice_asc">Invoice # (A-Z)</option>
-          </select>
+          {/* Sort Dropdown */}
+          <div className="w-full lg:w-44">
+            <CustomDropdown
+              value={sortBy}
+              onChange={(val) => {
+                setSortBy(val);
+                setPage(1);
+              }}
+              options={[
+                { value: 'placedAt_desc', label: 'Newest Placed' },
+                { value: 'placedAt_asc', label: 'Oldest Placed' },
+                { value: 'total_desc', label: 'Highest Amount' },
+                { value: 'total_asc', label: 'Lowest Amount' },
+                { value: 'invoice_asc', label: 'Invoice # (A-Z)' },
+              ]}
+              ariaLabel="Sort orders"
+            />
+          </div>
         </div>
       </div>
 
@@ -655,7 +690,7 @@ function AdminOrdersPageContent() {
         <Button
           size="sm"
           variant="outline"
-          className="bg-background text-foreground hover:bg-background/90 text-xs font-semibold"
+          className="h-8 px-3.5 rounded-full bg-white text-zinc-950 hover:bg-zinc-100 border-0 text-xs font-semibold shrink-0 cursor-pointer shadow-xs transition-all active:scale-95"
           onClick={() => setBulkStatusModalOpen(true)}
         >
           Change Status ({selectedIds.length})
@@ -663,10 +698,18 @@ function AdminOrdersPageContent() {
         <Button
           size="sm"
           variant="outline"
-          className="bg-background text-foreground hover:bg-background/90 text-xs font-semibold"
+          className="h-8 px-3.5 rounded-full bg-white text-zinc-950 hover:bg-zinc-100 border-0 text-xs font-semibold shrink-0 cursor-pointer shadow-xs transition-all active:scale-95"
           onClick={handleExportCSV}
         >
           <Download className="h-3.5 w-3.5 mr-1" /> Export Selected
+        </Button>
+        <Button
+          size="sm"
+          variant="destructive"
+          className="h-8 px-3.5 rounded-full bg-rose-600 hover:bg-rose-700 text-white border-0 text-xs font-semibold shrink-0 cursor-pointer shadow-xs transition-all active:scale-95"
+          onClick={() => setIsBulkDeleteModalOpen(true)}
+        >
+          <Trash2 className="h-3.5 w-3.5 mr-1" /> Delete Selected ({selectedIds.length})
         </Button>
       </BulkActionsBar>
 
@@ -897,6 +940,56 @@ function AdminOrdersPageContent() {
                 >
                   <RotateCcw className="h-3.5 w-3.5 mr-1" />
                   {revokeOrderMutation.isPending ? 'Re-reserving...' : 'Confirm Undo'}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Portal>
+      )}
+
+      {/* Bulk Delete Orders Confirmation Modal */}
+      {isBulkDeleteModalOpen && (
+        <Portal>
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div
+              className="fixed inset-0 bg-black/60 backdrop-blur-xs animate-fade-in"
+              onClick={() => !bulkDeleteOrdersMutation.isPending && setIsBulkDeleteModalOpen(false)}
+            />
+            <div className="relative w-full max-w-md rounded-3xl bg-card border border-border p-6 shadow-2xl space-y-4 animate-scale-in z-10">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-2xl bg-rose-500/15 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+                  <Trash2 className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-base text-foreground">
+                    Delete {selectedIds.length} Orders?
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    This will permanently delete all {selectedIds.length} selected orders.
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-800 dark:text-rose-300 leading-relaxed">
+                Any active orders in this selection will have their reserved cracker stock restored to warehouse inventory. All selected orders, items, assignments, and histories will be permanently removed. This action cannot be undone.
+              </div>
+
+              <div className="flex items-center gap-3 pt-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsBulkDeleteModalOpen(false)}
+                  disabled={bulkDeleteOrdersMutation.isPending}
+                  className="flex-1 h-10 rounded-full text-xs font-bold cursor-pointer"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => bulkDeleteOrdersMutation.mutate(selectedIds)}
+                  disabled={bulkDeleteOrdersMutation.isPending}
+                  className="flex-1 h-10 rounded-full font-bold text-xs bg-rose-600 hover:bg-rose-700 text-white cursor-pointer shadow-md transition-all border-0 disabled:opacity-50"
+                >
+                  <Trash2 className="h-3.5 w-3.5 mr-1" />
+                  {bulkDeleteOrdersMutation.isPending ? 'Deleting...' : `Delete ${selectedIds.length} Orders`}
                 </Button>
               </div>
             </div>

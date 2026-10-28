@@ -10,8 +10,8 @@ async function _GET(request: any) {
     const requestedIds = new Set(
       (searchParams.get('ids') || '')
         .split(',')
-        .map((id) => Number(id))
-        .filter((id) => Number.isSafeInteger(id) && id > 0)
+        .map((id: string) => Number(id))
+        .filter((id: number) => Number.isSafeInteger(id) && id > 0)
     );
     const search = searchParams.get('search')?.trim().toLowerCase();
     const categorySlug = searchParams.get('category');

@@ -11,6 +11,8 @@ import {
   states,
   cities,
   salesAgents,
+  orderDeliveryAssignments,
+  whatsappMessages,
   type OrderStatus,
   type FulfillmentType,
 } from '@/db/schema';
@@ -552,4 +554,77 @@ export async function revokeCancelledOrder({
     };
   });
 }
+
+/**
+ * Permanently deletes an order and all associated records.
+ * If the order was not in CANCELLED status, safely restores reserved stock
+ * back to warehouse inventory with audit logs.
+ */
+export async function deleteOrder(
+  orderId: number,
+  deletedBy: string
+): Promise<{ success: true; orderId: number }> {
+  return await db.transaction(async (tx) => {
+    const order = await tx.query.orders.findFirst({
+      where: eq(orders.id, orderId),
+      with: {
+        items: true,
+      },
+    });
+
+    if (!order) {
+      throw new ValidationError('Order not found');
+    }
+
+    const now = new Date();
+
+    // 1. If order was active (not cancelled), release reserved stock back into warehouse
+    if (order.orderStatus !== 'CANCELLED') {
+      for (const item of order.items) {
+        const product = await tx.query.products.findFirst({
+          where: eq(products.id, item.productId),
+        });
+
+        if (!product) continue;
+
+        const newStock = product.stockQuantity + item.quantity;
+
+        await tx
+          .update(products)
+          .set({ stockQuantity: newStock, updatedAt: now })
+          .where(eq(products.id, item.productId));
+
+        await tx.insert(inventoryTransactions).values({
+          productId: item.productId,
+          type: 'ORDER_CANCELLED',
+          quantityChange: item.quantity,
+          quantityAfter: newStock,
+          referenceId: orderId,
+          referenceType: 'order',
+          note: `Order #${order.invoiceNumber} deleted by ${deletedBy} (stock returned to warehouse)`,
+          performedBy: deletedBy,
+        });
+      }
+    }
+
+    // 2. Delete child records
+    await tx.delete(orderItems).where(eq(orderItems.orderId, orderId));
+    await tx.delete(orderStatusHistory).where(eq(orderStatusHistory.orderId, orderId));
+    await tx.delete(orderDeliveryAssignments).where(eq(orderDeliveryAssignments.orderId, orderId));
+    await tx.delete(whatsappMessages).where(eq(whatsappMessages.orderId, orderId));
+
+    // 3. Delete order record
+    await tx.delete(orders).where(eq(orders.id, orderId));
+
+    logger.info('order.delete', 'Order permanently deleted', {
+      orderId,
+      invoiceNumber: order.invoiceNumber,
+      orderStatus: order.orderStatus,
+      deletedBy,
+    });
+
+    return { success: true, orderId };
+  });
+}
+
 

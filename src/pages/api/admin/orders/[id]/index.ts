@@ -14,7 +14,7 @@ import {
 import { eq, desc } from 'drizzle-orm';
 import { getSession } from '@/lib/auth/session';
 import { validateTransition, getStatusTimestampField } from '@/lib/services/order-status-machine';
-import { restoreInventoryForOrder, revokeCancelledOrder } from '@/lib/services/order-service';
+import { restoreInventoryForOrder, revokeCancelledOrder, deleteOrder } from '@/lib/services/order-service';
 import { whatsAppService } from '@/lib/whatsapp/service';
 import type { WhatsAppMessageType } from '@/lib/whatsapp/types';
 import { logger } from '@/lib/utils/logger';
@@ -590,7 +590,42 @@ async function _PATCH(
   }
 }
 
+async function _DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const session = await getSession();
+  if (!session) {
+    return Response.json({ message: 'Unauthorized' }, { status: 401 });
+  }
+
+  const { id } = await params;
+  const orderId = parseInt(id, 10);
+
+  if (isNaN(orderId) || orderId <= 0) {
+    return Response.json({ message: 'Invalid order ID' }, { status: 400 });
+  }
+
+  try {
+    await deleteOrder(orderId, session.email);
+    return Response.json({
+      success: true,
+      message: 'Order deleted successfully',
+    });
+  } catch (error: any) {
+    logger.error('admin.orders.delete', 'Failed to delete order', {
+      orderId,
+      error: error.message,
+    });
+    return Response.json(
+      { message: error.message || 'Failed to delete order' },
+      { status: 500 }
+    );
+  }
+}
 
 // Native Astro APIRoute exports
 export const GET = wrapHandler(_GET);
 export const PATCH = wrapHandler(_PATCH);
+export const DELETE = wrapHandler(_DELETE);
+

@@ -5,7 +5,7 @@ import { orders, orderStatusHistory } from '@/db/schema';
 import { inArray } from 'drizzle-orm';
 import { getSession } from '@/lib/auth/session';
 import { validateTransition, getStatusTimestampField } from '@/lib/services/order-status-machine';
-import { restoreInventoryForOrder, revokeCancelledOrder } from '@/lib/services/order-service';
+import { restoreInventoryForOrder, revokeCancelledOrder, deleteOrder } from '@/lib/services/order-service';
 import { whatsAppService } from '@/lib/whatsapp/service';
 import { logger } from '@/lib/utils/logger';
 import { z } from 'zod';
@@ -174,6 +174,51 @@ async function _POST(request: NextRequest) {
   }
 }
 
+async function _DELETE(request: NextRequest) {
+  const session = await getSession();
+  if (!session) {
+    return Response.json({ message: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+    const body = await request.json();
+    const orderIds = body.orderIds;
+    if (!Array.isArray(orderIds) || orderIds.length === 0) {
+      return Response.json({ message: 'Please select at least one order to delete' }, { status: 400 });
+    }
+
+    let deletedCount = 0;
+    const errors: { id: number; error: string }[] = [];
+
+    for (const rawId of orderIds) {
+      const id = parseInt(String(rawId), 10);
+      if (isNaN(id) || id <= 0) continue;
+      try {
+        await deleteOrder(id, session.email);
+        deletedCount++;
+      } catch (err: any) {
+        errors.push({ id, error: err.message || 'Failed to delete' });
+      }
+    }
+
+    logger.info('admin.orders.bulk_delete', 'Bulk orders deleted', {
+      totalRequested: orderIds.length,
+      deletedCount,
+      failedCount: errors.length,
+      adminEmail: session.email,
+    });
+
+    return Response.json({
+      success: true,
+      deletedCount,
+      errors,
+    });
+  } catch (error: any) {
+    return Response.json({ message: (error as Error).message || 'Failed to delete orders' }, { status: 500 });
+  }
+}
 
 // Native Astro APIRoute exports
 export const POST = wrapHandler(_POST);
+export const DELETE = wrapHandler(_DELETE);
+
