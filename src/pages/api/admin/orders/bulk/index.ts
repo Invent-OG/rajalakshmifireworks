@@ -5,7 +5,7 @@ import { orders, orderStatusHistory } from '@/db/schema';
 import { inArray } from 'drizzle-orm';
 import { getSession } from '@/lib/auth/session';
 import { validateTransition, getStatusTimestampField } from '@/lib/services/order-status-machine';
-import { restoreInventoryForOrder } from '@/lib/services/order-service';
+import { restoreInventoryForOrder, revokeCancelledOrder } from '@/lib/services/order-service';
 import { whatsAppService } from '@/lib/whatsapp/service';
 import { logger } from '@/lib/utils/logger';
 import { z } from 'zod';
@@ -83,6 +83,27 @@ async function _POST(request: NextRequest) {
       if (currentStatus === newStatus) {
         skippedIds.push({ id: order.id, reason: 'Already in this status' });
         continue;
+      }
+
+      if (currentStatus === 'CANCELLED') {
+        if (newStatus === 'NEW' || newStatus === 'CONFIRMED') {
+          try {
+            await revokeCancelledOrder({
+              orderId: order.id,
+              revokedBy: session.email,
+              targetStatus: newStatus as OrderStatus,
+              note: note || `Bulk cancellation revoked by ${session.name || session.email}`,
+            });
+            if (newStatus === 'CONFIRMED' && notificationType) {
+              whatsAppService.sendOrderNotification(order.id, notificationType).catch(() => {});
+            }
+            updatedIds.push(order.id);
+            continue;
+          } catch (err: any) {
+            skippedIds.push({ id: order.id, reason: err.message || 'Failed to revoke cancellation' });
+            continue;
+          }
+        }
       }
 
       const transitionError = validateTransition(currentStatus, newStatus as OrderStatus, fulfillmentType);

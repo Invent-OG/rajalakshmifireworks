@@ -33,6 +33,10 @@ export function canCancel(status: OrderStatus): boolean {
   return CANCELLABLE_STATUSES.includes(status);
 }
 
+export function canRevokeCancellation(status: OrderStatus): boolean {
+  return status === 'CANCELLED';
+}
+
 export function isTerminalStatus(status: OrderStatus): boolean {
   return status === 'COMPLETED' || status === 'CANCELLED';
 }

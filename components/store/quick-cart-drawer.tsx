@@ -274,7 +274,7 @@ export function QuickCartMobileFloating({
             >
               <button
                 type="button"
-                onClick={openDrawer}
+                onClick={() => openDrawer('mobile')}
                 className="flex items-center gap-2.5 px-3 py-1.5 rounded-full hover:bg-white/10 dark:hover:bg-[#202020] transition-colors text-left cursor-pointer flex-1 min-w-0"
               >
                 <div className="relative h-9 w-9 rounded-full bg-white/10 dark:bg-[#202020] flex items-center justify-center shrink-0 text-white dark:text-white">

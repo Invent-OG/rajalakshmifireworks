@@ -400,6 +400,50 @@ function AdminOrderDetailPageContent({
     },
   });
 
+  // Revoke Order Cancellation State & Mutation
+  const [isRevokeModalOpen, setIsRevokeModalOpen] = useState<boolean>(false);
+  const [revokeTargetStatus, setRevokeTargetStatus] = useState<'NEW' | 'CONFIRMED'>('NEW');
+  const [revokeNote, setRevokeNote] = useState<string>('');
+
+  const revokeMutation = useMutation({
+    mutationFn: async ({
+      targetStatus,
+      note,
+    }: {
+      targetStatus?: 'NEW' | 'CONFIRMED';
+      note?: string;
+    } = {}) => {
+      const res = await fetch(`/api/admin/orders/${orderId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'REVOKE_CANCELLATION',
+          targetStatus: targetStatus || revokeTargetStatus,
+          note: note !== undefined ? note : revokeNote,
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || 'Failed to undo order cancellation');
+      }
+      return res.json();
+    },
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.orders.detail(orderId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.orders.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.dashboard() });
+      toast.success('Order cancellation undone successfully! Warehouse stock re-reserved.');
+      setIsRevokeModalOpen(false);
+      setRevokeNote('');
+      if (result?.newStatus === 'CONFIRMED') {
+        setSelectedWhatsAppProcess('ORDER_CONFIRMED');
+      }
+    },
+    onError: (err: any) => {
+      toast.error(err.message || 'Failed to undo order cancellation');
+    },
+  });
+
   // Order Items Alteration Modal State, Query & Mutation
   const [isItemsModalOpen, setIsItemsModalOpen] = useState(false);
   const [editableItems, setEditableItems] = useState<EditableOrderItem[]>([]);
@@ -995,6 +1039,17 @@ function AdminOrderDetailPageContent({
 
         {/* Quick Header Actions */}
         <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+          {currentStatus === 'CANCELLED' && (
+            <button
+              type="button"
+              onClick={() => setIsRevokeModalOpen(true)}
+              className="inline-flex items-center gap-1.5 h-10 px-4 rounded-full bg-amber-600 hover:bg-amber-700 text-white text-xs sm:text-sm font-bold shadow-xs transition-colors cursor-pointer"
+              title="Undo Cancellation & Re-reserve Stock"
+            >
+              <RotateCcw className="h-4 w-4" /> Undo Cancellation
+            </button>
+          )}
+
           <a
             href={`/admin/invoice-editor?orderId=${order.id}&print=true`}
             className="inline-flex items-center gap-1.5 h-10 px-4 rounded-full border border-border bg-card hover:bg-muted text-xs sm:text-sm font-semibold text-foreground transition-all cursor-pointer shadow-xs"
@@ -1269,9 +1324,27 @@ function AdminOrderDetailPageContent({
                       Cancel Order
                     </button>
                   )}
+                  {currentStatus === 'CANCELLED' && (
+                    <div className="flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-400 font-medium">
+                      <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                      <span>Order is cancelled. Stock was returned to warehouse.</span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-2.5 flex-wrap ml-auto">
+
+                {/* 0. CANCELLED STATE: Undo Cancellation Action */}
+                {currentStatus === 'CANCELLED' && (
+                  <Button
+                    type="button"
+                    onClick={() => setIsRevokeModalOpen(true)}
+                    disabled={revokeMutation.isPending}
+                    className="w-full md:w-auto h-11 px-6 rounded-full font-bold text-sm bg-amber-600 hover:bg-amber-700 text-white shadow-sm cursor-pointer flex items-center gap-2"
+                  >
+                    <RotateCcw className="h-4 w-4 mr-1" /> Undo Cancellation & Reopen
+                  </Button>
+                )}
 
                 {/* 1. NEW STATE: Accept Order & Verify Payment */}
                 {currentStatus === 'NEW' && (
@@ -3333,6 +3406,147 @@ function AdminOrderDetailPageContent({
           onClose={() => setIsTransporterBillOpen(false)}
           isModal={true}
         />
+      )}
+
+      {/* 10. REVOKE CANCELLED ORDER MODAL */}
+      {isRevokeModalOpen && (
+        <Portal>
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div
+              className="fixed inset-0 bg-black/60 backdrop-blur-xs animate-fade-in"
+              onClick={() => !revokeMutation.isPending && setIsRevokeModalOpen(false)}
+            />
+            <div className="relative w-full max-w-lg rounded-3xl bg-card border border-border p-6 shadow-2xl space-y-5 animate-scale-in z-10">
+              {/* Header */}
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-2xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                    <RotateCcw className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-base text-foreground">
+                      Undo Order Cancellation
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      Order-{order.invoiceNumber} • {order.customerNameSnapshot}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => !revokeMutation.isPending && setIsRevokeModalOpen(false)}
+                  className="p-1 rounded-full text-muted-foreground hover:bg-muted cursor-pointer"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Warning Banner */}
+              <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-800 dark:text-amber-300 leading-relaxed flex items-start gap-2.5">
+                <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
+                <div>
+                  <p className="font-semibold">Re-reserves Warehouse Stock</p>
+                  <p className="text-[11px] opacity-90 mt-0.5">
+                    This order was cancelled and its crackers stock was released. Undoing cancellation will verify product stock availability, re-reserve <strong>{order.items?.length || 0} items</strong> from warehouse inventory, and reactivate the order.
+                  </p>
+                </div>
+              </div>
+
+              {/* Items Summary */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-foreground uppercase tracking-wider block">
+                  Items to Re-reserve ({order.items?.length || 0})
+                </label>
+                <div className="max-h-36 overflow-y-auto space-y-1.5 p-2.5 rounded-xl bg-muted/30 border border-border text-xs divide-y divide-border/60">
+                  {(order.items || []).map((it: OrderItemDetail) => (
+                    <div key={it.id} className="pt-1.5 first:pt-0 flex items-center justify-between">
+                      <span className="font-medium text-foreground truncate pr-2">
+                        {it.productNameSnapshot || 'Product'}
+                      </span>
+                      <span className="font-mono text-muted-foreground shrink-0 font-semibold">
+                        Qty: {it.quantity}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Target Status Choice */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-foreground uppercase tracking-wider block">
+                  Reactivate Order As
+                </label>
+                <div className="grid grid-cols-2 gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setRevokeTargetStatus('NEW')}
+                    className={`p-3 rounded-xl border text-left cursor-pointer transition-all ${
+                      revokeTargetStatus === 'NEW'
+                        ? 'border-brand bg-brand/10 text-foreground ring-1 ring-brand'
+                        : 'border-border bg-card text-muted-foreground hover:bg-muted'
+                    }`}
+                  >
+                    <div className="font-bold text-xs text-foreground">New Order (NEW)</div>
+                    <div className="text-[11px] text-muted-foreground mt-0.5">Under Review • Check payment</div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setRevokeTargetStatus('CONFIRMED')}
+                    className={`p-3 rounded-xl border text-left cursor-pointer transition-all ${
+                      revokeTargetStatus === 'CONFIRMED'
+                        ? 'border-brand bg-brand/10 text-foreground ring-1 ring-brand'
+                        : 'border-border bg-card text-muted-foreground hover:bg-muted'
+                    }`}
+                  >
+                    <div className="font-bold text-xs text-foreground">Confirmed (CONFIRMED)</div>
+                    <div className="text-[11px] text-muted-foreground mt-0.5">
+                      {isPaid ? 'Payment Verified • Ready to pack' : 'Ready to pack'}
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              {/* Note */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-foreground uppercase tracking-wider block">
+                  Audit Reason / Note <span className="text-muted-foreground font-normal">(optional)</span>
+                </label>
+                <input
+                  type="text"
+                  value={revokeNote}
+                  onChange={(e) => setRevokeNote(e.target.value)}
+                  placeholder="e.g. Customer requested reactivation over phone / WhatsApp"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-background border border-border focus:border-brand focus:outline-hidden text-xs sm:text-sm text-foreground transition-all"
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center gap-3 pt-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsRevokeModalOpen(false)}
+                  disabled={revokeMutation.isPending}
+                  className="flex-1 h-11 rounded-full text-xs font-bold cursor-pointer"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() =>
+                    revokeMutation.mutate({
+                      targetStatus: revokeTargetStatus,
+                      note: revokeNote,
+                    })
+                  }
+                  disabled={revokeMutation.isPending}
+                  className="flex-1 h-11 rounded-full font-bold text-sm bg-amber-600 hover:bg-amber-700 text-white cursor-pointer shadow-md transition-all border-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <RotateCcw className="h-4 w-4 mr-1.5 shrink-0" />
+                  {revokeMutation.isPending ? 'Re-reserving Stock...' : 'Confirm & Undo'}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Portal>
       )}
     </div>
   );

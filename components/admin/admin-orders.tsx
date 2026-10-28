@@ -26,6 +26,7 @@ import {
   Clock,
   Edit,
   Sparkles,
+  RotateCcw,
 } from 'lucide-react';
 import Link from '@/components/ui/link';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -139,6 +140,35 @@ function AdminOrdersPageContent() {
     },
     onError: (err: Error) => {
       toast.error(err.message);
+    },
+  });
+
+  // Single Order Revoke Cancellation State & Mutation
+  const [orderToRevoke, setOrderToRevoke] = useState<AdminOrderListItem | null>(null);
+
+  const revokeOrderMutation = useMutation({
+    mutationFn: async (orderId: number) => {
+      const res = await fetch(`/api/admin/orders/${orderId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'REVOKE_CANCELLATION',
+          targetStatus: 'NEW',
+          note: 'Cancellation undone from admin orders list',
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.message || 'Failed to undo order cancellation');
+      return json;
+    },
+    onSuccess: () => {
+      toast.success('Order cancellation undone successfully! Warehouse stock re-reserved.');
+      queryClient.invalidateQueries({ queryKey: ['admin', 'orders'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard'] });
+      setOrderToRevoke(null);
+    },
+    onError: (err: Error) => {
+      toast.error(err.message || 'Failed to undo order cancellation');
     },
   });
 
@@ -554,6 +584,17 @@ function AdminOrdersPageContent() {
                       </td>
                       <td className="px-4 py-3.5 text-right whitespace-nowrap">
                         <div className="flex items-center justify-end gap-2">
+                          {order.orderStatus === 'CANCELLED' && (
+                            <button
+                              type="button"
+                              onClick={() => setOrderToRevoke(order)}
+                              className="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 text-xs font-semibold shadow-xs transition-all active:scale-95 cursor-pointer"
+                              title="Undo Order Cancellation & Re-reserve Stock"
+                            >
+                              <RotateCcw className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                              <span>Undo</span>
+                            </button>
+                          )}
                           <Link
                             href={`/admin/invoice-editor?orderId=${order.id}&print=true`}
                             className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg border border-border bg-card dark:bg-[#1a1a1a] hover:bg-muted dark:hover:bg-[#262626] text-foreground text-xs font-semibold shadow-xs transition-all active:scale-95 cursor-pointer"
@@ -806,6 +847,56 @@ function AdminOrdersPageContent() {
                 >
                   <CheckCircle2 className="h-4 w-4 mr-1.5 shrink-0 !text-white" />
                   Save Total Amount
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Portal>
+      )}
+
+      {/* Revoke Cancellation Confirmation Modal */}
+      {orderToRevoke && (
+        <Portal>
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div
+              className="fixed inset-0 bg-black/60 backdrop-blur-xs animate-fade-in"
+              onClick={() => !revokeOrderMutation.isPending && setOrderToRevoke(null)}
+            />
+            <div className="relative w-full max-w-md rounded-3xl bg-card border border-border p-6 shadow-2xl space-y-4 animate-scale-in z-10">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-2xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                  <RotateCcw className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-base text-foreground">
+                    Undo Order Cancellation?
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    Order-{orderToRevoke.invoiceNumber} • {orderToRevoke.customerNameSnapshot}
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
+                Undoing this cancellation will check warehouse availability, re-reserve all cracker items from stock, and reactivate the order to <strong>New Order (NEW)</strong>.
+              </div>
+
+              <div className="flex items-center gap-3 pt-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setOrderToRevoke(null)}
+                  disabled={revokeOrderMutation.isPending}
+                  className="flex-1 h-10 rounded-full text-xs font-bold cursor-pointer"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => revokeOrderMutation.mutate(orderToRevoke.id)}
+                  disabled={revokeOrderMutation.isPending}
+                  className="flex-1 h-10 rounded-full font-bold text-xs bg-amber-600 hover:bg-amber-700 text-white cursor-pointer shadow-md transition-all border-0 disabled:opacity-50"
+                >
+                  <RotateCcw className="h-3.5 w-3.5 mr-1" />
+                  {revokeOrderMutation.isPending ? 'Re-reserving...' : 'Confirm Undo'}
                 </Button>
               </div>
             </div>

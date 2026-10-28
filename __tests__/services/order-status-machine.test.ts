@@ -3,6 +3,7 @@ import {
   isValidTransition,
   getNextStatuses,
   canCancel,
+  canRevokeCancellation,
   isTerminalStatus,
   validateTransition,
   getStatusTimestampField,
@@ -48,6 +49,11 @@ describe('Order Status State Machine', () => {
     expect(canCancel('DELIVERED')).toBe(false);
     expect(canCancel('COMPLETED')).toBe(false);
     expect(canCancel('CANCELLED')).toBe(false);
+
+    expect(canRevokeCancellation('CANCELLED')).toBe(true);
+    expect(canRevokeCancellation('NEW')).toBe(false);
+    expect(canRevokeCancellation('CONFIRMED')).toBe(false);
+    expect(canRevokeCancellation('COMPLETED')).toBe(false);
 
     expect(isTerminalStatus('COMPLETED')).toBe(true);
     expect(isTerminalStatus('CANCELLED')).toBe(true);

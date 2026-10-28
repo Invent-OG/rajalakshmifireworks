@@ -424,3 +424,132 @@ export async function restoreInventoryForOrder(orderId: number, cancelledBy: str
     });
   });
 }
+
+/**
+ * Revoke cancellation for an order: re-checks product stock, re-reserves inventory,
+ * and restores order status to active (NEW or CONFIRMED).
+ */
+export async function revokeCancelledOrder({
+  orderId,
+  revokedBy,
+  targetStatus,
+  note,
+}: {
+  orderId: number;
+  revokedBy: string;
+  targetStatus?: OrderStatus;
+  note?: string;
+}): Promise<{ orderId: number; targetStatus: OrderStatus }> {
+  return await db.transaction(async (tx) => {
+    // 1. Fetch order with items
+    const order = await tx.query.orders.findFirst({
+      where: eq(orders.id, orderId),
+      with: {
+        items: true,
+      },
+    });
+
+    if (!order) {
+      throw new ValidationError('Order not found');
+    }
+
+    if (order.orderStatus !== 'CANCELLED') {
+      throw new ValidationError('Only cancelled orders can be revoked.');
+    }
+
+    // 2. Validate and resolve target status
+    const resolvedTargetStatus: OrderStatus =
+      targetStatus || (order.paymentStatus === 'PAID' ? 'CONFIRMED' : 'NEW');
+
+    if (resolvedTargetStatus !== 'NEW' && resolvedTargetStatus !== 'CONFIRMED') {
+      throw new ValidationError(
+        'Invalid target status. Orders can only be restored to NEW or CONFIRMED.'
+      );
+    }
+
+    const now = new Date();
+
+    // 3. Pre-check stock availability for all items before applying any changes
+    for (const item of order.items) {
+      const product = await tx.query.products.findFirst({
+        where: eq(products.id, item.productId),
+      });
+
+      if (!product) {
+        throw new ValidationError(
+          `Product "${item.productNameSnapshot}" no longer exists in catalog.`
+        );
+      }
+
+      if (product.stockQuantity < item.quantity) {
+        throw new InsufficientStockError(product.name, product.stockQuantity);
+      }
+    }
+
+    // 4. Re-reserve stock and record inventory transactions
+    for (const item of order.items) {
+      const product = await tx.query.products.findFirst({
+        where: eq(products.id, item.productId),
+      });
+      if (!product) continue;
+
+      const newStock = product.stockQuantity - item.quantity;
+
+      await tx
+        .update(products)
+        .set({
+          stockQuantity: newStock,
+          updatedAt: now,
+        })
+        .where(eq(products.id, item.productId));
+
+      await tx.insert(inventoryTransactions).values({
+        productId: item.productId,
+        type: 'ORDER_RESERVED',
+        quantityChange: -item.quantity,
+        quantityAfter: newStock,
+        referenceId: order.id,
+        referenceType: 'order',
+        note: `Cancellation revoked for order #${order.invoiceNumber} by ${revokedBy}`,
+        performedBy: revokedBy,
+      });
+    }
+
+    // 5. Update order record
+    const updatePayload: Record<string, unknown> = {
+      orderStatus: resolvedTargetStatus,
+      cancelledAt: null,
+      updatedAt: now,
+    };
+
+    if (resolvedTargetStatus === 'CONFIRMED' && !order.confirmedAt) {
+      updatePayload.confirmedAt = now;
+    }
+
+    await tx.update(orders).set(updatePayload).where(eq(orders.id, orderId));
+
+    // 6. Record status history audit
+    await tx.insert(orderStatusHistory).values({
+      orderId: order.id,
+      oldStatus: 'CANCELLED',
+      newStatus: resolvedTargetStatus,
+      changedBy: revokedBy,
+      note:
+        note ||
+        `Order cancellation revoked by ${revokedBy}. Warehouse stock re-reserved.`,
+    });
+
+    logger.info('order.revoke_cancellation', 'Order cancellation revoked successfully', {
+      orderId: order.id,
+      invoiceNumber: order.invoiceNumber,
+      targetStatus: resolvedTargetStatus,
+      revokedBy,
+    });
+
+    return {
+      orderId: order.id,
+      targetStatus: resolvedTargetStatus,
+    };
+  });
+}
+

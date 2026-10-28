@@ -123,5 +123,51 @@ describe('AdminOrderDetailPage Component', () => {
     expect(html).toContain('delivery-partner-section');
     expect(html).toContain('Select Active Delivery Partner');
   });
+
+  it('renders revoke cancellation action button when viewing a cancelled order', () => {
+    const cancelledOrder = {
+      id: 1003,
+      invoiceNumber: 'FW-20261002-1003',
+      orderStatus: 'CANCELLED',
+      paymentStatus: 'PENDING',
+      fulfillmentType: 'DELIVERY',
+      subtotal: '1500.00',
+      discountAmount: '0.00',
+      deliveryCharge: '50.00',
+      totalAmount: '1550.00',
+      customerNameSnapshot: 'Karthik',
+      customerMobileSnapshot: '9876543299',
+      addressSnapshot: null,
+      placedAt: '2026-10-02T10:00:00.000Z',
+      items: [
+        {
+          id: 1,
+          productId: 10,
+          productNameSnapshot: '10cm Electric Sparklers',
+          sellingPriceSnapshot: '200',
+          mrpSnapshot: '300',
+          quantity: 2,
+          lineTotal: '400',
+        },
+      ],
+      statusHistory: [
+        {
+          id: 1,
+          oldStatus: 'NEW',
+          newStatus: 'CANCELLED',
+          note: 'Cancelled by admin',
+          createdAt: '2026-10-02T10:05:00.000Z',
+          changedBy: 'admin',
+        },
+      ],
+      whatsappMessages: [],
+    };
+
+    sharedQueryClient.setQueryData(queryKeys.admin.orders.detail(1003), { order: cancelledOrder });
+
+    const html = renderToString(<AdminOrderDetailPage params={{ id: '1003' }} />);
+    expect(html).toContain('Order Cancelled');
+    expect(html).toContain('Undo Cancellation');
+  });
 });
 

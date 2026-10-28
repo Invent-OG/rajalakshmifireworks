@@ -14,7 +14,7 @@ import {
 import { eq, desc } from 'drizzle-orm';
 import { getSession } from '@/lib/auth/session';
 import { validateTransition, getStatusTimestampField } from '@/lib/services/order-status-machine';
-import { restoreInventoryForOrder } from '@/lib/services/order-service';
+import { restoreInventoryForOrder, revokeCancelledOrder } from '@/lib/services/order-service';
 import { whatsAppService } from '@/lib/whatsapp/service';
 import type { WhatsAppMessageType } from '@/lib/whatsapp/types';
 import { logger } from '@/lib/utils/logger';
@@ -101,6 +101,77 @@ async function _PATCH(
       return Response.json({ message: 'Order not found' }, { status: 404 });
     }
 
+    const currentStatus = order.orderStatus as OrderStatus;
+    const fulfillmentType = order.fulfillmentType as FulfillmentType;
+
+    // Handle Undoing / Revoking Cancelled Order Action
+    if (
+      body.action === 'UNDO_CANCELLATION' ||
+      body.action === 'REVOKE_CANCELLATION' ||
+      body.undoCancellation === true ||
+      body.revokeCancellation === true
+    ) {
+      if (currentStatus !== 'CANCELLED') {
+        return Response.json(
+          { message: 'Only cancelled orders can be undone.' },
+          { status: 400 }
+        );
+      }
+
+      try {
+        const result = await revokeCancelledOrder({
+          orderId,
+          revokedBy: session.email,
+          targetStatus: body.targetStatus,
+          note: body.note,
+        });
+
+        if (result.targetStatus === 'CONFIRMED') {
+          whatsAppService.sendOrderNotification(orderId, 'ORDER_CONFIRMED').catch((err) => {
+            logger.error('admin.orders.status', 'Background WhatsApp dispatch failed on revoke confirmed', {
+              orderId,
+              error: (err as Error).message,
+            });
+          });
+        }
+
+        const updatedOrder = await db.query.orders.findFirst({
+          where: eq(orders.id, orderId),
+          with: {
+            items: true,
+            customer: true,
+            state: true,
+            city: true,
+            deliveryPartner: true,
+            deliveryAssignments: {
+              orderBy: [desc(orderDeliveryAssignments.createdAt)],
+              with: {
+                deliveryPartner: true,
+              },
+            },
+            statusHistory: {
+              orderBy: [desc(orderStatusHistory.createdAt)],
+            },
+            whatsappMessages: {
+              orderBy: [desc(whatsappMessages.createdAt)],
+            },
+          },
+        });
+
+        return Response.json({
+          success: true,
+          message: 'Order cancellation undone successfully',
+          order: updatedOrder,
+          newStatus: result.targetStatus,
+        });
+      } catch (err: any) {
+        return Response.json(
+          { message: err.message || 'Failed to undo cancelled order' },
+          { status: 400 }
+        );
+      }
+    }
+
     const now = new Date();
     const updateData: Record<string, unknown> = {
       updatedAt: now,
@@ -108,8 +179,6 @@ async function _PATCH(
 
     let statusChanged = false;
     let paymentChanged = false;
-    const currentStatus = order.orderStatus as OrderStatus;
-    const fulfillmentType = order.fulfillmentType as FulfillmentType;
     const newStatus = body.newStatus as OrderStatus | undefined;
 
     // Handle order status transition
